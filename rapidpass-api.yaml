@@ -5,7 +5,6 @@ info:
   version: 1.0.0
 servers:
   - url: 'https://api.rapidpass.com'
-base
 tags:
   - name: service-owner
     description: Everything about Service Owners resources
@@ -13,6 +12,8 @@ tags:
 paths:
   /service-owners:
     post:
+      tags:
+        - service-owner
       summary: Register data of the Service Owners
       operationId: registerServiceOwners
       parameters:
@@ -44,6 +45,8 @@ paths:
 
   /service-owners/{servceOwnerId}/vehicle-pass:
     post:
+      tags:
+        - service-owner
       summary: Registers Service Owners vehicle pass request
       operationId: registerVehiclePass
       parameters:
@@ -94,7 +97,7 @@ components:
       type: object
       properties:
         id:
-
+          $ref: '#/components/schemas/PrimaryKey'
         name:
           type: string
           description: Name of the Service Owner
@@ -116,14 +119,14 @@ components:
           $ref: '#/components/schemas/Address'
         origin:
           $ref: '#/components/schemas/Address'
-        vehicle:
-          $ref: '#/components/schemas/Vehicle'
-        checkpoints:
-          $ref: '#/components/schemas/CheckpointCollection'
+        vehicles:
+          $ref: '#/components/schemas/VehicleCollection'
         accessType:
           $ref: '#/components/schemas/AccessType'
         documents:
           $ref: '#/components/schemas/DocumentCollection'
+      xml:
+        name: service-owner
 
     Address:
       type: object
@@ -163,9 +166,20 @@ components:
       xml:
         name: Country
 
+    VehicleCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/Vehicle'
+      xml:
+       name: vehicles
+
     Vehicle:
       type: object
       properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        serviceOwnerId:
+          $ref: '#/components/schemas/PrimaryKey'
         brand:
           type: string
           description: Brand of the vehicle
@@ -185,6 +199,8 @@ components:
         photo:
           type: string
           description: Base64 image format
+        checkpoints:
+          $ref: '#/components/schemas/CheckpointCollection'
 
       xml:
         name: vehicle
@@ -201,7 +217,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format:
           description: Record identifier of the Checkpoint
           example: 123455sfae2342
 
@@ -239,6 +256,7 @@ components:
         - M: Medical
         - B: Basic Service
         - P: BPO
+        - V: VIP
         - O: Others
 
     DocumentCollection:
@@ -320,11 +338,117 @@ components:
       xml:
         name: link
 
+    PrimaryKey:
+      type: integer
+      format: int64
+      description: Primary Key identifier of the resource
+      example: 223234234
+
     VehiclePass:
       type: object
       properties:
         id:
+          $ref: '#/components/schemas/PrimaryKey'
+
+        accessType:
+          $ref: '#/components/schemas/AccessType'
+        effectivityDate:
+          type: string
+          format: date
+          description: Effective date that the pass is active. Minimum is today + 1
+          example: 2020-04-01
+        duration:
           type: integer
           format: int32
-          description: Primary key of the Vehicle Pass
-          
+          description: Duration in hours that the pass can be active relative to its effectivity date
+
+        authorizedDriver:
+          $ref: '#/components/schemas/VehicleDriver'
+        additionalCrewMembers:
+          $ref: '#/components/schemas/VehicleCrewCollection'
+
+      xml:
+        name: vehicle-pass
+
+    VehicleDriver:
+      allOf:
+        - $ref: '#/components/schemas/ExpressPassHolder'
+      type: object
+      properties:
+        driversLicenseNo:
+          type: string
+          description: Driver's License Number
+        driversLicenseValidFrom:
+          type: string
+          format: date
+          description: Validity of the driver's license
+        driversLicenseValidUntil:
+          type: string
+          format: date
+          description: Validity of the driver's license
+      xml:
+        name: vehicle-driver
+
+    VehicleCrewCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/ExpressPassHolder'
+      xml:
+        name: vehicle-crew
+
+    ExpressPassHolder:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        firstName:
+          type: string
+          description: Firstname of the express pass holder
+          example: Joana
+        lastName:
+          type: string
+          description: Lastname of the express pass holder
+          example: Dimaunahan
+        emailAddress:
+          type: string
+          format: email
+          description: Email of the express pass holder.
+        mobilePhoneNumber:
+          type: string
+          description: Mobile phone number
+        company:
+          type: string
+          description: Company Name
+        workCategory:
+          $ref: '#/components/schemas/WorkCategory'
+        identificationCardNumber:
+          type: string
+          description: ID number presented
+          example: 95-001
+        identificationcardType:
+          type: string
+          description: Type of the ID
+          example: Company ID
+        qrCode:
+          type: string
+          description: QR Code generated for the Express pass holder
+        address:
+          $ref: '#/components/schemas/Address'
+        documentsPresented:
+          $ref: '#/components/schemas/DocumentCollection'
+      xml:
+       name: express-pass-holder
+
+    WorkCategory:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        categoryName:
+          type: string
+          description: Work category name clearly indicating the type of work done.
+        description:
+          type: string
+          description: More detailed description of the work category
+
+
