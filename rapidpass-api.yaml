@@ -1,0 +1,330 @@
+openapi: 3.0.1
+info:
+  title: Devcon RapidPass
+  description: Api Documentation for the Rapid Pass API.
+  version: 1.0.0
+servers:
+  - url: 'https://api.rapidpass.com'
+base
+tags:
+  - name: service-owner
+    description: Everything about Service Owners resources
+
+paths:
+  /service-owners:
+    post:
+      summary: Register data of the Service Owners
+      operationId: registerServiceOwners
+      parameters:
+        - name: serviceOwners
+          description: An array of Service Owners to be saved
+          required: true
+          in: body
+          schema:
+            $ref: '#/components/schemas/ServiceOwnersCollection'
+      responses:
+        '201':
+          description: Data is saved.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /service-owners/{servceOwnerId}/vehicle-pass:
+    post:
+      summary: Registers Service Owners vehicle pass request
+      operationId: registerVehiclePass
+      parameters:
+        - name: serviceOwnerId
+          in: path
+          schema:
+            type: integer
+            format: int32
+            description: service owners primary key
+      requestBody:
+        description: An array of vehicle pass request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehiclePass'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/VehiclePass'
+        required: true
+      responses:
+        '201':
+          description: Vehicle Pass is registered. Returns link to registered vehicle pass request.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ServiceOwnersCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/ServiceOwner'
+
+    ServiceOwner:
+      type: object
+      properties:
+        id:
+
+        name:
+          type: string
+          description: Name of the Service Owner
+          example: Juan Dela Cruz
+        email:
+          type: string
+          format: email
+          description: Email of the Service Owner
+          example: juan.delacruz@rapidpass.com
+        contactNumber:
+          type: string
+          description: Phone number
+          example: +63 988 554 2222
+        company:
+          type: string
+          description: Company name of the Service Owner
+
+        destination:
+          $ref: '#/components/schemas/Address'
+        origin:
+          $ref: '#/components/schemas/Address'
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        checkpoints:
+          $ref: '#/components/schemas/CheckpointCollection'
+        accessType:
+          $ref: '#/components/schemas/AccessType'
+        documents:
+          $ref: '#/components/schemas/DocumentCollection'
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: street address
+          example: 1 out of nowhere
+        city:
+          type: string
+          description: city
+          example: sin city
+        state:
+          type: string
+          description: state
+          example: state of the nation
+        zip:
+          type: string
+          description: zip code
+          example: 12343D
+        country:
+          $ref: '#/components/schemas/Country'
+      xml:
+        name: Address
+
+    Country:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Country Code
+          example: PH
+        name:
+          type: string
+          description: Country name
+          example: Philippines
+      xml:
+        name: Country
+
+    Vehicle:
+      type: object
+      properties:
+        brand:
+          type: string
+          description: Brand of the vehicle
+        model:
+          type: string
+          description: Model of the vehicle
+          example: CX-3 AWD 2018
+        plateNumber:
+          type: string
+          description: Plate number of the vehicle
+        orNumber:
+          type: string
+          description: Official Receipt of the vehicle registration
+        crNumber:
+          type: string
+          description: Certificate of Registration Number of the vehicle.
+        photo:
+          type: string
+          description: Base64 image format
+
+      xml:
+        name: vehicle
+
+    CheckpointCollection:
+      description: An array of Checkpoint
+      type: array
+      items:
+        $ref: '#/components/schemas/Checkpoint'
+      xml:
+        name: checkpoints
+
+    Checkpoint:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Record identifier of the Checkpoint
+          example: 123455sfae2342
+
+        name:
+          type: string
+          description: Name of the checkpoint
+          example: Alabang SLEX Checkpoint 01
+
+        address:
+          $ref: '#/components/schemas/Address'
+
+        location:
+          $ref: '#/components/schemas/Location'
+      xml:
+        name: checkpoint
+
+    Location:
+      type: object
+      properties:
+        longitude:
+          type: number
+          format: float
+          example: 121.003615
+
+        latitude:
+          type: number
+          format: float
+          example: 14.519780
+      xml:
+        name: location
+
+    AccessType:
+      type: string
+      enum:
+        - M: Medical
+        - B: Basic Service
+        - P: BPO
+        - O: Others
+
+    DocumentCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/Document'
+      xml:
+        name: documents
+
+    Document:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the document presented
+          example: Certificate of Vehicle Registration (CR)
+        image:
+          type: string
+          description: Base64 encoded image of the document
+      xml:
+        name: document
+
+    ErrorResponse:
+      type: object
+      properties:
+        errorKey:
+          type: string
+          description: error key that can be used in error bundle message
+          example: invalid.data
+        errorMessage:
+          type: string
+          description: user readable error message.
+          example: Invalid data
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+      xml:
+        name: error-response
+
+    FieldError:
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: field or attribute name in error.
+          example: address.street
+        fieldValue:
+          type: string
+          description: value of the field that is causing error
+          example: nobody street
+        fieldErrorKey:
+          type: string
+          description: bundle error key that can be used by UI to display the proper
+            error
+          example: invalid.address.street
+        fieldErrorMessage:
+          type: string
+          description: User readable error message specific to the field
+          example: Invalid street in address
+      xml:
+        name: field-error
+
+    LinkCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/Link'
+      xml:
+        name: links
+
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: /{resource} . . .
+        templated:
+          type: boolean
+      xml:
+        name: link
+
+    VehiclePass:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Primary key of the Vehicle Pass
+          
