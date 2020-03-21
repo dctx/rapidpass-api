@@ -433,6 +433,14 @@ components:
           $ref: '#/components/schemas/Address'
         documentsPresented:
           $ref: '#/components/schemas/DocumentCollection'
+        status:
+          description: Rapid Pass Status
+          type: string
+          enum:
+            - F: For Review
+            - A: Approved
+            - D: Denied
+            - R: Revoked
         approval:
           $ref: '#/components/schemas/RapidPassApproval'
       xml:
