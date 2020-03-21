@@ -353,15 +353,8 @@ components:
 
         accessType:
           $ref: '#/components/schemas/AccessType'
-        effectivityDate:
-          type: string
-          format: date
-          description: Effective date that the pass is active. Minimum is today + 1
-          example: 2020-04-01
-        duration:
-          type: integer
-          format: int32
-          description: Duration in hours that the pass can be active relative to its effectivity date
+        rapidPassApproval:
+          $ref: '#/components/schemas/RapidPassApproval'
 
         authorizedDriver:
           $ref: '#/components/schemas/VehicleDriver'
@@ -392,6 +385,7 @@ components:
         name: vehicle-driver
 
     VehicleCrewCollection:
+      description: A group of individuals riding on the vehicle who are Rapid Pass holder
       type: array
       items:
         $ref: '#/components/schemas/RapidPassHolder'
@@ -406,16 +400,16 @@ components:
           $ref: '#/components/schemas/PrimaryKey'
         firstName:
           type: string
-          description: Firstname of the express pass holder
+          description: Firstname of the rapid pass holder
           example: Joana
         lastName:
           type: string
-          description: Lastname of the express pass holder
+          description: Lastname of the rapid pass holder
           example: Dimaunahan
         emailAddress:
           type: string
           format: email
-          description: Email of the express pass holder.
+          description: Email of the rapid pass holder.
         mobilePhoneNumber:
           type: string
           description: Mobile phone number
@@ -439,8 +433,10 @@ components:
           $ref: '#/components/schemas/Address'
         documentsPresented:
           $ref: '#/components/schemas/DocumentCollection'
+        approval:
+          $ref: '#/components/schemas/RapidPassApproval'
       xml:
-       name: express-pass-holder
+       name: rapid-pass-holder
 
     WorkCategory:
       type: object
@@ -453,5 +449,50 @@ components:
         description:
           type: string
           description: More detailed description of the work category
+      xml:
+        name: work-category
+
+    ApprovingAuthority:
+      type: object
+      description: Approving authority details
+      properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        name:
+          type: string
+          description: Name of the approving person.
+          example: Lt. Col. Jane Dela Cruz
+
+        role:
+          type: string
+          description: Role or title of the approving person relative to the organizaton or task force.
+          example: Head of Infectious Disease Outbreak Control
+
+        organization:
+          type: string
+          description: Name of the approving organization or task force
+          example: AFP
+      xml:
+        name: approving-authority
+
+    RapidPassApproval:
+      type: object
+      description: Approval detail of the Rapid Pass
+      properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        effectivityDate:
+          type: string
+          format: date
+          description: Effective date that the pass is active. Minimum is today + 1
+          example: 2020-04-01
+        duration:
+          type: integer
+          format: int32
+          description: Duration in hours that the pass can be active relative to its effectivity date
+        approvingEntity:
+          $ref: '#/components/schemas/ApprovingAuthority'
+
+
 
 
