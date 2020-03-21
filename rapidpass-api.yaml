@@ -7,14 +7,16 @@ servers:
   - url: 'https://api.rapidpass.com'
 tags:
   - name: service-owner
-    description: Everything about Service Owners resources
+    description: API for managing Service Owners resources
+  - name: individual
+    description: API for managing individuals resources
 
 paths:
   /service-owners/register:
     post:
       tags:
         - service-owner
-      summary: Register data of the Service Owners
+      summary: Register one or more data of the Service Owners
       operationId: registerServiceOwners
       parameters:
         - name: serviceOwners
@@ -61,14 +63,49 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VehiclePass'
+              $ref: '#/components/schemas/VehicleRapidPass'
           application/xml:
             schema:
-              $ref: '#/components/schemas/VehiclePass'
+              $ref: '#/components/schemas/VehicleRapidPass'
         required: true
       responses:
         '201':
           description: Vehicle Pass is registered. Returns link to registered vehicle pass request.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /individuals/register:
+    post:
+      summary: Register one or more individuals
+      tags:
+        - individual
+      requestBody:
+        description: An array of containing individual registration request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndividualRapidPassCollection'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/IndividualRapidPassCollection'
+        required: true
+      responses:
+        '201':
+          description: Individual Pass is registered. Returns links to registered individual pass data.
           content:
             application/xml:
               schema:
@@ -94,31 +131,10 @@ components:
         $ref: '#/components/schemas/ServiceOwner'
 
     ServiceOwner:
+      allOf:
+        - $ref: '#/components/schemas/RapidPassUser'
       type: object
       properties:
-        id:
-          $ref: '#/components/schemas/PrimaryKey'
-        name:
-          type: string
-          description: Name of the Service Owner
-          example: Juan Dela Cruz
-        email:
-          type: string
-          format: email
-          description: Email of the Service Owner
-          example: juan.delacruz@rapidpass.com
-        contactNumber:
-          type: string
-          description: Phone number
-          example: +63 988 554 2222
-        company:
-          type: string
-          description: Company name of the Service Owner
-
-        destination:
-          $ref: '#/components/schemas/Address'
-        origin:
-          $ref: '#/components/schemas/Address'
         vehicles:
           $ref: '#/components/schemas/VehicleCollection'
         accessType:
@@ -127,6 +143,12 @@ components:
           $ref: '#/components/schemas/DocumentCollection'
       xml:
         name: service-owner
+
+    AddressCollection:
+      description: List of Addresses
+      type: array
+      items:
+        - $ref: '#/components/schemas/Address'
 
     Address:
       type: object
@@ -199,8 +221,6 @@ components:
         photo:
           type: string
           description: Base64 image format
-        checkpoints:
-          $ref: '#/components/schemas/CheckpointCollection'
 
       xml:
         name: vehicle
@@ -344,7 +364,7 @@ components:
       description: Primary Key identifier of the resource
       example: 223234234
 
-    VehiclePass:
+    VehicleRapidPass:
       description: Details about the vehicle applied for the Vehicle Rapid Pass.
       type: object
       properties:
@@ -352,12 +372,20 @@ components:
           $ref: '#/components/schemas/PrimaryKey'
         accessType:
           $ref: '#/components/schemas/AccessType'
-        rapidPassApproval:
-          $ref: '#/components/schemas/RapidPassApproval'
+        origin:
+          $ref: '#/components/schemas/Address'
+        destinations:
+          $ref: '#/components/schemas/Address'
+        checkpoints:
+          $ref: '#/components/schemas/CheckpointCollection'
         authorizedDriver:
           $ref: '#/components/schemas/VehicleDriver'
         additionalCrewMembers:
           $ref: '#/components/schemas/VehicleCrewCollection'
+        status:
+          $ref: '#/components/schemas/RapidPassStatus'
+        approval:
+          $ref: '#/components/schemas/RapidPassApproval'
 
       xml:
         name: vehicle-pass
@@ -365,7 +393,7 @@ components:
     VehicleDriver:
       description: An individual who applied for an Rapid Pass with a role of a driver. Additional data element is added.
       allOf:
-        - $ref: '#/components/schemas/RapidPassHolder'
+        - $ref: '#/components/schemas/IndividualRapidPass'
       type: object
       properties:
         driversLicenseNo:
@@ -386,33 +414,38 @@ components:
       description: A group of individuals riding on the vehicle who are Rapid Pass holder
       type: array
       items:
-        $ref: '#/components/schemas/RapidPassHolder'
+        $ref: '#/components/schemas/IndividualRapidPass'
       xml:
         name: vehicle-crew
 
-    RapidPassHolder:
+    IndividualRapidPassCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/IndividualRapidPass'
+
+    IndividualRapidPass:
       allOf:
         - $ref: '#/components/schemas/RapidPassUser'
       type: object
       description: Detail about the individual who applied for the Rapid Pass.
       properties:
-        qrCode:
-          type: string
-          description: QR Code generated for the Rapid Pass holder
+        accessType:
+          $ref: '#/components/schemas/AccessType'
+        origin:
+          $ref: '#/components/schemas/Address'
+        destinations:
+          $ref: '#/components/schemas/AddressCollection'
+        checkpoints:
+          $ref: '#/components/schemas/CheckpointCollection'
         status:
-          description: Rapid Pass Status
-          type: string
-          enum:
-            - F: For Review
-            - A: Approved
-            - D: Denied
-            - R: Revoked
+          $ref: '#/components/schemas/RapidPassStatus'
         approval:
           $ref: '#/components/schemas/RapidPassApproval'
       xml:
-       name: rapid-pass-holder
+       name: individual-rapid-pass
 
     WorkCategory:
+      description: Work Category
       type: object
       properties:
         id:
@@ -496,6 +529,8 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/PrimaryKey'
+        qrCode:
+          $ref: '#/components/schemas/QRCode'
         effectivityDate:
           type: string
           format: date
@@ -507,6 +542,21 @@ components:
           description: Duration in hours that the pass can be active relative to its effectivity date
         approvingEntity:
           $ref: '#/components/schemas/ApprovingAuthority'
+
+
+    RapidPassStatus:
+      type: string
+      description: Rapid Pass Status
+      enum:
+        - F: For Review
+        - A: Approved
+        - D: Denied
+        - R: Revoked
+
+    QRCode:
+      type: string
+      description: Base64 QR Code generated for the Rapid Pass holder
+
 
 
 
