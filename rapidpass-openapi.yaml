@@ -1376,7 +1376,3 @@ components:
           type: string
           description: A string containing a JSON Pointer value
       description: A JSONPatch document as defined by RFC 6902
-
-
-
-
