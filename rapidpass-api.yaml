@@ -252,7 +252,9 @@ components:
       enum:
         - M: Medical
         - B: Basic Service
-        - P: BPO
+        - P: Police / AFP
+        - C: Civillian Entry
+        - F: Freight and Logistics
         - V: VIP
         - O: Others
 
