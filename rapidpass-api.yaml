@@ -217,10 +217,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format:
-          description: Record identifier of the Checkpoint
-          example: 123455sfae2342
+          $ref: '#/components/schemas/PrimaryKey'
 
         name:
           type: string
