@@ -350,12 +350,10 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/PrimaryKey'
-
         accessType:
           $ref: '#/components/schemas/AccessType'
         rapidPassApproval:
           $ref: '#/components/schemas/RapidPassApproval'
-
         authorizedDriver:
           $ref: '#/components/schemas/VehicleDriver'
         additionalCrewMembers:
@@ -393,8 +391,44 @@ components:
         name: vehicle-crew
 
     RapidPassHolder:
+      allOf:
+        - $ref: '#/components/schemas/RapidPassUser'
       type: object
       description: Detail about the individual who applied for the Rapid Pass.
+      properties:
+        qrCode:
+          type: string
+          description: QR Code generated for the Rapid Pass holder
+        status:
+          description: Rapid Pass Status
+          type: string
+          enum:
+            - F: For Review
+            - A: Approved
+            - D: Denied
+            - R: Revoked
+        approval:
+          $ref: '#/components/schemas/RapidPassApproval'
+      xml:
+       name: rapid-pass-holder
+
+    WorkCategory:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        categoryName:
+          type: string
+          description: Work category name clearly indicating the type of work done.
+        description:
+          type: string
+          description: More detailed description of the work category
+      xml:
+        name: work-category
+
+    RapidPassUser:
+      type: object
+      description: Basic Data about the Rapid Pass user. This will be the base entity for all individuals who will use and have different roles in the Rapid Pass
       properties:
         id:
           $ref: '#/components/schemas/PrimaryKey'
@@ -426,41 +460,14 @@ components:
           type: string
           description: Type of the ID
           example: Company ID
-        qrCode:
-          type: string
-          description: QR Code generated for the Rapid Pass holder
         address:
           $ref: '#/components/schemas/Address'
         documentsPresented:
           $ref: '#/components/schemas/DocumentCollection'
-        status:
-          description: Rapid Pass Status
-          type: string
-          enum:
-            - F: For Review
-            - A: Approved
-            - D: Denied
-            - R: Revoked
-        approval:
-          $ref: '#/components/schemas/RapidPassApproval'
-      xml:
-       name: rapid-pass-holder
-
-    WorkCategory:
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/PrimaryKey'
-        categoryName:
-          type: string
-          description: Work category name clearly indicating the type of work done.
-        description:
-          type: string
-          description: More detailed description of the work category
-      xml:
-        name: work-category
 
     ApprovingAuthority:
+      allOf:
+        - $ref: '#/components/schemas/RapidPassUser'
       type: object
       description: Approving authority details
       properties:
