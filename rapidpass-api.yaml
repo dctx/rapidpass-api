@@ -267,6 +267,7 @@ components:
         name: documents
 
     Document:
+      description: Document that is submitted when applying for an Rapid Pass
       type: object
       properties:
         name:
@@ -345,6 +346,7 @@ components:
       example: 223234234
 
     VehiclePass:
+      description: Details about the vehicle applied for the Vehicle Rapid Pass.
       type: object
       properties:
         id:
@@ -371,8 +373,9 @@ components:
         name: vehicle-pass
 
     VehicleDriver:
+      description: An individual who applied for an Rapid Pass with a role of a driver. Additional data element is added.
       allOf:
-        - $ref: '#/components/schemas/ExpressPassHolder'
+        - $ref: '#/components/schemas/RapidPassHolder'
       type: object
       properties:
         driversLicenseNo:
@@ -392,12 +395,13 @@ components:
     VehicleCrewCollection:
       type: array
       items:
-        $ref: '#/components/schemas/ExpressPassHolder'
+        $ref: '#/components/schemas/RapidPassHolder'
       xml:
         name: vehicle-crew
 
-    ExpressPassHolder:
+    RapidPassHolder:
       type: object
+      description: Detail about the individual who applied for the Rapid Pass.
       properties:
         id:
           $ref: '#/components/schemas/PrimaryKey'
@@ -431,7 +435,7 @@ components:
           example: Company ID
         qrCode:
           type: string
-          description: QR Code generated for the Express pass holder
+          description: QR Code generated for the Rapid Pass holder
         address:
           $ref: '#/components/schemas/Address'
         documentsPresented:
