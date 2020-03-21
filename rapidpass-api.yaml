@@ -8,9 +8,12 @@ servers:
 tags:
   - name: service-owner
     description: API for managing Service Owners resources
-  - name: individual
-    description: API for managing individuals resources
-
+  - name: individual-pass
+    description: API for managing individual passes
+  - name: vehicle-pass
+    description: API for managing individual passes
+  - name: rapidpass-user
+    description: API for managing rapidpass-user data. Generic data across individual pass and service owner
 paths:
   /service-owners/register:
     post:
@@ -295,32 +298,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /service-owners/{servceOwnerId}/vehicles/requestPass:
+  /rapidpass-users/{userID}/addDocuments:
     post:
       tags:
-        - service-owner
-      summary: Registers Service Owners vehicle pass request
-      operationId: registerVehiclesPass
+        - rapidpass-user
+      summary: Add one or more supporting document for the specified user id
+      operationId: addUserDocuments
       parameters:
-        - name: serviceOwnerId
+        - name: userID
           in: path
           schema:
             type: integer
-            format: int32
-            description: service owners primary key
+            format: int64
+          description: ID of the user which can be service owner, authority, or individual ID
       requestBody:
-        description: Vechicle Rapid Pass Registration Request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VehicleRapidPass'
+              $ref: '#/components/schemas/DocumentCollection'
           application/xml:
             schema:
-              $ref: '#/components/schemas/VehicleRapidPass'
-        required: true
+              $ref: '#/components/schemas/DocumentCollection'
       responses:
         '201':
-          description: Vehicle Pass is registered. Returns link to registered vehicle pass request.
+          description: Data is saved. Returns links to Documents added
           content:
             application/xml:
               schema:
@@ -328,8 +329,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LinkCollection'
-        '404':
-          description: Vehicle or Service Owner not found
         '500':
           description: Something went wrong with the request
           content:
@@ -340,14 +339,147 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /individuals/requestPass:
-    post:
-      summary: Register one or more individuals
+  /rapidpass-users/{userID}/documents:
+    get:
       tags:
-        - individual
-      operationId: registerIndividualPasses
+        - rapidpass-user
+      summary: Get all the documents of the user
+      operationId: retrieveUserDocuments
+      parameters:
+        - name: serviceOwnerId
+          description: ID of the user
+          in: path
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Documents found
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DocumentCollection'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentCollection'
+        '404':
+          description: User not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rapidpass-users/{userID}/documents/{documentId}:
+    parameters:
+      - name: userID
+        description: ID of the user
+        in: path
+        schema:
+          type: integer
+          format: int64
+      - name: documentId
+        description: ID of the document to be retrieved
+        in: path
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags:
+        - rapidpass-user
+      summary: Retrieve document owned by the user
+      operationId: retrieveUserDocument
+      responses:
+        '200':
+          description: Returns found document
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Document'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          description: Document not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - rapidpass-user
+      summary: Update user document
+      operationId: updateUserDocument
       requestBody:
-        description: An array of containing individuals passes  to be registered
+        description: Document update
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Document'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
+      responses:
+        '200':
+          description: Data is saved. Returns links to Document updated
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Link'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        '404':
+          description: Document not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - rapidpass-user
+      summary: Delete delete document
+      operationId: deleteUserDocument
+      responses:
+        '202':
+          description: Data is deleted
+        '404':
+          description: Document not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /individual-passes/requestPass:
+    post:
+      summary: Register Request Passes of one or more individuals
+      tags:
+        - individual-pass
+      operationId: registerIndividualPassRequests
+      requestBody:
+        description: An array of containing individuals passes to be registered
         content:
           application/json:
             schema:
@@ -376,14 +508,75 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /individuals/{individualId}/updatePass:
-    put:
-      summary: Update Individual Pass
+  /individual-passes/{individualPassId}:
+    get:
+      summary: Retrieve an individual Pass
       tags:
-        - individual
+        - individual-pass
+      operationId: retrieveIndividualPass
+      parameters:
+        - name: individualPassId
+          in: path
+          schema:
+            type: integer
+            format: int32
+            description: Individual pass' ID
+      responses:
+        '200':
+          description: Individual Pass found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualRapidPass'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/IndividualRapidPass'
+        '404':
+          description: Individual Pass Owner not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete an Individual Pass.
+      tags:
+        - individual-pass
+      operationId: deleteIndividualPass
+      parameters:
+        - name: individualPassId
+          in: path
+          schema:
+            type: integer
+            format: int32
+            description: Individual pass' ID
+      responses:
+        '202':
+          description: Individual Pass is deleted.
+        '404':
+          description: Individual Pass Owner not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /individual-passes/{individualPassId}/updatePass:
+    put:
+      summary: Update Individual Pass. Can update only the data but not the approval status.
+      tags:
+        - individual-pass
       operationId: updateIndividualPass
       parameters:
-        - name: individualId
+        - name: individualPassId
           in: path
           schema:
             type: integer
@@ -422,7 +615,7 @@ paths:
     patch:
       summary: Update Partial information about an Individual Pass
       tags:
-        - individual
+        - individual-pass
       operationId: patchIndividualPass
       parameters:
         - name: individualId
@@ -461,6 +654,221 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /individual-passes/{individualPassId}/updatePassRequestStatus:
+    post:
+      summary: Approve Individual Pass
+      tags:
+        - individual-pass
+      operationId: approveIndividualPass
+      parameters:
+        - name: individualPassId
+          in: path
+          schema:
+            type: integer
+            format: int32
+            description: Individual pass' ID
+      requestBody:
+        required: true
+        description: Rapid Pass Status Update containing the status and the approving authority
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RapidPassStatusUpdate'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RapidPassStatusUpdate'
+      responses:
+        '202':
+          description: Individual Pass is Approved. Returns Approved Individual Pass
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/IndividualRapidPass'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualRapidPass'
+        '401':
+          description: Authorizing person is not allowed to approve
+        '404':
+          description: Indivdual Pass Request not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /vehicle-passes/requestPass:
+    post:
+      tags:
+        - vehicle-pass
+      summary: Registers Service Owners vehicle pass requestS
+      operationId: registerVehiclesPassRequest
+      requestBody:
+        description: Vechicle Rapid Pass Registration Request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleRapidPassRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/VehicleRapidPassRequest'
+        required: true
+      responses:
+        '201':
+          description: Vehicle Passes registered. Returns link to registered vehicle pass request.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCollection'
+        '404':
+          description: Vehicle not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /vehicle-passes/{vehiclePassId}/updatePass:
+    parameters:
+      - name: vehiclePassId
+        in: path
+        schema:
+          type: integer
+          format: int32
+          description: Vehicle Pass ID
+    put:
+      summary: Update Vehicle Pass. Can update only the data but not the approval status.
+      tags:
+        - vehicle-pass
+      operationId: updateVehiclePass
+      requestBody:
+        description: Vehicle pass data that will replace the old data. It also sets the status of the pass for Review
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleRapidPass'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/VehicleRapidPass'
+        required: true
+      responses:
+        '202':
+          description: Vehicle Pass is updated. Returns link to updated pass data.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Link'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        '404':
+          description: Vehicle not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      summary: Update Partial information about an Vechile Pass but not the approval status
+      tags:
+        - vehicle-pass
+      operationId: patchVehiclePass
+      requestBody:
+        description: Request to Patch the Vehicle Pass. It also changes the status of the Vehicle for Review
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/PatchRequest'
+        required: true
+      responses:
+        '202':
+          description: Individual Pass is updated. Returns link to updated pass data.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Link'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        '404':
+          description: Vehicle not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /vehicle-passes/{vehiclePassId}/updatePassRequestStatus:
+    post:
+      summary: Approve Individual Pass
+      tags:
+        - vehicle-pass
+      operationId: approveIndividualPass
+      parameters:
+        - name: individualId
+          in: path
+          schema:
+            type: integer
+            format: int32
+            description: Individual pass' ID
+      requestBody:
+        required: true
+        description: Rapid Pass Status Update containing the status and the approving authority
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RapidPassStatusUpdate'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RapidPassStatusUpdate'
+      responses:
+        '202':
+          description: Individual Pass is Approved. Returns Approved Individual Pass
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/IndividualRapidPass'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualRapidPass'
+        '401':
+          description: Authorizing person is not allowed to approve
+        '404':
+          description: Indivdual Pass Request not found
+        '500':
+          description: Something went wrong with the request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
 components:
   schemas:
     ServiceOwnersCollection:
@@ -473,10 +881,20 @@ components:
         - $ref: '#/components/schemas/RapidPassUser'
       type: object
       properties:
+        serviceAccessTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessType'
         vehicles:
-          $ref: '#/components/schemas/VehicleCollection'
-        documents:
-          $ref: '#/components/schemas/DocumentCollection'
+          description: Link to vehicle records
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        supportingBusinessDocuments:
+          description: Links to business documents
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
       xml:
         name: service-owner
 
@@ -556,8 +974,9 @@ components:
           description: Certificate of Registration Number of the vehicle.
         photo:
           type: string
-          description: Base64 image format
-
+          description: Base64 image stored to image/blob storage on posting of vehicle
+          example:
+            data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAJKADAAQAAAABAAAAJAAAAAAJxsHGAAACIUlEQVRYCe1X0VHDMAxtOf7pBngDskG9ASMQJoAN6AawQcMGZYMwAWWCZgOyAbxXrJ7rRrabpAcffXc6yZLes7BD2k4neTBou4EVzmbwNK67sEayhTXOuP50MVw/WNCeYRvY90hGLWpaWDYsOj9gYw2h6XAP7hUFp9cETpXnnjtMd9FkUiJeeuuu8A1JPg/HoEDzbYJwj3oV9qyQSJ2CDUkZa3JSutx7i0sJ4GderIVzFCh+DMhJYbe3P1CKxPoip2lIz8UQ8qm4JYS1O65QM7AUhG8TjQb1Cib9oS9RU4sNi5kQYZvZ36JPOHs+dmVNpniftrVGig2kcU6aPw+UOt7zCeWcED/Y/gv2Zqkxlf9O4PeVXAjPZhI26BMOfS282DNUoKmUxhE9NY2ml/pwXYL4BGs0gSDPL1t8C2swKNBUpAYi0ThjnAJPdRBiVzZIuC85NdA7hPnzZSxQi5pZqNHlP/n+8T8GNb8vN6aGgNo+r5aC75mUppVfcLHU+vi2Q69GTrQYb6Fd2bU0OD8L1scur0AINZg7gDZQgc4H100h/jsPBTVkKGpzjyhqVOUIxX915KTW13dpcu8ttBOSuvxFsh7DRzX9gV7G2K2nRi28qQTO81452DzIy/IVQSOLTG/Qd6f08p1UOVNafn8Mas+HVVl6gRxNbxHS/CsLa3+y7hqoiUyyjtS00ih6fI5amBw1RUtYX5QgNjDRozb3OMAPFqsUgzS7WrkAAAAASUVORK5CYII=
       xml:
         name: vehicle
 
@@ -623,16 +1042,22 @@ components:
         name: documents
 
     Document:
-      description: Document that is submitted when applying for an Rapid Pass
+      description: Document Image that is submitted when applying for an Rapid Pass
       type: object
       properties:
+        id:
+          $ref: '#/components/schemas/PrimaryKey'
+        ownerId:
+          $ref: '#/components/schemas/PrimaryKey'
         name:
           type: string
           description: Name of the document presented
-          example: Certificate of Vehicle Registration (CR)
+          example: Sample Dummy Document
         image:
           type: string
           description: Base64 encoded image of the document
+          example:
+            data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAJKADAAQAAAABAAAAJAAAAAAJxsHGAAACIUlEQVRYCe1X0VHDMAxtOf7pBngDskG9ASMQJoAN6AawQcMGZYMwAWWCZgOyAbxXrJ7rRrabpAcffXc6yZLes7BD2k4neTBou4EVzmbwNK67sEayhTXOuP50MVw/WNCeYRvY90hGLWpaWDYsOj9gYw2h6XAP7hUFp9cETpXnnjtMd9FkUiJeeuuu8A1JPg/HoEDzbYJwj3oV9qyQSJ2CDUkZa3JSutx7i0sJ4GderIVzFCh+DMhJYbe3P1CKxPoip2lIz8UQ8qm4JYS1O65QM7AUhG8TjQb1Cib9oS9RU4sNi5kQYZvZ36JPOHs+dmVNpniftrVGig2kcU6aPw+UOt7zCeWcED/Y/gv2Zqkxlf9O4PeVXAjPZhI26BMOfS282DNUoKmUxhE9NY2ml/pwXYL4BGs0gSDPL1t8C2swKNBUpAYi0ThjnAJPdRBiVzZIuC85NdA7hPnzZSxQi5pZqNHlP/n+8T8GNb8vN6aGgNo+r5aC75mUppVfcLHU+vi2Q69GTrQYb6Fd2bU0OD8L1scur0AINZg7gDZQgc4H100h/jsPBTVkKGpzjyhqVOUIxX915KTW13dpcu8ttBOSuvxFsh7DRzX9gV7G2K2nRi28qQTO81452DzIy/IVQSOLTG/Qd6f08p1UOVNafn8Mas+HVVl6gRxNbxHS/CsLa3+y7hqoiUyyjtS00ih6fI5amBw1RUtYX5QgNjDRozb3OMAPFqsUgzS7WrkAAAAASUVORK5CYII=
       xml:
         name: document
 
@@ -687,6 +1112,10 @@ components:
     Link:
       type: object
       properties:
+        name:
+          description: Name of the document or information in the link.
+          type: string
+          example: Supporting document
         href:
           type: string
           example: /{resource} . . .
@@ -700,6 +1129,21 @@ components:
       format: int64
       description: Primary Key identifier of the resource
       example: 223234234
+
+    VehicleRapidPassRequest:
+      description: Vehicle Pass Request from a Service Owner
+      type: object
+      properties:
+        serviceOwner:
+          $ref: '#/components/schemas/ServiceOwner'
+        vehicles:
+          $ref: '#/components/schemas/VehicleCollection'
+
+    VehicleRapidPassCollection:
+      description: Collection of Vehicle Rapid Passes
+      type: array
+      items:
+        $ref: '#/components/schemas/VehicleRapidPass'
 
     VehicleRapidPass:
       description: Details about the vehicle applied for the Vehicle Rapid Pass.
@@ -721,10 +1165,8 @@ components:
           $ref: '#/components/schemas/Vehicle'
         additionalCrewMembers:
           $ref: '#/components/schemas/VehicleCrewCollection'
-        status:
-          $ref: '#/components/schemas/RapidPassStatus'
-        approval:
-          $ref: '#/components/schemas/RapidPassApproval'
+        passRequestResult:
+          $ref: '#/components/schemas/RapidPassRequestResult'
 
       xml:
         name: vehicle-pass
@@ -776,10 +1218,8 @@ components:
           $ref: '#/components/schemas/AddressCollection'
         checkpoints:
           $ref: '#/components/schemas/CheckpointCollection'
-        status:
-          $ref: '#/components/schemas/RapidPassStatus'
-        approval:
-          $ref: '#/components/schemas/RapidPassApproval'
+        passRequestResult:
+          $ref: '#/components/schemas/RapidPassRequestResult'
       xml:
        name: individual-rapid-pass
 
@@ -841,11 +1281,11 @@ components:
         documentsPresented:
           $ref: '#/components/schemas/DocumentCollection'
 
-    ApprovingAuthority:
+    RapidPassAuthority:
       allOf:
         - $ref: '#/components/schemas/RapidPassUser'
       type: object
-      description: Approving authority details
+      description: Authority details
       properties:
         role:
           type: string
@@ -858,9 +1298,9 @@ components:
       xml:
         name: approving-authority
 
-    RapidPassApproval:
+    RapidPassRequestResult:
       type: object
-      description: Approval detail of the Rapid Pass
+      description: Approval result detail of the Rapid Pass
       properties:
         id:
           $ref: '#/components/schemas/PrimaryKey'
@@ -875,9 +1315,18 @@ components:
           type: integer
           format: int32
           description: Duration in hours that the pass can be active relative to its effectivity date
+        status:
+          $ref: '#/components/schemas/RapidPassStatus'
         approvingEntity:
-          $ref: '#/components/schemas/ApprovingAuthority'
+          $ref: '#/components/schemas/RapidPassAuthority'
 
+    RapidPassStatusUpdate:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/RapidPassStatus'
+        authority:
+          $ref: '#/components/schemas/RapidPassAuthority'
 
     RapidPassStatus:
       type: string
