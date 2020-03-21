@@ -10,7 +10,7 @@ tags:
     description: Everything about Service Owners resources
 
 paths:
-  /service-owners:
+  /service-owners/register:
     post:
       tags:
         - service-owner
@@ -43,7 +43,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /service-owners/{servceOwnerId}/vehicle-pass:
+  /service-owners/{servceOwnerId}/vehicle-pass/register:
     post:
       tags:
         - service-owner
