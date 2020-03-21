@@ -21,13 +21,14 @@ paths:
         - service-owner
       summary: Register one or more data of the Service Owners
       operationId: registerServiceOwners
-      parameters:
-        - name: serviceOwners
-          description: An array of Service Owners to be saved
-          required: true
-          in: body
-          schema:
-            $ref: '#/components/schemas/ServiceOwnersCollection'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceOwnersCollection'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ServiceOwnersCollection'
       responses:
         '201':
           description: Data is saved.
@@ -57,10 +58,19 @@ paths:
       parameters:
         - name: serviceOwnerId
           description: ID of the service owner whose vehicle will be added
+          in: path
           required: true
-          in: body
           schema:
-            $ref: '#/components/schemas/VehicleCollection'
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCollection'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/VehicleCollection'
       responses:
         '201':
           description: Data is saved. Returns links to Vehicles added
@@ -307,6 +317,7 @@ paths:
       parameters:
         - name: userID
           in: path
+          required: true
           schema:
             type: integer
             format: int64
@@ -346,9 +357,10 @@ paths:
       summary: Get all the documents of the user
       operationId: retrieveUserDocuments
       parameters:
-        - name: serviceOwnerId
+        - name: userID
           description: ID of the user
           in: path
+          required: true
           schema:
             type: integer
             format: int64
@@ -379,12 +391,14 @@ paths:
       - name: userID
         description: ID of the user
         in: path
+        required: true
         schema:
           type: integer
           format: int64
       - name: documentId
         description: ID of the document to be retrieved
         in: path
+        required: true
         schema:
           type: integer
           format: int64
@@ -509,18 +523,19 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /individual-passes/{individualPassId}:
+    parameters:
+      - name: individualPassId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          description: Individual pass' ID
     get:
       summary: Retrieve an individual Pass
       tags:
         - individual-pass
       operationId: retrieveIndividualPass
-      parameters:
-        - name: individualPassId
-          in: path
-          schema:
-            type: integer
-            format: int32
-            description: Individual pass' ID
       responses:
         '200':
           description: Individual Pass found
@@ -547,13 +562,6 @@ paths:
       tags:
         - individual-pass
       operationId: deleteIndividualPass
-      parameters:
-        - name: individualPassId
-          in: path
-          schema:
-            type: integer
-            format: int32
-            description: Individual pass' ID
       responses:
         '202':
           description: Individual Pass is deleted.
@@ -570,18 +578,19 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /individual-passes/{individualPassId}/updatePass:
+    parameters:
+      - name: individualPassId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          description: Individual pass' ID
     put:
       summary: Update Individual Pass. Can update only the data but not the approval status.
       tags:
         - individual-pass
       operationId: updateIndividualPass
-      parameters:
-        - name: individualPassId
-          in: path
-          schema:
-            type: integer
-            format: int32
-            description: Individual pass' ID
       requestBody:
         description: Individual pass data that will replace the old data. It also sets the status of the pass for Review
         content:
@@ -617,13 +626,6 @@ paths:
       tags:
         - individual-pass
       operationId: patchIndividualPass
-      parameters:
-        - name: individualId
-          in: path
-          schema:
-            type: integer
-            format: int32
-            description: Individual pass' ID
       requestBody:
         description: Request to Patch the Individual Pass
         content:
@@ -663,6 +665,7 @@ paths:
       parameters:
         - name: individualPassId
           in: path
+          required: true
           schema:
             type: integer
             format: int32
@@ -743,6 +746,7 @@ paths:
     parameters:
       - name: vehiclePassId
         in: path
+        required: true
         schema:
           type: integer
           format: int32
@@ -823,12 +827,13 @@ paths:
 
   /vehicle-passes/{vehiclePassId}/updatePassRequestStatus:
     post:
-      summary: Approve Individual Pass
+      summary: Approve Vehicle Pass
       tags:
         - vehicle-pass
-      operationId: approveIndividualPass
+      operationId: approveVehiclePass
       parameters:
-        - name: individualId
+        - name: vehiclePassId
+          required: true
           in: path
           schema:
             type: integer
@@ -899,10 +904,9 @@ components:
         name: service-owner
 
     AddressCollection:
-      description: List of Addresses
       type: array
       items:
-        - $ref: '#/components/schemas/Address'
+        $ref: '#/components/schemas/Address'
 
     Address:
       type: object
