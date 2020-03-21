@@ -190,7 +190,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /service-owners/{serviceOwnerId}/vehicles/{vehicleId}/update:
+  /service-owners/{serviceOwnerId}/vehicles/{vehicleId}/updateVehicle:
     put:
       tags:
         - service-owner
@@ -295,7 +295,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /service-owners/{servceOwnerId}/vehicle-pass/register:
+  /service-owners/{servceOwnerId}/vehicles/requestPass:
     post:
       tags:
         - service-owner
@@ -340,7 +340,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /individuals/registerPass:
+  /individuals/requestPass:
     post:
       summary: Register one or more individuals
       tags:
@@ -376,7 +376,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /individuals/{individualId}/update:
+  /individuals/{individualId}/updatePass:
     put:
       summary: Update Individual Pass
       tags:
