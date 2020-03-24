@@ -20,19 +20,52 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <swagger-definition-file>${project.basedir}/rapidpass-openapi.yaml</swagger-definition-file>
     </properties>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>io.swagger.codegen.v3</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>3.0.14</version>
+                <executions>
+                    <execution>
+                        <id>generate-server-side</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger-definition-file}</inputSpec>
+                            <language>spring</language>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
+                            <output>${project.basedir}/</output>
+                            <configOptions>
+                                <modelPackage>${project.groupId}.${project.artifactId}.models</modelPackage>
+                                <apiPackage>${project.groupId}.${project.artifactId}.controllers</apiPackage>
+                                <configPackage>${project.groupId}.${project.artifactId}.configurations</configPackage>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <java8>true</java8>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.2.5.RELEASE</version>
         </dependency>
 
         <!-- persistence -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>2.2.5.RELEASE</version>
         </dependency>
 
 
@@ -79,7 +112,11 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox-version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.joschi.jackson</groupId>
+            <artifactId>jackson-datatype-threetenbp</artifactId>
+            <version>2.6.4</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -140,42 +177,5 @@
 
         <!-- end of testing -->
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>io.swagger.codegen.v3</groupId>
-                <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>3.0.14</version>
-                <executions>
-                    <execution>
-                        <id>generate-server-side</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${swagger-definition-file}</inputSpec>
-                            <language>spring</language>
-                            <addCompileSourceRoot>false</addCompileSourceRoot>
-                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
-                            <output>${project.basedir}/</output>
-                            <configOptions>
-                                <modelPackage>${project.groupId}.${project.artifactId}.models</modelPackage>
-                                <apiPackage>${project.groupId}.${project.artifactId}.controllers</apiPackage>
-                                <configPackage>${project.groupId}.${project.artifactId}.configurations</configPackage>
-                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <java8>true</java8>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
