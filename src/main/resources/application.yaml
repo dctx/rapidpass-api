@@ -6,6 +6,7 @@ spring:
     date-format: com.devcon.rapidpass.utilities.RFC3339DateFormat
 #    default-property-inclusion: non_empty
 
+
 springfox:
   documentation:
     swagger:
