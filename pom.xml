@@ -112,11 +112,11 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox-version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.github.joschi.jackson</groupId>-->
-<!--            <artifactId>jackson-datatype-threetenbp</artifactId>-->
-<!--            <version>2.6.4</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.github.joschi.jackson</groupId>
+            <artifactId>jackson-datatype-threetenbp</artifactId>
+            <version>2.6.4</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -202,14 +202,6 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
             <version>2.3.2</version>
         </dependency>
-
-        <!-- my personal package dependencies -->
-        <dependency>
-            <groupId>com.ipilamoko</groupId>
-            <artifactId>ipilamoko-utils</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <!-- end of my personal package dependencies -->
 
         <!-- testing -->
         <dependency>
