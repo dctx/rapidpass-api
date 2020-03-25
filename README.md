@@ -26,7 +26,7 @@ To run the application:
 ```
 The API doc can be accessed via [http://localhost:8080](http://localhost:8080)
 
-Note: that this will use the default H2 database. To use postgres, pass the following flag: `-Drun.profile=docker-postgres`
+Note: that this will use the default H2 database. To use postgres, pass the following flag: `-Drun.profile=postgres`
 
 ## Packaging Application
 

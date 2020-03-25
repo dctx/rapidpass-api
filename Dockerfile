@@ -12,9 +12,9 @@ ADD mvnw mvnw
 RUN ./mvnw dependency:go-offline 
 # building jar. skipping test. this should have been done before building the image
 ADD src src
-RUN ./mvnw package -DskipTests && mv target/rapidpass-api-${VERSION}.jar target/rapidpass-api.jar
+RUN ./mvnw package -DskipTests && mv target/api-${VERSION}.jar target/api.jar
 
 # Just copy the Jar and run it. No extra stuff from maven. Should help with the image size
 FROM openjdk:8-jdk-alpine
-COPY --from=build /target/rapidpass-api.jar /rapidpass-api.jar
-ENTRYPOINT [ "java", "-jar", "/rapidpass-api.jar" ]
+COPY --from=build /target/api.jar /api.jar
+ENTRYPOINT [ "java", "-jar", "/api.jar", "--spring.profiles.active=docker" ] 
