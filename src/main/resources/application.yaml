@@ -3,7 +3,7 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
-    date-format: com.devcon.rapidpass.utilities.RFC3339DateFormat
+    date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
 #    default-property-inclusion: non_empty
 
 

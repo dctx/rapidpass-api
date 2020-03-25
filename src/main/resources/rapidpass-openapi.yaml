@@ -4,7 +4,7 @@ info:
   description: Api Documentation for the Rapid Pass API.
   version: 1.0.0
 servers:
-  - url: 'https://api.rapidpass.com'
+  - url: 'https://api.rapidpass.ph'
 tags:
   - name: service-owner
     description: API for managing Service Owners resources

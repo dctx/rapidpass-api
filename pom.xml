@@ -43,7 +43,6 @@
                             <language>spring</language>
                             <addCompileSourceRoot>false</addCompileSourceRoot>
                             <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
-                            <output>${project.basedir}/</output>
                             <configOptions>
                                 <modelPackage>${project.groupId}.${project.artifactId}.models</modelPackage>
                                 <apiPackage>${project.groupId}.${project.artifactId}.controllers</apiPackage>
