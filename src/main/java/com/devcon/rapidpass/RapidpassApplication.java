@@ -1,15 +1,42 @@
 package com.devcon.rapidpass;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-public class RapidpassApplication
+@EnableSwagger2
+@ComponentScan(basePackages = {
+    "com.devcon.rapidpass",
+    "com.devcon.rapidpass.controllers" ,
+    "com.devcon.rapidpass.configurations"
+})
+public class RapidpassApplication implements CommandLineRunner
 {
-
+    @Override
+    public void run(String... arg0) throws Exception {
+        if (arg0.length > 0 && arg0[0].equals("exitcode")) {
+            throw new RapidpassApplication.ExitException();
+        }
+    }
+    
     public static void main(String[] args)
     {
-        SpringApplication.run(RapidpassApplication.class, args);
+        new SpringApplication(RapidpassApplication.class).run(args);
+    }
+    
+    class ExitException extends RuntimeException implements ExitCodeGenerator
+    {
+        private static final long serialVersionUID = 1L;
+        
+        @Override
+        public int getExitCode() {
+            return 10;
+        }
+        
     }
 
 }
