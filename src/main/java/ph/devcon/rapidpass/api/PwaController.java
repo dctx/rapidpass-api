@@ -31,7 +31,7 @@ public class PwaController {
     private final PwaService pwaService;
 
     /**
-     * Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
+     * POST /api/v1/pwa/requestPass - Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
      *
      * @param rapidPassRequest RapidPass request payload
      * @return Status 201 if created.
@@ -50,7 +50,7 @@ public class PwaController {
     }
 
     /**
-     * GET /api/v1/pwa/requestPass Gets the status (and other info) of a request pass. Either {@code plateNum} or {@code mobileNum} MUST be passed.
+     * GET /api/v1/pwa/requestPass - Gets the status (and other info) of a request pass. Either {@code plateNum} or {@code mobileNum} MUST be passed.
      *
      * @param plateNum  vehicle plate number
      * @param mobileNum user mobile phone

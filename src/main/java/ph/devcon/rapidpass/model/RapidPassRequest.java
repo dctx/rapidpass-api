@@ -18,12 +18,13 @@ import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class RapidPassRequest {
     /**
-     * Backend only reference number
+     * Backend only reference number.
      */
     @NotNull
     @Builder.Default
     @EqualsAndHashCode.Exclude
-    private final String refNum = UUID.randomUUID().toString();
+    private String refNum = UUID.randomUUID().toString();
+
     @NotNull
     private RequestType passType;
     private String name;
@@ -34,6 +35,7 @@ public final class RapidPassRequest {
     private String company;
     private AccessType accessType;
     private String remarks;
+
     /**
      * The status of this request. Initially set to PENDING when built by builders.
      */
