@@ -9,7 +9,7 @@ ARG VERSION=0.0.1-SNAPSHOT
 ADD pom.xml pom.xml
 ADD .mvn .mvn
 ADD mvnw mvnw
-RUN ./mvnw dependency:go-offline 
+RUN chmod +x mvnw && ./mvnw dependency:go-offline 
 # building jar. skipping test. this should have been done before building the image
 ADD src src
 RUN ./mvnw package -DskipTests && mv target/api-${VERSION}.jar target/api.jar
