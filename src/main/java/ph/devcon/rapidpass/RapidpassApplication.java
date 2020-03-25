@@ -1,11 +1,17 @@
 package ph.devcon.rapidpass;
 
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import ph.devcon.rapidpass.services.email.EmailPayload;
+import ph.devcon.rapidpass.services.email.MailGunEmailService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.concurrent.ExecutionException;
 
 @SpringBootApplication
 @EnableSwagger2
@@ -17,7 +23,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class RapidpassApplication implements CommandLineRunner
 {
     @Override
-    public void run(String... arg0) throws Exception {
+    public void run(String... arg0) {
         if (arg0.length > 0 && arg0[0].equals("exitcode")) {
             throw new RapidpassApplication.ExitException();
         }
@@ -25,6 +31,17 @@ public class RapidpassApplication implements CommandLineRunner
     
     public static void main(String[] args)
     {
+        boolean TRY_SEND_EMAIL = false;
+        if (TRY_SEND_EMAIL) {
+            try {
+                JsonNode jsonNode = new MailGunEmailService(new EmailPayload()).send();
+                System.out.println("MailGun Response: ");
+                System.out.println(jsonNode);
+            } catch (UnirestException e) {
+                e.printStackTrace();
+            }
+        }
+
         new SpringApplication(RapidpassApplication.class).run(args);
     }
     
