@@ -20,6 +20,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <swagger-definition-file>${project.basedir}/src/main/resources/rapidpass-openapi.yaml</swagger-definition-file>
+        <itext.version>RELEASE</itext.version>
     </properties>
     <build>
         <plugins>
@@ -127,6 +128,13 @@
             <scope>runtime</scope>
             <version>1.4.200</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>${itext.version}</version>
+            <type>pom</type>
+         </dependency>      
 
         <!-- end of persistence -->
         <!-- swagger code gen dependencies -->
