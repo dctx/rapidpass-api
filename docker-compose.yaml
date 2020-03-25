@@ -1,0 +1,13 @@
+version: "3"
+services:
+  db:
+    image: postgres:12.2
+    restart: always
+    environment:
+      POSTGRES_USER: dctx
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rapidpass
+    ports:
+    - 5432:5432
+    volumes: 
+    - ./volumes/db:/var/lib/postgresql/data
