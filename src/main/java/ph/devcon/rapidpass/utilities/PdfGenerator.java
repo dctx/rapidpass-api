@@ -10,6 +10,8 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 
+import ph.devcon.rapidpass.api.models.ApprovedRapidPass;
+
 
 public class PdfGenerator {
 
@@ -57,7 +59,7 @@ public class PdfGenerator {
         document.close();
     }
 
-    public void generateVehiclePdf(String _qrcodePath)  {
+    public void generateVehiclePdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass ) {
 
         preparePdf(_qrcodePath);
 
@@ -67,22 +69,22 @@ public class PdfGenerator {
         vehicleId.setTextAlignment(TextAlignment.CENTER);
         vehicleId.setMarginTop(-50);
         vehicleId.setBold();
-        vehicleId.add("CONTROL NUMBER\n");
+        vehicleId.add(approvedRapidPass.getControlNumber() +"\n");
 
         //settings for person details
         Paragraph vehicleDetails = new Paragraph();
         vehicleDetails.setFontSize(20);
         vehicleDetails.setMarginLeft(70);
-        vehicleDetails.add("Access Type:\txxx\n" +
-                "Plate:\tPL4-T3X\n" +
-                "Driver:\tJuan Dela Kruz\n" +
-                "Origin:\tBalong Malalim");
+        vehicleDetails.add("Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
+                "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
+                "Plate:\t" + approvedRapidPass.getPlateNum() + "\n" +
+                "Name:\t" + approvedRapidPass.getName());
 
         writeToPdf(vehicleId, vehicleDetails);
 
     }
 
-    public void generateIndividualPdf(String _qrcodePath)  {
+    public void generateIndividualPdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass)  {
 
         preparePdf(_qrcodePath);
 
@@ -91,15 +93,16 @@ public class PdfGenerator {
         individualId.setFontSize(44);
         individualId.setTextAlignment(TextAlignment.CENTER);
         individualId.setBold();
-        individualId.add("CONTROL NUMBER\n");
+        individualId.add(approvedRapidPass.getControlNumber() + "\n");
 
         //settings for person details
         Paragraph vehicleDetails = new Paragraph();
         vehicleDetails.setFontSize(20);
         vehicleDetails.setMarginLeft(20);
-        vehicleDetails.add("Name:\tJuan Dela Kruz\n" +
-                "Access Type:\tX\n" +
-                "Valid Until: xxx-xx");
+        vehicleDetails.add("Name:\t" + approvedRapidPass.getName() + "\n" +
+                "Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
+                "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
+                "Company:\t" + approvedRapidPass.getCompany());
 
         writeToPdf(individualId, vehicleDetails);
 
