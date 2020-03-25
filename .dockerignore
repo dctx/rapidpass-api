@@ -32,3 +32,13 @@ build/
 
 ### Docker Compose
 /volumes
+
+### Others
+/target
+/.swagger-codegen
+.gitignore
+/swagger-codegen-ignore
+/docker-compose.yaml
+/Dockerfile
+/mvnw.cmd
+/README.md

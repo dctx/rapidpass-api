@@ -1,4 +1,4 @@
-package com.devcon.rapidpass;
+package ph.devcon.rapidpass;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
@@ -10,9 +10,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @ComponentScan(basePackages = {
-    "com.devcon.rapidpass",
-    "com.devcon.rapidpass.controllers" ,
-    "com.devcon.rapidpass.configurations"
+    "ph.devcon.rapidpass",
+    "ph.devcon.rapidpass_api.controllers" ,
+    "ph.devcon.rapidpass-api.configurations"
 })
 public class RapidpassApplication implements CommandLineRunner
 {
