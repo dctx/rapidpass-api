@@ -20,7 +20,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <swagger-definition-file>${project.basedir}/src/main/resources/rapidpass-openapi.yaml</swagger-definition-file>
-        <itext.version>RELEASE</itext.version>
+        <start-class>ph.devcon.rapidpass.RapidpassApplication</start-class>
     </properties>
     <build>
         <plugins>
