@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>aeacdab6-633e-4762-b670-a84c62ea90b9.SCHEMA:dctx-registry.public</OriginalElement>
+  <nodes>
+    <node x="1078.0" y="406.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.city</node>
+    <node x="515.0" y="730.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrant</node>
+    <node x="806.5" y="434.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.system_user_activity_log</node>
+    <node x="1081.5" y="0.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.region</node>
+    <node x="198.25" y="774.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar_user</node>
+    <node x="261.0" y="1637.5">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar_user_activity_log</node>
+    <node x="255.828125" y="2082.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.access_pass_log</node>
+    <node x="505.0" y="1450.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.access_pass</node>
+    <node x="1081.5" y="192.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.province</node>
+    <node x="804.0" y="0.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.system_user</node>
+    <node x="141.625" y="0.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar</node>
+    <node x="0.0" y="1637.0">aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.scanner_device</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.scanner_device" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar">
+      <point x="-60.25" y="-104.0" />
+      <point x="60.25" y="710.0" />
+      <point x="245.5" y="710.0" />
+      <point x="-34.625" y="335.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.city" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.province">
+      <point x="0.0" y="-82.0" />
+      <point x="0.0" y="82.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.access_pass_log" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.scanner_device">
+      <point x="-58.25" y="-126.0" />
+      <point x="314.078125" y="2057.0" />
+      <point x="120.5" y="2057.0" />
+      <point x="0.0" y="104.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar_user" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar">
+      <point x="0.0" y="-291.0" />
+      <point x="34.625" y="335.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.scanner_device" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar_user">
+      <point x="60.25" y="-104.0" />
+      <point x="180.75" y="1425.0" />
+      <point x="256.5" y="1425.0" />
+      <point x="-58.25" y="291.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar">
+      <point x="-103.875" y="335.0" />
+      <point x="176.25" y="690.0" />
+      <point x="121.625" y="690.0" />
+      <point x="121.625" y="335.0" />
+      <point x="-138.5" y="-0.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.access_pass_log" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.access_pass">
+      <point x="58.25" y="-126.0" />
+      <point x="430.578125" y="2057.0" />
+      <point x="632.0" y="2057.0" />
+      <point x="0.0" y="291.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar_user_activity_log" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar_user">
+      <point x="0.0" y="-103.5" />
+      <point x="58.25" y="291.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrant" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrar">
+      <point x="0.0" y="-335.0" />
+      <point x="632.0" y="710.0" />
+      <point x="384.0" y="710.0" />
+      <point x="103.875" y="335.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.province" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.region">
+      <point x="0.0" y="-82.0" />
+      <point x="0.0" y="71.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.system_user_activity_log" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.system_user">
+      <point x="0.0" y="-103.5" />
+      <point x="0.0" y="192.0" />
+    </edge>
+    <edge source="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.access_pass" target="aeacdab6-633e-4762-b670-a84c62ea90b9.TABLE:dctx-registry.public.registrant">
+      <point x="0.0" y="-291.0" />
+      <point x="0.0" y="335.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.8011421981775889" x="614.0946727754214" y="394.40832945165334" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+
