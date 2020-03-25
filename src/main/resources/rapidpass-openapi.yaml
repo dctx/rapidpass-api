@@ -64,6 +64,8 @@ paths:
                   status:
                     type: string
                     description: status of request
+        '400':
+          description: Request Pass not found.
 
   /api/v1/registry/pendingPasses:
     get:
@@ -205,12 +207,6 @@ components:
         accessType:
           type: string
           description: Type of access needed. This is tied to gov agency that will approve pass
-        idType:
-          type: string
-          description: for vehicles this could be plate number or conduction sticker, for individuals this will be the type of ID, e.g. company ID, driver's license, etc.
-        idNumber:
-          type: string
-          description: ID number of presented ID Type
 
         remarks:
           type: string
