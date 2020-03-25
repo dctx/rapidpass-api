@@ -12,10 +12,9 @@ import com.itextpdf.layout.property.TextAlignment;
 
 import ph.devcon.rapidpass.api.models.ApprovedRapidPass;
 
-
 public class PdfGenerator {
 
-    private final String filepath = "resources/hello.pdf";
+    private final String filepath = "resources/generated-pdf.pdf";
     private ImageData _dctxLogo;
     private PdfDocument pdfdocument;
     private Document document;
@@ -72,6 +71,7 @@ public class PdfGenerator {
         vehicleId.add(approvedRapidPass.getControlNumber() +"\n");
 
         //settings for person details
+        //contains the lines that will be on the pdf
         Paragraph vehicleDetails = new Paragraph();
         vehicleDetails.setFontSize(20);
         vehicleDetails.setMarginLeft(70);
@@ -96,6 +96,7 @@ public class PdfGenerator {
         individualId.add(approvedRapidPass.getControlNumber() + "\n");
 
         //settings for person details
+        //contains the lines that will be on the pdf
         Paragraph vehicleDetails = new Paragraph();
         vehicleDetails.setFontSize(20);
         vehicleDetails.setMarginLeft(20);
