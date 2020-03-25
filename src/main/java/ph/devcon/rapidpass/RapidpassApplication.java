@@ -1,10 +1,13 @@
 package ph.devcon.rapidpass;
 
+import com.mashape.unirest.http.JsonNode;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import ph.devcon.rapidpass.services.sms.SMSPayload;
+import ph.devcon.rapidpass.services.sms.SemaphoreSMSService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
@@ -25,7 +28,14 @@ public class RapidpassApplication implements CommandLineRunner
     
     public static void main(String[] args)
     {
-        new SpringApplication(RapidpassApplication.class).run(args);
+        try {
+            JsonNode send = new SemaphoreSMSService(new SMSPayload("09175983424", "Hi Darren")).send();
+            System.out.println("SMS response:");
+            System.out.println(send);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        new SpringApplication(RapidpassApplication.class).run(args);
     }
     
     class ExitException extends RuntimeException implements ExitCodeGenerator
