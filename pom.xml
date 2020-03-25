@@ -8,8 +8,8 @@
         <version>2.2.5.RELEASE</version>
     </parent>
 
-    <groupId>ph.devcon</groupId>
-    <artifactId>rapidpass-api</artifactId>
+    <groupId>ph.devcon.rapidpass</groupId>
+    <artifactId>api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>rapidpass-api</name>
     <description>Rapid Pass API</description>
@@ -20,6 +20,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <swagger-definition-file>${project.basedir}/src/main/resources/rapidpass-openapi.yaml</swagger-definition-file>
+        <start-class>ph.devcon.rapidpass.RapidpassApplication</start-class>
     </properties>
     <build>
         <plugins>
@@ -70,6 +71,24 @@
                         <version>42.2.11</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-swagger</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/swagger/src/main/java/</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
