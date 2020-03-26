@@ -15,7 +15,7 @@ import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
  * The {@link PwaController} class provides the API mappings for PWA/Webapp operations.
  */
 @RestController
-@RequestMapping("/api/v1/pwa/")
+@RequestMapping("/api/v1/registry/")
 @Slf4j
 @RequiredArgsConstructor
 public class PwaController {
@@ -28,7 +28,7 @@ public class PwaController {
     private final PwaService pwaService;
 
     /**
-     * POST /api/v1/pwa/accessPasses - Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
+     * POST /api/v1/registry/accessPasses - Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
      *
      * @param rapidPassRequest RapidPass request payload
      * @return Status 201 if created.
@@ -36,7 +36,7 @@ public class PwaController {
     @PostMapping("accessPasses")
     public HttpEntity<?> newPassRequest(
             @RequestBody RapidPassRequest rapidPassRequest) {
-        log.debug("POST /api/v1/pwa/accessPasses {}", rapidPassRequest);
+        log.debug("POST /api/v1/registry/accessPasses {}", rapidPassRequest);
 
         // make sure rapidPassRequest is PENDING
         rapidPassRequest.setRequestStatus(PENDING);
@@ -47,7 +47,7 @@ public class PwaController {
     }
 
     /**
-     * GET /api/v1/pwa/accessPasses/{referenceID} - Gets the status (and other info) of a request pass.
+     * GET /api/v1/registry/accessPasses/{referenceID} - Gets the status (and other info) of a request pass.
      *
      * @param referenceID Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
      * @return JSON response of a {@link RapidPassRequest}
