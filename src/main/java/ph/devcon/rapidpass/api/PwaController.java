@@ -2,7 +2,6 @@ package ph.devcon.rapidpass.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.codehaus.plexus.util.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +10,6 @@ import ph.devcon.rapidpass.model.RapidPassRequest;
 import ph.devcon.rapidpass.service.PwaService;
 
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.VEHICLE;
 
 /**
  * The {@link PwaController} class provides the API mappings for PWA/Webapp operations.
@@ -31,15 +28,15 @@ public class PwaController {
     private final PwaService pwaService;
 
     /**
-     * POST /api/v1/pwa/requestPass - Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
+     * POST /api/v1/pwa/accessPasses - Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
      *
      * @param rapidPassRequest RapidPass request payload
      * @return Status 201 if created.
      */
-    @PostMapping("requestPass")
-    public HttpEntity<String> newPassRequest(
+    @PostMapping("accessPasses")
+    public HttpEntity<?> newPassRequest(
             @RequestBody RapidPassRequest rapidPassRequest) {
-        log.debug("POST /api/v1/pwa/requestPass {}", rapidPassRequest);
+        log.debug("POST /api/v1/pwa/accessPasses {}", rapidPassRequest);
 
         // make sure rapidPassRequest is PENDING
         rapidPassRequest.setRequestStatus(PENDING);
@@ -50,21 +47,15 @@ public class PwaController {
     }
 
     /**
-     * GET /api/v1/pwa/requestPass - Gets the status (and other info) of a request pass. Either {@code plateNum} or {@code mobileNum} MUST be passed.
+     * GET /api/v1/pwa/accessPasses/{referenceID} - Gets the status (and other info) of a request pass.
      *
-     * @param plateNum  vehicle plate number
-     * @param mobileNum user mobile phone
+     * @param referenceID Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
      * @return JSON response of a {@link RapidPassRequest}
      */
-    @GetMapping("requestPass")
+    @GetMapping("accessPasses/{referenceID}")
     public HttpEntity<?> getPassRequest(
-            @RequestParam(value = "plateNum", required = false) String plateNum,
-            @RequestParam(value = "mobileNum", required = false) String mobileNum) {
-        final RapidPassRequest passRequest;
-        if (!StringUtils.isBlank(plateNum)) passRequest = pwaService.getPassRequest(plateNum, VEHICLE);
-        else if (!StringUtils.isBlank(mobileNum)) passRequest = pwaService.getPassRequest(mobileNum, INDIVIDUAL);
-        else return ResponseEntity.badRequest().body("Either plateNum or mobileNum must be set!");
-
+            @PathVariable String referenceID) {
+        final RapidPassRequest passRequest = pwaService.getPassRequest(referenceID);
         return passRequest == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(passRequest);
     }
 

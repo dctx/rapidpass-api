@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.model.RapidPassRequest;
 import ph.devcon.rapidpass.service.PwaService;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,7 +40,7 @@ class PwaControllerTest {
 
     public static final RapidPassRequest TEST_VEHICLE_REQUEST = RapidPassRequest.builder()
             .passType(VEHICLE)
-            .plateNum("ABCD 1234")
+            .plateOrId("ABCD 1234")
             .mobileNumber("0915999999")
             .email("jonas.was.here@gmail.com")
             .destAddress("Somewhere in the PH")
@@ -63,7 +62,7 @@ class PwaControllerTest {
     void newRequestPass_INDIVIDUAL() throws Exception {
         // perform post request with json payload to mock server
         mockMvc.perform(
-                post("/api/v1/pwa/requestPass")
+                post("/api/v1/pwa/accessPasses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"passType\": \"INDIVIDUAL\",\n" +
@@ -90,11 +89,11 @@ class PwaControllerTest {
     void newRequestPass_VEHICLE() throws Exception {
         // perform post request with json payload to mock server
         mockMvc.perform(
-                post("/api/v1/pwa/requestPass")
+                post("/api/v1/pwa/accessPasses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"passType\": \"VEHICLE\",\n" +
-                                "  \"plateNum\": \"ABCD 1234\",\n" +
+                                "  \"plateOrId\": \"ABCD 1234\",\n" +
                                 "  \"mobileNumber\": \"0915999999\",\n" +
                                 "  \"email\": \"jonas.was.here@gmail.com\",\n" +
                                 "  \"destAddress\": \"Somewhere in the PH\",\n" +
@@ -116,17 +115,18 @@ class PwaControllerTest {
     @Test
     void getPassRequest() throws Exception {
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockPwaService.getPassRequest(anyString(), eq(INDIVIDUAL)))
+        when(mockPwaService.getPassRequest(eq("0915999999")))
                 .thenReturn(TEST_INDIVIDUAL_REQUEST);
 
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
-        when(mockPwaService.getPassRequest(anyString(), eq(VEHICLE)))
+        when(mockPwaService.getPassRequest(eq("ABCD 1234")))
                 .thenReturn(TEST_VEHICLE_REQUEST);
+
+        final String getAccessPathUrlTemplate = "/api/v1/pwa/accessPasses/{referenceID}";
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
-                get("/api/v1/pwa/requestPass")
-                        .param("mobileNum", "0915999999"))
+                get(getAccessPathUrlTemplate, "0915999999"))
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("INDIVIDUAL"))
@@ -138,33 +138,22 @@ class PwaControllerTest {
 
         // perform GET requestPass with plateNum
         mockMvc.perform(
-                get("/api/v1/pwa/requestPass")
-                        .param("plateNum", "ABCD 1234"))
+                get(getAccessPathUrlTemplate, "ABCD 1234"))
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
-                .andExpect(jsonPath("$.plateNum").value("ABCD 1234"))
+                .andExpect(jsonPath("$.plateOrId").value("ABCD 1234"))
                 .andExpect(jsonPath("$.remarks").value("This is a test for VEHICLE REQUEST"))
                 .andExpect(jsonPath("$.requestStatus").value("PENDING"))
                 .andDo(print());
     }
 
-    @Test
-    public void getPassRequest_NO_PARAMS() throws Exception {
-        // perform GET requestPass no parameters
-        mockMvc.perform(
-                get("/api/v1/pwa/requestPass"))
-                .andExpect(status().is4xxClientError())
-                .andDo(print());
-    }
 
     @Test
     public void getPassRequest_NULL() throws Exception {
         // mock service to return null
-        when(mockPwaService.getPassRequest(anyString(), any())).thenReturn(null);
         mockMvc.perform(
-                get("/api/v1/pwa/requestPass")
-                        .param("plateNum", "ABCD 1234"))
+                get("/api/v1/pwa/accessPasses/{referenceID}", "I DO NOT EXIST"))
                 .andExpect(status().isNotFound());
     }
 }

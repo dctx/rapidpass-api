@@ -3,7 +3,6 @@ package ph.devcon.rapidpass.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.model.RapidPassRequest.RequestType;
 
 import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.O;
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
@@ -22,7 +21,7 @@ public class PwaServiceImpl implements PwaService {
     }
 
     @Override
-    public RapidPassRequest getPassRequest(String idNum, RequestType requestType) {
+    public RapidPassRequest getPassRequest(String referenceId) {
 
         // TODO: Get from Persistence
 

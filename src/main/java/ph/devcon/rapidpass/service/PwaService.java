@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.service;
 
 import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.model.RapidPassRequest.RequestType;
 
 import javax.annotation.Nullable;
 
@@ -20,10 +19,9 @@ public interface PwaService {
     /**
      * Gets a RapidPass request based on the passed in idNum.
      *
-     * @param idNum       mobileNum or plateNum
-     * @param requestType type of the request to get
+     * @param referenceId mobileNum or plateNum
      * @return Matching {@link RapidPassRequest} data or null, if not found.
      */
     @Nullable
-    RapidPassRequest getPassRequest(String idNum, RequestType requestType);
+    RapidPassRequest getPassRequest(String referenceId);
 }
