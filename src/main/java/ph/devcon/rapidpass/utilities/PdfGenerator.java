@@ -1,5 +1,8 @@
 package ph.devcon.rapidpass.utilities;
 
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -15,38 +18,54 @@ import ph.devcon.rapidpass.api.models.ApprovedRapidPass;
 public class PdfGenerator {
 
     private final String filepath;
+    //should be changed if logo will be altered.
+    private final String pathToDctxLogo = "src/main/resources/light-bg.png";
     
     public PdfGenerator(String filepath) {
         this.filepath = filepath;
     }
 
-    public int generateVehiclePdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass ) {
+    // creates the pdf document and set its properties
+    private Document createDocument() throws FileNotFoundException {
 
-        PdfDocument pdfdocument;
-        ImageData data;
-        ImageData _dctxLogo;
+        PdfDocument pdfdocument = new PdfDocument(new PdfWriter(filepath));
 
-        try {
-            pdfdocument = new PdfDocument(new PdfWriter(filepath));
-            data = ImageDataFactory.create(_qrcodePath);
-            _dctxLogo = ImageDataFactory.create("src/main/resources/light-bg.png");
-        } catch (Exception e) {
-            return 0;
-        }
-
-        //creates and sets the pdf document
         pdfdocument.setDefaultPageSize(PageSize.A4);
         Document document = new Document(pdfdocument);
         document.setMargins(-50,-50,-50,-50);
 
-        //process the image
-        Image qrcode = new Image(data);
+        return document;
+    }
 
-        //dctxLogo
-        Image dctxLogo = new Image(_dctxLogo);
+    //prepares the image
+    private ImageData prepareImage(String imagePath) throws MalformedURLException {
+        return ImageDataFactory.create(imagePath);
+    }
+
+    public int generateVehiclePdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass ) {
+
+        Document document;
+        try {
+            document = createDocument();
+        } catch (FileNotFoundException e){
+            return 0;
+        }
+
+        //qrcode image
+        Image qrcode;
+        Image dctxLogo;
+        try {
+            qrcode = new Image(prepareImage(_qrcodePath));
+            dctxLogo = new Image(prepareImage(pathToDctxLogo));
+        } catch (Exception e) {
+            return 0;
+        }
         dctxLogo.scaleToFit(200, 100);
         dctxLogo.setFixedPosition(400,0);
-        //settings for ID
+
+        //processes the data that will be on the pdf
+
+        //properties for control number
         Paragraph vehicleId = new Paragraph();
         vehicleId.setFontSize(44);
         vehicleId.setTextAlignment(TextAlignment.CENTER);
@@ -55,7 +74,6 @@ public class PdfGenerator {
         vehicleId.add(approvedRapidPass.getControlNumber() +"\n");
 
         //settings for person details
-        //contains the lines that will be on the pdf
         Paragraph vehicleDetails = new Paragraph();
         vehicleDetails.setFontSize(20);
         vehicleDetails.setMarginLeft(70);
@@ -64,6 +82,7 @@ public class PdfGenerator {
                 "Plate:\t" + approvedRapidPass.getPlateNum() + "\n" +
                 "Name:\t" + approvedRapidPass.getName());
 
+        //writes to the document
         document.add(qrcode);
         document.add(vehicleId);
         document.add(vehicleDetails);
@@ -77,28 +96,25 @@ public class PdfGenerator {
 
     public int generateIndividualPdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass)  {
 
-        PdfDocument pdfdocument;
-        ImageData data;
-        ImageData _dctxLogo;
+        Document document;
 
+        //creates and sets the pdf document
         try {
-            pdfdocument = new PdfDocument(new PdfWriter(filepath));
-            data = ImageDataFactory.create(_qrcodePath);
-            _dctxLogo = ImageDataFactory.create("src/main/resources/light-bg.png");
+            document = createDocument();
+        } catch (FileNotFoundException e){
+            return 0;
+        }
+
+        //qrcode image
+        Image qrcode;
+        Image dctxLogo;
+        try {
+            qrcode = new Image(prepareImage(_qrcodePath));
+            dctxLogo = new Image(prepareImage(pathToDctxLogo));
         } catch (Exception e) {
             return 0;
         }
 
-        //creates and sets the pdf document
-        pdfdocument.setDefaultPageSize(PageSize.A4);
-        Document document = new Document(pdfdocument);
-        document.setMargins(-50,-50,-50,-50);
-
-        //process the image
-        Image qrcode = new Image(data);
-
-        //dctxLogo
-        Image dctxLogo = new Image(_dctxLogo);
         dctxLogo.scaleToFit(200, 100);
         dctxLogo.setFixedPosition(400,0);
 

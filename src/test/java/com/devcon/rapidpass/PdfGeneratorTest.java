@@ -10,6 +10,7 @@ import ph.devcon.rapidpass.utilities.PdfGenerator;
 
 public class PdfGeneratorTest {
 
+    // generates the ApprovedRapidPass object
     private ApprovedRapidPass createObject() {
         ApprovedRapidPass approvedRapidPass = new ApprovedRapidPass();
         approvedRapidPass.setName("Juan Dela Kruz");
@@ -56,6 +57,7 @@ public class PdfGeneratorTest {
         PdfGenerator pdfGenerator = new PdfGenerator("src/main/resources/generated-pdf.pdf");
         int result =  pdfGenerator.generateIndividualPdf("  ", approvedRapidPass);
 
+        // blank qrcode path given. result should be 0
         assertNotEquals(result, 1);
     }
 }
