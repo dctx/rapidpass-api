@@ -7,6 +7,7 @@ import com.google.zxing.common.HybridBinarizer;
 import org.codehaus.plexus.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import javax.imageio.ImageIO;
@@ -67,8 +68,7 @@ class QrGeneratorServiceImplTest {
         System.out.println("decodedString = " + decodedQrPayloadStr);
         assertThat("we can decode QR Code file", decodedQrPayloadStr, is(not(emptyString())));
 
-        // decode base 64 string
-        final String decodedFromBase64 = new String(Base64.decodeBase64(decodedQrPayloadStr.getBytes()));
-        System.out.println("decodedBase64 = " + decodedFromBase64);
+        final QrCodeData decodedQrData = QrCodeDeserializer.decode(Base64.decodeBase64(decodedQrPayloadStr.getBytes()));
+        assertThat("decoded data is same as payload", decodedQrData, is(testPayload));
     }
 }
