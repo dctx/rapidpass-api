@@ -7,25 +7,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.service.PwaService;
+import ph.devcon.rapidpass.service.RegistryService;
 
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
 
 /**
- * The {@link PwaController} class provides the API mappings for PWA/Webapp operations.
+ * The {@link RegistryController} class provides the API mappings for PWA/Webapp operations.
  */
 @RestController
 @RequestMapping("/api/v1/registry/")
 @Slf4j
 @RequiredArgsConstructor
-public class PwaController {
+public class RegistryController {
 
     // TODO error handling via ErrorHandler @ControllerAdvice or something
 
     /**
      * Service containing business logic for PWA operations.
      */
-    private final PwaService pwaService;
+    private final RegistryService registryService;
 
     /**
      * POST /api/v1/registry/accessPasses - Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type.
@@ -40,7 +40,7 @@ public class PwaController {
 
         // make sure rapidPassRequest is PENDING
         rapidPassRequest.setRequestStatus(PENDING);
-        pwaService.createPassRequest(rapidPassRequest);
+        registryService.createPassRequest(rapidPassRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("OK");
@@ -55,7 +55,7 @@ public class PwaController {
     @GetMapping("accessPasses/{referenceID}")
     public HttpEntity<?> getPassRequest(
             @PathVariable String referenceID) {
-        final RapidPassRequest passRequest = pwaService.getPassRequest(referenceID);
+        final RapidPassRequest passRequest = registryService.getPassRequest(referenceID);
         return passRequest == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(passRequest);
     }
 

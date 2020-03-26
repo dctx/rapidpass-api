@@ -7,7 +7,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.service.PwaService;
+import ph.devcon.rapidpass.service.RegistryService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,8 +23,8 @@ import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.VEHICLE;
 /**
  * Tests for PwaController.
  */
-@WebMvcTest(PwaController.class)
-class PwaControllerTest {
+@WebMvcTest(RegistryController.class)
+class RegistryControllerTest {
 
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
@@ -51,7 +51,7 @@ class PwaControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    PwaService mockPwaService;
+    RegistryService mockRegistryService;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.
@@ -77,7 +77,7 @@ class PwaControllerTest {
                 .andExpect(status().isCreated());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        verify(mockPwaService, only()).createPassRequest(eq(TEST_INDIVIDUAL_REQUEST));
+        verify(mockRegistryService, only()).createPassRequest(eq(TEST_INDIVIDUAL_REQUEST));
     }
 
     /**
@@ -104,7 +104,7 @@ class PwaControllerTest {
                 .andExpect(status().isCreated());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        verify(mockPwaService, only()).createPassRequest(eq(TEST_VEHICLE_REQUEST));
+        verify(mockRegistryService, only()).createPassRequest(eq(TEST_VEHICLE_REQUEST));
     }
 
     /**
@@ -115,11 +115,11 @@ class PwaControllerTest {
     @Test
     void getPassRequest() throws Exception {
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockPwaService.getPassRequest(eq("0915999999")))
+        when(mockRegistryService.getPassRequest(eq("0915999999")))
                 .thenReturn(TEST_INDIVIDUAL_REQUEST);
 
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
-        when(mockPwaService.getPassRequest(eq("ABCD 1234")))
+        when(mockRegistryService.getPassRequest(eq("ABCD 1234")))
                 .thenReturn(TEST_VEHICLE_REQUEST);
 
         final String getAccessPathUrlTemplate = "/api/v1/registry/accessPasses/{referenceID}";

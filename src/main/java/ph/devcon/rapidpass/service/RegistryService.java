@@ -5,9 +5,9 @@ import ph.devcon.rapidpass.model.RapidPassRequest;
 import javax.annotation.Nullable;
 
 /**
- * The {@link PwaService} interface provides the business logic for servicing PWA requests.
+ * The {@link RegistryService} interface provides the business logic for servicing PWA requests.
  */
-public interface PwaService {
+public interface RegistryService {
 
     /**
      * Creates a new request for a RapidPass.
