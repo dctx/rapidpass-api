@@ -19,11 +19,12 @@ tags:
     description: Endpoints for approval applications
 
 paths:
-  /api/v1/pwa/requestPass:
+  /api/v1/registry/accessPass:
     post:
       tags:
         - pwa
-      summary: Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type
+        - registry
+      summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
       operationId: register
       description: |
         Called from the PWA or web site registration page to register a user
@@ -41,6 +42,8 @@ paths:
     get:
       tags:
         - pwa
+        - registry
+        - inspector
       summary: Gets the status of a request pass
       parameters:
         - name: plateNum
@@ -64,29 +67,20 @@ paths:
                   status:
                     type: string
                     description: status of request
-
-  /api/v1/registry/pendingPasses:
-    get:
+    put:
       tags:
         - registry
-      summary: Gets list of the pending passes that is authorized for the caller. TODO! filtering
+      summary: Approves a Rapid Pass request
       parameters:
-        - name: accessType
-          description: access type of RapidPass requests to get. If null return all pending passes that is authorized for caller.
+        - name: referenceNumber
+          description: Reference number of Rapid Pass request
           in: query
-          required: false
+          required: true
           schema:
             type: string
-      description: Retrieves all the pending request pass for particular access type
       responses:
         '200':
-          description: List of all rapid pass requests for approval
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RapidPassRequest'
+          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
   /api/v1/registry/approvedPasses:
     get:
       tags:
@@ -109,21 +103,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ApprovedRapidPass'
-  /api/v1/registry/approvePass:
-    post:
-      tags:
-        - registry
-      summary: Approves a Rapid Pass request
-      parameters:
-        - name: referenceNumber
-          description: Reference number of Rapid Pass request
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
   /api/v1/registry/uploadControlNums:
     post:
       tags:
@@ -217,7 +196,7 @@ components:
 
     RapidPassRequest:
       allOf:
-        - $ref: '#/components/schemas/NewRapidPassRequest'
+        - $ref: '#/components/schemas/RapidPassRequest'
         - properties:
             referenceNumber:
               type: string
@@ -225,7 +204,7 @@ components:
       type: object
     ApprovedRapidPass:
       allOf:
-        - $ref: '#/components/schemas/NewRapidPassRequest'
+        - $ref: '#/components/schemas/RapidPassRequest'
         - properties:
             controlNumber:
               type: string
