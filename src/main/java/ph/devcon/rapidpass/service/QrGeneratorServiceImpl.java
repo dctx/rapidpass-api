@@ -64,13 +64,14 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     }
 
     /**
-     * Serializes a {@link QrPayload} object into JSON then encodes to Base64.
+     * Serializes a {@link QrPayload} object into Afro then encodes to Base64.
      *
      * @param payload payload to serialize
      * @return Base64 string
      * @throws JsonProcessingException on error processing JSON
      */
     String serializePayload(QrPayload payload) throws JsonProcessingException {
+        // TODO Implementation
         return Base64.getEncoder().encodeToString(jsonMapper.writeValueAsString(payload).getBytes());
     }
 }
