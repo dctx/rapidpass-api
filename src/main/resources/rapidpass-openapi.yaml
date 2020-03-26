@@ -48,14 +48,16 @@ paths:
         - inspector
       summary: Gets a list of access passes
       parameters:
-        - name: plateNum
+        - name: status
           in: query
           required: false
+          description: status of access passes to retrieve
           schema:
             type: string
-        - name: mobileNum
+        - name: validUntil
           in: query
           required: false
+          description: returns a list of access passes that are valid until the specified date
           schema:
             type: string
       responses:
@@ -64,11 +66,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: status of request
+                $ref: '#/components/schemas/AccessPass'
   /api/v1/batch/accessPasses:
     post:
       tags:
