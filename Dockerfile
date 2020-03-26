@@ -8,7 +8,7 @@ ADD pom.xml pom.xml
 RUN mvn dependency:go-offline 
 # building jar. skipping test. this should have been done before building the image
 ADD src src
-RUN mvn package -DskipTests target/api.jar
+RUN mvn package -DskipTests
 
 # Just copy the Jar and run it. No extra stuff from maven. Should help with the image size
 FROM openjdk:8-jdk-alpine
