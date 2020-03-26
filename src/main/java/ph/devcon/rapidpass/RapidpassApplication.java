@@ -7,8 +7,6 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import ph.devcon.rapidpass.services.email.EmailPayload;
-import ph.devcon.rapidpass.services.email.MailGunEmailService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.concurrent.ExecutionException;
@@ -31,17 +29,6 @@ public class RapidpassApplication implements CommandLineRunner
     
     public static void main(String[] args)
     {
-        boolean TRY_SEND_EMAIL = false;
-        if (TRY_SEND_EMAIL) {
-            try {
-                JsonNode jsonNode = new MailGunEmailService(new EmailPayload()).send();
-                System.out.println("MailGun Response: ");
-                System.out.println(jsonNode);
-            } catch (UnirestException e) {
-                e.printStackTrace();
-            }
-        }
-
         new SpringApplication(RapidpassApplication.class).run(args);
     }
     
