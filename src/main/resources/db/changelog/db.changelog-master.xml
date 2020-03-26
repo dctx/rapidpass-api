@@ -141,7 +141,9 @@
             <column name="control_code" type="INTEGER"/>
             <column name="id_type" type="VARCHAR(10)"/>
             <column name="plate_or_id" type="VARCHAR(25)"/>
-            <column name="name_or_desc" type="VARCHAR(100)"/>
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="description" type="VARCHAR(100)"/>
+            <column name="company" type="VARCHAR(100)"/>
             <column name="scope" type="INTEGER"/>
             <column name="limitations" type="VARCHAR(200)"/>
             <column name="origin_name" type="VARCHAR(100)"/>
@@ -186,7 +188,7 @@
             </column>
             <column name="registrar_id" type="INTEGER"/>
             <column name="registrant_type" type="INTEGER"/>
-            <column name="registrant_name" type="VARCHAR(20)"/>
+            <column name="registrant_name" type="VARCHAR(50)"/>
             <column name="priority" type="INTEGER"/>
             <column name="organization_name" type="VARCHAR(10)"/>
             <column name="organization_id" type="VARCHAR(10)"/>
