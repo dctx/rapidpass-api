@@ -2,6 +2,11 @@ package com.devcon.rapidpass;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+
+import com.itextpdf.kernel.pdf.PdfDocument;
 
 import org.junit.Test;
 
@@ -16,7 +21,7 @@ public class PdfGeneratorTest {
         approvedRapidPass.setName("Juan Dela Kruz");
         approvedRapidPass.setControlNumber("CTRL-###");
         approvedRapidPass.setAccessType("Access Type");
-        approvedRapidPass.setPassType("Pass Type");
+        approvedRapidPass.setPassType("xxxxxx");
         approvedRapidPass.setCompany("Company");
         approvedRapidPass.setPlateNum("Plate Number");
         approvedRapidPass.setMobileNumber("09123456789");
@@ -29,35 +34,26 @@ public class PdfGeneratorTest {
         return approvedRapidPass;
     }
 
+    //Not an actual test
     @Test
-    public void individualPdfGenerationTest() {
+    public void individualPdfGeneration() {
         ApprovedRapidPass approvedRapidPass = createObject();
+        approvedRapidPass.setPassType("individual");
 
         PdfGenerator pdfGenerator = new PdfGenerator("src/main/resources/generated-pdf.pdf");
-        int result =  pdfGenerator.generateIndividualPdf("src/main/resources/CxEncSerializedPass.png", approvedRapidPass);
 
-        assertEquals(result, 1);
+        PdfDocument result =  pdfGenerator.generatePdf(new File("src/main/resources/CxEncSerializedPass.png"), approvedRapidPass);
+
     }
 
     @Test
-    public void vehiclePdfGeneratorTest() {
+    public void vehiclePdfGeneration() {
         ApprovedRapidPass approvedRapidPass = createObject();
+        approvedRapidPass.setPassType("VEHICLE");
 
         PdfGenerator pdfGenerator = new PdfGenerator("src/main/resources/generated-pdf.pdf");
-        int result =  pdfGenerator.generateVehiclePdf("src/main/resources/CxEncSerializedPass.png", approvedRapidPass);
 
-        assertEquals(result, 1);
-    }
+        PdfDocument result =  pdfGenerator.generatePdf(new File("src/main/resources/CxEncSerializedPass.png"), approvedRapidPass);
 
-    //Failing Test: no qrcode image path
-    @Test
-    public void pdfGeneratorFailingTest() {
-        ApprovedRapidPass approvedRapidPass = createObject();
-
-        PdfGenerator pdfGenerator = new PdfGenerator("src/main/resources/generated-pdf.pdf");
-        int result =  pdfGenerator.generateIndividualPdf("  ", approvedRapidPass);
-
-        // blank qrcode path given. result should be 0
-        assertNotEquals(result, 1);
     }
 }

@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.utilities;
 
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
+import java.io.File;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -15,6 +14,10 @@ import com.itextpdf.layout.property.TextAlignment;
 
 import ph.devcon.rapidpass.api.models.ApprovedRapidPass;
 
+
+//
+//  Service for generating Pdf using File qrcode file from QRCode Generator
+//
 public class PdfGenerator {
 
     private final String filepath;
@@ -26,7 +29,7 @@ public class PdfGenerator {
     }
 
     // creates the pdf document and set its properties
-    private Document createDocument() throws FileNotFoundException {
+    private Document createDocument() throws Exception {
 
         PdfDocument pdfdocument = new PdfDocument(new PdfWriter(filepath));
 
@@ -38,110 +41,70 @@ public class PdfGenerator {
     }
 
     //prepares the image
-    private ImageData prepareImage(String imagePath) throws MalformedURLException {
+    private ImageData prepareImage(String imagePath) throws Exception {
         return ImageDataFactory.create(imagePath);
     }
 
-    public int generateVehiclePdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass ) {
+    public PdfDocument generatePdf(File qrcodeFile, ApprovedRapidPass approvedRapidPass) {
+        
+        Document document = null;
 
-        Document document;
         try {
             document = createDocument();
-        } catch (FileNotFoundException e){
-            return 0;
+        } catch (Exception e){
+            e.printStackTrace();
         }
 
         //qrcode image
-        Image qrcode;
-        Image dctxLogo;
+        Image qrcode = null;
+        Image dctxLogo = null;
         try {
-            qrcode = new Image(prepareImage(_qrcodePath));
+            qrcode = new Image(prepareImage(qrcodeFile.getAbsolutePath()));
             dctxLogo = new Image(prepareImage(pathToDctxLogo));
+
+            dctxLogo.scaleToFit(200, 100);
+            dctxLogo.setFixedPosition(400,0);
         } catch (Exception e) {
-            return 0;
+            e.printStackTrace();
         }
-        dctxLogo.scaleToFit(200, 100);
-        dctxLogo.setFixedPosition(400,0);
 
         //processes the data that will be on the pdf
 
         //properties for control number
-        Paragraph vehicleId = new Paragraph();
-        vehicleId.setFontSize(44);
-        vehicleId.setTextAlignment(TextAlignment.CENTER);
-        vehicleId.setMarginTop(-50);
-        vehicleId.setBold();
-        vehicleId.add(approvedRapidPass.getControlNumber() +"\n");
+        Paragraph controlNumbeParagraph = new Paragraph();
+        controlNumbeParagraph.setFontSize(44);
+        controlNumbeParagraph.setTextAlignment(TextAlignment.CENTER);
+        controlNumbeParagraph.setMarginTop(-50);
+        controlNumbeParagraph.setBold();
+        controlNumbeParagraph.add(approvedRapidPass.getControlNumber() +"\n");
 
-        //settings for person details
-        Paragraph vehicleDetails = new Paragraph();
-        vehicleDetails.setFontSize(20);
-        vehicleDetails.setMarginLeft(70);
-        vehicleDetails.add("Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
-                "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
-                "Plate:\t" + approvedRapidPass.getPlateNum() + "\n" +
-                "Name:\t" + approvedRapidPass.getName());
+        Paragraph details = new Paragraph();
+
+        // checks if pass type is individual or vehicle
+        if(approvedRapidPass.getPassType().toLowerCase().equals("individual")) {
+            details.setFontSize(20);
+            details.setMarginLeft(70);
+            details.add("Name:\t" + approvedRapidPass.getName() + "\n" +
+                    "Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
+                    "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
+                    "Company:\t" + approvedRapidPass.getCompany());
+        } else if (approvedRapidPass.getPassType().toLowerCase().equals("vehicle")) {
+            details.setFontSize(20);
+            details.setMarginLeft(70);
+            details.add("Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
+                    "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
+                    "Plate:\t" + approvedRapidPass.getPlateNum() + "\n" +
+                    "Name:\t" + approvedRapidPass.getName());
+        }
 
         //writes to the document
         document.add(qrcode);
-        document.add(vehicleId);
-        document.add(vehicleDetails);
+        document.add(controlNumbeParagraph);
+        document.add(details);
         document.add(dctxLogo);
                 
         document.close();
-        
-        return 1;
 
-    }
-
-    public int generateIndividualPdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass)  {
-
-        Document document;
-
-        //creates and sets the pdf document
-        try {
-            document = createDocument();
-        } catch (FileNotFoundException e){
-            return 0;
-        }
-
-        //qrcode image
-        Image qrcode;
-        Image dctxLogo;
-        try {
-            qrcode = new Image(prepareImage(_qrcodePath));
-            dctxLogo = new Image(prepareImage(pathToDctxLogo));
-        } catch (Exception e) {
-            return 0;
-        }
-
-        dctxLogo.scaleToFit(200, 100);
-        dctxLogo.setFixedPosition(400,0);
-
-        //settings for ID
-        Paragraph individualId = new Paragraph();
-        individualId.setFontSize(44);
-        individualId.setTextAlignment(TextAlignment.CENTER);
-        individualId.setBold();
-        individualId.add(approvedRapidPass.getControlNumber() + "\n");
-
-        //settings for person details
-        //contains the lines that will be on the pdf
-        Paragraph individualDetails = new Paragraph();
-        individualDetails.setFontSize(20);
-        individualDetails.setMarginLeft(20);
-        individualDetails.add("Name:\t" + approvedRapidPass.getName() + "\n" +
-                "Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
-                "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
-                "Company:\t" + approvedRapidPass.getCompany());
-
-        document.add(qrcode);
-        document.add(individualId);
-        document.add(individualDetails);
-        document.add(dctxLogo);
-                        
-        document.close();
-        
-        return 1;
-    }    
+        return document.getPdfDocument();
+    } 
 }
