@@ -23,14 +23,12 @@ public class SMSNotification implements NotificationService {
     @Value("${semaphore.url}")
     private String url;
 
-
-
     @Override
     public void send(NotificationMessage message) throws NotificationException {
-        if (this.apiKey == null || this.apiKey == "") {
+        if (this.apiKey == null || this.apiKey.equals("")) {
             throw new NotificationException("api key is not provided");
         }
-        if (this.url == null || this.url == "") {
+        if (this.url == null || this.url.equals("")) {
             throw new NotificationException("url is not provided");
         }
         // TODO: might need to change this a diff client? HTTPClient should be injected
@@ -40,7 +38,7 @@ public class SMSNotification implements NotificationService {
         entries.put("number", message.getTo());
         entries.put("message", message.getMessage());
         String sender = message.getFrom();
-        if (sender != null && sender != "") {
+        if (sender != null && !sender.equals("")) {
             entries.put("sendername", sender);
         }
         HttpRequestWithBody req = Unirest.post(this.url).
