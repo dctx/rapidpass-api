@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -11,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ph.devcon.rapidpass.model.QrPayload;
+import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -21,7 +21,9 @@ import java.util.Base64;
 
 /**
  * The {@link QrGeneratorServiceImpl} implements{@link QrGeneratorService} using the excellent Zebra Crossing barcode library.
- * See <a href="https://github.com/zxing/zxing">zxing</a> documntation.
+ * See <a href="https://github.com/zxing/zxing">zxing</a> documentation
+ *
+ * @author jonasespelita@gmail.com
  */
 @Service
 @RequiredArgsConstructor
@@ -46,7 +48,7 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
 
 
     @Override
-    public File generateQr(QrPayload payload) throws IOException, WriterException {
+    public File generateQr(QrCodeData payload) throws IOException, WriterException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix matrix = qrCodeWriter.encode(
                 serializePayload(payload),
@@ -64,14 +66,12 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     }
 
     /**
-     * Serializes a {@link QrPayload} object into Afro then encodes to Base64.
+     * Serializes a {@link QrCodeData} object using {@link QrCodeSerializer} then encodes to Base64.
      *
      * @param payload payload to serialize
      * @return Base64 string
-     * @throws JsonProcessingException on error processing JSON
      */
-    String serializePayload(QrPayload payload) throws JsonProcessingException {
-        // TODO Implementation
-        return Base64.getEncoder().encodeToString(jsonMapper.writeValueAsString(payload).getBytes());
+    String serializePayload(QrCodeData payload) {
+        return Base64.getEncoder().encodeToString(QrCodeSerializer.encode(payload));
     }
 }

@@ -7,13 +7,12 @@ import com.google.zxing.common.HybridBinarizer;
 import org.codehaus.plexus.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ph.devcon.rapidpass.model.QrPayload;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -42,15 +41,24 @@ class QrGeneratorServiceImplTest {
         instance = new QrGeneratorServiceImpl(JSON_MAPPER);
     }
 
+    private static final long CC_1234_ENCRYPTED = 2491777155L;
+    private static final int MAR_23_2020 = 1584921600;
+    private static final int MAR_27_2020 = 1585267200;
+
     @Test
     void generateQr() throws IOException, WriterException {
-        final QrPayload testPayload = new QrPayload((byte) 1, 12345, new Date().getTime(), new Date().getTime(), "ABCD 1234");
-        File file = instance.generateQr(
-                testPayload);
+        final QrCodeData testPayload = QrCodeData.individual()
+                .idOrPlate("ABCD 1234")
+                .controlCode(CC_1234_ENCRYPTED)
+                .purpose('D')
+                .validFrom(MAR_23_2020)
+                .validUntil(MAR_27_2020)
+                .build();
 
-        assertThat("QR code file has been creaed.", file, is(notNullValue()));
+        final File file = instance.generateQr(testPayload);
+        assertThat("QR code file has been created.", file, is(notNullValue()));
 
-        assertThat("QR code file has been creaed.", file.exists(), is(true));
+        assertThat("QR code file has been created.", file.exists(), is(true));
 
         // can visually inspect qr code image from logs
 
@@ -62,12 +70,5 @@ class QrGeneratorServiceImplTest {
         // decode base 64 string
         final String decodedFromBase64 = new String(Base64.decodeBase64(decodedQrPayloadStr.getBytes()));
         System.out.println("decodedBase64 = " + decodedFromBase64);
-
-        // expect json string that can be deserialized into QrPayload
-        final QrPayload decodedQrPayload = JSON_MAPPER.readValue(decodedFromBase64, QrPayload.class);
-
-        assertThat("decoded payload is equal to test payload", decodedQrPayload, is(testPayload));
-
-
     }
 }

@@ -98,6 +98,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- in-house libs-->
+        <dependency>
+            <groupId>ph.devcon.dctx</groupId>
+            <artifactId>rapidpass-commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- super nice annotation helpers -->
         <dependency>
             <groupId>org.projectlombok</groupId>
