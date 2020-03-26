@@ -28,12 +28,6 @@ public class PdfGeneratorTest {
         return approvedRapidPass;
     }
 
-    private ApprovedRapidPass createObjectNoData() {
-        ApprovedRapidPass approvedRapidPass = new ApprovedRapidPass();
-
-        return approvedRapidPass;
-    }
-
     @Test
     public void individualPdfGenerationTest() {
         ApprovedRapidPass approvedRapidPass = createObject();
