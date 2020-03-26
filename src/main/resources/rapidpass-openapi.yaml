@@ -18,7 +18,7 @@ tags:
     description: Endpoints for inspector app
   - name: pwa
     description: Endpoints for PWA/Web application
-  - name: registry
+  - name: dashboard
     description: Endpoints for approval applications
 
 paths:
@@ -26,11 +26,11 @@ paths:
     post:
       tags:
         - pwa
-        - registry
+        - dashboard
       summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
       operationId: register
       description: |
-        Called from the PWA or web site registration page to register a user
+        Called from the PWA or web site registration page to register a user.  All new access passes will have a status of 'pending'.
       responses:
         '201':
           description: Request created
@@ -45,7 +45,7 @@ paths:
     get:
       tags:
         - pwa
-        - registry
+        - dashboard
         - inspector
       summary: Gets the status of a request pass
       parameters:
@@ -72,7 +72,7 @@ paths:
                     description: status of request
     put:
       tags:
-        - registry
+        - dashboard
       summary: Approves or Declines a Rapid Pass request
       parameters:
         - name: referenceNumber
@@ -87,7 +87,7 @@ paths:
   /api/v1/registry/approvedPasses:
     get:
       tags:
-        - registry
+        - dashboard
       summary: Gets the list of approved passes that is authorized for the caller. TODO! filtering
       parameters:
         - name: accessType
@@ -106,10 +106,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ApprovedRapidPass'
-  /api/v1/registry/uploadControlNums:
+  /api/v1/batch/accessPass:
     post:
       tags:
-        - registry
+        - dashboard
       summary: Upload CSV/Excel file of approved control numbers TODO
       responses:
         '200':
@@ -118,7 +118,7 @@ paths:
     get:
       tags:
         - inspector
-        - registry
+        - dashboard
       summary: Downloads a list of approved control numbers
       responses:
         '200':
@@ -145,7 +145,7 @@ paths:
     get:
       tags:
         - inspector
-        - registry
+        - dashboard
       summary: Get information about a control number
       parameters:
         - name: controlCode
