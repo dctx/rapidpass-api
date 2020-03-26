@@ -1,6 +1,8 @@
 package ph.devcon.rapidpass.service.notification;
 
-import liquibase.util.StringUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,14 +13,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 @Qualifier("sms")
+@Slf4j
+@RequiredArgsConstructor
+@Setter
 public class SMSNotification implements NotificationService {
 
-    @Autowired
-    RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;
@@ -28,12 +33,8 @@ public class SMSNotification implements NotificationService {
 
     @Override
     public void send(NotificationMessage message) throws NotificationException {
-        if (this.apiKey == null || StringUtils.isEmpty(this.apiKey)) {
-            throw new NotificationException("api key is not provided");
-        }
-        if (this.url == null || StringUtils.isEmpty(this.url)) {
-            throw new NotificationException("url is not provided");
-        }
+        if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");
+        if (StringUtils.isEmpty(this.url)) throw new NotificationException("url is not provided");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // important!
@@ -51,7 +52,13 @@ public class SMSNotification implements NotificationService {
 
         ResponseEntity<String> response = restTemplate.postForEntity(this.url, request, String.class);
 
-        // log.info("response: {}", response.getBody());
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new NotificationException("Error POSTing to semaphore API");
+        }
 
+
+        log.info("response: {}", response.getBody());
+
+        // todo: more checks on semaphore response...
     }
 }
