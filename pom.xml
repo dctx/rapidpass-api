@@ -6,6 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.5.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>ph.devcon.rapidpass</groupId>
@@ -24,6 +25,7 @@
         <itext.version>RELEASE</itext.version>
     </properties>
     <build>
+        <finalName>api</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -61,9 +63,9 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>3.8.8</version>
                 <configuration>
-                    <propertyFile>src/main/db/liquibase.properties</propertyFile>
-                    <changeLogFile>src/main/db/dbchangelog.xml</changeLogFile>
-                    <outputChangeLogFile>src/main/db/dbchangelog.xml</outputChangeLogFile>
+                    <propertyFile>src/main/resources/db/changelog/liquibase.properties</propertyFile>
+                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+                    <outputChangeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</outputChangeLogFile>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -96,10 +98,43 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- in-house libs-->
+        <dependency>
+            <groupId>ph.devcon.dctx</groupId>
+            <artifactId>rapidpass-commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- super nice annotation helpers -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- QR code generator/reader-->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+
         <!-- persistence -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>3.8.8</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -213,6 +248,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- for API interactions e.g. MailGun -->
+        <dependency>
+            <groupId>com.mashape.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.4.9</version>
         </dependency>
 
         <!-- end of testing -->

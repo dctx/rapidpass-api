@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet author="eric (generated)" id="1585039538337-1">
+    <changeSet author="eric (generated)" id="1585195345769-1">
         <createTable tableName="region">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="region_pk"/>
@@ -11,7 +11,7 @@
             <column name="status" type="VARCHAR(15)"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-2">
+    <changeSet author="eric (generated)" id="1585195345769-2">
         <createTable tableName="access_pass_log">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="checkpoint_transactions_pk"/>
@@ -27,7 +27,7 @@
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-3">
+    <changeSet author="eric (generated)" id="1585195345769-3">
         <createTable tableName="province">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="province_pk"/>
@@ -39,9 +39,11 @@
             <column name="status" type="VARCHAR(15)"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-4">
+    <changeSet author="eric (generated)" id="1585195345769-4">
         <createTable tableName="registrar_user_activity_log">
-            <column name="id" type="VARCHAR(20)"/>
+            <column name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="registrar_user_activity_log_pk"/>
+            </column>
             <column name="user_id" type="INTEGER"/>
             <column name="session_id" type="VARCHAR(45)"/>
             <column name="ip_address" type="VARCHAR(40)"/>
@@ -51,7 +53,7 @@
             <column name="comments" type="TEXT"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-5">
+    <changeSet author="eric (generated)" id="1585195345769-5">
         <createTable tableName="registrar">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="registrar_pk"/>
@@ -86,9 +88,11 @@
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-6">
+    <changeSet author="eric (generated)" id="1585195345769-6">
         <createTable tableName="system_user_activity_log">
-            <column name="id" type="VARCHAR(20)"/>
+            <column name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="system_user_activity_log_pk"/>
+            </column>
             <column name="user_id" type="INTEGER"/>
             <column name="session_id" type="VARCHAR(45)"/>
             <column name="ip_address" type="VARCHAR(40)"/>
@@ -98,7 +102,7 @@
             <column name="comments" type="TEXT"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-7">
+    <changeSet author="eric (generated)" id="1585195345769-7">
         <createTable tableName="registrar_user">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="registrar_user_pk"/>
@@ -129,18 +133,21 @@
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-8">
+    <changeSet author="eric (generated)" id="1585195345769-8">
         <createTable tableName="access_pass">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="access_pass_pk"/>
             </column>
             <column name="registrant_id" type="INTEGER"/>
-            <column name="assigned_to" type="VARCHAR(10)"/>
-            <column name="type" type="VARCHAR(10)"/>
+            <column name="reference_id" type="VARCHAR(30)"/>
+            <column name="pass_type" type="VARCHAR(10)"/>
+            <column name="access_type" type="VARCHAR(10)"/>
             <column name="control_code" type="INTEGER"/>
             <column name="id_type" type="VARCHAR(10)"/>
-            <column name="identifier" type="VARCHAR(30)"/>
-            <column name="description" type="TEXT"/>
+            <column name="plate_or_id" type="VARCHAR(25)"/>
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="company" type="VARCHAR(100)"/>
+            <column name="remarks" type="VARCHAR(150)"/>
             <column name="scope" type="INTEGER"/>
             <column name="limitations" type="VARCHAR(200)"/>
             <column name="origin_name" type="VARCHAR(100)"/>
@@ -160,7 +167,7 @@
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-9">
+    <changeSet author="eric (generated)" id="1585195345769-9">
         <createTable tableName="scanner_device">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="scanner_device_pk"/>
@@ -178,14 +185,14 @@
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-10">
+    <changeSet author="eric (generated)" id="1585195345769-10">
         <createTable tableName="registrant">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="registrant_pk"/>
             </column>
             <column name="registrar_id" type="INTEGER"/>
             <column name="registrant_type" type="INTEGER"/>
-            <column name="registrant_name" type="VARCHAR(20)"/>
+            <column name="registrant_name" type="VARCHAR(50)"/>
             <column name="priority" type="INTEGER"/>
             <column name="organization_name" type="VARCHAR(10)"/>
             <column name="organization_id" type="VARCHAR(10)"/>
@@ -213,7 +220,7 @@
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-11">
+    <changeSet author="eric (generated)" id="1585195345769-11">
         <createTable tableName="city">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="city_pk"/>
@@ -225,7 +232,7 @@
             <column name="status" type="VARCHAR(15)"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-12">
+    <changeSet author="eric (generated)" id="1585195345769-12">
         <createTable tableName="system_user">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="system_user_pk"/>
@@ -247,37 +254,37 @@
             <column name="date_time_created" type="TIMESTAMP without time zone"/>
         </createTable>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-13">
+    <changeSet author="eric (generated)" id="1585195345769-13">
         <addForeignKeyConstraint baseColumnNames="region_id" baseTableName="province" constraintName="province_region_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="region" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-14">
+    <changeSet author="eric (generated)" id="1585195345769-14">
         <addForeignKeyConstraint baseColumnNames="parent_registrar_id" baseTableName="registrar" constraintName="registrar_registrar_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-15">
+    <changeSet author="eric (generated)" id="1585195345769-15">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="registrar_user" constraintName="registrar_user_registrar_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-16">
+    <changeSet author="eric (generated)" id="1585195345769-16">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="scanner_device" constraintName="scanner_device_registrar_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-17">
+    <changeSet author="eric (generated)" id="1585195345769-17">
         <addForeignKeyConstraint baseColumnNames="registrar_user_id" baseTableName="scanner_device" constraintName="scanner_device_registrar_user_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-18">
+    <changeSet author="eric (generated)" id="1585195345769-18">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="registrant" constraintName="registrant_registrar_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-19">
+    <changeSet author="eric (generated)" id="1585195345769-19">
         <addForeignKeyConstraint baseColumnNames="province_id" baseTableName="city" constraintName="city_province_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="province" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-20">
+    <changeSet author="eric (generated)" id="1585195345769-20">
         <addForeignKeyConstraint baseColumnNames="access_pass_id" baseTableName="access_pass_log" constraintName="access_pass_log_access_pass_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="access_pass" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-21">
+    <changeSet author="eric (generated)" id="1585195345769-21">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="registrar_user_activity_log" constraintName="activity_log_registrar_user_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-22">
+    <changeSet author="eric (generated)" id="1585195345769-22">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="system_user_activity_log" constraintName="activity_log_system_user_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="system_user" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585039538337-23">
+    <changeSet author="eric (generated)" id="1585195345769-23">
         <addForeignKeyConstraint baseColumnNames="registrant_id" baseTableName="access_pass" constraintName="access_pass_registrant_id_fk" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="registrant" validate="true"/>
     </changeSet>
 </databaseChangeLog>

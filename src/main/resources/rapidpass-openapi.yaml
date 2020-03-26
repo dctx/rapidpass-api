@@ -14,43 +14,61 @@ tags:
   - name: inspector
     description: Endpoints for inspector app
   - name: pwa
-    description: Endpoints for PWA/Web application
-  - name: registry
+    description: Endpoints for PWA/mobile end-user app
+  - name: dashboard
     description: Endpoints for approval applications
 
 paths:
-  /api/v1/pwa/requestPass:
+  /api/v1/registry/accessPasses:
     post:
       tags:
         - pwa
-      summary: Creates a new request for a new RapidPass Pass. Can be for individual or vehicle depending on pass type
-      operationId: register
+        - dashboard
+      summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
+      operationId: requestAccessPass
       description: |
-        Called from the PWA or web site registration page to register a user
-      responses:
-        '201':
-          description: Request created
-        '400':
-          description: Invalid Input
+        Called from the PWA or web site registration page to register a user.  All new access passes will have a status of 'pending'.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewRapidPassRequest'
+              $ref: '#/components/schemas/RapidPassRequest'
         description: Rapid Pass request payload.
+      responses:
+        '201':
+          description: Request created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referenceId:
+                    type: string
+                    description: backend generated reference id for the requested access pass
+                description: reference id of the access pass
+          links:
+            GetAccessPassById:
+              operationId: getAccessPassById
+              parameters:
+                referenceId: '$response.body#/referenceId'
+        '400':
+          description: Invalid Input
     get:
       tags:
-        - pwa
-      summary: Gets the status of a request pass
+        - dashboard
+        - inspector
+      summary: Gets a list of access passes
       parameters:
-        - name: plateNum
+        - name: status
           in: query
           required: false
+          description: status of access passes to retrieve
           schema:
             type: string
-        - name: mobileNum
+        - name: validUntil
           in: query
           required: false
+          description: returns a list of access passes that are valid until the specified date
           schema:
             type: string
       responses:
@@ -59,84 +77,28 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: status of request
-
-  /api/v1/registry/pendingPasses:
-    get:
-      tags:
-        - registry
-      summary: Gets list of the pending passes that is authorized for the caller. TODO! filtering
-      parameters:
-        - name: accessType
-          description: access type of RapidPass requests to get. If null return all pending passes that is authorized for caller.
-          in: query
-          required: false
-          schema:
-            type: string
-      description: Retrieves all the pending request pass for particular access type
-      responses:
-        '200':
-          description: List of all rapid pass requests for approval
-          content:
-            application/json:
-              schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RapidPassRequest'
-  /api/v1/registry/approvedPasses:
-    get:
-      tags:
-        - registry
-      summary: Gets the list of approved passes that is authorized for the caller. TODO! filtering
-      parameters:
-        - name: accessType
-          description: access type of RapidPass requests to get. If null return all pending passes that is authorized for caller.
-          in: query
-          required: false
-          schema:
-            type: string
-      description: Retrieves all the pending request pass for particular access type
-      responses:
-        '200':
-          description: List of all rapid pass requests for approval
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ApprovedRapidPass'
-  /api/v1/registry/approvePass:
+                  type: object
+                  properties:
+                    referenceId:
+                      type: string
+                    accessPass:
+                      $ref: '#/components/schemas/AccessPass'
+  /api/v1/batch/accessPasses:
     post:
       tags:
-        - registry
-      summary: Approves a Rapid Pass request
-      parameters:
-        - name: referenceNumber
-          description: Reference number of Rapid Pass request
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
-  /api/v1/registry/uploadControlNums:
-    post:
-      tags:
-        - registry
+        - dashboard
       summary: Upload CSV/Excel file of approved control numbers TODO
       responses:
         '200':
           description: Upload successful
-  /api/v1/inspector/downloadControlNums:
+  /api/v1/registry/controlCodes:
     get:
       tags:
         - inspector
-      summary: Downloads a list of all approved control numbers
+        - dashboard
+      summary: Downloads a list of approved control numbers
       responses:
         '200':
           description: list of all approved control numbers
@@ -147,26 +109,32 @@ paths:
                 items:
                   type: object
                   required:
-                    - controlNum
+                    - referenceId
                   properties:
-                    controlNum:
+                    referenceId:
                       type: string
-                      description: approved control number
-                    name:
+                      description: backend generated reference id, created upon request
+                    controlCode:
                       type: string
-                      description: name of approved pass
-                    plateNum:
+                      description: approved control control code
+                    passType:
                       type: string
-                      description: plateNumber of approved pass
-  /api/v1/inspector/accessPass/{controlNum}:
+                      description: type of access pass
+                    plateOrId:
+                      type: string
+                      description: plateNumber or id of associated with access pass
+  /api/v1/registry/accessPasses/{referenceID}:
     get:
+      operationId: getAccessPassById
       tags:
         - inspector
-      summary: Downloads more information about a control number
+        - pwa
+        - dashboard
+      summary: Get information about an access pass
       parameters:
-        - name: controlNum
-          description: Control number to get more info on
+        - name: referenceID
           in: path
+          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
           required: true
           schema:
             type: string
@@ -176,58 +144,115 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/AccessPass'
+    put:
+      tags:
+        - dashboard
+      summary: Approves or Declines a Rapid Pass request
+      parameters:
+        - name: referenceID
+          in: path
+          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                referenceId:
+                  type: string
+                passType:
+                  type: string
+                plateOrId:
+                  type: string
+                validUntil:
+                  type: string
+                status:
+                  type: string
+      responses:
+        '200':
+          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+          content:
+            application/json:
+              schema:
                 type: object
-                $ref: '#/components/schemas/ApprovedRapidPass'
+                properties:
+                  referenceId:
+                    type: string
+                    description: backend generated reference id for the requested access pass
+                description: reference id of the access pass
+          links:
+            GetAccessPassById:
+              operationId: getAccessPassById
+              parameters:
+                referenceId: '$response.body#/referenceId'
+    delete:
+      tags:
+        - dashboard
+      summary: Suspends an active access pass
+      parameters:
+        - name: referenceID
+          in: path
+          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
 
 components:
   schemas:
-    NewRapidPassRequest:
+    RapidPassRequest:
       type: object
       properties:
         passType:
           type: string
           description: Type of pass being requested. Can be individual or vehicle
-        name:
-          type: string
-          description: Name of individual
-        plateNum:
-          type: string
-          description: Plate Number of vehicle
-        mobileNumber:
-          type: string
-          description: Mobile number of individual
-        email:
-          type: string
-        destAddress:
-          type: string
-        company:
-          type: string
         accessType:
           type: string
           description: Type of access needed. This is tied to gov agency that will approve pass
+        name:
+          type: string
+          description: name of individual that will use the access pass
+        company:
+          type: string
+          description: company of access pass holder
         idType:
           type: string
           description: for vehicles this could be plate number or conduction sticker, for individuals this will be the type of ID, e.g. company ID, driver's license, etc.
-        idNumber:
+        plateOrId:
           type: string
-          description: ID number of presented ID Type
-
+          description: plate number of vehicle or ID of individual
+        mobileNumber:
+          type: string
+          description: mobile number of access pass holder
+        email:
+          type: string
+          description: email address of access pass holder
+        originAddress:
+          type: string
+          description: general location where the requester is coming from
+        destAddress:
+          type: string
+          description: general location where ther requester is heading to
         remarks:
           type: string
 
-    RapidPassRequest:
+    AccessPass:
       allOf:
-        - $ref: '#/components/schemas/NewRapidPassRequest'
+        - $ref: '#/components/schemas/RapidPassRequest'
         - properties:
-            referenceNumber:
+            controlCode:
               type: string
-              description: Backend only reference number. Populated by backend. Only generated when a pass has been successfuly requested.
-      type: object
-    ApprovedRapidPass:
-      allOf:
-        - $ref: '#/components/schemas/NewRapidPassRequest'
-        - properties:
-            controlNumber:
+              description: generated by the backend when a pass has been approved.
+            status:
               type: string
-              description: Backend only control number. Populated by backend. This is used to create QR codes
+              description: status of the access pass
+            validUntil:
+              type: string
+              description: expiration date of the access pass
       type: object

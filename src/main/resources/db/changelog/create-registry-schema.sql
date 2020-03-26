@@ -113,12 +113,15 @@ create table access_pass
     registrant_id        integer
         constraint access_pass_registrant_id_fk
             references registrant,
-    assigned_to          varchar(10),
-    type                 varchar(10),
+    reference_id        varchar(30),
+    pass_type            varchar(10),
+    access_type          varchar(10),
     control_code         int,
     id_type              varchar(10),
-    identifier           varchar(30),
-    description          text,
+    plate_or_id          varchar(50),
+    name                 varchar(100),
+    company              varchar(100),
+    remarks              varchar(150),
     scope                integer,
     limitations          varchar(200),
     origin_name          varchar(100),
@@ -201,7 +204,9 @@ create table system_user
 
 create table registrar_user_activity_log
 (
-    id               varchar(20),
+    id               serial  not null
+        constraint scanner_device_pk
+            primary key,
     user_id          integer
         constraint activity_log_registrar_user_id_fk
             references registrar_user,
@@ -233,7 +238,9 @@ create table access_pass_log
 
 create table system_user_activity_log
 (
-    id               varchar(20),
+    id              serial  not null
+        constraint scanner_device_pk
+            primary key,
     user_id          integer
         constraint activity_log_system_user_id_fk
             references system_user,

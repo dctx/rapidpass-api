@@ -32,3 +32,9 @@ build/
 
 ### Docker Compose
 /volumes
+
+### H2
+/h2.*
+
+### filesystem
+.DS_Store
