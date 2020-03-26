@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass;
 
-import com.mashape.unirest.http.JsonNode;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
