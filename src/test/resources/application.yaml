@@ -6,3 +6,15 @@ logging:
 spring:
   liquibase:
     enabled: false
+
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: rapidpass@talino.mg.amihan.net
+    password: ***REMOVED***
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
