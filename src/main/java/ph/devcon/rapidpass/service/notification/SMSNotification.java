@@ -1,21 +1,24 @@
 package ph.devcon.rapidpass.service.notification;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.HttpRequestWithBody;
-
+import liquibase.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @Qualifier("sms")
 public class SMSNotification implements NotificationService {
+
+    @Autowired
+    RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;
@@ -23,43 +26,32 @@ public class SMSNotification implements NotificationService {
     @Value("${semaphore.url}")
     private String url;
 
-
-
     @Override
     public void send(NotificationMessage message) throws NotificationException {
-        if (this.apiKey == null || this.apiKey == "") {
+        if (this.apiKey == null || StringUtils.isEmpty(this.apiKey)) {
             throw new NotificationException("api key is not provided");
         }
-        if (this.url == null || this.url == "") {
+        if (this.url == null || StringUtils.isEmpty(this.url)) {
             throw new NotificationException("url is not provided");
         }
-        // TODO: might need to change this a diff client? HTTPClient should be injected
-        // This is hard to mock and test.
-        Map<String, Object> entries = new HashMap<String, Object>();
-        entries.put("apikey", this.apiKey);
-        entries.put("number", message.getTo());
-        entries.put("message", message.getMessage());
-        String sender = message.getFrom();
-        if (sender != null && sender != "") {
-            entries.put("sendername", sender);
-        }
-        HttpRequestWithBody req = Unirest.post(this.url).
-            basicAuth("api", this.apiKey).
-            queryString(entries);
 
-        try {
-            HttpResponse<JsonNode> res = req.asJson();
-            int status = res.getStatus();
-            if (status != 200) {
-                throw new NotificationException("SMS was not sent");
-            }
-            // TODO: semaphore's response is weird, but should check here. 
-            // if (semStatus == "Failed" || semStatus == "Refunded") {
-            //     throw new NotificationException("SMS Gateway was not able to send message");
-            // }
-        } catch(UnirestException e) {
-            throw new NotificationException(e);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // important!
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>(); // important!
+
+        params.add("apikey", this.apiKey);
+        params.add("number", message.getTo());
+        params.add("message", message.getMessage());
+        String sender = message.getFrom();
+        if (sender != null && !StringUtils.isEmpty(sender)) {
+            params.add("sendername", sender);
         }
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(this.url, request, String.class);
+
+        // log.info("response: {}", response.getBody());
 
     }
 }

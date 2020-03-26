@@ -208,13 +208,6 @@
             <version>2.3.3</version>
         </dependency>
 
-        <!-- for API interactions e.g. MailGun -->
-        <dependency>
-            <groupId>com.mashape.unirest</groupId>
-            <artifactId>unirest-java</artifactId>
-            <version>1.4.9</version>
-        </dependency>
-
         <!-- testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
