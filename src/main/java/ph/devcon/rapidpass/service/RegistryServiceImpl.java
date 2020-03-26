@@ -8,11 +8,11 @@ import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.O;
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
 
 /**
- * Implementation for {@link PwaService}.
+ * Implementation for {@link RegistryService}.
  */
 @Service
 @Slf4j
-public class PwaServiceImpl implements PwaService {
+public class RegistryServiceImpl implements RegistryService {
     @Override
     public void createPassRequest(RapidPassRequest rapidPassRequest) {
         log.debug("createRequestPass called for {}!", rapidPassRequest);
