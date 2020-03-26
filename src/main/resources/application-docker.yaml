@@ -17,6 +17,18 @@ spring:
     date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
 #    default-property-inclusion: non_empty
 
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: rapidpass@talino.mg.amihan.net
+    password: ***REMOVED***
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 
 springfox:
   documentation:

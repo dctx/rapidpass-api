@@ -35,3 +35,6 @@ build/
 
 ### H2
 /h2.*
+
+### filesystem
+.DS_Store

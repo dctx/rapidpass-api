@@ -41,7 +41,9 @@
     </changeSet>
     <changeSet author="eric (generated)" id="1585195345769-4">
         <createTable tableName="registrar_user_activity_log">
-            <column name="id" type="VARCHAR(20)"/>
+            <column name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="registrar_user_activity_log_pk"/>
+            </column>
             <column name="user_id" type="INTEGER"/>
             <column name="session_id" type="VARCHAR(45)"/>
             <column name="ip_address" type="VARCHAR(40)"/>
@@ -88,7 +90,9 @@
     </changeSet>
     <changeSet author="eric (generated)" id="1585195345769-6">
         <createTable tableName="system_user_activity_log">
-            <column name="id" type="VARCHAR(20)"/>
+            <column name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="system_user_activity_log_pk"/>
+            </column>
             <column name="user_id" type="INTEGER"/>
             <column name="session_id" type="VARCHAR(45)"/>
             <column name="ip_address" type="VARCHAR(40)"/>
