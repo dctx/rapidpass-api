@@ -43,9 +43,6 @@ public class SMSNotification implements NotificationService {
         if (sender != null && sender != "") {
             entries.put("sendername", sender);
         }
-        System.out.println(this.url);
-        System.out.println(this.apiKey);
-        System.out.println(entries);
         HttpRequestWithBody req = Unirest.post(this.url).
             basicAuth("api", this.apiKey).
             queryString(entries);
