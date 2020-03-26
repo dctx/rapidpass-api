@@ -140,8 +140,8 @@
             <column name="access_type" type="VARCHAR(10)"/>
             <column name="control_code" type="INTEGER"/>
             <column name="id_type" type="VARCHAR(10)"/>
-            <column name="name" type="VARCHAR(80)"/>
-            <column name="description" type="TEXT"/>
+            <column name="plate_or_id" type="VARCHAR(25)"/>
+            <column name="name_or_desc" type="VARCHAR(100)"/>
             <column name="scope" type="INTEGER"/>
             <column name="limitations" type="VARCHAR(200)"/>
             <column name="origin_name" type="VARCHAR(100)"/>
