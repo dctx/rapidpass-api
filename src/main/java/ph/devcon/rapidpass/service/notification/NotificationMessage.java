@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.services.notification;
+package ph.devcon.rapidpass.service.notification;
 
 import java.util.HashMap;
 import java.util.Map;

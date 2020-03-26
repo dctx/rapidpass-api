@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.services.notification;
+package ph.devcon.rapidpass.service.notification;
 
 import java.util.Map.Entry;
 
@@ -7,15 +7,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamSource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import ph.devcon.rapidpass.api.models.RapidPassRequest;
-
-@Service(value = "emailService")
+@Service
 public class EmailNotification implements NotificationService {
 
     @Autowired

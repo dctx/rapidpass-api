@@ -1,32 +1,20 @@
-package ph.devcon.rapidpass.services.notification;
+package ph.devcon.rapidpass.service.notification;
 
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import javax.mail.util.ByteArrayDataSource;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.BDDMockito.Then;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
 
-import ph.devcon.rapidpass.services.notification.EmailNotification;
+import ph.devcon.rapidpass.service.notification.EmailNotification;
 
 @SpringBootTest
 public class EmailServiceTest{
