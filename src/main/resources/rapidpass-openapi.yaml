@@ -28,9 +28,15 @@ paths:
         - pwa
         - dashboard
       summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
-      operationId: register
+      operationId: requestAccessPass
       description: |
         Called from the PWA or web site registration page to register a user.  All new access passes will have a status of 'pending'.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RapidPassRequest'
+        description: Rapid Pass request payload.
       responses:
         '201':
           description: Request created
@@ -50,12 +56,6 @@ paths:
                 referenceId: '$response.body#/referenceId'
         '400':
           description: Invalid Input
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RapidPassRequest'
-        description: Rapid Pass request payload.
     get:
       tags:
         - dashboard
@@ -159,9 +159,39 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                referenceId:
+                  type: string
+                passType:
+                  type: string
+                plateOrId:
+                  type: string
+                validUntil:
+                  type: string
+                status:
+                  type: string
       responses:
         '200':
           description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referenceId:
+                    type: string
+                    description: backend generated reference id for the requested access pass
+                description: reference id of the access pass
+          links:
+            GetAccessPassById:
+              operationId: getAccessPassById
+              parameters:
+                referenceId: '$response.body#/referenceId'
     delete:
       tags:
         - dashboard
