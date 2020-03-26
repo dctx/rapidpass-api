@@ -60,9 +60,9 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>3.8.8</version>
                 <configuration>
-                    <propertyFile>src/main/db/liquibase.properties</propertyFile>
-                    <changeLogFile>src/main/db/dbchangelog.xml</changeLogFile>
-                    <outputChangeLogFile>src/main/db/dbchangelog.xml</outputChangeLogFile>
+                    <propertyFile>src/main/resources/db/changelog/liquibase.properties</propertyFile>
+                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+                    <outputChangeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</outputChangeLogFile>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -107,6 +107,12 @@
         </dependency>
 
         <!-- persistence -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+             <artifactId>liquibase-core</artifactId>
+              <version>3.8.8</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
