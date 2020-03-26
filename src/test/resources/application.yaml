@@ -1,3 +1,8 @@
 logging:
   level:
     ph.devcon: debug
+
+# disabling liquibase autoconfig for tests.
+spring:
+  liquibase:
+    enabled: false

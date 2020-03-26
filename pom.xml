@@ -23,6 +23,7 @@
         <start-class>ph.devcon.rapidpass.RapidpassApplication</start-class>
     </properties>
     <build>
+        <finalName>api</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
