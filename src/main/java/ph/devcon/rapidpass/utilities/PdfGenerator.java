@@ -14,54 +14,38 @@ import ph.devcon.rapidpass.api.models.ApprovedRapidPass;
 
 public class PdfGenerator {
 
-    private final String filepath = "resources/generated-pdf.pdf";
-    private ImageData _dctxLogo;
-    private PdfDocument pdfdocument;
-    private Document document;
-    private ImageData data;
-    private Image qrcode;
-    private Image dctxLogo;
+    private final String filepath;
+    
+    public PdfGenerator(String filepath) {
+        this.filepath = filepath;
+    }
 
-    private int preparePdf(String _qrcodePath) {
+    public int generateVehiclePdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass ) {
+
+        PdfDocument pdfdocument;
+        ImageData data;
+        ImageData _dctxLogo;
+
         try {
             pdfdocument = new PdfDocument(new PdfWriter(filepath));
             data = ImageDataFactory.create(_qrcodePath);
-            _dctxLogo = ImageDataFactory.create("resources/light-bg.png");
+            _dctxLogo = ImageDataFactory.create("src/main/resources/light-bg.png");
         } catch (Exception e) {
-            System.out.println(e);
             return 0;
         }
 
         //creates and sets the pdf document
         pdfdocument.setDefaultPageSize(PageSize.A4);
-        document = new Document(pdfdocument);
+        Document document = new Document(pdfdocument);
         document.setMargins(-50,-50,-50,-50);
 
         //process the image
-        qrcode = new Image(data);
+        Image qrcode = new Image(data);
 
         //dctxLogo
-        dctxLogo = new Image(_dctxLogo);
+        Image dctxLogo = new Image(_dctxLogo);
         dctxLogo.scaleToFit(200, 100);
         dctxLogo.setFixedPosition(400,0);
-
-        return 1;
-    }
-
-    public void writeToPdf(Paragraph id, Paragraph details) {
-
-        document.add(qrcode);
-        document.add(id);
-        document.add(details);
-        document.add(dctxLogo);
-
-        document.close();
-    }
-
-    public void generateVehiclePdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass ) {
-
-        preparePdf(_qrcodePath);
-
         //settings for ID
         Paragraph vehicleId = new Paragraph();
         vehicleId.setFontSize(44);
@@ -80,13 +64,43 @@ public class PdfGenerator {
                 "Plate:\t" + approvedRapidPass.getPlateNum() + "\n" +
                 "Name:\t" + approvedRapidPass.getName());
 
-        writeToPdf(vehicleId, vehicleDetails);
+        document.add(qrcode);
+        document.add(vehicleId);
+        document.add(vehicleDetails);
+        document.add(dctxLogo);
+                
+        document.close();
+        
+        return 1;
 
     }
 
-    public void generateIndividualPdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass)  {
+    public int generateIndividualPdf(String _qrcodePath, ApprovedRapidPass approvedRapidPass)  {
 
-        preparePdf(_qrcodePath);
+        PdfDocument pdfdocument;
+        ImageData data;
+        ImageData _dctxLogo;
+
+        try {
+            pdfdocument = new PdfDocument(new PdfWriter(filepath));
+            data = ImageDataFactory.create(_qrcodePath);
+            _dctxLogo = ImageDataFactory.create("src/main/resources/light-bg.png");
+        } catch (Exception e) {
+            return 0;
+        }
+
+        //creates and sets the pdf document
+        pdfdocument.setDefaultPageSize(PageSize.A4);
+        Document document = new Document(pdfdocument);
+        document.setMargins(-50,-50,-50,-50);
+
+        //process the image
+        Image qrcode = new Image(data);
+
+        //dctxLogo
+        Image dctxLogo = new Image(_dctxLogo);
+        dctxLogo.scaleToFit(200, 100);
+        dctxLogo.setFixedPosition(400,0);
 
         //settings for ID
         Paragraph individualId = new Paragraph();
@@ -97,16 +111,21 @@ public class PdfGenerator {
 
         //settings for person details
         //contains the lines that will be on the pdf
-        Paragraph vehicleDetails = new Paragraph();
-        vehicleDetails.setFontSize(20);
-        vehicleDetails.setMarginLeft(20);
-        vehicleDetails.add("Name:\t" + approvedRapidPass.getName() + "\n" +
+        Paragraph individualDetails = new Paragraph();
+        individualDetails.setFontSize(20);
+        individualDetails.setMarginLeft(20);
+        individualDetails.add("Name:\t" + approvedRapidPass.getName() + "\n" +
                 "Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
                 "Pass Type:\t" + approvedRapidPass.getPassType() + "\n" +
                 "Company:\t" + approvedRapidPass.getCompany());
 
-        writeToPdf(individualId, vehicleDetails);
-
-    }
-    
+        document.add(qrcode);
+        document.add(individualId);
+        document.add(individualDetails);
+        document.add(dctxLogo);
+                        
+        document.close();
+        
+        return 1;
+    }    
 }
