@@ -17,7 +17,7 @@ tags:
   - name: inspector
     description: Endpoints for inspector app
   - name: pwa
-    description: Endpoints for PWA/Web application
+    description: Endpoints for PWA/mobile end-user app
   - name: dashboard
     description: Endpoints for approval applications
 
@@ -44,7 +44,6 @@ paths:
         description: Rapid Pass request payload.
     get:
       tags:
-        - pwa
         - dashboard
         - inspector
       summary: Gets a list of access passes
@@ -109,6 +108,7 @@ paths:
     get:
       tags:
         - inspector
+        - pwa
         - dashboard
       summary: Get information about an access pass
       parameters:
