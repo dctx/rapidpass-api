@@ -178,6 +178,20 @@ paths:
       responses:
         '200':
           description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referenceId:
+                    type: string
+                    description: backend generated reference id for the requested access pass
+                description: reference id of the access pass
+          links:
+            GetAccessPassById:
+              operationId: getAccessPassById
+              parameters:
+                referenceId: '$response.body#/referenceId'
     delete:
       tags:
         - dashboard
