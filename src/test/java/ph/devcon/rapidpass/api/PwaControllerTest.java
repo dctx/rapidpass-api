@@ -62,7 +62,7 @@ class PwaControllerTest {
     void newRequestPass_INDIVIDUAL() throws Exception {
         // perform post request with json payload to mock server
         mockMvc.perform(
-                post("/api/v1/pwa/accessPasses")
+                post("/api/v1/registry/accessPasses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"passType\": \"INDIVIDUAL\",\n" +
@@ -89,7 +89,7 @@ class PwaControllerTest {
     void newRequestPass_VEHICLE() throws Exception {
         // perform post request with json payload to mock server
         mockMvc.perform(
-                post("/api/v1/pwa/accessPasses")
+                post("/api/v1/registry/accessPasses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"passType\": \"VEHICLE\",\n" +
@@ -122,7 +122,7 @@ class PwaControllerTest {
         when(mockPwaService.getPassRequest(eq("ABCD 1234")))
                 .thenReturn(TEST_VEHICLE_REQUEST);
 
-        final String getAccessPathUrlTemplate = "/api/v1/pwa/accessPasses/{referenceID}";
+        final String getAccessPathUrlTemplate = "/api/v1/registry/accessPasses/{referenceID}";
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
@@ -153,7 +153,7 @@ class PwaControllerTest {
     public void getPassRequest_NULL() throws Exception {
         // mock service to return null
         mockMvc.perform(
-                get("/api/v1/pwa/accessPasses/{referenceID}", "I DO NOT EXIST"))
+                get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
                 .andExpect(status().isNotFound());
     }
 }
