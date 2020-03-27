@@ -40,11 +40,20 @@ public final class RapidPassRequest {
     private String remarks;
 
     /**
+     * Control number set when APPROVED.
+     */
+    private String controlCode;
+
+    /**
      * The status of this request. Initially set to PENDING when built by builders.
      */
     @NotNull
     @Builder.Default
     private RequestStatus requestStatus = PENDING;
+
+    public String getName() {
+        return getFirstName() + " " + getLastName();
+    }
 
     /**
      * The Statuses that a RapidPass Request can have.

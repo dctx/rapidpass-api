@@ -22,6 +22,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <swagger-definition-file>${project.basedir}/src/main/resources/rapidpass-openapi.yaml</swagger-definition-file>
         <start-class>ph.devcon.rapidpass.RapidpassApplication</start-class>
+        <itext.version>RELEASE</itext.version>
     </properties>
     <build>
         <finalName>rapidpass-api</finalName>
@@ -152,6 +153,13 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>${itext.version}</version>
+            <type>pom</type>
+         </dependency>      
 
         <!-- end of persistence -->
 
