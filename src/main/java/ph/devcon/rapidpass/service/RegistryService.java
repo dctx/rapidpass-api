@@ -101,7 +101,7 @@ public class RegistryService {
         boolean isPending = RapidPassRequest.RequestStatus.PENDING.toString().equals(status);
 
         if (!isPending) {
-            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked. [Status=" + status + " != " + RapidPassRequest.RequestStatus.PENDING.toString() + "]");
+            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, the access pass can only be revoked.");
         }
 
         if (updateRequest.getStatus() != null)
