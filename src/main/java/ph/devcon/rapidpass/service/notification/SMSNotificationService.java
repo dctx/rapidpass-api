@@ -21,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @RequiredArgsConstructor
 @Setter
-public class SMSNotification implements NotificationService {
+public class SMSNotificationService implements NotificationService {
 
     private final RestTemplate restTemplate;
 

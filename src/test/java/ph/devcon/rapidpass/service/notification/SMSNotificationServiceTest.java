@@ -16,15 +16,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SMSNotificationTest {
-    SMSNotification smsNotificationService;
+class SMSNotificationServiceTest {
+    SMSNotificationService smsNotificationService;
 
     @Mock
     RestTemplate mockRestTemplate;
 
     @BeforeEach
     void setUp() {
-        smsNotificationService = new SMSNotification(mockRestTemplate);
+        smsNotificationService = new SMSNotificationService(mockRestTemplate);
         smsNotificationService.setApiKey("TEST_API_KEY");
         smsNotificationService.setUrl("TEST_URL");
     }
@@ -100,7 +100,7 @@ class SMSNotificationTest {
     @Ignore
     void actualSend() throws NotificationException {
         // use actual rest template
-        smsNotificationService = new SMSNotification(new RestTemplate());
+        smsNotificationService = new SMSNotificationService(new RestTemplate());
         smsNotificationService.setUrl("https://api.semaphore.co/api/v4/messages");
         smsNotificationService.setApiKey("Enter Key here");
 

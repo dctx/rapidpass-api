@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Qualifier("email")
-public class EmailNotification implements NotificationService {
+public class EmailNotificationService implements NotificationService {
 
     @Autowired
     public JavaMailSender emailSender;
@@ -34,9 +34,7 @@ public class EmailNotification implements NotificationService {
                 helper.addAttachment(attachment.getKey(), attachment.getValue());
             }
             emailSender.send(msg);
-        } catch (MessagingException e) {
-            throw new NotificationException(e);
-        } catch (MailException e) {
+        } catch (MessagingException | MailException e) {
             throw new NotificationException(e);
         }
     }

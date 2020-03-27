@@ -24,7 +24,7 @@ public class EmailServiceTest{
 
     @Test
     public void sendMail() {
-        EmailNotification email = new EmailNotification();
+        EmailNotificationService email = new EmailNotificationService();
 
         ArgumentCaptor<MimeMessage> arg = ArgumentCaptor.forClass(MimeMessage.class);
         Session s = null;
