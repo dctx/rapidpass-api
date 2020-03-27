@@ -48,7 +48,12 @@ public class RegistryRestController {
 
     @PutMapping("/accessPasses/{referenceId}")
     RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
-        return registryService.update(referenceId, rapidPassRequest);
+        try {
+            return registryService.update(referenceId, rapidPassRequest);
+        } catch (RegistryService.UpdateAccessPassException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @DeleteMapping("/accessPasses/{referenceId}")
