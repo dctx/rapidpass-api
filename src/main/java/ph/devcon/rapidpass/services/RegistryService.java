@@ -170,8 +170,7 @@ public class RegistryService {
         if (rapidPassRequest.getPassType() != null)
             accessPass.setPassType(rapidPassRequest.getPassType().toString());
 
-        String name = rapidPassRequest.getFirstName() + " " + rapidPassRequest.getLastName();
-        accessPass.setName(name);
+        accessPass.setName(rapidPassRequest.getName());
 
         // TODO: We need to verify that only the authorized people to modify this pass are allowed.
         // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
