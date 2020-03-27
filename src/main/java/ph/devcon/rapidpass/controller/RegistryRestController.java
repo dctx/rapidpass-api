@@ -2,13 +2,14 @@ package ph.devcon.rapidpass.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
 import ph.devcon.rapidpass.model.UpdateRapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,13 +49,15 @@ public class RegistryRestController {
     }
 
     @PutMapping("/accessPasses/{referenceId}")
-    RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody UpdateRapidPassRequest rapidPassRequest) {
+    HttpEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody UpdateRapidPassRequest rapidPassRequest) {
+        RapidPass rapidPass;
         try {
-            return registryService.update(referenceId, rapidPassRequest);
-        } catch (RegistryService.UpdateAccessPassException e) {
-            e.printStackTrace();
+            rapidPass = registryService.update(referenceId, rapidPassRequest);
+        } catch (RegistryService.UpdateAccessPassException exception) {
+            String errorMessage = exception.getMessage();
+            return ResponseEntity.badRequest().body(errorMessage);
         }
-        return null;
+        return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
     @DeleteMapping("/accessPasses/{referenceId}")
