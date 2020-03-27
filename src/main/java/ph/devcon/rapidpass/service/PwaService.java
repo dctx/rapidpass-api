@@ -2,8 +2,6 @@ package ph.devcon.rapidpass.service;
 
 import ph.devcon.rapidpass.model.RapidPassRequest;
 
-import javax.annotation.Nullable;
-
 /**
  * The {@link PwaService} interface provides the business logic for servicing PWA requests.
  */
@@ -22,6 +20,5 @@ public interface PwaService {
      * @param referenceId mobileNum or plateNum
      * @return Matching {@link RapidPassRequest} data or null, if not found.
      */
-    @Nullable
     RapidPassRequest getPassRequest(String referenceId);
 }

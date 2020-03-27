@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.5.RELEASE</version>
+        <version>2.2.6.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>ph.devcon.rapidpass</groupId>
-    <artifactId>api</artifactId>
+    <groupId>ph.devcon</groupId>
+    <artifactId>rapidpass-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>rapidpass-api</name>
     <description>Rapid Pass API</description>
@@ -24,38 +24,11 @@
         <start-class>ph.devcon.rapidpass.RapidpassApplication</start-class>
     </properties>
     <build>
-        <finalName>api</finalName>
+        <finalName>rapidpass-api</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>io.swagger.codegen.v3</groupId>
-                <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>3.0.18</version>
-                <executions>
-                    <execution>
-                        <id>generate-server-side</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${swagger-definition-file}</inputSpec>
-                            <language>spring</language>
-                            <addCompileSourceRoot>false</addCompileSourceRoot>
-                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
-                            <configOptions>
-                                <modelPackage>${project.groupId}.${project.artifactId}.models</modelPackage>
-                                <apiPackage>${project.groupId}.${project.artifactId}.controllers</apiPackage>
-                                <configPackage>${project.groupId}.${project.artifactId}.configurations</configPackage>
-                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <java8>true</java8>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.liquibase</groupId>
@@ -92,9 +65,44 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- display active profile in compile phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>show-profiles</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>active-profiles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
+
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-security</artifactId>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
@@ -106,10 +114,10 @@
             <artifactId>rapidpass-commons</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
         <!-- super nice annotation helpers -->
@@ -118,6 +126,11 @@
             <artifactId>lombok</artifactId>
             <version>1.18.12</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- QR code generator/reader-->
@@ -135,43 +148,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>5.4.12.Final</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.11</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-            <version>1.4.200</version>
-        </dependency>
-
         <!-- end of persistence -->
-        <!-- swagger code gen dependencies -->
-        <dependency>
-            <groupId>io.swagger.codegen.v3</groupId>
-            <artifactId>swagger-codegen-maven-plugin</artifactId>
-            <version>3.0.18</version>
-        </dependency>
-        <!-- end pf swagger code gen dependencies -->
+
         <!--SpringFox dependencies -->
         <dependency>
             <groupId>io.springfox</groupId>
@@ -241,14 +224,33 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- end of testing -->
+
         <!-- for API interactions e.g. MailGun -->
         <dependency>
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
         </dependency>
-
-        <!-- end of testing -->
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>localdev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <activateSpringProfile>localdev</activateSpringProfile>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activateSpringProfile>release</activateSpringProfile>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
