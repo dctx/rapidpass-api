@@ -1,5 +1,5 @@
 HELP.md
-target/
+# target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**
@@ -34,7 +34,8 @@ build/
 /volumes
 
 ### Others
-/target
+# /target
+
 /.swagger-codegen
 .gitignore
 /swagger-codegen-ignore

@@ -1,6 +1,8 @@
 spring:
   datasource:
-    url:
+    url: jdbc:postgresql://localhost:5432/rapidpass
+    username: dctx
+    password: password
   jpa:
     hibernate:
       ddl-auto: none
@@ -15,10 +17,8 @@ spring:
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
-
     date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
 #    default-property-inclusion: non_empty
-
   mail:
     host: smtp.mailgun.org
     port: 587

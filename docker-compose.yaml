@@ -17,5 +17,12 @@ services:
       POSTGRES_DB: rapidpass
     ports:
     - 5432:5432
-    volumes: 
-    - ./volumes/db:/var/lib/postgresql/data
+  swagger:
+    image: swaggerapi/swagger-ui:v3.25.0
+    container_name: rapidpass_swagger
+    restart: always
+    environment:
+      URL: http://localhost:8080/api/v1/spec
+    ports:
+      - "9999:8080"
+

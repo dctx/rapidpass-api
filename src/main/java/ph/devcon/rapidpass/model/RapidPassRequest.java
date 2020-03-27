@@ -26,9 +26,10 @@ public final class RapidPassRequest {
     private String refNum = UUID.randomUUID().toString();
 
     @NotNull
-    private RequestType passType;
+    private RapidPassRequest.PassType passType;
     private AccessType accessType;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String company;
     private String idType;
     private String plateOrId; // todo validate. use validation annotations.
@@ -71,7 +72,7 @@ public final class RapidPassRequest {
     /**
      * Types of Requests supported by RapidPass.
      */
-    public enum RequestType {
+    public enum PassType {
         INDIVIDUAL, VEHICLE
     }
 

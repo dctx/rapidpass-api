@@ -1,6 +1,8 @@
 spring:
   datasource:
-    url:
+    url: jdbc:h2:file:./h2
+    username: dctx
+    password: password
   jpa:
     hibernate:
       ddl-auto: none
@@ -9,16 +11,14 @@ spring:
       enabled: true
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
-    url: jdbc:postgresql://localhost:5432/rapidpass
+    url: jdbc:h2:file:./h2
     user: dctx
     password: password
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
-
     date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
 #    default-property-inclusion: non_empty
-
   mail:
     host: smtp.mailgun.org
     port: 587

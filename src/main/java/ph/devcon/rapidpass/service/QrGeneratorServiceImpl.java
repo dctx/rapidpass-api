@@ -1,23 +1,26 @@
 package ph.devcon.rapidpass.service;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
+
+import javax.imageio.ImageIO;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
 
 /**
  * The {@link QrGeneratorServiceImpl} implements{@link QrGeneratorService} using the excellent Zebra Crossing barcode library.
@@ -33,7 +36,7 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     /**
      * Spring Jackson JSON serializer.
      */
-    private final ObjectMapper jsonMapper;
+    private ObjectMapper jsonMapper;
 
     /**
      * QR code width in pixels. Default to 500px. Configurable via {@code rapidpass.qr.width} property.
@@ -45,8 +48,13 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      */
     @Value("${rapidpass.qr.height:500}")
     private int qrHeight = 500;
-
-
+    
+    public QrGeneratorServiceImpl(ObjectMapper jsonMapper)
+    {
+        this.jsonMapper = jsonMapper;
+    }
+    
+    
     @Override
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
@@ -61,7 +69,7 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
 
         // TODO: overlay rapid pass logo?
 
-        log.debug("Saved QR image to {}", qr.getAbsolutePath());
+        // log.debug("Saved QR image to {}", qr.getAbsolutePath());
         return qr;
     }
 

@@ -8,6 +8,7 @@ package ph.devcon.rapidpass.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -64,9 +66,11 @@ public class Registrar implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "registrar_id_generator")
+    // FIXME: temporarily set to 1 to compile. will have to fix.
+    @SequenceGenerator(name="registrar_id_generator", sequenceName = "registrar_id_seq", allocationSize=1)
     @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", updatable = false, nullable = false)
     private Integer id;
     @Size(max = 150)
     @Column(name = "name")
