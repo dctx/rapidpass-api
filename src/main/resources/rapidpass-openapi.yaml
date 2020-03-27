@@ -1,12 +1,10 @@
 openapi: 3.0.0
 # Added by API Auto Mocking Plugin
+
+## The server is set to a relative path so when a swagger ui instance reads this, it will use the host + this relative
+## path. this path should be the same as the base path of the api.
 servers:
-  - url: http://localhost:8080
-    description: local
-  - url: https://api.rapidpass.devcon.ph/v1
-  - url: http://api.rapidpass.devcon.ph/v1
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/jonasespelita/rapidpass-api/1.0.0
+  - url: /api/v1/
 info:
   description: API for Rapid Pass Web Services. Guys, currently super simple pass ng API. Please send Merge Requests to update details. Thanks!
   version: "1.0.0"

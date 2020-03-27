@@ -1,8 +1,5 @@
 package ph.devcon.rapidpass.service.notification;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +12,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Qualifier("sms")
@@ -30,12 +31,7 @@ public class SMSNotificationService implements NotificationService {
 
     @Value("${semaphore.url}")
     private String url;
-    
-    public SMSNotificationService(RestTemplate mockRestTemplate)
-    {
-        restTemplate = mockRestTemplate;
-    }
-    
+
     @Override
     public void send(NotificationMessage message) throws NotificationException {
         if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");

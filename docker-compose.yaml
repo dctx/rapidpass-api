@@ -5,6 +5,20 @@ services:
     build: .
     image: dctx/rapidpass-api:latest
     restart: always
+    environment:
+      RAPIDPASS_PG_HOST: rapidpass_db
+      RAPIDPASS_PG_PORT: '5432'
+      RAPIDPASS_PG_DATABASE: rapidpass
+      RAPIDPASS_PG_USERNAME: dctx
+      RAPIDPASS_PG_PASSWORD: password
+      RAPIDPASS_SMTP_HOST: ''
+      RAPIDPASS_SMTP_PORT: ''
+      RAPIDPASS_SMTP_USERNAME: ''
+      RAPIDPASS_SMTP_PASSWORD: ''
+      RAPIDPASS_SMTP_AUTH_ENABLED: 'true'
+      RAPIDPASS_SMTP_TLS_ENABLED: 'true'
+      RAPIDPASS_SEMAPHORE_URL: ''
+      RAPIDPASS_SEMAPHORE_KEY: ''
     ports:
     - 8080:8080
   db:

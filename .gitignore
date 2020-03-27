@@ -38,3 +38,6 @@ build/
 
 ### filesystem
 .DS_Store
+
+### helm
+/helm/rapidpass-api/charts

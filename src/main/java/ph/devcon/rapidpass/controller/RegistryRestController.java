@@ -13,8 +13,7 @@ import java.util.List;
 /**
  * Registry API Rest Controller
  */
-
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 @RequestMapping("/registry")
 @Slf4j
@@ -27,32 +26,32 @@ public class RegistryRestController {
         this.registryService = registryService;
     }
 
-    @GetMapping("/accessPasses")
+    @GetMapping("/access-passes")
     public List<RapidPass> getAccessPasses() {
         return registryService.findAll();
     }
 
-    @GetMapping("/accessPasses/{referenceId}")
+    @GetMapping("/access-passes/{referenceId}")
     RapidPass getAccessPassDetails(@PathVariable String referenceId) {
         return registryService.find(referenceId);
     }
 
-    @PostMapping("/accessPasses")
+    @PostMapping("/access-passes")
     RapidPass newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
         return registryService.newRequestPass(rapidPassRequest);
     }
 
-    @GetMapping("/controlCodes")
+    @GetMapping("/control-codes")
     public Iterable<RapidPass> getControlCodes() {
         return registryService.findAll();
     }
 
-    @PutMapping("/accessPasses/{referenceId}")
+    @PutMapping("/access-passes/{referenceId}")
     RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
         return registryService.update(referenceId, rapidPassRequest);
     }
 
-    @DeleteMapping("/accessPasses/{referenceId}")
+    @DeleteMapping("/access-passes/{referenceId}")
     RapidPass revokeAccessPass(@PathVariable String referenceId) {
         return registryService.revoke(referenceId);
     }
