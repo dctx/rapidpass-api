@@ -49,20 +49,18 @@ public class RegistryService {
         registrant.setEmail(rapidPassRequest.getEmail());
         registrant.setMobile(rapidPassRequest.getMobileNumber());
         registrant.setReferenceId(rapidPassRequest.getPlateOrId());
+        registrant = registrantRepository.save(registrant);
         // map an access pass to the registrant
         AccessPass accessPass = new AccessPass();
+        accessPass.setRegistrantId(registrant);
         accessPass.setReferenceId(registrant.getMobile());
         accessPass.setName(registrant.getFirstName() + " " + registrant.getLastName());
         accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setStatus("pending");
-        Collection<AccessPass> accessPasses = new ArrayList<>();
-        accessPasses.add(accessPass);
-
-        registrant.setAccessPassCollection(accessPasses);
 
         log.info("Persisting Registrant: {}", registrant.toString());
-        registrantRepository.saveAndFlush(registrant);
+        accessPassRepository.saveAndFlush(accessPass);
 
 //        registrar.getRegistrantCollection().add(registrant);
 //        registryRepository.save(registrar);
