@@ -1,4 +1,5 @@
 spring:
+  servlet:
   jpa:
     hibernate:
       ddl-auto: none
@@ -26,10 +27,11 @@ spring:
           auth: true
           starttls:
             enable: true
-
-
 springfox:
   documentation:
     swagger:
       v2:
         path: /api-docs
+server:
+  servlet:
+    context-path: /api/v1

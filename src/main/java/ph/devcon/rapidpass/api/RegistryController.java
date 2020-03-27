@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
@@ -40,10 +41,11 @@ public class RegistryController {
 
         // make sure rapidPassRequest is PENDING
         rapidPassRequest.setRequestStatus(PENDING);
-        registryService.createPassRequest(rapidPassRequest);
+        RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body("OK");
+                .body(rapidPass);
     }
 
     /**
@@ -55,8 +57,8 @@ public class RegistryController {
     @GetMapping("accessPasses/{referenceID}")
     public HttpEntity<?> getPassRequest(
             @PathVariable String referenceID) {
-        final RapidPassRequest passRequest = registryService.getPassRequest(referenceID);
-        return passRequest == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(passRequest);
+        RapidPass rapidPass = registryService.find(referenceID);
+        return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
 }

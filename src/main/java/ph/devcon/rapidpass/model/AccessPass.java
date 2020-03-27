@@ -29,7 +29,7 @@ import javax.validation.constraints.Size;
  * @author eric
  */
 @Entity
-@Table(name = "access_pass")
+@Table(name = "access_pass", schema = "public")
 @NamedQueries({
     @NamedQuery(name = "AccessPass.findAll", query = "SELECT a FROM AccessPass a"),
     @NamedQuery(name = "AccessPass.findById", query = "SELECT a FROM AccessPass a WHERE a.id = :id"),
