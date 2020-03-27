@@ -14,6 +14,7 @@ import java.util.List;
  * Registry API Rest Controller
  */
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/registry")
 @Slf4j

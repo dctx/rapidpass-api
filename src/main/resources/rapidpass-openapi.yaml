@@ -1,6 +1,8 @@
 openapi: 3.0.0
 # Added by API Auto Mocking Plugin
 servers:
+  - description: local
+    url: http://localhost:8080
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/jonasespelita/rapidpass-api/1.0.0
 info:

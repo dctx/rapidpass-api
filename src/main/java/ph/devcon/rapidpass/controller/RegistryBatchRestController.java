@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import ph.devcon.rapidpass.service.RegistryService;
 /**
  * Registry API Rest Controller specifically for batch operations
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/batch")
 @Slf4j
