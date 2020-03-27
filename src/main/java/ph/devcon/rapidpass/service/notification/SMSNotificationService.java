@@ -24,20 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class SMSNotificationService implements NotificationService {
 
-    private final RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;
 
     @Value("${semaphore.url}")
     private String url;
-    
-    @Autowired
-    public SMSNotificationService(RestTemplate mockRestTemplate)
-    {
-        restTemplate = mockRestTemplate;
-    }
-    
+
     @Override
     public void send(NotificationMessage message) throws NotificationException {
         if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");
