@@ -42,6 +42,8 @@ public class RegistryService {
         } else {
             log.error("Unable to retrieve Registrar");
         }
+        registrant.setRegistrantType(1);
+        registrant.setRegistrantName(rapidPassRequest.getFirstName() + " " + rapidPassRequest.getLastName());
         registrant.setFirstName(rapidPassRequest.getFirstName());
         registrant.setLastName(rapidPassRequest.getLastName());
         registrant.setEmail(rapidPassRequest.getEmail());
