@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "swaggerui.fullname" . }}
+  labels:
+    app: {{ template "swaggerui.name" . }}
+    chart: {{ template "swaggerui.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.swaggerUI.replicaCount }}
+  selector:
+    matchLabels:
+        app: {{ template "swaggerui.name" . }}
+        chart: {{ template "swaggerui.chart" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "swaggerui.name" . }}
+        chart: {{ template "swaggerui.chart" . }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.swaggerUI.image.repository }}:{{ .Values.swaggerUI.image.tag }}"
+          imagePullPolicy: {{ .Values.swaggerUI.image.pullPolicy }}
+          env:
+          - name: URLS
+            value: {{ .Values.swaggerUI.config.urls | toJson | quote }}
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            {{- toYaml .Values.swaggerUI.resources | nindent 12 }}
+      {{- with .Values.swaggerUI.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.swaggerUI.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.swaggerUI.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
