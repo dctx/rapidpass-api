@@ -12,9 +12,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ActiveProfiles;
-
-import ph.devcon.rapidpass.service.notification.EmailNotification;
 
 @SpringBootTest
 public class EmailServiceTest{
@@ -27,7 +24,7 @@ public class EmailServiceTest{
 
     @Test
     public void sendMail() {
-        EmailNotification email = new EmailNotification();
+        EmailNotificationService email = new EmailNotificationService();
 
         ArgumentCaptor<MimeMessage> arg = ArgumentCaptor.forClass(MimeMessage.class);
         Session s = null;

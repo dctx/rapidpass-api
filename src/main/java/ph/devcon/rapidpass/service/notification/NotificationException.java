@@ -8,4 +8,8 @@ public class NotificationException extends Exception {
         super(e);
     }
 
+    public NotificationException(String message) {
+        super(message);
+    }
+
 }

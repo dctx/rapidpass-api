@@ -18,3 +18,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
+semaphore:
+  url: https://api.semaphore.co/api/v4/messages
+  key: ''

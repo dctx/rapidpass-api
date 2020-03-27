@@ -19,7 +19,7 @@ public class RapidpassApplication implements CommandLineRunner
     
     public static void main(String[] args)
     {
-        new SpringApplication(RapidpassApplication.class).run(args);
+       new SpringApplication(RapidpassApplication.class).run(args);
     }
     
     class ExitException extends RuntimeException implements ExitCodeGenerator

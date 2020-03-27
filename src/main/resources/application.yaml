@@ -35,6 +35,11 @@ springfox:
     swagger:
       v2:
         path: /api-docs
+
+semaphore:
+  url: https://api.semaphore.co/api/v4/messages
+  key: ''
+
 server:
   servlet:
     context-path: /api/v1
