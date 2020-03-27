@@ -84,8 +84,15 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass find(String referenceId) {
-        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-        return RapidPass.buildFrom(accessPass);
+//        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        // TODO: how to deal with 'renewals'? i.e.
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIdOrderByValidToDesc(referenceId);
+        if (accessPasses.size() > 1) {
+            log.error("Multiple Access Pass found for reference ID: {}", referenceId);
+        } else if (accessPasses.size() <= 0){
+            return null;
+        }
+        return RapidPass.buildFrom(accessPasses.get(0));
     }
 
     /**
