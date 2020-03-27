@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import ph.devcon.rapidpass.service.RegistryService;
 import java.util.List;
 
 @RestController
+@Slf4j
 public class RegistryRestController {
 
     private RegistryService registryService;
@@ -28,6 +30,7 @@ public class RegistryRestController {
 
     @PostMapping("/accessPasses")
     RapidPass newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
+        log.info("New RapidPass Request: {}", rapidPassRequest);
         return registryService.newRequestPass(rapidPassRequest);
     }
 }

@@ -17,8 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.MED;
 import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.O;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.VEHICLE;
+import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
 
 /**
  * Tests for PwaController.

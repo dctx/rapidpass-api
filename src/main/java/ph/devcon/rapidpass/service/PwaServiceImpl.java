@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.model.RapidPassRequest;
 
 import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.O;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
+import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.INDIVIDUAL;
 
 /**
  * Implementation for {@link PwaService}.
@@ -28,7 +28,8 @@ public class PwaServiceImpl implements PwaService {
         // returns a stub
         return RapidPassRequest.builder()
                 .passType(INDIVIDUAL)
-                .name("Jonas Espelita")
+                .firstName("Jonas")
+                .lastName("Espelita")
                 .mobileNumber("string")
                 .email("jonas.was.here@gmail.com")
                 .destAddress("Somewhere in the PH")
