@@ -59,7 +59,8 @@ public class RegistryService {
 
         registrant.setAccessPassCollection(accessPasses);
 
-        registrantRepository.save(registrant);
+        log.info("Persisting Registrant: {}", registrant.toString());
+        registrantRepository.saveAndFlush(registrant);
 
 //        registrar.getRegistrantCollection().add(registrant);
 //        registryRepository.save(registrar);
