@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
+import ph.devcon.rapidpass.model.UpdateRapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class RegistryRestController {
     }
 
     @PutMapping("/accessPasses/{referenceId}")
-    RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
+    RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody UpdateRapidPassRequest rapidPassRequest) {
         try {
             return registryService.update(referenceId, rapidPassRequest);
         } catch (RegistryService.UpdateAccessPassException e) {

@@ -11,7 +11,7 @@ import java.util.UUID;
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
 
 /**
- * The {@link RapidPassRequest} class models a Rapid Pass Request.
+ * The {@link RapidPassRequest} class models a Rapid Pass request to either create or retrieve a rapid pass request.
  */
 @Data
 @Builder

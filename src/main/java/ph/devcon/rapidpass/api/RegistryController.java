@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
+import ph.devcon.rapidpass.model.UpdateRapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
@@ -62,7 +63,7 @@ public class RegistryController {
     }
 
     @PutMapping("accessPass/{referenceID}")
-    public HttpEntity<?> updatePassRequest(@PathVariable String referenceID, @RequestBody RapidPassRequest rapidPassRequest) {
+    public HttpEntity<?> updatePassRequest(@PathVariable String referenceID, @RequestBody UpdateRapidPassRequest rapidPassRequest) {
         RapidPass rapidPass;
         try {
             rapidPass = registryService.update(referenceID, rapidPassRequest);

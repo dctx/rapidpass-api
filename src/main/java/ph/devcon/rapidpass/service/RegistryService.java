@@ -9,8 +9,12 @@ import ph.devcon.rapidpass.jpa.RegistrantRepository;
 import ph.devcon.rapidpass.jpa.RegistryRepository;
 import ph.devcon.rapidpass.model.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Component
@@ -86,36 +90,50 @@ public class RegistryService {
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @param rapidPassRequest The data for the rapid pass request
+     * @param updateRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
-    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
+    public RapidPass update(String referenceId, UpdateRapidPassRequest updateRequest) throws UpdateAccessPassException {
         AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
 
-        boolean isPending = accessPass.getStatus().equals("PENDING");
+        String status = accessPass.getStatus();
+
+        boolean isPending = RapidPassRequest.RequestStatus.PENDING.toString().equals(status);
 
         if (!isPending) {
-            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked. [Status=" + status + " != " + RapidPassRequest.RequestStatus.PENDING.toString() + "]");
         }
 
-        accessPass.setStatus(rapidPassRequest.getRequestStatus().toString());
-        accessPass.setRemarks(rapidPassRequest.getRemarks());
-        accessPass.setAccessType(rapidPassRequest.getAccessType().toString());
-        accessPass.setCompany(rapidPassRequest.getCompany());
-        accessPass.setDestinationAddress(rapidPassRequest.getDestAddress());
-        accessPass.setOriginAddress(rapidPassRequest.getOriginAddress());
-        accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
-        accessPass.setPassType(rapidPassRequest.getPassType().toString());
+        if (updateRequest.getStatus() != null)
+            accessPass.setStatus(updateRequest.getStatus());
 
-        String name = rapidPassRequest.getFirstName() + " " + rapidPassRequest.getLastName();
-        accessPass.setName(name);
+        accessPass.setPlateOrId(updateRequest.getPlateOrId());
+
+        if (updateRequest.getPassType() != null)
+            accessPass.setPassType(updateRequest.getPassType().toString());
 
         // TODO: We need to verify that only the authorized people to modify this pass are allowed.
         // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
         // accessPass.setRegistrantId();
 
-        accessPassRepository.save(accessPass);
-        return RapidPass.buildFrom(accessPass);
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            sdf.setTimeZone(TimeZone.getTimeZone("Asia/Manila"));
+
+            String text = sdf.format(new Date());
+            System.err.println(text);
+
+            Date validUntil = sdf.parse(updateRequest.getValidUntil());
+            accessPass.setValidTo(validUntil);
+        } catch (ParseException e) {
+            throw new UpdateAccessPassException("Invalid date format for property `validUntil`. " + e.getMessage());
+        }
+
+        System.out.println(updateRequest);
+        System.out.println(accessPass);
+
+        AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
+        return RapidPass.buildFrom(savedAccessPass);
     }
 
     /**
