@@ -17,10 +17,10 @@ import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.model.RapidPassRequest.RequestType;
+import ph.devcon.rapidpass.model.RapidPassRequest.PassType;
 
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.VEHICLE;
+import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
 
 
 /**
@@ -112,7 +112,7 @@ public class PdfGenerator {
         Paragraph details = new Paragraph();
 
         // checks if pass type is individual or vehicle
-        final RequestType passType = approvedRapidPass.getPassType();
+        final PassType passType = approvedRapidPass.getPassType();
         if (passType.equals(INDIVIDUAL)) {
             details.setFontSize(20);
             details.setMarginLeft(70);

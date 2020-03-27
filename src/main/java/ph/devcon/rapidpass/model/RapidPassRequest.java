@@ -51,6 +51,10 @@ public final class RapidPassRequest {
     @Builder.Default
     private RequestStatus requestStatus = PENDING;
 
+    public String getName() {
+        return getFirstName() + " " + getLastName();
+    }
+
     /**
      * The Statuses that a RapidPass Request can have.
      */
