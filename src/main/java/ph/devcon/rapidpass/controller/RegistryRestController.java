@@ -45,4 +45,14 @@ public class RegistryRestController {
     public Iterable<RapidPass> getControlCodes() {
         return registryService.findAll();
     }
+
+    @PutMapping("/accessPasses/{referenceId}")
+    RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
+        return registryService.update(referenceId, rapidPassRequest);
+    }
+
+    @DeleteMapping("/accessPasses/{referenceId}")
+    RapidPass revokeAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
+        return registryService.revoke(referenceId, rapidPassRequest);
+    }
 }

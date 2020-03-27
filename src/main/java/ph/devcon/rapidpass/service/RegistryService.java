@@ -83,4 +83,14 @@ public class RegistryService {
                 .orElse(null);
 
     }
+
+    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) {
+        // TODO: implement
+        return null;
+    }
+
+    public RapidPass revoke(String referenceId, RapidPassRequest rapidPassRequest) {
+        // TODO: implement
+        return null;
+    }
 }
