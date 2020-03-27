@@ -16,6 +16,8 @@ import com.itextpdf.layout.property.TextAlignment;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
+
+import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
@@ -77,12 +79,12 @@ public class PdfGenerator {
      *
      * @param filePath          path of file where to save pdf
      * @param qrCodeFile        Image file for QR code
-     * @param approvedRapidPass approved rapid pass model
+     * @param accessPass        AccessPass model
      * @return file object of generated pdf
      */
     public static File generatePdf(String filePath,
                                    File qrCodeFile,
-                                   RapidPassRequest approvedRapidPass)
+                                   AccessPass accessPass)
             throws FileNotFoundException, MalformedURLException {
         log.debug("generating pdf at {}", filePath);
 
@@ -100,38 +102,44 @@ public class PdfGenerator {
         dctxLogo.setFixedPosition(400, 0);
 
         //processes the data that will be on the pdf
-
-        //properties for control number
-        Paragraph controlNumbeParagraph = new Paragraph();
-        controlNumbeParagraph.setFontSize(44);
-        controlNumbeParagraph.setTextAlignment(TextAlignment.CENTER);
-        controlNumbeParagraph.setMarginTop(-50);
-        controlNumbeParagraph.setBold();
-        controlNumbeParagraph.add(approvedRapidPass.getControlCode() + "\n");
-
+        Paragraph header = new Paragraph();
         Paragraph details = new Paragraph();
 
         // checks if pass type is individual or vehicle
-        final PassType passType = approvedRapidPass.getPassType();
+        final String passType = accessPass.getPassType();
         if (passType.equals(INDIVIDUAL)) {
-            details.setFontSize(20);
+            //header
+            header.setFontSize(44);
+            header.setTextAlignment(TextAlignment.CENTER);
+            header.setMarginTop(-50);
+            header.setBold();
+            header.add(accessPass.getControlCode() + "\n");
+
+            //details
+            details.setFontSize(24);
             details.setMarginLeft(70);
-            details.add("Name:\t" + approvedRapidPass.getName() + "\n" +
-                    "APOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
-                    "Pass Type:\t" + passType + "\n" +
-                    "Company:\t" + approvedRapidPass.getCompany());
+            details.add("Access Type:\t" + accessPass.getAporType() + "\n" +
+                    "Company:\t" + accessPass.getCompany() + "\n" +
+                    "Vallid Until:\t" + accessPass.getValidTo().toString());
         } else if (passType.equals(VEHICLE)) {
-            details.setFontSize(20);
+            //header
+            header.setFontSize(44);
+            header.setTextAlignment(TextAlignment.CENTER);
+            header.setMarginTop(-50);
+            header.setBold();
+            header.add(accessPass.getIdentifierNumber() + "\n");
+
+            //details
+            details.setFontSize(24);
             details.setMarginLeft(70);
-            details.add("AOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
-                    "Pass Type:\t" + passType + "\n" +
-                    "Plate:\t" + approvedRapidPass.getIdentifierNumber() + "\n" +
-                    "Name:\t" + approvedRapidPass.getName());
+            details.add("Access Type:\t" + accessPass.getAporType() + "\n" +
+                    "Company:\t" + accessPass.getCompany() + "\n" +
+                    "Vallid Until:\t" + accessPass.getValidTo().toString());
         }
 
         //writes to the document
         document.add(qrcode);
-        document.add(controlNumbeParagraph);
+        document.add(header);
         document.add(details);
         document.add(dctxLogo);
 
