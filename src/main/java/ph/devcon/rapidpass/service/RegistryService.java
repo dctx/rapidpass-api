@@ -73,23 +73,46 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Used when the inspector or approver wishes to view more details about the
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @return Data stored on the database
+     */
     public RapidPass find(String referenceId) {
-        Optional<AccessPass> potentialAccessPass = accessPassRepository.findAll()
-                .stream()
-                .filter(accessPass -> accessPass.getReferenceId().equals(referenceId))
-                .findFirst();
-
-        return potentialAccessPass.map(RapidPass::buildFrom)
-                .orElse(null);
-
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        return RapidPass.buildFrom(accessPass);
     }
 
+    /**
+     * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @param rapidPassRequest The data for the rapid pass request
+     * @return Data stored on the database
+     */
     public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) {
         // TODO: implement
         return null;
     }
 
-    public RapidPass revoke(String referenceId, RapidPassRequest rapidPassRequest) {
+    /**
+     * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is revoked.
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @return Data stored on the database
+     */
+    public RapidPass revoke(String referenceId) {
+        // TODO: implement
+        return null;
+    }
+
+    /**
+     * Returns a list of rapid passes that were requested for granting or approval.
+     *
+     * TODO: This needs to be reworked such that the batch data is not uploaded via json request body, but by excel file or csv.
+     *
+     * @param rapidPassBatchRequest JSON object containing an array of rapid pass requests
+     * @return a list of generated rapid passes, whose status are all pending (because they have just been requested).
+     */
+    public Iterable<RapidPass> batchUpload(RapidPassBatchRequest rapidPassBatchRequest) {
         // TODO: implement
         return null;
     }
