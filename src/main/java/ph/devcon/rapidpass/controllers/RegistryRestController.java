@@ -49,8 +49,15 @@ public class RegistryRestController {
     }
 
     @PutMapping("/access-passes/{referenceId}")
-    RapidPass updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
-        return registryService.update(referenceId, rapidPassRequest);
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
+        RapidPass rapidPass;
+        try {
+            rapidPass = registryService.update(referenceId, rapidPassRequest);
+        } catch (RegistryService.UpdateAccessPassException exception) {
+            String errorMessage = exception.getMessage();
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+        return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
     @DeleteMapping("/access-passes/{referenceId}")
