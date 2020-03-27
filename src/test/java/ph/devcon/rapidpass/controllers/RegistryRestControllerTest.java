@@ -10,12 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.controllers.RegistryRestController;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
+
+import java.util.ArrayList;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -78,7 +81,8 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
-        vehicleAccessPass.setPlateOrId(TEST_VEHICLE_REQUEST.getPlateOrId());
+        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+        vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
         vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
@@ -108,9 +112,9 @@ class RegistryRestControllerTest {
                 .lastName("Espelita")
                 .mobileNumber("0915999999")
                 .email("jonas.was.here@gmail.com")
-                .destAddress("Somewhere in the PH")
+                .destStreet("Somewhere in the PH")
                 .company("DEVCON")
-                .aporType(O)
+                .aporType(APORType.O.toString())
                 .remarks("This is a test for INDIVIDUAL REQUEST")
                 .build();
 
@@ -138,12 +142,13 @@ class RegistryRestControllerTest {
 
         RapidPassRequest request = RapidPassRequest.builder()
                 .passType(VEHICLE)
-                .plateOrId("ABCD 1234")
+                .identifierNumber("ABCD 1234")
+                .idType("PLATENUMBER")
                 .mobileNumber("0915999999")
                 .email("jonas.was.here@gmail.com")
-                .destAddress("Somewhere in the PH")
+                .destStreet("Somewhere in the PH")
                 .company("DEVCON")
-                .aporType(MED)
+                .aporType(APORType.MED.toString())
                 .remarks("This is a test for VEHICLE REQUEST")
                 .build();
 
@@ -195,6 +200,46 @@ class RegistryRestControllerTest {
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
                 .andExpect(jsonPath("$.plateOrId").value("ABCD 1234"))
                 .andExpect(jsonPath("$.status").value("PENDING"))
+                .andDo(print());
+    }
+
+
+    /**
+     * This tests GETting `requestPass` with either mobileNum or plateNum.
+     *
+     * @throws Exception on failed test
+     */
+    @Test
+    void getControlCodes() throws Exception {
+
+        ControlCode controlCode = ControlCode.builder()
+                .accessType(APORType.MED.toString())
+                .company("DEVCON")
+                .destAddress("Somewhere in the PH")
+                .plateOrId("ABCD 1234")
+                .status(RequestStatus.APPROVED.toString()).build();
+
+        ArrayList<ControlCode> controlCodes = new ArrayList<>();
+        controlCodes.add(controlCode);
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.getControlCodes())
+                .thenReturn(controlCodes);
+
+        final String getAccessPathUrlTemplate = "/registry/control-codes/";
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate))
+                .andExpect(status().isOk())
+                // test json is expected
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").isMap())
+                .andExpect(jsonPath("$[0].company").value("DEVCON"))
+                .andExpect(jsonPath("$[0].destAddress").value("Somewhere in the PH"))
+                .andExpect(jsonPath("$[0].plateOrId").value("ABCD 1234"))
+                .andExpect(jsonPath("$[0].accessType").value("MED"))
+                .andExpect(jsonPath("$[0].status").value("APPROVED"))
                 .andDo(print());
     }
 
