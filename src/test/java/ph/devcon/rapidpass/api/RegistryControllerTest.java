@@ -1,13 +1,16 @@
 package ph.devcon.rapidpass.api;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ph.devcon.rapidpass.model.AccessPass;
+import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.service.PwaService;
+import ph.devcon.rapidpass.service.RegistryService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,8 +26,8 @@ import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
 /**
  * Tests for PwaController.
  */
-@WebMvcTest(PwaController.class)
-class PwaControllerTest {
+@WebMvcTest(RegistryController.class)
+class RegistryControllerTest {
 
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
@@ -48,11 +51,43 @@ class PwaControllerTest {
             .company("DEVCON")
             .accessType(MED)
             .remarks("This is a test for VEHICLE REQUEST").build();
+
+    public RapidPass TEST_INDIVIDUAL_PASS;
+
+    public RapidPass TEST_VEHICLE_PASS;
+
+    @BeforeEach
+    void init() {
+        AccessPass individualAccessPass = new AccessPass();
+
+        individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
+        individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestAddress());
+        individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
+        individualAccessPass.setAccessType(TEST_INDIVIDUAL_REQUEST.getAccessType().toString());
+        individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
+        // Mobile number is the reference ID?
+        individualAccessPass.setReferenceId(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
+
+        AccessPass vehicleAccessPass = new AccessPass();
+
+        vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
+        vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestAddress());
+        vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
+        vehicleAccessPass.setAccessType(TEST_VEHICLE_REQUEST.getAccessType().toString());
+        vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
+        // Mobile number is the reference ID?
+        vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
+
+        TEST_INDIVIDUAL_PASS = RapidPass.buildFrom(individualAccessPass);
+
+        TEST_VEHICLE_PASS = RapidPass.buildFrom(vehicleAccessPass);
+    }
+
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
-    PwaService mockPwaService;
+    RegistryService mockRegistryService;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.
@@ -67,7 +102,8 @@ class PwaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"passType\": \"INDIVIDUAL\",\n" +
-                                "  \"name\": \"Jonas Espelita\",\n" +
+                                "  \"firstName\": \"Jonas\",\n" +
+                                "  \"lastName\": \"Espelita\",\n" +
                                 "  \"mobileNumber\": \"0915999999\",\n" +
                                 "  \"email\": \"jonas.was.here@gmail.com\",\n" +
                                 "  \"destAddress\": \"Somewhere in the PH\",\n" +
@@ -78,7 +114,7 @@ class PwaControllerTest {
                 .andExpect(status().isCreated());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        verify(mockPwaService, only()).createPassRequest(eq(TEST_INDIVIDUAL_REQUEST));
+        verify(mockRegistryService, only()).newRequestPass(eq(TEST_INDIVIDUAL_REQUEST));
     }
 
     /**
@@ -105,7 +141,7 @@ class PwaControllerTest {
                 .andExpect(status().isCreated());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        verify(mockPwaService, only()).createPassRequest(eq(TEST_VEHICLE_REQUEST));
+        verify(mockRegistryService, only()).newRequestPass(eq(TEST_VEHICLE_REQUEST));
     }
 
     /**
@@ -116,12 +152,12 @@ class PwaControllerTest {
     @Test
     void getPassRequest() throws Exception {
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockPwaService.getPassRequest(eq("0915999999")))
-                .thenReturn(TEST_INDIVIDUAL_REQUEST);
+        when(mockRegistryService.find(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_PASS);
 
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
-        when(mockPwaService.getPassRequest(eq("ABCD 1234")))
-                .thenReturn(TEST_VEHICLE_REQUEST);
+        when(mockRegistryService.find(eq("ABCD 1234")))
+                .thenReturn(TEST_VEHICLE_PASS);
 
         final String getAccessPathUrlTemplate = "/api/v1/registry/accessPasses/{referenceID}";
 
@@ -131,7 +167,8 @@ class PwaControllerTest {
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("INDIVIDUAL"))
-                .andExpect(jsonPath("$.name").value("Jonas Espelita"))
+                .andExpect(jsonPath("$.firstName").value("Jonas"))
+                .andExpect(jsonPath("$.lastName").value("Espelita"))
                 .andExpect(jsonPath("$.mobileNumber").value("0915999999"))
                 .andExpect(jsonPath("$.remarks").value("This is a test for INDIVIDUAL REQUEST"))
                 .andExpect(jsonPath("$.requestStatus").value("PENDING"))
