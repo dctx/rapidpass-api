@@ -14,6 +14,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,8 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     /**
      * Spring Jackson JSON serializer.
      */
-    private ObjectMapper jsonMapper;
+    @NonNull
+    private final ObjectMapper jsonMapper;
 
     /**
      * QR code width in pixels. Default to 500px. Configurable via {@code rapidpass.qr.width} property.

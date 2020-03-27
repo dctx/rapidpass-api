@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.service.notification;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,8 @@ import org.springframework.web.client.RestTemplate;
 @Setter
 public class SMSNotificationService implements NotificationService {
 
-    private RestTemplate restTemplate;
+    @NonNull
+    private final RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;
