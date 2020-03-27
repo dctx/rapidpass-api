@@ -9,10 +9,9 @@ import ph.devcon.rapidpass.jpa.RegistrantRepository;
 import ph.devcon.rapidpass.jpa.RegistryRepository;
 import ph.devcon.rapidpass.model.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -33,7 +32,7 @@ public class RegistryService {
         log.info("New RapidPass Request: {}", rapidPassRequest);
 
         Optional<Registrar> registrarResult = registryRepository.findById(1 );
-        Registrar registrar = registrarResult.isPresent() ? registrarResult.get() : null;
+        Registrar registrar = registrarResult.orElse(null);
 
         Registrant registrant = new Registrant();
         // set essential fields for registrant
@@ -62,32 +61,26 @@ public class RegistryService {
         log.info("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
-        RapidPass rapidPass = RapidPass.builder()
-                .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
-                .plateOrId(accessPass.getPlateOrId())
-                .status(accessPass.getStatus())
-                .referenceId(accessPass.getReferenceId())
-                .validFrom(accessPass.getValidFrom())
-                .validUntil(accessPass.getValidTo())
-                .build();
-
-        return rapidPass;
+        return RapidPass.buildFrom(accessPass);
     }
 
     public List<RapidPass> findAll() {
         List<AccessPass> accessPassList = accessPassRepository.findAll();
-        List<RapidPass> dtoList = new ArrayList<>();
-        accessPassList.forEach((accessPass) -> {
-            RapidPass rapidPass = RapidPass.builder()
-                    .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
-                    .plateOrId(accessPass.getPlateOrId())
-                    .status(accessPass.getStatus())
-                    .referenceId(accessPass.getReferenceId())
-                    .validFrom(accessPass.getValidFrom())
-                    .validUntil(accessPass.getValidTo())
-                    .build();
-            dtoList.add(rapidPass);
-        });
-        return dtoList;
+
+        return accessPassList
+                .stream()
+                .map(RapidPass::buildFrom)
+                .collect(Collectors.toList());
+    }
+
+    public RapidPass find(String referenceId) {
+        Optional<AccessPass> potentialAccessPass = accessPassRepository.findAll()
+                .stream()
+                .filter(accessPass -> accessPass.getReferenceId().equals(referenceId))
+                .findFirst();
+
+        return potentialAccessPass.map(RapidPass::buildFrom)
+                .orElse(null);
+
     }
 }
