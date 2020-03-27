@@ -2,6 +2,8 @@ package ph.devcon.rapidpass.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -59,8 +61,9 @@ public class RegistryRestController {
         return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
-    @DeleteMapping("/access-passes/{referenceId}")
-    RapidPass revokeAccessPass(@PathVariable String referenceId) {
-        return registryService.revoke(referenceId);
+    @DeleteMapping("/accessPasses/{referenceId}")
+    HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) {
+        RapidPass rapidPass = registryService.revoke(referenceId);
+        return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 }
