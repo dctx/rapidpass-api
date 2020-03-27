@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.service.notification;
 
 import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +49,50 @@ class SMSNotificationTest {
 
         // verify postForEntity called with expected vars
         verify(mockRestTemplate, only()).postForEntity(eq("TEST_URL"), any(HttpEntity.class), eq(String.class));
+    }
+
+    /**
+     * The SMS Notification service should throw a {@link NotificationException} if the API key is not configured.
+     */
+    @Test
+    void mockSend_throwExceptionWhenApiKeyNotConfigured() {
+
+        Assertions.assertThrows(NotificationException.class, () -> {
+
+            // Will cause exception
+            smsNotificationService.setApiKey("");
+
+            // act
+            NotificationMessage message = NotificationMessage.New().
+                    message("hello world")
+                    .to("12345")
+                    .from("me")
+                    .create();
+
+            smsNotificationService.send(message);
+        });
+    }
+
+    /**
+     * The SMS Notification service should throw a {@link NotificationException} if the URL is not configured.
+     */
+    @Test
+    void mockSend_throwExceptionWhenUrlNotConfigured()  {
+
+        Assertions.assertThrows(NotificationException.class, () -> {
+
+            // Will cause exception
+            smsNotificationService.setUrl("");
+
+            // act
+            NotificationMessage message = NotificationMessage.New().
+                    message("hello world")
+                    .to("12345")
+                    .from("me")
+                    .create();
+
+            smsNotificationService.send(message);
+        });
     }
 
     // sample test with actual rest template
