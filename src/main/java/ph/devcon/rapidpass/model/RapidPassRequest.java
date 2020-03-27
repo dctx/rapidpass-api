@@ -11,6 +11,8 @@ import java.util.UUID;
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
 
 /**
+ * This the JSON format when requesting to create a new {@link AccessPass}.
+ *
  * The {@link RapidPassRequest} class models a Rapid Pass Request.
  */
 @Data
