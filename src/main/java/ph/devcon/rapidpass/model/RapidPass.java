@@ -10,6 +10,8 @@ import java.util.Date;
 public class RapidPass {
     private String referenceId;
     private String controlCode;
+    private String passType;
+    private String accessType;
     private String plateOrId;
     private String status;
     private Date validFrom;
@@ -17,10 +19,12 @@ public class RapidPass {
 
     public static RapidPass buildFrom(AccessPass accessPass) {
         return RapidPass.builder()
+                .referenceId(accessPass.getReferenceId())
                 .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
+                .passType(accessPass.getPassType())
+                .accessType(accessPass.getAccessType())
                 .plateOrId(accessPass.getPlateOrId())
                 .status(accessPass.getStatus())
-                .referenceId(accessPass.getReferenceId())
                 .validFrom(accessPass.getValidFrom())
                 .validUntil(accessPass.getValidTo())
                 .build();

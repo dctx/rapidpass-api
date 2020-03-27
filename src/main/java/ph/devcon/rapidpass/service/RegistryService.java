@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.service;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import ph.devcon.rapidpass.model.Registrar;
 @Slf4j
 public class RegistryService {
 
+    public static final int DEFAULT_VALIDITY_DAYS = 15;
     private RegistryRepository registryRepository;
     private RegistrantRepository registrantRepository;
     private AccessPassRepository accessPassRepository;
@@ -52,15 +54,22 @@ public class RegistryService {
         registrant.setLastName(rapidPassRequest.getLastName());
         registrant.setEmail(rapidPassRequest.getEmail());
         registrant.setMobile(rapidPassRequest.getMobileNumber());
+        registrant.setReferenceIdType(rapidPassRequest.getIdType());
         registrant.setReferenceId(rapidPassRequest.getPlateOrId());
         registrant = registrantRepository.save(registrant);
         // map an access pass to the registrant
         AccessPass accessPass = new AccessPass();
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceId(registrant.getMobile());
+        accessPass.setAccessType(rapidPassRequest.getAccessType().toString());
         accessPass.setName(registrant.getFirstName() + " " + registrant.getLastName());
+        accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
+        Calendar c = Calendar.getInstance();
+        accessPass.setValidFrom(c.getTime());
+        c.add(Calendar.DATE, DEFAULT_VALIDITY_DAYS);
+        accessPass.setValidTo(c.getTime());
         accessPass.setStatus("pending");
 
         log.info("Persisting Registrant: {}", registrant.toString());
