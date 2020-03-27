@@ -29,7 +29,8 @@ class PwaControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
                     .passType(INDIVIDUAL)
-                    .name("Jonas Espelita")
+                    .firstName("Jonas")
+                    .lastName("Espelita")
                     .mobileNumber("0915999999")
                     .email("jonas.was.here@gmail.com")
                     .destAddress("Somewhere in the PH")
