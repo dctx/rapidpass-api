@@ -61,4 +61,16 @@ public class RegistryController {
         return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
+    @PutMapping("accessPass/{referenceID}")
+    public HttpEntity<?> updatePassRequest(@PathVariable String referenceID, @RequestBody RapidPassRequest rapidPassRequest) {
+        RapidPass rapidPass;
+        try {
+            rapidPass = registryService.update(referenceID, rapidPassRequest);
+        } catch (RegistryService.UpdateAccessPassException exception) {
+            String errorMessage = exception.getMessage();
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+        return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
+    }
+
 }

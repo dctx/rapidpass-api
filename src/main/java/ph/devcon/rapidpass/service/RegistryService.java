@@ -89,9 +89,33 @@ public class RegistryService {
      * @param rapidPassRequest The data for the rapid pass request
      * @return Data stored on the database
      */
-    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) {
-        // TODO: implement
-        return null;
+    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+
+        boolean isPending = accessPass.getStatus().equals("PENDING");
+
+        if (!isPending) {
+            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+        }
+
+        accessPass.setStatus(rapidPassRequest.getRequestStatus().toString());
+        accessPass.setRemarks(rapidPassRequest.getRemarks());
+        accessPass.setAccessType(rapidPassRequest.getAccessType().toString());
+        accessPass.setCompany(rapidPassRequest.getCompany());
+        accessPass.setDestinationAddress(rapidPassRequest.getDestAddress());
+        accessPass.setOriginAddress(rapidPassRequest.getOriginAddress());
+        accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
+        accessPass.setPassType(rapidPassRequest.getPassType().toString());
+
+        String name = rapidPassRequest.getFirstName() + " " + rapidPassRequest.getLastName();
+        accessPass.setName(name);
+
+        // TODO: We need to verify that only the authorized people to modify this pass are allowed.
+        // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
+        // accessPass.setRegistrantId();
+
+        accessPassRepository.save(accessPass);
+        return RapidPass.buildFrom(accessPass);
     }
 
     /**
@@ -115,5 +139,14 @@ public class RegistryService {
     public Iterable<RapidPass> batchUpload(RapidPassBatchRequest rapidPassBatchRequest) {
         // TODO: implement
         return null;
+    }
+
+    /**
+     * This is thrown when updates are not allowed for the AccessPass.
+     */
+    public class UpdateAccessPassException extends Throwable {
+        public UpdateAccessPassException(String s) {
+            super(s);
+        }
     }
 }
