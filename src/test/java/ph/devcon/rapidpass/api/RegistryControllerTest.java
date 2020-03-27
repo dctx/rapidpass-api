@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ph.devcon.rapidpass.controller.RegistryRestController;
 import ph.devcon.rapidpass.model.AccessPass;
 import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
@@ -26,7 +27,7 @@ import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
 /**
  * Tests for PwaController.
  */
-@WebMvcTest(RegistryController.class)
+@WebMvcTest(RegistryRestController.class)
 class RegistryControllerTest {
 
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =

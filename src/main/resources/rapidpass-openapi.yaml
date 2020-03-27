@@ -23,7 +23,7 @@ tags:
     description: Endpoints for approval applications
 
 paths:
-  /registry/accessPasses:
+  /registry/access-passes:
     post:
       tags:
         - registry
@@ -77,7 +77,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessPasses'
 
-  /dashboard/accessPasses:
+  /dashboard/access-passes:
     put:
       tags:
         - dashboard
@@ -124,7 +124,7 @@ paths:
         '200':
           description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
 
-  /dashboard/accessPasses/batchApprove:
+  /dashboard/access-passes/batch-approve:
     post:
       tags:
         - dashboard
@@ -140,7 +140,7 @@ paths:
         '200':
           description: Upload successful
 
-  /dashboard/controlCodes:
+  /dashboard/control-codes:
     get:
       tags:
         - dashboard
@@ -154,7 +154,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ControlCodes'
 
-  /registry/accessPasses/{referenceID}:
+  /registry/access-passes/{referenceID}:
     get:
       operationId: getAccessPassById
       tags:

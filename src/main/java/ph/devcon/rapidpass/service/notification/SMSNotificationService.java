@@ -30,7 +30,12 @@ public class SMSNotificationService implements NotificationService {
 
     @Value("${semaphore.url}")
     private String url;
-
+    
+    public SMSNotificationService(RestTemplate mockRestTemplate)
+    {
+        restTemplate = mockRestTemplate;
+    }
+    
     @Override
     public void send(NotificationMessage message) throws NotificationException {
         if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");
