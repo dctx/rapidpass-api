@@ -1,0 +1,10 @@
+id,name,short_name,description,parent_registrar_id,shard_key,institution_type,institution_classification,status,address,country,region,province,city,zip_code,phone,mobile,email,representative,rep_designation,rep_phone,rep_mobile,rep_email,website,reference1,reference2,updates,date_time_created,date_time_updated
+0,public,public,default registrar,,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+1,'Department of Health','DOH','The Department of Health',,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+2,'Armed Forces of the Philippines','AFP','The Armed Forces of the Philippines',,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+3,'Department of Local Goverment','DILG','DILG, all LGUs are under DILG',,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+4,'Pasig City','PASIG','City of Pasig, Metro Manila',3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+5,'Manila City','MANILA','City of Manila, Metro Manila',3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+6,'Marikina City','MARIKINA','City of Marikina, Metro Manila',3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+7,'Quezon City','QC','Quezon City, Metro Manila',3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+8,'Makati City','MAKATI','City of Makati, Metro Manila',3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
