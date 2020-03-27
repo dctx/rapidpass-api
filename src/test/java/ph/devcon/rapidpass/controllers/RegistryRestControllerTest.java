@@ -18,8 +18,7 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,7 +77,8 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
-        vehicleAccessPass.setPlateOrId(TEST_VEHICLE_REQUEST.getPlateOrId());
+        vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
+        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
         vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
@@ -108,11 +108,14 @@ class RegistryRestControllerTest {
                 .lastName("Espelita")
                 .mobileNumber("0915999999")
                 .email("jonas.was.here@gmail.com")
-                .destAddress("Somewhere in the PH")
+                .destStreet("Somewhere in the PH")
                 .company("DEVCON")
-                .aporType(O)
+                .aporType(APORType.O.toString())
                 .remarks("This is a test for INDIVIDUAL REQUEST")
                 .build();
+
+        when(mockRegistryService.newRequestPass(eq(TEST_INDIVIDUAL_REQUEST)))
+                .thenReturn(TEST_INDIVIDUAL_PASS);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(request);
@@ -138,12 +141,13 @@ class RegistryRestControllerTest {
 
         RapidPassRequest request = RapidPassRequest.builder()
                 .passType(VEHICLE)
-                .plateOrId("ABCD 1234")
+                .idType("PLATENUMBER")
+                .identifierNumber("ABCD 1234")
                 .mobileNumber("0915999999")
                 .email("jonas.was.here@gmail.com")
-                .destAddress("Somewhere in the PH")
+                .destStreet("Somewhere in the PH")
                 .company("DEVCON")
-                .aporType(MED)
+                .aporType(APORType.MED.toString())
                 .remarks("This is a test for VEHICLE REQUEST")
                 .build();
 
@@ -193,7 +197,7 @@ class RegistryRestControllerTest {
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
-                .andExpect(jsonPath("$.plateOrId").value("ABCD 1234"))
+                .andExpect(jsonPath("$.identifierNumber").value("ABCD 1234"))
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andDo(print());
     }
@@ -205,5 +209,34 @@ class RegistryRestControllerTest {
         mockMvc.perform(
                 get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void grantOrRevokeRequest() throws Exception, RegistryService.UpdateAccessPassException {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        when(mockRegistryService.update(eq("0915999999"), eq(TEST_VEHICLE_REQUEST)))
+                .thenReturn(TEST_VEHICLE_PASS);
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, "0915999999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isOk())
+                // test json is expected
+                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType()))
+                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
+                .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
+                .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
+                .andDo(print());
     }
 }

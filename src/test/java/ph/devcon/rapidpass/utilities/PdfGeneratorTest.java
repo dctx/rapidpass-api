@@ -58,7 +58,7 @@ class PdfGeneratorTest {
                                 .passType(INDIVIDUAL)
                                 .firstName("Jonas Was Here")
                                 .lastName("Donasco")
-                                .aporType(MED)
+                                .aporType(MED.toString())
                                 .company("DEVCON")
                                 .build());
 
