@@ -52,7 +52,7 @@ public class RegistryRestController {
     }
 
     @DeleteMapping("/accessPasses/{referenceId}")
-    RapidPass revokeAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
-        return registryService.revoke(referenceId, rapidPassRequest);
+    RapidPass revokeAccessPass(@PathVariable String referenceId) {
+        return registryService.revoke(referenceId);
     }
 }
