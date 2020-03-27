@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.model.RapidPass;
-import ph.devcon.rapidpass.model.RapidPassRequest;
+import ph.devcon.rapidpass.model.RapidPassBatchRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
 
@@ -19,6 +19,7 @@ import ph.devcon.rapidpass.service.RegistryService;
 @RequestMapping("/batch")
 @Slf4j
 public class RegistryBatchRestController {
+
     private RegistryService registryService;
 
     @Autowired
@@ -28,13 +29,16 @@ public class RegistryBatchRestController {
 
     /**
      * Upload CSV or excel file of approved control numbers
-     * @param rapidPassRequest
-     * @return
+     *
+     * TODO: This endpoint needs to be reworked to support receiving file data.
+     *
+     * @param rapidPassBatchRequest THIS IS INCORRECT, as the batch data should not be delivered by JSON request body,
+     *                              but instead by file upload data.
      */
     @PostMapping("/accessPasses")
-    Iterable<RapidPass> newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
+    Iterable<RapidPass> newRequestPass(@RequestBody RapidPassBatchRequest rapidPassBatchRequest) {
         // todo: implement on registry service
-        return null;
+        return this.registryService.batchUpload(rapidPassBatchRequest);
     }
 
 
