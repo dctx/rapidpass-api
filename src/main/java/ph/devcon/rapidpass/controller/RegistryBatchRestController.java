@@ -16,7 +16,7 @@ import ph.devcon.rapidpass.service.RegistryService;
 /**
  * Registry API Rest Controller specifically for batch operations
  */
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 @RequestMapping("/batch")
 @Slf4j
@@ -37,7 +37,7 @@ public class RegistryBatchRestController {
      * @param rapidPassBatchRequest THIS IS INCORRECT, as the batch data should not be delivered by JSON request body,
      *                              but instead by file upload data.
      */
-    @PostMapping("/accessPasses")
+    @PostMapping("/access-passes")
     Iterable<RapidPass> newRequestPass(@RequestBody RapidPassBatchRequest rapidPassBatchRequest) {
         // todo: implement on registry service
         return this.registryService.batchUpload(rapidPassBatchRequest);

@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.InputStream;
 
-@CrossOrigin(origins = "*")
+/**
+ * Manually expose swagger doc
+ */
+@CrossOrigin
 @RestController
 @RequestMapping("/spec")
 @Slf4j
