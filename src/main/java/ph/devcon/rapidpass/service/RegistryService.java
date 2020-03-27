@@ -63,11 +63,11 @@ public class RegistryService {
         AccessPass accessPass = new AccessPass();
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceId(registrant.getMobile());
-        accessPass.setAporType(rapidPassRequest.getAccessType().toString());
+        accessPass.setPassType(rapidPassRequest.getPassType().toString());
+        accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setName(registrant.getFirstName() + " " + registrant.getLastName());
         accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
-        accessPass.setAporType(rapidPassRequest.getAporType());
         Calendar c = Calendar.getInstance();
         accessPass.setValidFrom(c.getTime());
         c.add(Calendar.DATE, DEFAULT_VALIDITY_DAYS);

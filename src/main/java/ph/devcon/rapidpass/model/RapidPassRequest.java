@@ -26,7 +26,7 @@ public final class RapidPassRequest {
     private String refNum = UUID.randomUUID().toString();
 
     @NotNull
-    private AccessType accessType;
+    private PassType passType;
     private String aporType;
     private String firstName;
     private String middleName;
