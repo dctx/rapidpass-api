@@ -4,8 +4,8 @@ servers:
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/jonasespelita/rapidpass-api/1.0.0
 info:
-  description: API for Rapid Pass Web Services. Guys, currently super simple pass ng API. Please send Merge Requests to update details. Thanks!
-  version: "1.0.0"
+  description: API for RapidPass web and mobile Applications.
+  version: "2.0.1"
   title: RapidPass API
   license:
     name: Apache 2.0
@@ -58,6 +58,7 @@ paths:
         - dashboard
         - inspector
       summary: Gets a list of access passes
+      operationId: listAccessPasses
       parameters:
         - name: status
           in: query
@@ -90,6 +91,7 @@ paths:
       tags:
         - dashboard
       summary: Upload CSV/Excel file of approved control numbers TODO
+      operationId: uploadAccessPasses
       responses:
         '200':
           description: Upload successful
@@ -99,6 +101,7 @@ paths:
         - inspector
         - dashboard
       summary: Downloads a list of approved control numbers
+      operationId: downloadControlCodes
       responses:
         '200':
           description: list of all approved control numbers
@@ -125,12 +128,12 @@ paths:
                       description: plateNumber or id of associated with access pass
   /api/v1/registry/accessPasses/{referenceID}:
     get:
-      operationId: getAccessPassById
       tags:
         - inspector
         - pwa
         - dashboard
       summary: Get information about an access pass
+      operationId: getAccessPassById
       parameters:
         - name: referenceID
           in: path
@@ -149,6 +152,7 @@ paths:
       tags:
         - dashboard
       summary: Approves or Declines a Rapid Pass request
+      operationId: updateAccessPass
       parameters:
         - name: referenceID
           in: path
@@ -193,6 +197,7 @@ paths:
       tags:
         - dashboard
       summary: Suspends an active access pass
+      operationId: suspendAccessPass
       parameters:
         - name: referenceID
           in: path

@@ -204,7 +204,9 @@ create table system_user
 
 create table registrar_user_activity_log
 (
-    id               varchar(20),
+    id               serial  not null
+        constraint scanner_device_pk
+            primary key,
     user_id          integer
         constraint activity_log_registrar_user_id_fk
             references registrar_user,
@@ -236,7 +238,9 @@ create table access_pass_log
 
 create table system_user_activity_log
 (
-    id               varchar(20),
+    id              serial  not null
+        constraint scanner_device_pk
+            primary key,
     user_id          integer
         constraint activity_log_system_user_id_fk
             references system_user,

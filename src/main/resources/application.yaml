@@ -1,4 +1,8 @@
 spring:
+  resources:
+    static-locations:
+    - classpath:/static
+  servlet:
   jpa:
     hibernate:
       ddl-auto: none
@@ -26,8 +30,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-
 springfox:
   documentation:
     swagger:
@@ -37,3 +39,7 @@ springfox:
 semaphore:
   url: https://api.semaphore.co/api/v4/messages
   key: ''
+
+server:
+  servlet:
+    context-path: /api/v1
