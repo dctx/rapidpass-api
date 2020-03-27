@@ -30,7 +30,6 @@ public class RegistryRestController {
 
     @PostMapping("/accessPasses")
     RapidPass newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
-        log.info("New RapidPass Request: {}", rapidPassRequest);
         return registryService.newRequestPass(rapidPassRequest);
     }
 }

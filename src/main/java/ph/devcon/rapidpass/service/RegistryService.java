@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ph.devcon.rapidpass.jpa.AccessPassRepository;
+import ph.devcon.rapidpass.jpa.RegistrantRepository;
 import ph.devcon.rapidpass.jpa.RegistryRepository;
 import ph.devcon.rapidpass.model.*;
 
@@ -17,16 +18,19 @@ import java.util.Optional;
 @Slf4j
 public class RegistryService {
 
-    private AccessPassRepository accessPassRepository;
     private RegistryRepository registryRepository;
+    private RegistrantRepository registrantRepository;
+    private AccessPassRepository accessPassRepository;
 
     @Autowired // this should be mapped to a service
-    public RegistryService(RegistryRepository registryRepository, AccessPassRepository accessPassRepository) {
+    public RegistryService(RegistryRepository registryRepository, RegistrantRepository registrantRepository, AccessPassRepository accessPassRepository) {
         this.registryRepository = registryRepository;
+        this.registrantRepository = registrantRepository;
         this.accessPassRepository = accessPassRepository;
     }
 
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
+        log.info("New RapidPass Request: {}", rapidPassRequest);
 
         Optional<Registrar> registrarResult = registryRepository.findById(1 );
         Registrar registrar = registrarResult.isPresent() ? registrarResult.get() : null;
@@ -55,8 +59,10 @@ public class RegistryService {
 
         registrant.setAccessPassCollection(accessPasses);
 
-        registrar.getRegistrantCollection().add(registrant);
-        registryRepository.save(registrar);
+        registrantRepository.save(registrant);
+
+//        registrar.getRegistrantCollection().add(registrant);
+//        registryRepository.save(registrar);
         return null;
     }
 
