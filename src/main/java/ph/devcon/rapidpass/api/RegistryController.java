@@ -6,9 +6,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.model.ControlCode;
 import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
+
+import java.util.stream.Collectors;
 
 import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
 
@@ -59,6 +62,23 @@ public class RegistryController {
             @PathVariable String referenceID) {
         RapidPass rapidPass = registryService.find(referenceID);
         return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
+    }
+
+
+    /**
+     * GET /api/v1/registry/controlCodes - Downloads a list of approved control numbers
+     *
+     * @return JSON response of a {@link RapidPassRequest}
+     */
+    @GetMapping("controlCodes")
+    public HttpEntity<?> getControlCodes() {
+        Iterable<ControlCode> controlCodes = registryService
+                .findAllAccessPasses()
+                .stream()
+                .map(ControlCode::buildFrom)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(controlCodes);
     }
 
 }

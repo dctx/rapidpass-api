@@ -64,13 +64,15 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-    public List<RapidPass> findAll() {
-        List<AccessPass> accessPassList = accessPassRepository.findAll();
-
-        return accessPassList
+    public List<RapidPass> findAllRapidPasses() {
+        return this.findAllAccessPasses()
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
+    }
+
+    public List<AccessPass> findAllAccessPasses() {
+        return accessPassRepository.findAll();
     }
 
     /**

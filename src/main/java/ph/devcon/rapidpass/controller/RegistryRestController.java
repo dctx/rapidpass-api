@@ -7,7 +7,6 @@ import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public class RegistryRestController {
 
     @GetMapping("/accessPasses")
     public List<RapidPass> getAccessPasses() {
-        return registryService.findAll();
+        return registryService.findAllRapidPasses();
     }
 
     @GetMapping("/accessPasses/{referenceId}")
@@ -43,7 +42,7 @@ public class RegistryRestController {
 
     @GetMapping("/controlCodes")
     public Iterable<RapidPass> getControlCodes() {
-        return registryService.findAll();
+        return registryService.findAllRapidPasses();
     }
 
     @PutMapping("/accessPasses/{referenceId}")
