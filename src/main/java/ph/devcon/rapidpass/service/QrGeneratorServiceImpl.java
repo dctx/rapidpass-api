@@ -48,8 +48,13 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      */
     @Value("${rapidpass.qr.height:500}")
     private int qrHeight = 500;
-
-
+    
+    public QrGeneratorServiceImpl(ObjectMapper jsonMapper)
+    {
+        this.jsonMapper = jsonMapper;
+    }
+    
+    
     @Override
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
