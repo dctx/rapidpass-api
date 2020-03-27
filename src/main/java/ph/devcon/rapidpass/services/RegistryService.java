@@ -116,6 +116,10 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
+    public List<AccessPass> findAllAccessPasses() {
+        return accessPassRepository.findAll();
+    }
+
     /**
      * Used when the inspector or approver wishes to view more details about the
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
