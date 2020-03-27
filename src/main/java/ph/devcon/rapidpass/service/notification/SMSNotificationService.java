@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 @Setter
 public class SMSNotificationService implements NotificationService {
 
-    private final RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;

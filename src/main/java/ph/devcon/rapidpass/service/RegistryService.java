@@ -1,17 +1,22 @@
 package ph.devcon.rapidpass.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import ph.devcon.rapidpass.jpa.AccessPassRepository;
-import ph.devcon.rapidpass.jpa.RegistrantRepository;
-import ph.devcon.rapidpass.jpa.RegistryRepository;
-import ph.devcon.rapidpass.model.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+import ph.devcon.rapidpass.jpa.AccessPassRepository;
+import ph.devcon.rapidpass.jpa.RegistrantRepository;
+import ph.devcon.rapidpass.jpa.RegistryRepository;
+import ph.devcon.rapidpass.model.AccessPass;
+import ph.devcon.rapidpass.model.RapidPass;
+import ph.devcon.rapidpass.model.RapidPassBatchRequest;
+import ph.devcon.rapidpass.model.RapidPassRequest;
+import ph.devcon.rapidpass.model.Registrant;
+import ph.devcon.rapidpass.model.Registrar;
 
 @Component
 @Slf4j

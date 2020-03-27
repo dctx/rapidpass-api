@@ -243,9 +243,6 @@
     <profiles>
         <profile>
             <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <maven.test.skip>true</maven.test.skip>
                 <activateSpringProfile>h2</activateSpringProfile>
@@ -253,6 +250,9 @@
         </profile>
         <profile>
             <id>localdev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <maven.test.skip>true</maven.test.skip>
                 <activateSpringProfile>localdev</activateSpringProfile>
