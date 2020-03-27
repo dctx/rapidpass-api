@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.repository;
+package ph.devcon.rapidpass.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,8 @@ import java.util.List;
 
 @Repository
 public interface CityRepository extends JpaRepository<City, Integer> {
+    //TODO: Update the repository if needed by the associated service
+    List<City> findAll();
 
-    List<City> findByReferenceId(String referenceId);
-
+    City findById(String id);
 }

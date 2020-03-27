@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.repository;
+package ph.devcon.rapidpass.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,8 @@ import java.util.List;
 
 @Repository
 public interface SystemUserRepository extends JpaRepository<SystemUser, Integer> {
+    //TODO: Update repository if needed
+    List<SystemUser> findAll();
 
-    List<SystemUser> findByReferenceId(String referenceId);
-
+    SystemUser findById(String id);
 }
