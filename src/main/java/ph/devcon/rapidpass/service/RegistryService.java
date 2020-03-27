@@ -60,25 +60,33 @@ public class RegistryService {
         accessPass.setStatus("pending");
 
         log.info("Persisting Registrant: {}", registrant.toString());
-        accessPassRepository.saveAndFlush(accessPass);
+        accessPass = accessPassRepository.saveAndFlush(accessPass);
 
-//        registrar.getRegistrantCollection().add(registrant);
-//        registryRepository.save(registrar);
-        return null;
+        RapidPass rapidPass = RapidPass.builder()
+                .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
+                .plateOrId(accessPass.getPlateOrId())
+                .status(accessPass.getStatus())
+                .referenceId(accessPass.getReferenceId())
+                .validFrom(accessPass.getValidFrom())
+                .validUntil(accessPass.getValidTo())
+                .build();
+
+        return rapidPass;
     }
 
     public List<RapidPass> findAll() {
         List<AccessPass> accessPassList = accessPassRepository.findAll();
         List<RapidPass> dtoList = new ArrayList<>();
-        accessPassList.forEach((a) -> {
-            RapidPass dto = new RapidPass();
-            dto.setControlCode(a.getControlCode().toString());
-            dto.setPlateOrId(a.getPlateOrId());
-            dto.setReferenceId(a.getReferenceId());
-            dto.setStatus(a.getStatus());
-            dto.setValidUntil(a.getValidTo());
-            dto.setValidFrom(a.getValidFrom());
-            dtoList.add(dto);
+        accessPassList.forEach((accessPass) -> {
+            RapidPass rapidPass = RapidPass.builder()
+                    .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
+                    .plateOrId(accessPass.getPlateOrId())
+                    .status(accessPass.getStatus())
+                    .referenceId(accessPass.getReferenceId())
+                    .validFrom(accessPass.getValidFrom())
+                    .validUntil(accessPass.getValidTo())
+                    .build();
+            dtoList.add(rapidPass);
         });
         return dtoList;
     }
