@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import ph.devcon.rapidpass.jpa.AccessPassRepository;
-import ph.devcon.rapidpass.jpa.RegistrantRepository;
-import ph.devcon.rapidpass.jpa.RegistryRepository;
+import ph.devcon.rapidpass.repository.AccessPassRepository;
+import ph.devcon.rapidpass.repository.RegistrantRepository;
+import ph.devcon.rapidpass.repository.RegistryRepository;
 import ph.devcon.rapidpass.model.AccessPass;
 import ph.devcon.rapidpass.model.RapidPass;
 import ph.devcon.rapidpass.model.RapidPassBatchRequest;
