@@ -1,0 +1,43 @@
+stages:
+  - test
+  - package
+  - deploy
+
+Run Unit Tests:
+  stage: test
+  image: openjdk:15-jdk-alpine
+  except:
+    - develop
+  script:
+  - ./mvnw test
+
+Test and Publish Docker Image:
+  stage: package
+  image: docker:19.03.1
+  services:
+  - docker:19.03.1-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+  - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+  script:
+  - docker pull dctx/rapidpass-api:latest
+  - docker build -t dctx/rapidpass-api:latest .
+  - docker push dctx/rapidpass-api:latest
+  only:
+  - develop
+
+Deploy to Test Environment:
+  stage: deploy
+  image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
+  before_script:
+  - helm init --client-only  
+  - helm repo add bitnami https://charts.bitnami.com/bitnami
+  - mkdir -p ~/.kube
+  - cp ${KUBECONFIG} ~/.kube/config
+  script:
+  - helm dep update helm/rapidpass-api
+  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml helm/rapidpass-api
+  only:
+  - develop

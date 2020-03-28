@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
@@ -27,13 +29,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "province")
-@NamedQueries({
-    @NamedQuery(name = "Province.findAll", query = "SELECT p FROM Province p"),
-    @NamedQuery(name = "Province.findById", query = "SELECT p FROM Province p WHERE p.id = :id"),
-    @NamedQuery(name = "Province.findByCode", query = "SELECT p FROM Province p WHERE p.code = :code"),
-    @NamedQuery(name = "Province.findByName", query = "SELECT p FROM Province p WHERE p.name = :name"),
-    @NamedQuery(name = "Province.findByConfiguration", query = "SELECT p FROM Province p WHERE p.configuration = :configuration"),
-    @NamedQuery(name = "Province.findByStatus", query = "SELECT p FROM Province p WHERE p.status = :status")})
+@Data
 public class Province implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -61,66 +57,6 @@ public class Province implements Serializable {
     private Region regionId;
 
     public Province() {
-    }
-
-    public Province(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(String configuration) {
-        this.configuration = configuration;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Collection<City> getCityCollection() {
-        return cityCollection;
-    }
-
-    public void setCityCollection(Collection<City> cityCollection) {
-        this.cityCollection = cityCollection;
-    }
-
-    public Region getRegionId() {
-        return regionId;
-    }
-
-    public void setRegionId(Region regionId) {
-        this.regionId = regionId;
     }
 
     @Override
