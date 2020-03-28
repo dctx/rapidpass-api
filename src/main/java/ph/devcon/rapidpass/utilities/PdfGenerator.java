@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.utilities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -19,6 +20,7 @@ import org.springframework.util.ResourceUtils;
 import lombok.extern.slf4j.Slf4j;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
@@ -75,16 +77,19 @@ public class PdfGenerator {
     }
 
     /**
-     * Generates a pdf at designated file path
+     * Generates a pdf at designated file path.
+     *
+     * Note: We use RapidPass, because AccessPass doesn't directly have easy builders to build with (for testing).
+     * Otherwise, we could be using AccessPass as the parameter. In any case, using RapidPass as the POJO  is sufficient.
      *
      * @param filePath          path of file where to save pdf
-     * @param qrCodeFile        Image file for QR code
-     * @param accessPass        AccessPass model
+     * @param qrCodeFile        Image file of the generated QR code
+     * @param rapidPass         RapidPass model that contains the details to be printed on the PDF.
      * @return file object of generated pdf
      */
     public static File generatePdf(String filePath,
                                    File qrCodeFile,
-                                   AccessPass accessPass)
+                                   RapidPass rapidPass)
             throws FileNotFoundException, MalformedURLException {
         log.debug("generating pdf at {}", filePath);
 
@@ -93,48 +98,49 @@ public class PdfGenerator {
         //qrcode image
         Image qrcode = new Image(prepareImage(qrCodeFile.getAbsolutePath()));
 
+        qrcode.setWidth(1200);
+        qrcode.setHeight(1200);
+
         // get dctx logo from classpath resource
         Image dctxLogo = new Image(prepareImage(
                 ResourceUtils.getFile("classpath:light-bg.png")
                         .getAbsolutePath()));
-
         dctxLogo.scaleToFit(200, 100);
         dctxLogo.setFixedPosition(400, 0);
 
         //processes the data that will be on the pdf
         Paragraph header = new Paragraph();
+        header.setFontSize(44);
+        header.setTextAlignment(TextAlignment.CENTER);
+        header.setMarginTop(-50);
+        header.setBold();
+
         Paragraph details = new Paragraph();
+        details.setFontSize(24);
+        details.setMarginLeft(70);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-YYYY HH:mm:ss");
+
+        String validUntil = sdf.format(rapidPass.getValidTo());
 
         // checks if pass type is individual or vehicle
-        final String passType = accessPass.getPassType();
-        if (passType.equals(INDIVIDUAL)) {
-            //header
-            header.setFontSize(44);
-            header.setTextAlignment(TextAlignment.CENTER);
-            header.setMarginTop(-50);
-            header.setBold();
-            header.add(accessPass.getControlCode() + "\n");
+        final String passType = rapidPass.getPassType().toLowerCase();
+        if (passType.equals("individual")) {
+            // header
+            header.add(rapidPass.getControlCode() + "\n");
 
-            //details
-            details.setFontSize(24);
-            details.setMarginLeft(70);
-            details.add("Access Type:\t" + accessPass.getAporType() + "\n" +
-                    "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Vallid Until:\t" + accessPass.getValidTo().toString());
-        } else if (passType.equals(VEHICLE)) {
-            //header
-            header.setFontSize(44);
-            header.setTextAlignment(TextAlignment.CENTER);
-            header.setMarginTop(-50);
-            header.setBold();
-            header.add(accessPass.getIdentifierNumber() + "\n");
+            // details
+            details.add("APOR Type:\t" + rapidPass.getAporType() + "\n" +
+                    "Company:\t" + rapidPass.getCompany() + "\n" +
+                    "Valid Until:\t" + validUntil);
+        } else if (passType.equals("vehicle")) {
+            // header
+            header.add(rapidPass.getIdentifierNumber() + "\n");
 
-            //details
-            details.setFontSize(24);
-            details.setMarginLeft(70);
-            details.add("Access Type:\t" + accessPass.getAporType() + "\n" +
-                    "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Vallid Until:\t" + accessPass.getValidTo().toString());
+            // details
+            details.add("APOR Type:\t" + rapidPass.getAporType() + "\n" +
+                    "Company:\t" + rapidPass.getCompany() + "\n" +
+                    "Valid Until:\t" + validUntil);
         }
 
         //writes to the document
