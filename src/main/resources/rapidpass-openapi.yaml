@@ -1,6 +1,8 @@
 openapi: 3.0.0
 # Added by API Auto Mocking Plugin
 servers:
+  - description: Test Environment Configuration
+    url: /api/v1
   # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/tiongks/RapidPass-API/1.0.0
