@@ -28,7 +28,7 @@ Publish Docker Image:
 
 Deploy to Test Environment:
   stage: deploy
-  image: lwolf/helm-kubectl-docker:v1.18.0-v2.16.5
+  image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
   before_script:
   - helm init --client-only  
   - helm repo add bitnami https://charts.bitnami.com/bitnami
