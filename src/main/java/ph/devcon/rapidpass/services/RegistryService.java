@@ -104,10 +104,6 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
-    public List<AccessPass> findAllAccessPasses() {
-        return accessPassRepository.findAll();
-    }
-
     public Iterable<ControlCode> getControlCodes() {
         return accessPassRepository
                 .findAll()

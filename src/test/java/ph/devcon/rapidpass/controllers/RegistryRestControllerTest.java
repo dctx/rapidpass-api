@@ -20,6 +20,7 @@ import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.ArrayList;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -227,6 +228,49 @@ class RegistryRestControllerTest {
                 .thenReturn(controlCodes);
 
         final String getAccessPathUrlTemplate = "/registry/control-codes/";
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate))
+                .andExpect(status().isOk())
+                // test json is expected
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").isMap())
+                .andExpect(jsonPath("$[0].company").value("DEVCON"))
+                .andExpect(jsonPath("$[0].destAddress").value("Somewhere in the PH"))
+                .andExpect(jsonPath("$[0].plateOrId").value("ABCD 1234"))
+                .andExpect(jsonPath("$[0].accessType").value("MED"))
+                .andExpect(jsonPath("$[0].status").value("APPROVED"))
+                .andDo(print());
+    }
+
+
+    /**
+     * This tests GETting `requestPass` with either mobileNum or plateNum.
+     *
+     * @throws Exception on failed test
+     */
+    @Test
+    void getControlCodes() throws Exception {
+
+        ControlCode controlCode = ControlCode.builder()
+                .accessType(MED.toString())
+                .company("DEVCON")
+                .destAddress("Somewhere in the PH")
+                .plateOrId("ABCD 1234")
+                .status(RequestStatus.APPROVED.toString()).build();
+
+        ArrayList<ControlCode> controlCodes = new ArrayList<>();
+        controlCodes.add(controlCode);
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.getControlCodes())
+                .thenReturn(controlCodes);
+
+        final String getAccessPathUrlTemplate = "/registry/control-codes/";
+
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.appendElement(controlCode);
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
