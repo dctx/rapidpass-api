@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -52,15 +53,24 @@ public class RegistryRestController {
     }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
-        RapidPass rapidPass;
+    ResponseEntity<RapidPass> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
+        String status = rapidPass.getStatus();
+
+        RapidPass result = null;
+
         try {
-            rapidPass = registryService.update(referenceId, rapidPassRequest);
-        } catch (RegistryService.UpdateAccessPassException exception) {
-            String errorMessage = exception.getMessage();
-            return ResponseEntity.badRequest().body(errorMessage);
+
+            if (RequestStatus.APPROVED.toString().equals(status)) {
+                result = registryService.grant(referenceId);
+            } else if (RequestStatus.DENIED.toString().equals(status)) {
+                result = registryService.decline(referenceId);
+            }
+
+        } catch (RegistryService.UpdateAccessPassException e) {
+            e.printStackTrace();
         }
-        return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
+
+        return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/access-passes/{referenceId}")
