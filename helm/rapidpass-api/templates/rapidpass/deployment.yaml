@@ -19,6 +19,7 @@ spec:
       labels:
         app: {{ template "rapidpass-api.name" . }}
         chart: {{ template "rapidpass-api.chart" . }}
+        revision: {{ .Release.Revision | quote }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
