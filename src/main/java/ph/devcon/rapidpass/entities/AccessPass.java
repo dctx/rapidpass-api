@@ -8,8 +8,8 @@ package ph.devcon.rapidpass.entities;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Date;
 
 /**
  *
@@ -27,7 +27,7 @@ public class AccessPass implements Serializable {
     private Integer id;
     @Size(max = 30)
     @Column(name = "reference_id")
-    private String referenceId;
+    private String referenceID;
     @Size(max = 10)
     @Column(name = "pass_type")
     private String passType;
@@ -35,7 +35,7 @@ public class AccessPass implements Serializable {
     @Column(name = "apor_type")
     private String aporType;
     @Column(name = "control_code")
-    private Integer controlCode;
+    private String controlCode;
     @Size(max = 10)
     @Column(name = "id_type")
     private String idType;
@@ -81,11 +81,11 @@ public class AccessPass implements Serializable {
     @Column(name = "destination_city")
     private String destinationCity;
     @Column(name = "valid_from")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validFrom;
+    
+    private OffsetDateTime validFrom;
     @Column(name = "valid_to")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validTo;
+    
+    private OffsetDateTime validTo;
     @Size(max = 20)
     @Column(name = "issued_by")
     private String issuedBy;
@@ -96,11 +96,16 @@ public class AccessPass implements Serializable {
     @Column(name = "status")
     private String status;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+
+    private OffsetDateTime dateTimeUpdated;
+    
+    @Column(name = "last_used_on")
+
+    private OffsetDateTime lastUsedOn;
+    
     @JoinColumn(name = "registrant_id", referencedColumnName = "id")
     @ManyToOne
     private Registrant registrantId;
@@ -122,12 +127,12 @@ public class AccessPass implements Serializable {
         this.id = id;
     }
 
-    public String getReferenceId() {
-        return referenceId;
+    public String getReferenceID() {
+        return referenceID;
     }
 
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
+    public void setReferenceID(String referenceId) {
+        this.referenceID = referenceId;
     }
 
     public String getPassType() {
@@ -146,11 +151,11 @@ public class AccessPass implements Serializable {
         this.aporType = aporType;
     }
 
-    public Integer getControlCode() {
+    public String getControlCode() {
         return controlCode;
     }
 
-    public void setControlCode(Integer controlCode) {
+    public void setControlCode(String controlCode) {
         this.controlCode = controlCode;
     }
 
@@ -274,19 +279,19 @@ public class AccessPass implements Serializable {
         this.destinationCity = destinationCity;
     }
 
-    public Date getValidFrom() {
+    public OffsetDateTime getValidFrom() {
         return validFrom;
     }
 
-    public void setValidFrom(Date validFrom) {
+    public void setValidFrom(OffsetDateTime validFrom) {
         this.validFrom = validFrom;
     }
 
-    public Date getValidTo() {
+    public OffsetDateTime getValidTo() {
         return validTo;
     }
 
-    public void setValidTo(Date validTo) {
+    public void setValidTo(OffsetDateTime validTo) {
         this.validTo = validTo;
     }
 
@@ -314,19 +319,29 @@ public class AccessPass implements Serializable {
         this.status = status;
     }
 
-    public Date getDateTimeCreated() {
+    public OffsetDateTime getDateTimeCreated() {
         return dateTimeCreated;
     }
 
-    public void setDateTimeCreated(Date dateTimeCreated) {
+    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
         this.dateTimeCreated = dateTimeCreated;
     }
 
-    public Date getDateTimeUpdated() {
+    public OffsetDateTime getDateTimeUpdated() {
         return dateTimeUpdated;
     }
-
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
+    
+    public OffsetDateTime getLastUsedOn()
+    {
+        return lastUsedOn;
+    }
+    
+    public void setLastUsedOn(OffsetDateTime lastUsedOn)
+    {
+        this.lastUsedOn = lastUsedOn;
+    }
+    
+    public void setDateTimeUpdated(OffsetDateTime dateTimeUpdated) {
         this.dateTimeUpdated = dateTimeUpdated;
     }
 

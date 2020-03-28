@@ -6,6 +6,7 @@
 package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -55,14 +56,14 @@ public class ScannerDevice implements Serializable {
     @Column(name = "unique_device_id")
     private String uniqueDeviceId;
     @Column(name = "date_time_last_used")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeLastUsed;
+    
+    private OffsetDateTime dateTimeLastUsed;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @JoinColumn(name = "registrar_id", referencedColumnName = "id")
     @ManyToOne
     private Registrar registrarId;
@@ -107,27 +108,27 @@ public class ScannerDevice implements Serializable {
         this.uniqueDeviceId = uniqueDeviceId;
     }
 
-    public Date getDateTimeLastUsed() {
+    public OffsetDateTime getDateTimeLastUsed() {
         return dateTimeLastUsed;
     }
 
-    public void setDateTimeLastUsed(Date dateTimeLastUsed) {
+    public void setDateTimeLastUsed(OffsetDateTime dateTimeLastUsed) {
         this.dateTimeLastUsed = dateTimeLastUsed;
     }
 
-    public Date getDateTimeCreated() {
+    public OffsetDateTime getDateTimeCreated() {
         return dateTimeCreated;
     }
 
-    public void setDateTimeCreated(Date dateTimeCreated) {
+    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
         this.dateTimeCreated = dateTimeCreated;
     }
 
-    public Date getDateTimeUpdated() {
+    public OffsetDateTime getDateTimeUpdated() {
         return dateTimeUpdated;
     }
 
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
+    public void setDateTimeUpdated(OffsetDateTime dateTimeUpdated) {
         this.dateTimeUpdated = dateTimeUpdated;
     }
 

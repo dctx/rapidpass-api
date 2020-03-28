@@ -34,7 +34,7 @@ class PdfGeneratorTest {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")
                 .controlCode(CC_1234_ENCRYPTED)
-                .purpose('D')
+                .apor("D")
                 .validFrom(MAR_23_2020)
                 .validUntil(MAR_27_2020)
                 .build();

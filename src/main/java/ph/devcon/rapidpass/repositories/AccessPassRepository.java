@@ -11,10 +11,9 @@ import java.util.List;
 public interface AccessPassRepository extends JpaRepository<AccessPass, Integer> {
     List<AccessPass> findAll();
 
-    AccessPass findByReferenceId(String referenceId);
+    AccessPass findByReferenceID(String referenceID);
 
-    List<AccessPass> findAllByReferenceIdOrderByValidToDesc(String referenceId);
+    List<AccessPass> findAllByReferenceIDOrderByValidToDesc(String referenceId);
     
-    @Query("SELECT ap FROM AccessPass ap WHERE ap.controlCode = :controlCode")
-    AccessPass findByControlCode(Integer controlCode);
+    AccessPass findByControlCode(String controlCode);
 }

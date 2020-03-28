@@ -7,7 +7,8 @@ package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,11 +64,11 @@ public class AccessPassLog implements Serializable {
     @Column(name = "scanner_device_id")
     private Integer scannerDeviceId;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @JoinColumn(name = "access_pass_id", referencedColumnName = "id")
     @ManyToOne
     private AccessPass accessPassId;
@@ -135,19 +136,19 @@ public class AccessPassLog implements Serializable {
         this.scannerDeviceId = scannerDeviceId;
     }
 
-    public Date getDateTimeCreated() {
+    public OffsetDateTime getDateTimeCreated() {
         return dateTimeCreated;
     }
 
-    public void setDateTimeCreated(Date dateTimeCreated) {
+    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
         this.dateTimeCreated = dateTimeCreated;
     }
 
-    public Date getDateTimeUpdated() {
+    public OffsetDateTime getDateTimeUpdated() {
         return dateTimeUpdated;
     }
 
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
+    public void setDateTimeUpdated(OffsetDateTime dateTimeUpdated) {
         this.dateTimeUpdated = dateTimeUpdated;
     }
 

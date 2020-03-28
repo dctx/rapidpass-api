@@ -64,9 +64,9 @@ paths:
         - name: validUntil
           in: query
           required: false
-          description: returns a list of access passes that are valid until the specified date
+          description: returns a list of access passes that are valid until the specified date time
           schema:
-            type: string
+            $ref: '#/components/schemas/DateTime'
       responses:
         '200':
           description: Status of the request pass
@@ -75,7 +75,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessPasses'
 
-  /dashboard/access-passes:
+  /dashboard/access-passes/{referenceID}:
     put:
       tags:
         - dashboard
@@ -247,6 +247,11 @@ components:
     RapidPassRequest:
       type: object
       properties:
+        referenceID:
+          type: string
+          description: Reference ID of the request. Populated upon registraiton
+          example:
+            ADSFSD
         passType:
           $ref: '#/components/schemas/PassRequestType'
         aporType:
@@ -305,15 +310,14 @@ components:
       type: object
       properties:
         controlCode:
-          $ref: '#/components/schemas/ControlCode'
+          type: string
+          description: Control Code generated for this pass
+          example:
+            2A8B043
         validUntil:
-          type: string
-          format: date
-          description: expiration date of the access pass
-        lastUsed:
-          type: string
-          format: 'date-time'
-          description: Date and Time it was last used.
+          $ref: '#/components/schemas/DateTime'
+        lastUsedOn:
+          $ref: '#/components/schemas/DateTime'
         approvedBy:
           type: string
           description: Name of the approving organization
@@ -350,12 +354,7 @@ components:
     AccessPasses:
       type: array
       items:
-        type: object
-        properties:
-          referenceId:
-            type: string
-          accessPass:
-            $ref: '#/components/schemas/AccessPass'
+        $ref: '#/components/schemas/AccessPass'
 
     RapidPassRequests:
       type: array
@@ -415,3 +414,6 @@ components:
       enum:
         - PersonalID
         - VehicleID
+    DateTime:
+      type: string
+      format: 'date-time'

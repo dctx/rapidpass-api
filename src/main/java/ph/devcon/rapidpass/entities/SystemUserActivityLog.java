@@ -6,6 +6,7 @@
 package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -54,8 +55,8 @@ public class SystemUserActivityLog implements Serializable {
     @Column(name = "type")
     private String type;
     @Column(name = "action_timestamp")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date actionTimestamp;
+    
+    private OffsetDateTime actionTimestamp;
     @Size(max = 50)
     @Column(name = "action")
     private String action;
@@ -105,11 +106,11 @@ public class SystemUserActivityLog implements Serializable {
         this.type = type;
     }
 
-    public Date getActionTimestamp() {
+    public OffsetDateTime getActionTimestamp() {
         return actionTimestamp;
     }
 
-    public void setActionTimestamp(Date actionTimestamp) {
+    public void setActionTimestamp(OffsetDateTime actionTimestamp) {
         this.actionTimestamp = actionTimestamp;
     }
 

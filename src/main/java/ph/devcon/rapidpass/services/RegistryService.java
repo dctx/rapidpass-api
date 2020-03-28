@@ -1,6 +1,6 @@
 package ph.devcon.rapidpass.services;
 
-import java.util.Calendar;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,16 +62,15 @@ public class RegistryService {
         // map an access pass to the registrant
         AccessPass accessPass = new AccessPass();
         accessPass.setRegistrantId(registrant);
-        accessPass.setReferenceId(registrant.getMobile());
+        accessPass.setReferenceID(registrant.getMobile());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setName(registrant.getFirstName() + " " + registrant.getLastName());
         accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
-        Calendar c = Calendar.getInstance();
-        accessPass.setValidFrom(c.getTime());
-        c.add(Calendar.DATE, DEFAULT_VALIDITY_DAYS);
-        accessPass.setValidTo(c.getTime());
+        OffsetDateTime now = OffsetDateTime.now();
+        accessPass.setValidFrom(now);;
+        accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
         accessPass.setStatus("pending");
 
         log.info("Persisting Registrant: {}", registrant.toString());
@@ -97,7 +96,7 @@ public class RegistryService {
     public RapidPass find(String referenceId) {
 //        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
         // TODO: how to deal with 'renewals'? i.e.
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIdOrderByValidToDesc(referenceId);
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 1) {
             log.error("Multiple Access Pass found for reference ID: {}", referenceId);
         } else if (accessPasses.size() <= 0){

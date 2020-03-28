@@ -11,17 +11,24 @@ import java.time.LocalDate;
 @Component
 public class CheckpointServiceImpl implements CheckpointService
 {
-    @Autowired
     private AccessPassRepository accessPassRepository;
     
+    @Autowired
+    public CheckpointServiceImpl(AccessPassRepository accessPassRepository)
+    {
+        this.accessPassRepository = accessPassRepository;
+    }
+    
     @Override
-    public AccessPass retrieveAccessPassByControlCode(Integer controlCode)
+    public AccessPass retrieveAccessPassByControlCode(String controlCode)
     {
         final ph.devcon.rapidpass.entities.AccessPass
             entity = accessPassRepository.findByControlCode(controlCode);
         AccessPass accessPass = new AccessPass();
-        accessPass.controlCode(entity.getControlCode());
-            
+        // Copy similar properties
+        BeanUtils.copyProperties(entity,accessPass);
+        accessPass.setApprovedBy(entity.getIssuedBy());
+        accessPass.setValidUntil(entity.getValidTo());
         return accessPass;
     }
     

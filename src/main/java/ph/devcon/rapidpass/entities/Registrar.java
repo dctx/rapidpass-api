@@ -6,6 +6,7 @@
 package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -150,11 +151,11 @@ public class Registrar implements Serializable {
     @Column(name = "updates")
     private String updates;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "parentRegistrarId")
     private Collection<Registrar> registrarCollection;
     @JoinColumn(name = "parent_registrar_id", referencedColumnName = "id")
@@ -382,19 +383,19 @@ public class Registrar implements Serializable {
         this.updates = updates;
     }
 
-    public Date getDateTimeCreated() {
+    public OffsetDateTime getDateTimeCreated() {
         return dateTimeCreated;
     }
 
-    public void setDateTimeCreated(Date dateTimeCreated) {
+    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
         this.dateTimeCreated = dateTimeCreated;
     }
 
-    public Date getDateTimeUpdated() {
+    public OffsetDateTime getDateTimeUpdated() {
         return dateTimeUpdated;
     }
 
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
+    public void setDateTimeUpdated(OffsetDateTime dateTimeUpdated) {
         this.dateTimeUpdated = dateTimeUpdated;
     }
 

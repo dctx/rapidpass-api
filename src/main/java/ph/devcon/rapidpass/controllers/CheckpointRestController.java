@@ -21,7 +21,8 @@ public class CheckpointRestController implements CheckpointApi
     @Autowired
     private CheckpointService checkpointService;
     
-    public ResponseEntity getAccessPassByControlCode(Integer controlCode)
+    @Override
+    public ResponseEntity getAccessPassByControlCode(String controlCode)
     {
         ResponseEntity response = null;
         try
