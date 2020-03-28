@@ -192,7 +192,7 @@ public class RegistryService {
 
         AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
 
-        accessPass.setStatus(RapidPassRequest.RequestStatus.DENIED.toString());
+        accessPass.setStatus(RequestStatus.DENIED.toString());
         accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
