@@ -58,7 +58,7 @@ public class RegistryService {
         registrant.setEmail(rapidPassRequest.getEmail());
         registrant.setMobile(rapidPassRequest.getMobileNumber());
         registrant.setReferenceIdType(rapidPassRequest.getIdType());
-        registrant.setReferenceId(rapidPassRequest.getPlateOrId());
+        registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
         registrant = registrantRepository.save(registrant);
         // map an access pass to the registrant
         AccessPass accessPass = new AccessPass();
@@ -67,7 +67,7 @@ public class RegistryService {
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
-        accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
+        accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
         if (null != registrant.getSuffix() && !registrant.getSuffix().isEmpty()) {

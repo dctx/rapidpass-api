@@ -60,8 +60,8 @@ public class AccessPass implements Serializable {
     @Column(name = "id_type")
     private String idType;
     @Size(max = 25)
-    @Column(name = "plate_or_id")
-    private String plateOrId;
+    @Column(name = "identifier_number")
+    private String identifierNumber;
     @Size(max = 100)
     @Column(name = "name")
     private String name;

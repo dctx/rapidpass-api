@@ -3,7 +3,6 @@ package ph.devcon.rapidpass.models;
 import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.APORType;
 
 import java.util.Date;
 
@@ -14,7 +13,7 @@ public class RapidPass {
     private String controlCode;
     private String passType;
     private String aporType;
-    private String plateOrId;
+    private String identifierNumber;
     private String name;
     private String status;
     private Date validFrom;
@@ -26,7 +25,7 @@ public class RapidPass {
                 .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
                 .passType(accessPass.getPassType())
                 .aporType(accessPass.getAporType())
-                .plateOrId(accessPass.getPlateOrId())
+                .identifierNumber(accessPass.getIdentifierNumber())
                 .name(accessPass.getName())
                 .status(accessPass.getStatus())
                 .validFrom(accessPass.getValidFrom())

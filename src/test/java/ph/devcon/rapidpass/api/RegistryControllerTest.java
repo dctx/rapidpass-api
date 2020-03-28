@@ -42,7 +42,7 @@ class RegistryControllerTest {
 
     public static final RapidPassRequest TEST_VEHICLE_REQUEST = RapidPassRequest.builder()
             .passType(VEHICLE)
-            .plateOrId("ABCD 1234")
+            .identifierNumber("ABCD 1234")
             .mobileNumber("0915999999")
             .email("jonas.was.here@gmail.com")
             .destCity("Somewhere in the PH")
