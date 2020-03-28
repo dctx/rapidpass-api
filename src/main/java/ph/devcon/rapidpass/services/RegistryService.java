@@ -246,13 +246,8 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass revoke(String referenceId) {
-
-        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-
-        accessPass.setStatus(RequestStatus.DENIED.toString());
-        accessPassRepository.saveAndFlush(accessPass);
-
-        return RapidPass.buildFrom(accessPass);
+        // TODO: implement
+        return null;
     }
 
     /**
@@ -268,7 +263,15 @@ public class RegistryService {
         return null;
     }
 
-    public byte[] generateQrPdf(String referenceId) throws IOException, WriterException, WriterException {
+    /**
+     * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already converted to bytes for easy sending to HTTP.
+     *
+     * @param referenceId access ass reference id
+     * @return bytes of PDF file containing the QR code
+     * @throws IOException     on error writing the PDF
+     * @throws WriterException on error writing the QR code
+     */
+    public byte[] generateQrPdf(String referenceId) throws IOException, WriterException {
 
         final AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
         if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
