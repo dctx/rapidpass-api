@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
@@ -25,13 +27,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "region")
-@NamedQueries({
-    @NamedQuery(name = "Region.findAll", query = "SELECT r FROM Region r"),
-    @NamedQuery(name = "Region.findById", query = "SELECT r FROM Region r WHERE r.id = :id"),
-    @NamedQuery(name = "Region.findByCode", query = "SELECT r FROM Region r WHERE r.code = :code"),
-    @NamedQuery(name = "Region.findByName", query = "SELECT r FROM Region r WHERE r.name = :name"),
-    @NamedQuery(name = "Region.findByConfiguration", query = "SELECT r FROM Region r WHERE r.configuration = :configuration"),
-    @NamedQuery(name = "Region.findByStatus", query = "SELECT r FROM Region r WHERE r.status = :status")})
+@Data
 public class Region implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -56,58 +52,6 @@ public class Region implements Serializable {
     private Collection<Province> provinceCollection;
 
     public Region() {
-    }
-
-    public Region(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(String configuration) {
-        this.configuration = configuration;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Collection<Province> getProvinceCollection() {
-        return provinceCollection;
-    }
-
-    public void setProvinceCollection(Collection<Province> provinceCollection) {
-        this.provinceCollection = provinceCollection;
     }
 
     @Override

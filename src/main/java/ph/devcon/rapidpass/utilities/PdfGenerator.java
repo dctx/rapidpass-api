@@ -125,7 +125,7 @@ public class PdfGenerator {
             details.setMarginLeft(70);
             details.add("AOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
                     "Pass Type:\t" + passType + "\n" +
-                    "Plate:\t" + approvedRapidPass.getPlateOrId() + "\n" +
+                    "Plate:\t" + approvedRapidPass.getIdentifierNumber() + "\n" +
                     "Name:\t" + approvedRapidPass.getName());
         }
 
