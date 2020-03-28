@@ -61,7 +61,7 @@ public class RegistryRestController {
         return rapidPass == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
-    @DeleteMapping("/accessPasses/{referenceId}")
+    @DeleteMapping("/access-passes/{referenceId}")
     HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) {
         RapidPass rapidPass = registryService.revoke(referenceId);
         return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
