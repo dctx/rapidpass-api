@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.utilities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -17,7 +18,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.util.ResourceUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import ph.devcon.rapidpass.api.models.AccessPass;
+import ph.devcon.rapidpass.models.RapidPass;
 
 
 /**
@@ -70,16 +71,19 @@ public class PdfGenerator {
     }
 
     /**
-     * Generates a pdf at designated file path
+     * Generates a pdf at designated file path.
+     *
+     * Note: We use RapidPass, because AccessPass doesn't directly have easy builders to build with (for testing).
+     * Otherwise, we could be using AccessPass as the parameter. In any case, using RapidPass as the POJO  is sufficient.
      *
      * @param filePath          path of file where to save pdf
-     * @param qrCodeFile        Image file for QR code
-     * @param accessPass        AccessPass model
+     * @param qrCodeFile        Image file of the generated QR code
+     * @param rapidPass         RapidPass model that contains the details to be printed on the PDF.
      * @return file object of generated pdf
      */
     public static File generatePdf(String filePath,
                                    File qrCodeFile,
-                                   AccessPass accessPass)
+                                   RapidPass rapidPass)
             throws FileNotFoundException, MalformedURLException {
         log.debug("generating pdf at {}", filePath);
 
@@ -88,11 +92,13 @@ public class PdfGenerator {
         //qrcode image
         Image qrcode = new Image(prepareImage(qrCodeFile.getAbsolutePath()));
 
+        qrcode.setWidth(1200);
+        qrcode.setHeight(1200);
+
         // get dctx logo from classpath resource
         Image dctxLogo = new Image(prepareImage(
                 ResourceUtils.getFile("classpath:light-bg.png")
                         .getAbsolutePath()));
-
         dctxLogo.scaleToFit(200, 100);
         dctxLogo.setFixedPosition(400, 0);
 
@@ -107,24 +113,28 @@ public class PdfGenerator {
         details.setFontSize(24);
         details.setMarginLeft(70);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-YYYY HH:mm:ss");
+
+        String validUntil = sdf.format(rapidPass.getValidTo());
+
         // checks if pass type is individual or vehicle
-        final String passType = accessPass.getPassType().toLowerCase();
+        final String passType = rapidPass.getPassType().toLowerCase();
         if (passType.equals("individual")) {
-            //header
-            header.add(accessPass.getControlCode() + "\n");
+            // header
+            header.add(rapidPass.getControlCode() + "\n");
 
-            //details
-            details.add("APOR Type:\t" + accessPass.getAccessType() + "\n" +
-                    "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Valid Until:\t" + accessPass.getValidUntil());
+            // details
+            details.add("APOR Type:\t" + rapidPass.getAporType() + "\n" +
+                    "Company:\t" + rapidPass.getCompany() + "\n" +
+                    "Valid Until:\t" + validUntil);
         } else if (passType.equals("vehicle")) {
-            //header
-            header.add(accessPass.getPlateOrId() + "\n");
+            // header
+            header.add(rapidPass.getIdentifierNumber() + "\n");
 
-            //details
-            details.add("APOR Type:\t" + accessPass.getAccessType() + "\n" +
-                    "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Valid Until:\t" + accessPass.getValidUntil());
+            // details
+            details.add("APOR Type:\t" + rapidPass.getAporType() + "\n" +
+                    "Company:\t" + rapidPass.getCompany() + "\n" +
+                    "Valid Until:\t" + validUntil);
         }
 
         //writes to the document
