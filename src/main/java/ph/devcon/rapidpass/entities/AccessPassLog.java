@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
@@ -29,17 +31,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "access_pass_log")
-@NamedQueries({
-    @NamedQuery(name = "AccessPassLog.findAll", query = "SELECT a FROM AccessPassLog a"),
-    @NamedQuery(name = "AccessPassLog.findById", query = "SELECT a FROM AccessPassLog a WHERE a.id = :id"),
-    @NamedQuery(name = "AccessPassLog.findByEvent", query = "SELECT a FROM AccessPassLog a WHERE a.event = :event"),
-    @NamedQuery(name = "AccessPassLog.findByLatitude", query = "SELECT a FROM AccessPassLog a WHERE a.latitude = :latitude"),
-    @NamedQuery(name = "AccessPassLog.findByLongitude", query = "SELECT a FROM AccessPassLog a WHERE a.longitude = :longitude"),
-    @NamedQuery(name = "AccessPassLog.findByIpAddress", query = "SELECT a FROM AccessPassLog a WHERE a.ipAddress = :ipAddress"),
-    @NamedQuery(name = "AccessPassLog.findByCheckpointId", query = "SELECT a FROM AccessPassLog a WHERE a.checkpointId = :checkpointId"),
-    @NamedQuery(name = "AccessPassLog.findByScannerDeviceId", query = "SELECT a FROM AccessPassLog a WHERE a.scannerDeviceId = :scannerDeviceId"),
-    @NamedQuery(name = "AccessPassLog.findByDateTimeCreated", query = "SELECT a FROM AccessPassLog a WHERE a.dateTimeCreated = :dateTimeCreated"),
-    @NamedQuery(name = "AccessPassLog.findByDateTimeUpdated", query = "SELECT a FROM AccessPassLog a WHERE a.dateTimeUpdated = :dateTimeUpdated")})
+@Data
 public class AccessPassLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -73,90 +65,6 @@ public class AccessPassLog implements Serializable {
     private AccessPass accessPassId;
 
     public AccessPassLog() {
-    }
-
-    public AccessPassLog(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public void setEvent(String event) {
-        this.event = event;
-    }
-
-    public BigInteger getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigInteger latitude) {
-        this.latitude = latitude;
-    }
-
-    public BigInteger getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigInteger longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public Integer getCheckpointId() {
-        return checkpointId;
-    }
-
-    public void setCheckpointId(Integer checkpointId) {
-        this.checkpointId = checkpointId;
-    }
-
-    public Integer getScannerDeviceId() {
-        return scannerDeviceId;
-    }
-
-    public void setScannerDeviceId(Integer scannerDeviceId) {
-        this.scannerDeviceId = scannerDeviceId;
-    }
-
-    public Date getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(Date dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public Date getDateTimeUpdated() {
-        return dateTimeUpdated;
-    }
-
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
-        this.dateTimeUpdated = dateTimeUpdated;
-    }
-
-    public AccessPass getAccessPassId() {
-        return accessPassId;
-    }
-
-    public void setAccessPassId(AccessPass accessPassId) {
-        this.accessPassId = accessPassId;
     }
 
     @Override
