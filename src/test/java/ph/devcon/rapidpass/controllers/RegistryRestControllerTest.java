@@ -10,9 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
+
+import java.util.ArrayList;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -171,6 +174,42 @@ class RegistryRestControllerTest {
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
                 .andExpect(jsonPath("$.identifierNumber").value("ABCD 1234"))
                 .andExpect(jsonPath("$.status").value("PENDING"))
+                .andDo(print());
+    }
+
+    /**
+     * This tests GETting `requestPass` with either mobileNum or plateNum.
+     *
+     * @throws Exception on failed test
+     */
+    @Test
+    void getControlCodes() throws Exception {
+
+        ControlCode controlCode = ControlCode.builder()
+                .controlCode("12345")
+                .passType(INDIVIDUAL.toString())
+                .referenceId("ABCDE")
+                .build();
+
+        ArrayList<ControlCode> controlCodes = new ArrayList<>();
+        controlCodes.add(controlCode);
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.getControlCodes())
+                .thenReturn(controlCodes);
+
+        final String getAccessPathUrlTemplate = "/registry/control-codes/";
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate))
+                .andExpect(status().isOk())
+                // test json is expected
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").isMap())
+                .andExpect(jsonPath("$[0].controlCode").value("12345"))
+                .andExpect(jsonPath("$[0].passType").value("INDIVIDUAL"))
+                .andExpect(jsonPath("$[0].referenceId").value("ABCDE"))
                 .andDo(print());
     }
 

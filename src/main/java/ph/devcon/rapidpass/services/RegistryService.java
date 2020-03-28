@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import ph.devcon.rapidpass.enums.RequestStatus;
+import lombok.extern.slf4j.Slf4j;
+import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -101,13 +103,23 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-    public List<RapidPass> findAll() {
-        List<AccessPass> accessPassList = accessPassRepository.findAll();
-
-        return accessPassList
+    public List<RapidPass> findAllRapidPasses() {
+        return this.findAllAccessPasses()
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
+    }
+
+    public Iterable<ControlCode> getControlCodes() {
+        return accessPassRepository
+                .findAll()
+                .stream()
+                .map(ControlCode::buildFrom)
+                .collect(Collectors.toList());
+    }
+
+    public List<AccessPass> findAllAccessPasses() {
+        return accessPassRepository.findAll();
     }
 
     /**
