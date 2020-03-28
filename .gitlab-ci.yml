@@ -5,11 +5,13 @@ stages:
 
 Run Unit Tests:
   stage: test
-  image: openjdk:8-jdk-alpine
+  image: openjdk:15-jdk-alpine
+  except:
+    - develop
   script:
   - ./mvnw test
 
-Publish Docker Image:
+Test and Publish Docker Image:
   stage: package
   image: docker:19.03.1
   services:
