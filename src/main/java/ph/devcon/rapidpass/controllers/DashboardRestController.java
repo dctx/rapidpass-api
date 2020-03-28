@@ -19,7 +19,7 @@ import java.util.List;
  */
 @CrossOrigin
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("/registry")
 @Slf4j
 public class DashboardRestController {
 
@@ -30,17 +30,17 @@ public class DashboardRestController {
         this.dashboardService = dashboardService;
     }
 
-    @PutMapping("/access-passes/{referenceId}")
-    public HttpEntity<?> getAccessPasses(@PathVariable String referenceId, @RequestBody RapidPassRequest rapidPassRequest) {
-        RequestStatus requestStatus = rapidPassRequest.getRequestStatus();
+    @PutMapping("/accessPasses/{referenceId}")
+    public HttpEntity<RapidPass> approveOrDecline(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
+        String status = rapidPass.getStatus();
 
         RapidPass result = null;
 
         try {
 
-            if (requestStatus == RequestStatus.APPROVED) {
+            if (RequestStatus.APPROVED.toString().equals(status)) {
                 result = dashboardService.grant(referenceId);
-            } else if (requestStatus == RequestStatus.DENIED) {
+            } else if (RequestStatus.DENIED.toString().equals(status)) {
                 result = dashboardService.decline(referenceId);
             }
 
