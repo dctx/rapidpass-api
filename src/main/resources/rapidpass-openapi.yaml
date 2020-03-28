@@ -231,7 +231,10 @@ paths:
           description: Control Code to use on retrievinv the access pass
           required: true
           schema:
-            type: string
+            type: integer
+            format: int32
+            example:
+              12345
       responses:
         200:
           description: Access Pass retrieved
@@ -326,7 +329,8 @@ components:
         - referenceId
       properties:
         referenceId:
-          type: string
+          type: integer
+          format: int32
           description: backend generated reference id, created upon request
         controlCode:
           type: string
