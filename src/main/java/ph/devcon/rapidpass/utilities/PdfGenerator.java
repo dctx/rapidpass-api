@@ -17,7 +17,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.util.ResourceUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.api.models.AccessPass;
 
 
 /**
@@ -114,17 +114,17 @@ public class PdfGenerator {
             header.add(accessPass.getControlCode() + "\n");
 
             //details
-            details.add("APOR Type:\t" + accessPass.getAporType() + "\n" +
+            details.add("APOR Type:\t" + accessPass.getAccessType() + "\n" +
                     "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Valid Until:\t" + accessPass.getValidTo());
+                    "Valid Until:\t" + accessPass.getValidUntil());
         } else if (passType.equals("vehicle")) {
             //header
             header.add(accessPass.getPlateOrId() + "\n");
 
             //details
-            details.add("APOR Type:\t" + accessPass.getAporType() + "\n" +
+            details.add("APOR Type:\t" + accessPass.getAccessType() + "\n" +
                     "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Valid Until:\t" + accessPass.getValidTo());
+                    "Valid Until:\t" + accessPass.getValidUntil());
         }
 
         //writes to the document
