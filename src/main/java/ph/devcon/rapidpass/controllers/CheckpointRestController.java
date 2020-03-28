@@ -16,9 +16,6 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 @Api(tags = "checkpoint")
 public class CheckpointRestController implements CheckpointApi
 {
-    @Autowired
-    private AccessPassRepository accessPassRepository;
-    
     @Override
     public ResponseEntity<AccessPass> getAccessPassByControlCode(String controlCode)
     {
