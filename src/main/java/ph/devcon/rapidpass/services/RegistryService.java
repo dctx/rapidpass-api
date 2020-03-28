@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -26,6 +30,7 @@ import ph.devcon.rapidpass.entities.Registrar;
 public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 15;
+
     private RegistryRepository registryRepository;
     private RegistrantRepository registrantRepository;
     private AccessPassRepository accessPassRepository;
@@ -136,12 +141,95 @@ public class RegistryService {
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @param rapidPassRequest The data for the rapid pass request
+     * @param rapidPassRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
-    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) {
-        // TODO: implement
-        return null;
+    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+
+        String status = accessPass.getStatus();
+
+        boolean isPending = RequestStatus.PENDING.toString().equals(status);
+
+        if (!isPending) {
+            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+        }
+
+        if (rapidPassRequest.getRequestStatus() != null)
+            accessPass.setStatus(rapidPassRequest.getRequestStatus().toString());
+
+        if (rapidPassRequest.getRequestStatus() != null) {
+            accessPass.setStatus(rapidPassRequest.getRequestStatus().toString());
+        }
+
+        accessPass.setRemarks(rapidPassRequest.getRemarks());
+        accessPass.setAporType(rapidPassRequest.getAporType());
+        accessPass.setCompany(rapidPassRequest.getCompany());
+        accessPass.setDestinationCity(rapidPassRequest.getDestCity());
+        accessPass.setDestinationName(rapidPassRequest.getDestName());
+        accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
+
+        accessPass.setOriginName(rapidPassRequest.getOriginName());
+        accessPass.setOriginCity(rapidPassRequest.getOriginCity());
+        accessPass.setOriginStreet(rapidPassRequest.getOriginStreet());
+
+        accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
+        accessPass.setIdType(rapidPassRequest.getIdType());
+
+        accessPass.setPassType(rapidPassRequest.getPassType().toString());
+
+        if (rapidPassRequest.getPassType() != null)
+            accessPass.setPassType(rapidPassRequest.getPassType().toString());
+
+        accessPass.setName(rapidPassRequest.getName());
+
+        // TODO: We need to verify that only the authorized people to modify this pass are allowed.
+        // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
+        // accessPass.setRegistrantId();
+
+        // TODO: This update operation doesn't update the access pass' validity. we used a constant value for now.
+
+        AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
+        return RapidPass.buildFrom(savedAccessPass);
+    }
+
+
+
+    /**
+     * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @param status The status to apply
+     * @return Data stored on the database
+     */
+    private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+
+        String currentStatus = accessPass.getStatus();
+
+        boolean isPending = RequestStatus.PENDING.toString().equals(currentStatus);
+
+        if (!isPending) {
+            throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+        }
+
+        accessPass.setStatus(status.toString());
+
+        // TODO: We need to verify that only the authorized people to modify this pass are allowed.
+        // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
+        // accessPass.setRegistrantId();
+
+        // TODO: This update operation doesn't update the access pass' validity. we used a constant value for now.
+
+        AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
+        return RapidPass.buildFrom(savedAccessPass);
+    }
+
+    public RapidPass grant(String referenceId) throws  RegistryService.UpdateAccessPassException {
+        return this.updateStatus(referenceId, RequestStatus.APPROVED);
+    }
+
+    public RapidPass decline(String referenceId) throws  RegistryService.UpdateAccessPassException {
+        return this.updateStatus(referenceId, RequestStatus.DENIED);
     }
 
     /**
@@ -165,5 +253,14 @@ public class RegistryService {
     public Iterable<RapidPass> batchUpload(RapidPassBatchRequest rapidPassBatchRequest) {
         // TODO: implement
         return null;
+    }
+
+    /**
+     * This is thrown when updates are not allowed for the AccessPass.
+     */
+    public static class UpdateAccessPassException extends Throwable {
+        public UpdateAccessPassException(String s) {
+            super(s);
+        }
     }
 }
