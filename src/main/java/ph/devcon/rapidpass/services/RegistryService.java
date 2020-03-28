@@ -29,6 +29,7 @@ import ph.devcon.rapidpass.entities.Registrar;
 public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 15;
+
     private RegistryRepository registryRepository;
     private RegistrantRepository registrantRepository;
     private AccessPassRepository accessPassRepository;
@@ -208,7 +209,7 @@ public class RegistryService {
     /**
      * This is thrown when updates are not allowed for the AccessPass.
      */
-    public class UpdateAccessPassException extends Throwable {
+    public static class UpdateAccessPassException extends Throwable {
         public UpdateAccessPassException(String s) {
             super(s);
         }
