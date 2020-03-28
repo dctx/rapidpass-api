@@ -43,3 +43,10 @@ semaphore:
 server:
   servlet:
     context-path: /api/v1
+
+rapidpass:
+  auth:
+    apiKey:
+      enabled: true
+      key: dctx
+

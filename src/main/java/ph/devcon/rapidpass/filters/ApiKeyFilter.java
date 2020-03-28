@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class AuthenticationFilter implements Filter {
+public class ApiKeyFilter implements Filter {
 
-    @Value("${enable.rapid.pass.api.key}")
+    @Value("${rapidpass.auth.apiKey.enabled}")
     private boolean rapidPassApiKeyEnabled;
 
-    @Value("${rapid.pass.api.key}")
+    @Value("${rapidpass.auth.apiKey.key}")
     private String rapidPassApiKey;
 
     @Override
@@ -25,7 +25,7 @@ public class AuthenticationFilter implements Filter {
 
         String rapidPassKey = req.getHeader("RP-API-KEY");
         if (this.rapidPassApiKeyEnabled && (null == rapidPassKey || !StringUtils.equals(this.rapidPassApiKey, rapidPassKey))) {
-            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "RP-API-KEY in request header is missing or invalid!");
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "API Key is missing or invalid!");
             return;
         }
 
