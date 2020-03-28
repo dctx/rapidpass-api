@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.services;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,13 +66,28 @@ public class RegistryService {
         accessPass.setReferenceId(registrant.getMobile());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
-        accessPass.setName(registrant.getFirstName() + " " + registrant.getLastName());
         accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setPlateOrId(rapidPassRequest.getPlateOrId());
+        StringBuilder name = new StringBuilder(registrant.getFirstName());
+        name.append(" ").append(registrant.getLastName());
+        if (null != registrant.getSuffix() && !registrant.getSuffix().isEmpty()) {
+            name.append(" ").append(registrant.getSuffix());
+        }
+        accessPass.setName(name.toString());
+        accessPass.setCompany(rapidPassRequest.getCompany());
+        accessPass.setOriginName(rapidPassRequest.getOriginName());
+        accessPass.setOriginStreet(rapidPassRequest.getOriginStreet());
+        accessPass.setOriginCity(rapidPassRequest.getOriginCity());
+        accessPass.setDestinationName(rapidPassRequest.getDestName());
+        accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
+        accessPass.setDestinationCity(rapidPassRequest.getDestCity());
         Calendar c = Calendar.getInstance();
-        accessPass.setValidFrom(c.getTime());
+        Date currentDateTime = c.getTime();
+        accessPass.setValidFrom(currentDateTime);
         c.add(Calendar.DATE, DEFAULT_VALIDITY_DAYS);
-        accessPass.setValidTo(c.getTime());
+        accessPass.setValidTo(currentDateTime);
+        accessPass.setDateTimeCreated(currentDateTime);
+        accessPass.setDateTimeUpdated(currentDateTime);
         accessPass.setStatus("pending");
 
         log.info("Persisting Registrant: {}", registrant.toString());

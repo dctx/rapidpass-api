@@ -15,6 +15,7 @@ public class RapidPass {
     private String passType;
     private String aporType;
     private String plateOrId;
+    private String name;
     private String status;
     private Date validFrom;
     private Date validUntil;
@@ -26,6 +27,7 @@ public class RapidPass {
                 .passType(accessPass.getPassType())
                 .aporType(accessPass.getAporType())
                 .plateOrId(accessPass.getPlateOrId())
+                .name(accessPass.getName())
                 .status(accessPass.getStatus())
                 .validFrom(accessPass.getValidFrom())
                 .validUntil(accessPass.getValidTo())
