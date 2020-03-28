@@ -11,9 +11,11 @@ Run Unit Tests:
 
 Publish Docker Image:
   stage: package
-  image: docker:18.09
+  image: docker:19.03.1
   services:
-  - docker:18.09-dind
+  - docker:19.03.1-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
   before_script:
   - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
   script:
@@ -29,6 +31,8 @@ Deploy to Test Environment:
   before_script:
   - helm init --client-only  
   - helm repo add bitnami https://charts.bitnami.com/bitnami
+  - mkdir ~/.kube
+  - echo ${KUBECONFIG} > ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
   - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml helm/rapidpass-api
