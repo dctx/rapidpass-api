@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
@@ -15,6 +16,11 @@ import static ph.devcon.rapidpass.enums.RequestStatus.PENDING;
 
 /**
  * The {@link RapidPassRequest} class models a Rapid Pass Request.
+ *
+ * API consumers receive {@link RapidPass} when they retrieve responses regarding a {@link AccessPass}.
+ * API consumers send {@link RapidPassRequest} when they send queries related to a {@link AccessPass}.
+ *
+ * This is JSON format returned to the user when they request for a POST or a PUT on the AccessPass Resource.
  */
 @Data
 @Builder
