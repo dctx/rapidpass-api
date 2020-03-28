@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -126,7 +127,7 @@ public class RegistryService {
 
         AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
 
-        accessPass.setStatus(RapidPassRequest.RequestStatus.DENIED.toString());
+        accessPass.setStatus(RequestStatus.DENIED.toString());
         accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
