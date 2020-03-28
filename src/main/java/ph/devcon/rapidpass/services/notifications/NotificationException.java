@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service.notification;
+package ph.devcon.rapidpass.services.notifications;
 
 import java.lang.Exception;
 

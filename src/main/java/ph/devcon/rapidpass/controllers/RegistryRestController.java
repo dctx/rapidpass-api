@@ -1,11 +1,11 @@
-package ph.devcon.rapidpass.controller;
+package ph.devcon.rapidpass.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.RapidPass;
 import ph.devcon.rapidpass.entities.RapidPassRequest;
-import ph.devcon.rapidpass.service.RegistryService;
+import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.List;
 

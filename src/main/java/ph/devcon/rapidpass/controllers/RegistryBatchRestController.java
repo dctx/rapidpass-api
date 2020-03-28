@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.controller;
+package ph.devcon.rapidpass.controllers;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.entities.RapidPass;
 import ph.devcon.rapidpass.entities.RapidPassBatchRequest;
-import ph.devcon.rapidpass.service.RegistryService;
+import ph.devcon.rapidpass.services.RegistryService;
 
 
 /**

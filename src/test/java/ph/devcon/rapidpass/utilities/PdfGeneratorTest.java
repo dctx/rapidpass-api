@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.RapidPassRequest;
-import ph.devcon.rapidpass.service.QrGeneratorServiceImpl;
+import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import java.io.File;
 

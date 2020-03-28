@@ -10,6 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import ph.devcon.rapidpass.services.notifications.NotificationException;
+import ph.devcon.rapidpass.services.notifications.NotificationMessage;
+import ph.devcon.rapidpass.services.notifications.SMSNotificationService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,7 +34,8 @@ class SMSNotificationServiceTest {
 
     // sample test with mock
     @Test
-    void mockSend_SUCCESS() throws NotificationException {
+    void mockSend_SUCCESS() throws NotificationException
+    {
 
         // setup mockRestTemplate
         when(mockRestTemplate.postForEntity(eq("TEST_URL"), any(HttpEntity.class), eq(String.class)))

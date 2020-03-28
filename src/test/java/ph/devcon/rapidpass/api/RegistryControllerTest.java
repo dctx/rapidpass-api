@@ -7,11 +7,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.controller.RegistryRestController;
+import ph.devcon.rapidpass.controllers.RegistryRestController;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.RapidPass;
 import ph.devcon.rapidpass.entities.RapidPassRequest;
-import ph.devcon.rapidpass.service.RegistryService;
+import ph.devcon.rapidpass.services.RegistryService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

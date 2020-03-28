@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service;
+package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;

@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service;
+package ph.devcon.rapidpass.services;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

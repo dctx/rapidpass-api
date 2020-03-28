@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
+import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

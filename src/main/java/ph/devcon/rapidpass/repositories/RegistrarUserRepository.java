@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.jpa;
+package ph.devcon.rapidpass.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
