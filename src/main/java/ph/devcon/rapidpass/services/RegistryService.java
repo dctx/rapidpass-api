@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import ph.devcon.rapidpass.enums.RequestStatus;
+import lombok.extern.slf4j.Slf4j;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
@@ -238,8 +240,13 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass revoke(String referenceId) {
-        // TODO: implement
-        return null;
+
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+
+        accessPass.setStatus(RequestStatus.DENIED.toString());
+        accessPassRepository.saveAndFlush(accessPass);
+
+        return RapidPass.buildFrom(accessPass);
     }
 
     /**
