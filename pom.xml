@@ -247,7 +247,6 @@
         <profile>
             <id>default</id>
             <properties>
-                <maven.test.skip>true</maven.test.skip>
                 <activateSpringProfile>h2</activateSpringProfile>
             </properties>
         </profile>
