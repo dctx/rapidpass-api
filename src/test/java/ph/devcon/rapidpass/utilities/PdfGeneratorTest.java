@@ -12,8 +12,8 @@ import java.io.File;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static ph.devcon.rapidpass.models.RapidPassRequest.AccessType.MED;
-import static ph.devcon.rapidpass.models.RapidPassRequest.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.APORType.MED;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 
 class PdfGeneratorTest {
 
@@ -58,7 +58,7 @@ class PdfGeneratorTest {
                                 .passType(INDIVIDUAL)
                                 .firstName("Jonas Was Here")
                                 .lastName("Donasco")
-                                .accessType(MED)
+                                .aporType(MED)
                                 .company("DEVCON")
                                 .build());
 

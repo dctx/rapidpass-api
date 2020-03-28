@@ -19,10 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ph.devcon.rapidpass.models.RapidPassRequest.AccessType.MED;
-import static ph.devcon.rapidpass.models.RapidPassRequest.AccessType.O;
-import static ph.devcon.rapidpass.models.RapidPassRequest.PassType.INDIVIDUAL;
-import static ph.devcon.rapidpass.models.RapidPassRequest.PassType.VEHICLE;
+import static ph.devcon.rapidpass.enums.PassType.*;
+import static ph.devcon.rapidpass.enums.APORType.*;
 
 /**
  * Tests for PwaController.
@@ -39,7 +37,7 @@ class RegistryControllerTest {
                     .email("jonas.was.here@gmail.com")
                     .destAddress("Somewhere in the PH")
                     .company("DEVCON")
-                    .accessType(O)
+                    .aporType(O)
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
 
@@ -50,7 +48,7 @@ class RegistryControllerTest {
             .email("jonas.was.here@gmail.com")
             .destAddress("Somewhere in the PH")
             .company("DEVCON")
-            .accessType(MED)
+            .aporType(MED)
             .remarks("This is a test for VEHICLE REQUEST").build();
 
     public RapidPass TEST_INDIVIDUAL_PASS;
@@ -64,7 +62,7 @@ class RegistryControllerTest {
         individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
         individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestAddress());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
-        individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAccessType().toString());
+        individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         individualAccessPass.setReferenceId(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
@@ -74,7 +72,7 @@ class RegistryControllerTest {
         vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
         vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestAddress());
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
-        vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAccessType().toString());
+        vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());

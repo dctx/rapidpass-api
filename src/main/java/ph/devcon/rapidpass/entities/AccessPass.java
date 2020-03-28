@@ -5,6 +5,9 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import ph.devcon.rapidpass.enums.APORType;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -44,7 +47,7 @@ public class AccessPass implements Serializable {
     private String passType;
     @Size(max = 10)
     @Column(name = "apor_type")
-    private String aporType;
+    private APORType aporType;
     @Column(name = "control_code")
     private Integer controlCode;
     @Size(max = 10)
@@ -149,11 +152,11 @@ public class AccessPass implements Serializable {
         this.passType = passType;
     }
 
-    public String getAporType() {
+    public APORType getAporType() {
         return aporType;
     }
 
-    public void setAporType(String aporType) {
+    public void setAporType(APORType aporType) {
         this.aporType = aporType;
     }
 
