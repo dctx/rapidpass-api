@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ph.devcon.rapidpass.enums.PassType.*;
-import static ph.devcon.rapidpass.enums.APORType.*;
 
 /**
  * Tests for PwaController.
@@ -35,9 +34,9 @@ class RegistryControllerTest {
                     .lastName("Espelita")
                     .mobileNumber("0915999999")
                     .email("jonas.was.here@gmail.com")
-                    .destAddress("Somewhere in the PH")
+                    .destCity("Somewhere in the PH")
                     .company("DEVCON")
-                    .aporType(O)
+                    .aporType("MO")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
 
@@ -46,9 +45,9 @@ class RegistryControllerTest {
             .plateOrId("ABCD 1234")
             .mobileNumber("0915999999")
             .email("jonas.was.here@gmail.com")
-            .destAddress("Somewhere in the PH")
+            .destCity("Somewhere in the PH")
             .company("DEVCON")
-            .aporType(MED)
+            .aporType("M")
             .remarks("This is a test for VEHICLE REQUEST").build();
 
     public RapidPass TEST_INDIVIDUAL_PASS;
@@ -60,7 +59,7 @@ class RegistryControllerTest {
         AccessPass individualAccessPass = new AccessPass();
 
         individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
-        individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestAddress());
+        individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestCity());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
         individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
@@ -70,7 +69,7 @@ class RegistryControllerTest {
         AccessPass vehicleAccessPass = new AccessPass();
 
         vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
-        vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestAddress());
+        vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestCity());
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());

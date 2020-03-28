@@ -142,7 +142,7 @@
             <column name="reference_id" type="VARCHAR(30)"/>
             <column name="pass_type" type="VARCHAR(10)"/>
             <column name="apor_type" type="VARCHAR(10)"/>
-            <column name="control_code" type="INTEGER"/>
+            <column name="control_code" type="VARCHAR(15)"/>
             <column name="id_type" type="VARCHAR(10)"/>
             <column name="plate_or_id" type="VARCHAR(25)"/>
             <column name="name" type="VARCHAR(100)"/>
@@ -151,13 +151,15 @@
             <column name="scope" type="INTEGER"/>
             <column name="limitations" type="VARCHAR(200)"/>
             <column name="origin_name" type="VARCHAR(100)"/>
-            <column name="origin_address" type="VARCHAR(150)"/>
-            <column name="origin_province" type="VARCHAR(50)"/>
+            <column name="origin_street" type="VARCHAR(150)"/>
             <column name="origin_city" type="VARCHAR(50)"/>
+            <column name="origin_province" type="VARCHAR(50)"/>
+            <column name="origin_zip" type="VARCHAR(15)"/>
             <column name="destination_name" type="VARCHAR(100)"/>
-            <column name="destination_address" type="VARCHAR(150)"/>
-            <column name="destination_province" type="VARCHAR(50)"/>
+            <column name="destination_street" type="VARCHAR(150)"/>
             <column name="destination_city" type="VARCHAR(50)"/>
+            <column name="destination_province" type="VARCHAR(50)"/>
+            <column name="destination_zip" type="VARCHAR(15)"/>
             <column name="valid_from" type="TIMESTAMP without time zone"/>
             <column name="valid_to" type="TIMESTAMP without time zone"/>
             <column name="issued_by" type="VARCHAR(20)"/>
@@ -211,6 +213,7 @@
             <column name="work_address" type="VARCHAR(150)"/>
             <column name="work_province" type="VARCHAR(50)"/>
             <column name="work_city" type="VARCHAR(50)"/>
+            <column name="work_zip" type="VARCHAR(15)"/>
             <column name="mobile" type="VARCHAR(50)"/>
             <column name="email" type="VARCHAR(50)"/>
             <column name="socmed1" type="VARCHAR(50)"/>

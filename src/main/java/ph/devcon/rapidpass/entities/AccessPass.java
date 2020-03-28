@@ -5,6 +5,10 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
@@ -31,6 +35,8 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "access_pass", schema = "public")
+@Data
+@NoArgsConstructor
 public class AccessPass implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -47,9 +53,9 @@ public class AccessPass implements Serializable {
     private String passType;
     @Size(max = 10)
     @Column(name = "apor_type")
-    private APORType aporType;
+    private String aporType;
     @Column(name = "control_code")
-    private Integer controlCode;
+    private String controlCode;
     @Size(max = 10)
     @Column(name = "id_type")
     private String idType;
@@ -74,8 +80,8 @@ public class AccessPass implements Serializable {
     @Column(name = "origin_name")
     private String originName;
     @Size(max = 150)
-    @Column(name = "origin_address")
-    private String originAddress;
+    @Column(name = "origin_street")
+    private String originStreet;
     @Size(max = 50)
     @Column(name = "origin_province")
     private String originProvince;
@@ -86,14 +92,14 @@ public class AccessPass implements Serializable {
     @Column(name = "destination_name")
     private String destinationName;
     @Size(max = 150)
-    @Column(name = "destination_address")
-    private String destinationAddress;
+    @Column(name = "destination_street")
+    private String destinationStreet;
+    @Size(max = 150)
+    @Column(name = "destination_city")
+    private String destinationCity;
     @Size(max = 50)
     @Column(name = "destination_province")
     private String destinationProvince;
-    @Size(max = 50)
-    @Column(name = "destination_city")
-    private String destinationCity;
     @Column(name = "valid_from")
     @Temporal(TemporalType.TIMESTAMP)
     private Date validFrom;
@@ -121,245 +127,6 @@ public class AccessPass implements Serializable {
     @OneToMany(mappedBy = "accessPassId")
     private Collection<AccessPassLog> accessPassLogCollection;
 
-    public AccessPass() {
-    }
-
-    public AccessPass(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
-    }
-
-    public String getPassType() {
-        return passType;
-    }
-
-    public void setPassType(String passType) {
-        this.passType = passType;
-    }
-
-    public APORType getAporType() {
-        return aporType;
-    }
-
-    public void setAporType(APORType aporType) {
-        this.aporType = aporType;
-    }
-
-    public Integer getControlCode() {
-        return controlCode;
-    }
-
-    public void setControlCode(Integer controlCode) {
-        this.controlCode = controlCode;
-    }
-
-    public String getIdType() {
-        return idType;
-    }
-
-    public void setIdType(String idType) {
-        this.idType = idType;
-    }
-
-    public String getPlateOrId() {
-        return plateOrId;
-    }
-
-    public void setPlateOrId(String plateOrId) {
-        this.plateOrId = plateOrId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
-    public String getRemarks() {
-        return remarks;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public Integer getScope() {
-        return scope;
-    }
-
-    public void setScope(Integer scope) {
-        this.scope = scope;
-    }
-
-    public String getLimitations() {
-        return limitations;
-    }
-
-    public void setLimitations(String limitations) {
-        this.limitations = limitations;
-    }
-
-    public String getOriginName() {
-        return originName;
-    }
-
-    public void setOriginName(String originName) {
-        this.originName = originName;
-    }
-
-    public String getOriginAddress() {
-        return originAddress;
-    }
-
-    public void setOriginAddress(String originAddress) {
-        this.originAddress = originAddress;
-    }
-
-    public String getOriginProvince() {
-        return originProvince;
-    }
-
-    public void setOriginProvince(String originProvince) {
-        this.originProvince = originProvince;
-    }
-
-    public String getOriginCity() {
-        return originCity;
-    }
-
-    public void setOriginCity(String originCity) {
-        this.originCity = originCity;
-    }
-
-    public String getDestinationName() {
-        return destinationName;
-    }
-
-    public void setDestinationName(String destinationName) {
-        this.destinationName = destinationName;
-    }
-
-    public String getDestinationAddress() {
-        return destinationAddress;
-    }
-
-    public void setDestinationAddress(String destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
-
-    public String getDestinationProvince() {
-        return destinationProvince;
-    }
-
-    public void setDestinationProvince(String destinationProvince) {
-        this.destinationProvince = destinationProvince;
-    }
-
-    public String getDestinationCity() {
-        return destinationCity;
-    }
-
-    public void setDestinationCity(String destinationCity) {
-        this.destinationCity = destinationCity;
-    }
-
-    public Date getValidFrom() {
-        return validFrom;
-    }
-
-    public void setValidFrom(Date validFrom) {
-        this.validFrom = validFrom;
-    }
-
-    public Date getValidTo() {
-        return validTo;
-    }
-
-    public void setValidTo(Date validTo) {
-        this.validTo = validTo;
-    }
-
-    public String getIssuedBy() {
-        return issuedBy;
-    }
-
-    public void setIssuedBy(String issuedBy) {
-        this.issuedBy = issuedBy;
-    }
-
-    public String getUpdates() {
-        return updates;
-    }
-
-    public void setUpdates(String updates) {
-        this.updates = updates;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Date getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(Date dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public Date getDateTimeUpdated() {
-        return dateTimeUpdated;
-    }
-
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
-        this.dateTimeUpdated = dateTimeUpdated;
-    }
-
-    public Registrant getRegistrantId() {
-        return registrantId;
-    }
-
-    public void setRegistrantId(Registrant registrantId) {
-        this.registrantId = registrantId;
-    }
-
-    public Collection<AccessPassLog> getAccessPassLogCollection() {
-        return accessPassLogCollection;
-    }
-
-    public void setAccessPassLogCollection(Collection<AccessPassLog> accessPassLogCollection) {
-        this.accessPassLogCollection = accessPassLogCollection;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -384,5 +151,8 @@ public class AccessPass implements Serializable {
     public String toString() {
         return "ph.devcon.rapidpass.entities.AccessPass[ id=" + id + " ]";
     }
-    
+
 }
+
+
+
