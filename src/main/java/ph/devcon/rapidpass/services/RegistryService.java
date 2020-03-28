@@ -183,6 +183,45 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
+
+
+    /**
+     * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @param status The status to apply
+     * @return Data stored on the database
+     */
+    private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+
+        String currentStatus = accessPass.getStatus();
+
+        boolean isPending = RequestStatus.PENDING.toString().equals(currentStatus);
+
+        if (!isPending) {
+            throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+        }
+
+        accessPass.setStatus(status.toString());
+
+        // TODO: We need to verify that only the authorized people to modify this pass are allowed.
+        // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
+        // accessPass.setRegistrantId();
+
+        // TODO: This update operation doesn't update the access pass' validity. we used a constant value for now.
+
+        AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
+        return RapidPass.buildFrom(savedAccessPass);
+    }
+
+    public RapidPass grant(String referenceId) throws  RegistryService.UpdateAccessPassException {
+        return this.updateStatus(referenceId, RequestStatus.APPROVED);
+    }
+
+    public RapidPass decline(String referenceId) throws  RegistryService.UpdateAccessPassException {
+        return this.updateStatus(referenceId, RequestStatus.DENIED);
+    }
+
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is revoked.
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
