@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
@@ -15,12 +16,11 @@ import java.util.UUID;
 import static ph.devcon.rapidpass.enums.RequestStatus.PENDING;
 
 /**
- * The {@link RapidPassRequest} class models a Rapid Pass Request.
+ * Data model representing a request to create a new {@link AccessPass}. It contains details about an AccessPass and a {@link Registrant}.
  *
- * API consumers receive {@link RapidPass} when they retrieve responses regarding a {@link AccessPass}.
- * API consumers send {@link RapidPassRequest} when they send queries related to a {@link AccessPass}.
+ * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
  *
- * This is JSON format returned to the user when they request for a POST or a PUT on the AccessPass Resource.
+ * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
  */
 @Data
 @Builder

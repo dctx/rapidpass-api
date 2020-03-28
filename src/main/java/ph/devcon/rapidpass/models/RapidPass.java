@@ -9,10 +9,9 @@ import java.util.Date;
 /**
  * Data model representing an {@link AccessPass}, but is only a subset of the model's properties.
  *
- * This is the format/schema that is used as an interface within the API.
+ * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
  *
- * API consumers receive {@link RapidPass} when they retrieve responses regarding a {@link AccessPass}.
- * API consumers send {@link RapidPassRequest} when they send queries related to a {@link AccessPass}.
+ * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
  *
  * This is JSON format returned to the user when they request for a GET on the AccessPass Resource.
  */
