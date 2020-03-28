@@ -5,25 +5,11 @@
  */
 package ph.devcon.rapidpass.entities;
 
-import ph.devcon.rapidpass.enums.APORType;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-
+import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.Size;
 
 /**
  *
@@ -47,7 +33,7 @@ public class AccessPass implements Serializable {
     private String passType;
     @Size(max = 10)
     @Column(name = "apor_type")
-    private APORType aporType;
+    private String aporType;
     @Column(name = "control_code")
     private Integer controlCode;
     @Size(max = 10)
@@ -118,7 +104,7 @@ public class AccessPass implements Serializable {
     @JoinColumn(name = "registrant_id", referencedColumnName = "id")
     @ManyToOne
     private Registrant registrantId;
-    @OneToMany(mappedBy = "accessPassId")
+    @OneToMany(mappedBy = "accessPassId",fetch = FetchType.LAZY)
     private Collection<AccessPassLog> accessPassLogCollection;
 
     public AccessPass() {
@@ -152,11 +138,11 @@ public class AccessPass implements Serializable {
         this.passType = passType;
     }
 
-    public APORType getAporType() {
+    public String getAporType() {
         return aporType;
     }
 
-    public void setAporType(APORType aporType) {
+    public void setAporType(String aporType) {
         this.aporType = aporType;
     }
 

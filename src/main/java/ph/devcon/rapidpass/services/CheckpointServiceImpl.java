@@ -1,13 +1,28 @@
 package ph.devcon.rapidpass.services;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ph.devcon.rapidpass.api.models.AccessPass;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
+import java.time.LocalDate;
+
+@Component
 public class CheckpointServiceImpl implements CheckpointService
 {
+    @Autowired
+    private AccessPassRepository accessPassRepository;
+    
     @Override
-    public AccessPass retrieveAccessPassByControlCode(String controlCode)
+    public AccessPass retrieveAccessPassByControlCode(Integer controlCode)
     {
-        return null;
+        final ph.devcon.rapidpass.entities.AccessPass
+            entity = accessPassRepository.findByControlCode(controlCode);
+        AccessPass accessPass = new AccessPass();
+        accessPass.controlCode(entity.getControlCode());
+            
+        return accessPass;
     }
     
     @Override

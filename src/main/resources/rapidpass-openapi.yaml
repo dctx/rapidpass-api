@@ -252,8 +252,9 @@ components:
       properties:
         passType:
           $ref: '#/components/schemas/PassRequestType'
-        accessType:
-          $ref: '#/components/schemas/APORType'
+        aporType:
+          type: string
+          description: Allowed Person Outside Residence (APOR) type.
         firstName:
           type: string
           description: firstname of individual that will use the access pass
@@ -416,15 +417,3 @@ components:
       enum:
         - PersonalID
         - VehicleID
-    APORType:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: Primary key of APOR type
-        name:
-          type: string
-          description: Name of APOR type
-          example:
-            Medical

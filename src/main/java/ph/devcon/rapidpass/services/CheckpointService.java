@@ -4,7 +4,7 @@ import ph.devcon.rapidpass.api.models.AccessPass;
 
 public interface CheckpointService
 {
-    AccessPass retrieveAccessPassByControlCode(String controlCode);
+    AccessPass retrieveAccessPassByControlCode(Integer controlCode);
     AccessPass retrieveAccessPassByLicenseNumber(String licenseNumber);
     AccessPass retrieveAccessPassByQrCode(String qrCode);
 }

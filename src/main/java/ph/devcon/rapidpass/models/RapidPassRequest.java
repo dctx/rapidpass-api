@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 
@@ -30,7 +29,7 @@ public final class RapidPassRequest {
 
     @NotNull
     private PassType passType;
-    private APORType aporType;
+    private String aporType;
     private String firstName;
     private String middleName;
     private String lastName;

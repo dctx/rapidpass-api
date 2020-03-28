@@ -16,5 +16,5 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     List<AccessPass> findAllByReferenceIdOrderByValidToDesc(String referenceId);
     
     @Query("SELECT ap FROM AccessPass ap WHERE ap.controlCode = :controlCode")
-    AccessPass findByControlCode(String controlCode);
+    AccessPass findByControlCode(Integer controlCode);
 }

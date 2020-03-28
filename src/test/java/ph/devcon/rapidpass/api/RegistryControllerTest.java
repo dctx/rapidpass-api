@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ph.devcon.rapidpass.enums.PassType.*;
-import static ph.devcon.rapidpass.enums.APORType.*;
 
 /**
  * Tests for PwaController.
@@ -37,7 +36,7 @@ class RegistryControllerTest {
                     .email("jonas.was.here@gmail.com")
                     .destAddress("Somewhere in the PH")
                     .company("DEVCON")
-                    .aporType(O)
+                    .aporType("OO")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
 
@@ -48,7 +47,7 @@ class RegistryControllerTest {
             .email("jonas.was.here@gmail.com")
             .destAddress("Somewhere in the PH")
             .company("DEVCON")
-            .aporType(MED)
+            .aporType("ME")
             .remarks("This is a test for VEHICLE REQUEST").build();
 
     public RapidPass TEST_INDIVIDUAL_PASS;

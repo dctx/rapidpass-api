@@ -5,7 +5,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
   h2:
     console:
       enabled: true
