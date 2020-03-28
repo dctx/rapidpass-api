@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dctx.cxjtwxfv3gt3.us-east-2.rds.amazonaws.comlocalhost:5432/rapidpass
+    url: jdbc:postgresql://dctx.cxjtwxfv3gt3.us-east-2.rds.amazonaws.com:5432/rapidpass
     username: dctx
     password: password
   jpa:
