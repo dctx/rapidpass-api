@@ -250,18 +250,26 @@ components:
         passType:
           $ref: '#/components/schemas/PassRequestType'
         accessType:
+          $ref: '#/components/schemas/APORType'
+        firstName:
           type: string
-          enum:
-            - Medical
-            - Basic Service
-            - BPO
-            - Agriculture
-            - Logistics
-            - Others
-          description: Type of access needed. This is tied to gov agency that will approve pass
-        name:
+          description: firstname of individual that will use the access pass
+          example:
+            Juan
+        middleName:
           type: string
-          description: name of individual that will use the access pass
+          description: middleName of individual that will use the access pass
+          example:
+            Dipahuhuli
+        lastName:
+          type: string
+          description: lastName of individual that will use the access pass
+            Dimaunahan
+        suffix:
+          type: string
+          description: Name i.e. Jr. the III
+          example:
+            Jr.
         company:
           type: string
           description: company of access pass holder
@@ -282,6 +290,9 @@ components:
           $ref: '#/components/schemas/Address'
         remarks:
           type: string
+          description: Reason why the pass is needed
+          example:
+            To deliver medical supplies
         status:
           $ref: '#/components/schemas/AccessPassStatus'
 
@@ -401,3 +412,15 @@ components:
       enum:
         - PersonalID
         - VehicleID
+    APORType:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Primary key of APOR type
+        name:
+          type: string
+          description: Name of APOR type
+          example:
+            Medical
