@@ -101,23 +101,8 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_INDIVIDUAL() throws Exception {
 
-        RapidPassRequest request = RapidPassRequest.builder()
-                .passType(INDIVIDUAL)
-                .firstName("Jonas")
-                .lastName("Espelita")
-                .mobileNumber("0915999999")
-                .email("jonas.was.here@gmail.com")
-                .destStreet("Somewhere in the PH")
-                .company("DEVCON")
-                .aporType(APORType.O.toString())
-                .remarks("This is a test for INDIVIDUAL REQUEST")
-                .build();
-
-        when(mockRegistryService.newRequestPass(eq(TEST_INDIVIDUAL_REQUEST)))
-                .thenReturn(TEST_INDIVIDUAL_PASS);
-
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(request);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
@@ -138,20 +123,8 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_VEHICLE() throws Exception {
 
-        RapidPassRequest request = RapidPassRequest.builder()
-                .passType(VEHICLE)
-                .idType("PLATENUMBER")
-                .identifierNumber("ABCD 1234")
-                .mobileNumber("0915999999")
-                .email("jonas.was.here@gmail.com")
-                .destStreet("Somewhere in the PH")
-                .company("DEVCON")
-                .aporType(APORType.MED.toString())
-                .remarks("This is a test for VEHICLE REQUEST")
-                .build();
-
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(request);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
