@@ -14,9 +14,9 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
 
+import lombok.extern.slf4j.Slf4j;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
