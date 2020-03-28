@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
-import org.codehaus.plexus.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
@@ -52,7 +52,7 @@ class QrGeneratorServiceImplTest {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")
                 .controlCode(CC_1234_ENCRYPTED)
-                .purpose('D')
+                .apor("AB")
                 .validFrom(MAR_23_2020)
                 .validUntil(MAR_27_2020)
                 .build();

@@ -5,6 +5,7 @@ import org.hamcrest.io.FileMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
+import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
@@ -35,7 +36,7 @@ class PdfGeneratorTest {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")
                 .controlCode(CC_1234_ENCRYPTED)
-                .purpose('D')
+                .apor("AB")
                 .validFrom(MAR_23_2020)
                 .validUntil(MAR_27_2020)
                 .build();
@@ -58,7 +59,7 @@ class PdfGeneratorTest {
                                 .passType(INDIVIDUAL)
                                 .firstName("Jonas Was Here")
                                 .lastName("Donasco")
-                                .aporType(MED.toString())
+                                .aporType(APORType.MED.toString())
                                 .company("DEVCON")
                                 .build());
 

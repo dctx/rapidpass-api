@@ -8,26 +8,22 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.controllers.RegistryRestController;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.enums.APORType;
-import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.ArrayList;
 
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ph.devcon.rapidpass.enums.PassType.*;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
 /**
  * Tests for PwaController.
@@ -82,8 +78,9 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
-        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
         vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
+        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+
         vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
@@ -107,20 +104,8 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_INDIVIDUAL() throws Exception {
 
-        RapidPassRequest request = RapidPassRequest.builder()
-                .passType(INDIVIDUAL)
-                .firstName("Jonas")
-                .lastName("Espelita")
-                .mobileNumber("0915999999")
-                .email("jonas.was.here@gmail.com")
-                .destStreet("Somewhere in the PH")
-                .company("DEVCON")
-                .aporType(APORType.O.toString())
-                .remarks("This is a test for INDIVIDUAL REQUEST")
-                .build();
-
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(request);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
@@ -141,20 +126,8 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_VEHICLE() throws Exception {
 
-        RapidPassRequest request = RapidPassRequest.builder()
-                .passType(VEHICLE)
-                .identifierNumber("ABCD 1234")
-                .idType("PLATENUMBER")
-                .mobileNumber("0915999999")
-                .email("jonas.was.here@gmail.com")
-                .destStreet("Somewhere in the PH")
-                .company("DEVCON")
-                .aporType(APORType.MED.toString())
-                .remarks("This is a test for VEHICLE REQUEST")
-                .build();
-
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(request);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
@@ -199,7 +172,7 @@ class RegistryRestControllerTest {
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
-                .andExpect(jsonPath("$.plateOrId").value("ABCD 1234"))
+                .andExpect(jsonPath("$.identifierNumber").value("ABCD 1234"))
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andDo(print());
     }
