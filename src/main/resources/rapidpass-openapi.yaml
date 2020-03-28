@@ -1,13 +1,10 @@
 openapi: 3.0.0
-# Added by API Auto Mocking Plugin
 
-## The server is set to a relative path so when a swagger ui instance reads this, it will use the host + this relative
-## path. this path should be the same as the base path of the api.
 servers:
   - url: /api/v1/
 info:
-  description: API for Rapid Pass Web Services. Guys, currently super simple pass ng API. Please send Merge Requests to update details. Thanks!
-  version: "1.0.0"
+  description: API for Rapid Pass Web Services.
+  version: "1.1.0"
   title: RapidPass API
   license:
     name: Apache 2.0
@@ -16,7 +13,7 @@ tags:
   - name: checkpoint
     description: Endpoints for inspector app which is mainly used at checkpoints.
   - name: registry
-    description: Endpoints for registring rapidpass users. Also the main API for PWA/mobile end-user app
+    description: Endpoints for registering rapidpass users. Also the main API for PWA/mobile end-user app
   - name: dashboard
     description: Endpoints for approval applications
 
@@ -74,7 +71,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccessPasses'
-
+  /registry/qr-codes/{controlCode}:
+    get:
+      tags:
+        - registry
+      summary: Retrieves the QR Code PDF associated with the control code.
+      parameters:
+        - name: controlCode
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: QR Code PDF download
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
   /dashboard/access-passes:
     put:
       tags:
@@ -226,7 +241,7 @@ paths:
         - checkpoint
       summary: Get access pass using Control Code to check if it is valid pass
       parameters:
-        - name: plateNo
+        - name: controlCode
           in: path
           description: Control Code to use on retrievinv the access pass
           required: true
