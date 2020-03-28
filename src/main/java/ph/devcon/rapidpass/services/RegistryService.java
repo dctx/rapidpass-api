@@ -13,9 +13,9 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.RapidPass;
-import ph.devcon.rapidpass.entities.RapidPassBatchRequest;
-import ph.devcon.rapidpass.entities.RapidPassRequest;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassBatchRequest;
+import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.Registrar;
 

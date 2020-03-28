@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.entities;
+package ph.devcon.rapidpass.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

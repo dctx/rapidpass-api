@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ph.devcon.rapidpass.entities.RapidPass;
-import ph.devcon.rapidpass.entities.RapidPassBatchRequest;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassBatchRequest;
 import ph.devcon.rapidpass.services.RegistryService;
 
 

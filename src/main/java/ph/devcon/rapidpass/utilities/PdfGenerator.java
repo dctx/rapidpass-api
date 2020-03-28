@@ -16,11 +16,11 @@ import com.itextpdf.layout.property.TextAlignment;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
-import ph.devcon.rapidpass.entities.RapidPassRequest;
-import ph.devcon.rapidpass.entities.RapidPassRequest.PassType;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RapidPassRequest.PassType;
 
-import static ph.devcon.rapidpass.entities.RapidPassRequest.PassType.INDIVIDUAL;
-import static ph.devcon.rapidpass.entities.RapidPassRequest.PassType.VEHICLE;
+import static ph.devcon.rapidpass.models.RapidPassRequest.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.models.RapidPassRequest.PassType.VEHICLE;
 
 
 /**

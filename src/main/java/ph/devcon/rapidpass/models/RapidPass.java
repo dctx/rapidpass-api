@@ -1,7 +1,8 @@
-package ph.devcon.rapidpass.entities;
+package ph.devcon.rapidpass.models;
 
 import lombok.Builder;
 import lombok.Data;
+import ph.devcon.rapidpass.entities.AccessPass;
 
 import java.util.Date;
 
