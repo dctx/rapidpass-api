@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.repository;
+package ph.devcon.rapidpass.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 import ph.devcon.rapidpass.entities.Registrar;
