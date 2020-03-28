@@ -12,6 +12,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
+import ph.devcon.rapidpass.services.notifications.EmailNotificationService;
+import ph.devcon.rapidpass.services.notifications.NotificationException;
+import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 
 @SpringBootTest
 public class EmailServiceTest{

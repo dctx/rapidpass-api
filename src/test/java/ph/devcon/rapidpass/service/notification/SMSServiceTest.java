@@ -2,10 +2,12 @@ package ph.devcon.rapidpass.service.notification;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import ph.devcon.rapidpass.services.notifications.NotificationException;
+import ph.devcon.rapidpass.services.notifications.NotificationMessage;
+import ph.devcon.rapidpass.services.notifications.NotificationService;
 
 @SpringBootTest
 public class SMSServiceTest {
