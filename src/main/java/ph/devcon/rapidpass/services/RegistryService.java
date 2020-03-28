@@ -1,5 +1,24 @@
 package ph.devcon.rapidpass.services;
 
+import com.google.zxing.WriterException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.entities.Registrar;
+import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassBatchRequest;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.repositories.RegistrantRepository;
+import ph.devcon.rapidpass.repositories.RegistryRepository;
+import ph.devcon.rapidpass.utilities.PdfGenerator;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,24 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import ph.devcon.rapidpass.entities.ControlCode;
-import com.google.zxing.WriterException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
-import ph.devcon.dctx.rapidpass.model.QrCodeData;
-import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassBatchRequest;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.Registrar;
-import ph.devcon.rapidpass.utilities.PdfGenerator;
 
 @Component
 @Slf4j
@@ -265,7 +266,7 @@ public class RegistryService {
     public byte[] generateQrPdf(String referenceId) throws IOException, WriterException {
 
         final AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-        if (!"approve".equals(accessPass.getStatus())) {
+        if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
             // access pass is not approved. Return no QR
             return null;
         }
@@ -297,7 +298,7 @@ public class RegistryService {
         final File qrImage = qrGeneratorService.generateQr(qrCodeData);
 
         // generate qr pdf
-        final File qrPdf = PdfGenerator.generatePdf(File.createTempFile("qr", ".pdf").getAbsolutePath(), qrImage, accessPass);
+        final File qrPdf = PdfGenerator.generatePdf(File.createTempFile("qrPdf", ".pdf").getAbsolutePath(), qrImage, accessPass);
 
         // send over as bytes
         return Files.readAllBytes(qrPdf.toPath());

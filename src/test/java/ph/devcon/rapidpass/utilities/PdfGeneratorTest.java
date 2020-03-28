@@ -5,11 +5,13 @@ import org.hamcrest.io.FileMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
+import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import java.io.File;
+import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -55,12 +57,14 @@ class PdfGeneratorTest {
         final File pdfFile =
                 PdfGenerator.generatePdf(pdfPath,
                         qrCodeFile,
-                        RapidPassRequest.builder()
-                                .passType(INDIVIDUAL)
-                                .firstName("Jonas Was Here")
-                                .lastName("Donasco")
-                                .aporType(APORType.MED.toString())
-                                .company("DEVCON")
+                        AccessPass.builder()
+                                .status("approved")
+                                .passType("individual")
+                                .controlCode("123456")
+                                .identifierNumber("ABCD 123")
+                                .aporType("AB")
+                                .validFrom(new Date())
+                                .validTo(new Date())
                                 .build());
 
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.anExistingFile()));
