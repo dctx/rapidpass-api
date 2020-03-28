@@ -256,7 +256,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <maven.test.skip>true</maven.test.skip>
                 <activateSpringProfile>localdev</activateSpringProfile>
             </properties>
         </profile>
@@ -266,7 +265,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <maven.test.skip>true</maven.test.skip>
                 <activateSpringProfile>aws</activateSpringProfile>
             </properties>
         </profile>
