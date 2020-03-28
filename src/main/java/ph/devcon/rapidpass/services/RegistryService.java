@@ -181,7 +181,7 @@ public class RegistryService {
         if (PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType())) {
             qrCodeData = QrCodeData.individual()
                     .controlCode(Long.parseLong(accessPass.getControlCode()))
-                    .idOrPlate(accessPass.getIdOrPlate())
+                    .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
                     .validFrom((int) (accessPass.getValidFrom().getTime() / 1000)) // convert long time to int
                     .validUntil((int) (accessPass.getValidTo().getTime() / 1000))
@@ -191,7 +191,7 @@ public class RegistryService {
         } else {
             qrCodeData = QrCodeData.vehicle()
                     .controlCode(Long.parseLong(accessPass.getControlCode()))
-                    .idOrPlate(accessPass.getIdOrPlate())
+                    .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
                     .validFrom((int) (accessPass.getValidFrom().getTime() / 1000)) // convert long time to int
                     .validUntil((int) (accessPass.getValidTo().getTime() / 1000))
