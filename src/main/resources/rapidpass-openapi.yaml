@@ -71,13 +71,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccessPasses'
-  /registry/qr-codes/{controlCode}:
+  /registry/qr-codes/{referenceId}:
     get:
       tags:
         - registry
       summary: Retrieves the QR Code PDF associated with the control code.
       parameters:
-        - name: controlCode
+        - name: referenceId
           in: path
           schema:
             type: string
