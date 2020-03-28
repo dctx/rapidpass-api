@@ -27,6 +27,7 @@ public class CheckpointServiceImpl implements CheckpointService
         AccessPass accessPass = new AccessPass();
         // Copy similar properties
         BeanUtils.copyProperties(entity,accessPass);
+        // Manual copy those that are not the same attribute. Or later change the repo to make it simple
         accessPass.setApprovedBy(entity.getIssuedBy());
         accessPass.setValidUntil(entity.getValidTo());
         return accessPass;
