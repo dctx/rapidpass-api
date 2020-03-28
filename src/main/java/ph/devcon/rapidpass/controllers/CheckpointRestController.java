@@ -6,8 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.controllers.CheckpointApi;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -17,12 +16,14 @@ import ph.devcon.rapidpass.services.CheckpointService;
 @RestController
 @Slf4j
 @Api(tags = "checkpoint")
+@RequestMapping("/checkpoint")
 public class CheckpointRestController
 {
     @Autowired
     private CheckpointService checkpointService;
 
-    public ResponseEntity<?> getAccessPassByControlCode(String controlCode)
+    @GetMapping("/access-pass/verify-control-code/{control-code}")
+    public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode)
     {
         ResponseEntity response = null;
         try
