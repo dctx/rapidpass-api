@@ -30,18 +30,22 @@ public final class RapidPassRequest {
 
     @NotNull
     private PassType passType;
-    private APORType aporType;
+    private String aporType;
     private String firstName;
     private String middleName;
     private String lastName;
     private String suffix;
     private String company;
     private String idType;
-    private String plateOrId; // todo validate. use validation annotations.
+    private String identifierNumber; // todo validate. use validation annotations.
     private String mobileNumber; // todo validate. use validation annotations.
     private String email;  // todo validate. use validation annotations.
-    private String originAddress;
-    private String destAddress;
+    private String originName;
+    private String originStreet;
+    private String originCity;
+    private String destName;
+    private String destStreet;
+    private String destCity;
     private String remarks;
 
     /**
