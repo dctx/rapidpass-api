@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
-import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -26,15 +24,15 @@ import javax.validation.constraints.Size;
  * @author eric
  */
 @Entity
-@Table(name = "province")
+@Table(name = "city")
 @NamedQueries({
-    @NamedQuery(name = "Province.findAll", query = "SELECT p FROM Province p"),
-    @NamedQuery(name = "Province.findById", query = "SELECT p FROM Province p WHERE p.id = :id"),
-    @NamedQuery(name = "Province.findByCode", query = "SELECT p FROM Province p WHERE p.code = :code"),
-    @NamedQuery(name = "Province.findByName", query = "SELECT p FROM Province p WHERE p.name = :name"),
-    @NamedQuery(name = "Province.findByConfiguration", query = "SELECT p FROM Province p WHERE p.configuration = :configuration"),
-    @NamedQuery(name = "Province.findByStatus", query = "SELECT p FROM Province p WHERE p.status = :status")})
-public class Province implements Serializable {
+    @NamedQuery(name = "City.findAll", query = "SELECT c FROM City c"),
+    @NamedQuery(name = "City.findById", query = "SELECT c FROM City c WHERE c.id = :id"),
+    @NamedQuery(name = "City.findByCode", query = "SELECT c FROM City c WHERE c.code = :code"),
+    @NamedQuery(name = "City.findByName", query = "SELECT c FROM City c WHERE c.name = :name"),
+    @NamedQuery(name = "City.findByConfiguration", query = "SELECT c FROM City c WHERE c.configuration = :configuration"),
+    @NamedQuery(name = "City.findByStatus", query = "SELECT c FROM City c WHERE c.status = :status")})
+public class City implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -54,16 +52,14 @@ public class Province implements Serializable {
     @Size(max = 15)
     @Column(name = "status")
     private String status;
-    @OneToMany(mappedBy = "provinceId")
-    private Collection<City> cityCollection;
-    @JoinColumn(name = "region_id", referencedColumnName = "id")
+    @JoinColumn(name = "province_id", referencedColumnName = "id")
     @ManyToOne
-    private Region regionId;
+    private Province provinceId;
 
-    public Province() {
+    public City() {
     }
 
-    public Province(Integer id) {
+    public City(Integer id) {
         this.id = id;
     }
 
@@ -107,20 +103,12 @@ public class Province implements Serializable {
         this.status = status;
     }
 
-    public Collection<City> getCityCollection() {
-        return cityCollection;
+    public Province getProvinceId() {
+        return provinceId;
     }
 
-    public void setCityCollection(Collection<City> cityCollection) {
-        this.cityCollection = cityCollection;
-    }
-
-    public Region getRegionId() {
-        return regionId;
-    }
-
-    public void setRegionId(Region regionId) {
-        this.regionId = regionId;
+    public void setProvinceId(Province provinceId) {
+        this.provinceId = provinceId;
     }
 
     @Override
@@ -133,10 +121,10 @@ public class Province implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Province)) {
+        if (!(object instanceof City)) {
             return false;
         }
-        Province other = (Province) object;
+        City other = (City) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -145,7 +133,7 @@ public class Province implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.Province[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.City[ id=" + id + " ]";
     }
     
 }

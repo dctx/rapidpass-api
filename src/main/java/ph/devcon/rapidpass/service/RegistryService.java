@@ -12,12 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import ph.devcon.rapidpass.repository.AccessPassRepository;
 import ph.devcon.rapidpass.repository.RegistrantRepository;
 import ph.devcon.rapidpass.repository.RegistryRepository;
-import ph.devcon.rapidpass.model.AccessPass;
-import ph.devcon.rapidpass.model.RapidPass;
-import ph.devcon.rapidpass.model.RapidPassBatchRequest;
-import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.model.Registrant;
-import ph.devcon.rapidpass.model.Registrar;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.RapidPass;
+import ph.devcon.rapidpass.entities.RapidPassBatchRequest;
+import ph.devcon.rapidpass.entities.RapidPassRequest;
+import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.entities.Registrar;
 
 @Component
 @Slf4j

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -24,15 +26,15 @@ import javax.validation.constraints.Size;
  * @author eric
  */
 @Entity
-@Table(name = "region")
+@Table(name = "province")
 @NamedQueries({
-    @NamedQuery(name = "Region.findAll", query = "SELECT r FROM Region r"),
-    @NamedQuery(name = "Region.findById", query = "SELECT r FROM Region r WHERE r.id = :id"),
-    @NamedQuery(name = "Region.findByCode", query = "SELECT r FROM Region r WHERE r.code = :code"),
-    @NamedQuery(name = "Region.findByName", query = "SELECT r FROM Region r WHERE r.name = :name"),
-    @NamedQuery(name = "Region.findByConfiguration", query = "SELECT r FROM Region r WHERE r.configuration = :configuration"),
-    @NamedQuery(name = "Region.findByStatus", query = "SELECT r FROM Region r WHERE r.status = :status")})
-public class Region implements Serializable {
+    @NamedQuery(name = "Province.findAll", query = "SELECT p FROM Province p"),
+    @NamedQuery(name = "Province.findById", query = "SELECT p FROM Province p WHERE p.id = :id"),
+    @NamedQuery(name = "Province.findByCode", query = "SELECT p FROM Province p WHERE p.code = :code"),
+    @NamedQuery(name = "Province.findByName", query = "SELECT p FROM Province p WHERE p.name = :name"),
+    @NamedQuery(name = "Province.findByConfiguration", query = "SELECT p FROM Province p WHERE p.configuration = :configuration"),
+    @NamedQuery(name = "Province.findByStatus", query = "SELECT p FROM Province p WHERE p.status = :status")})
+public class Province implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -52,13 +54,16 @@ public class Region implements Serializable {
     @Size(max = 15)
     @Column(name = "status")
     private String status;
-    @OneToMany(mappedBy = "regionId")
-    private Collection<Province> provinceCollection;
+    @OneToMany(mappedBy = "provinceId")
+    private Collection<City> cityCollection;
+    @JoinColumn(name = "region_id", referencedColumnName = "id")
+    @ManyToOne
+    private Region regionId;
 
-    public Region() {
+    public Province() {
     }
 
-    public Region(Integer id) {
+    public Province(Integer id) {
         this.id = id;
     }
 
@@ -102,12 +107,20 @@ public class Region implements Serializable {
         this.status = status;
     }
 
-    public Collection<Province> getProvinceCollection() {
-        return provinceCollection;
+    public Collection<City> getCityCollection() {
+        return cityCollection;
     }
 
-    public void setProvinceCollection(Collection<Province> provinceCollection) {
-        this.provinceCollection = provinceCollection;
+    public void setCityCollection(Collection<City> cityCollection) {
+        this.cityCollection = cityCollection;
+    }
+
+    public Region getRegionId() {
+        return regionId;
+    }
+
+    public void setRegionId(Region regionId) {
+        this.regionId = regionId;
     }
 
     @Override
@@ -120,10 +133,10 @@ public class Region implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Region)) {
+        if (!(object instanceof Province)) {
             return false;
         }
-        Region other = (Region) object;
+        Province other = (Province) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -132,7 +145,7 @@ public class Region implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.Region[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.Province[ id=" + id + " ]";
     }
     
 }

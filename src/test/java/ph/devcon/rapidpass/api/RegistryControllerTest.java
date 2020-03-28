@@ -8,9 +8,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.controller.RegistryRestController;
-import ph.devcon.rapidpass.model.AccessPass;
-import ph.devcon.rapidpass.model.RapidPass;
-import ph.devcon.rapidpass.model.RapidPassRequest;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.RapidPass;
+import ph.devcon.rapidpass.entities.RapidPassRequest;
 import ph.devcon.rapidpass.service.RegistryService;
 
 import static org.mockito.Mockito.*;
@@ -19,10 +19,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.MED;
-import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.O;
-import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.INDIVIDUAL;
-import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
+import static ph.devcon.rapidpass.entities.RapidPassRequest.AccessType.MED;
+import static ph.devcon.rapidpass.entities.RapidPassRequest.AccessType.O;
+import static ph.devcon.rapidpass.entities.RapidPassRequest.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.entities.RapidPassRequest.PassType.VEHICLE;
 
 /**
  * Tests for PwaController.

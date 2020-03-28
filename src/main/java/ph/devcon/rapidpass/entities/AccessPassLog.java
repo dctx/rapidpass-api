@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -181,7 +181,7 @@ public class AccessPassLog implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.AccessPassLog[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.AccessPassLog[ id=" + id + " ]";
     }
     
 }

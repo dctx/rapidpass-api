@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import lombok.Data;
 
@@ -18,8 +18,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -166,7 +164,7 @@ public class Registrant implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.Registrant[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.Registrant[ id=" + id + " ]";
     }
     
 }

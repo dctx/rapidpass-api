@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import lombok.Builder;
 import lombok.Data;

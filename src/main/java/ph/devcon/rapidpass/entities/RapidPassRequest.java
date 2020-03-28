@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestStatus.PENDING;
+import static ph.devcon.rapidpass.entities.RapidPassRequest.RequestStatus.PENDING;
 
 /**
  * The {@link RapidPassRequest} class models a Rapid Pass Request.

@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
+import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -24,15 +24,15 @@ import javax.validation.constraints.Size;
  * @author eric
  */
 @Entity
-@Table(name = "city")
+@Table(name = "region")
 @NamedQueries({
-    @NamedQuery(name = "City.findAll", query = "SELECT c FROM City c"),
-    @NamedQuery(name = "City.findById", query = "SELECT c FROM City c WHERE c.id = :id"),
-    @NamedQuery(name = "City.findByCode", query = "SELECT c FROM City c WHERE c.code = :code"),
-    @NamedQuery(name = "City.findByName", query = "SELECT c FROM City c WHERE c.name = :name"),
-    @NamedQuery(name = "City.findByConfiguration", query = "SELECT c FROM City c WHERE c.configuration = :configuration"),
-    @NamedQuery(name = "City.findByStatus", query = "SELECT c FROM City c WHERE c.status = :status")})
-public class City implements Serializable {
+    @NamedQuery(name = "Region.findAll", query = "SELECT r FROM Region r"),
+    @NamedQuery(name = "Region.findById", query = "SELECT r FROM Region r WHERE r.id = :id"),
+    @NamedQuery(name = "Region.findByCode", query = "SELECT r FROM Region r WHERE r.code = :code"),
+    @NamedQuery(name = "Region.findByName", query = "SELECT r FROM Region r WHERE r.name = :name"),
+    @NamedQuery(name = "Region.findByConfiguration", query = "SELECT r FROM Region r WHERE r.configuration = :configuration"),
+    @NamedQuery(name = "Region.findByStatus", query = "SELECT r FROM Region r WHERE r.status = :status")})
+public class Region implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -52,14 +52,13 @@ public class City implements Serializable {
     @Size(max = 15)
     @Column(name = "status")
     private String status;
-    @JoinColumn(name = "province_id", referencedColumnName = "id")
-    @ManyToOne
-    private Province provinceId;
+    @OneToMany(mappedBy = "regionId")
+    private Collection<Province> provinceCollection;
 
-    public City() {
+    public Region() {
     }
 
-    public City(Integer id) {
+    public Region(Integer id) {
         this.id = id;
     }
 
@@ -103,12 +102,12 @@ public class City implements Serializable {
         this.status = status;
     }
 
-    public Province getProvinceId() {
-        return provinceId;
+    public Collection<Province> getProvinceCollection() {
+        return provinceCollection;
     }
 
-    public void setProvinceId(Province provinceId) {
-        this.provinceId = provinceId;
+    public void setProvinceCollection(Collection<Province> provinceCollection) {
+        this.provinceCollection = provinceCollection;
     }
 
     @Override
@@ -121,10 +120,10 @@ public class City implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof City)) {
+        if (!(object instanceof Region)) {
             return false;
         }
-        City other = (City) object;
+        Region other = (Region) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -133,7 +132,7 @@ public class City implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.City[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.Region[ id=" + id + " ]";
     }
     
 }

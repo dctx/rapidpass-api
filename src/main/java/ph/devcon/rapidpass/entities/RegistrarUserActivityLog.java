@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -26,17 +26,17 @@ import javax.validation.constraints.Size;
  * @author eric
  */
 @Entity
-@Table(name = "system_user_activity_log")
+@Table(name = "registrar_user_activity_log")
 @NamedQueries({
-    @NamedQuery(name = "SystemUserActivityLog.findAll", query = "SELECT s FROM SystemUserActivityLog s"),
-    @NamedQuery(name = "SystemUserActivityLog.findById", query = "SELECT s FROM SystemUserActivityLog s WHERE s.id = :id"),
-    @NamedQuery(name = "SystemUserActivityLog.findBySessionId", query = "SELECT s FROM SystemUserActivityLog s WHERE s.sessionId = :sessionId"),
-    @NamedQuery(name = "SystemUserActivityLog.findByIpAddress", query = "SELECT s FROM SystemUserActivityLog s WHERE s.ipAddress = :ipAddress"),
-    @NamedQuery(name = "SystemUserActivityLog.findByType", query = "SELECT s FROM SystemUserActivityLog s WHERE s.type = :type"),
-    @NamedQuery(name = "SystemUserActivityLog.findByActionTimestamp", query = "SELECT s FROM SystemUserActivityLog s WHERE s.actionTimestamp = :actionTimestamp"),
-    @NamedQuery(name = "SystemUserActivityLog.findByAction", query = "SELECT s FROM SystemUserActivityLog s WHERE s.action = :action"),
-    @NamedQuery(name = "SystemUserActivityLog.findByComments", query = "SELECT s FROM SystemUserActivityLog s WHERE s.comments = :comments")})
-public class SystemUserActivityLog implements Serializable {
+    @NamedQuery(name = "RegistrarUserActivityLog.findAll", query = "SELECT r FROM RegistrarUserActivityLog r"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findById", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.id = :id"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findBySessionId", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.sessionId = :sessionId"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findByIpAddress", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.ipAddress = :ipAddress"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findByType", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.type = :type"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findByActionTimestamp", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.actionTimestamp = :actionTimestamp"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findByAction", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.action = :action"),
+    @NamedQuery(name = "RegistrarUserActivityLog.findByComments", query = "SELECT r FROM RegistrarUserActivityLog r WHERE r.comments = :comments")})
+public class RegistrarUserActivityLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -64,12 +64,12 @@ public class SystemUserActivityLog implements Serializable {
     private String comments;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne
-    private SystemUser userId;
+    private RegistrarUser userId;
 
-    public SystemUserActivityLog() {
+    public RegistrarUserActivityLog() {
     }
 
-    public SystemUserActivityLog(Integer id) {
+    public RegistrarUserActivityLog(Integer id) {
         this.id = id;
     }
 
@@ -129,11 +129,11 @@ public class SystemUserActivityLog implements Serializable {
         this.comments = comments;
     }
 
-    public SystemUser getUserId() {
+    public RegistrarUser getUserId() {
         return userId;
     }
 
-    public void setUserId(SystemUser userId) {
+    public void setUserId(RegistrarUser userId) {
         this.userId = userId;
     }
 
@@ -147,10 +147,10 @@ public class SystemUserActivityLog implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof SystemUserActivityLog)) {
+        if (!(object instanceof RegistrarUserActivityLog)) {
             return false;
         }
-        SystemUserActivityLog other = (SystemUserActivityLog) object;
+        RegistrarUserActivityLog other = (RegistrarUserActivityLog) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -159,7 +159,7 @@ public class SystemUserActivityLog implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.SystemUserActivityLog[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.RegistrarUserActivityLog[ id=" + id + " ]";
     }
     
 }

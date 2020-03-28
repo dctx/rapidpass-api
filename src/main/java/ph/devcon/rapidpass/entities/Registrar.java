@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ph.devcon.rapidpass.model;
+package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -460,7 +460,7 @@ public class Registrar implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.model.Registrar[ id=" + id + " ]";
+        return "ph.devcon.rapidpass.entities.Registrar[ id=" + id + " ]";
     }
     
 }
