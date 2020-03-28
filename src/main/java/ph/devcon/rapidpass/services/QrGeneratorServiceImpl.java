@@ -80,6 +80,6 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      * @return Base64 string
      */
     String serializePayload(QrCodeData payload) {
-        return Base64.getEncoder().encodeToString(QrCodeSerializer.encode(payload));
+        return Base64.getEncoder().encodeToString(QrCodeSerializer.serialize(payload));
     }
 }
