@@ -226,7 +226,7 @@ paths:
         - checkpoint
       summary: Get access pass using Control Code to check if it is valid pass
       parameters:
-        - name: plateNo
+        - name: controlCode
           in: path
           description: Control Code to use on retrievinv the access pass
           required: true
