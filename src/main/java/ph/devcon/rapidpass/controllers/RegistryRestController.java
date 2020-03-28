@@ -2,6 +2,8 @@ package ph.devcon.rapidpass.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -36,8 +38,9 @@ public class RegistryRestController {
     }
 
     @PostMapping("/access-passes")
-    RapidPass newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
-        return registryService.newRequestPass(rapidPassRequest);
+    HttpEntity<RapidPass> newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
+        RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
+        return ResponseEntity.status(201).body(rapidPass);
     }
 
     @GetMapping("/control-codes")

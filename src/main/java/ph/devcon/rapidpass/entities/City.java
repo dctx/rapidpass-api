@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -25,13 +27,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "city")
-@NamedQueries({
-    @NamedQuery(name = "City.findAll", query = "SELECT c FROM City c"),
-    @NamedQuery(name = "City.findById", query = "SELECT c FROM City c WHERE c.id = :id"),
-    @NamedQuery(name = "City.findByCode", query = "SELECT c FROM City c WHERE c.code = :code"),
-    @NamedQuery(name = "City.findByName", query = "SELECT c FROM City c WHERE c.name = :name"),
-    @NamedQuery(name = "City.findByConfiguration", query = "SELECT c FROM City c WHERE c.configuration = :configuration"),
-    @NamedQuery(name = "City.findByStatus", query = "SELECT c FROM City c WHERE c.status = :status")})
+@Data
 public class City implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -58,59 +54,6 @@ public class City implements Serializable {
 
     public City() {
     }
-
-    public City(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(String configuration) {
-        this.configuration = configuration;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Province getProvinceId() {
-        return provinceId;
-    }
-
-    public void setProvinceId(Province provinceId) {
-        this.provinceId = provinceId;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;

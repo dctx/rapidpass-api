@@ -262,6 +262,16 @@
             </properties>
         </profile>
         <profile>
+            <id>aws</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <activateSpringProfile>aws</activateSpringProfile>
+            </properties>
+        </profile>
+        <profile>
             <id>prod</id>
             <properties>
                 <activateSpringProfile>release</activateSpringProfile>

@@ -1,5 +1,6 @@
-package ph.devcon.rapidpass.api;
+package ph.devcon.rapidpass.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.controllers.RegistryRestController;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.APORType;
+import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -20,13 +24,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ph.devcon.rapidpass.enums.PassType.*;
-import static ph.devcon.rapidpass.enums.APORType.*;
 
 /**
  * Tests for PwaController.
  */
 @WebMvcTest(RegistryRestController.class)
-class RegistryControllerTest {
+class RegistryRestControllerTest {
 
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
@@ -35,20 +38,20 @@ class RegistryControllerTest {
                     .lastName("Espelita")
                     .mobileNumber("0915999999")
                     .email("jonas.was.here@gmail.com")
-                    .destAddress("Somewhere in the PH")
+                    .destCity("Somewhere in the PH")
                     .company("DEVCON")
-                    .aporType(O)
+                    .aporType("MO")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
 
     public static final RapidPassRequest TEST_VEHICLE_REQUEST = RapidPassRequest.builder()
             .passType(VEHICLE)
-            .plateOrId("ABCD 1234")
+            .identifierNumber("ABCD 1234")
             .mobileNumber("0915999999")
             .email("jonas.was.here@gmail.com")
-            .destAddress("Somewhere in the PH")
+            .destCity("Somewhere in the PH")
             .company("DEVCON")
-            .aporType(MED)
+            .aporType("M")
             .remarks("This is a test for VEHICLE REQUEST").build();
 
     public RapidPass TEST_INDIVIDUAL_PASS;
@@ -60,9 +63,10 @@ class RegistryControllerTest {
         AccessPass individualAccessPass = new AccessPass();
 
         individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
-        individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestAddress());
+        individualAccessPass.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
         individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
+        individualAccessPass.setStatus(TEST_INDIVIDUAL_REQUEST.getRequestStatus().toString());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         individualAccessPass.setReferenceId(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
@@ -70,10 +74,12 @@ class RegistryControllerTest {
         AccessPass vehicleAccessPass = new AccessPass();
 
         vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
-        vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestAddress());
+        vehicleAccessPass.setDestinationCity(TEST_VEHICLE_REQUEST.getDestCity());
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
+        vehicleAccessPass.setPlateOrId(TEST_VEHICLE_REQUEST.getPlateOrId());
+        vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
 
@@ -95,21 +101,27 @@ class RegistryControllerTest {
      */
     @Test
     void newRequestPass_INDIVIDUAL() throws Exception {
+
+        RapidPassRequest request = RapidPassRequest.builder()
+                .passType(INDIVIDUAL)
+                .firstName("Jonas")
+                .lastName("Espelita")
+                .mobileNumber("0915999999")
+                .email("jonas.was.here@gmail.com")
+                .destAddress("Somewhere in the PH")
+                .company("DEVCON")
+                .aporType(O)
+                .remarks("This is a test for INDIVIDUAL REQUEST")
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(request);
+
         // perform post request with json payload to mock server
         mockMvc.perform(
-                post("/api/v1/registry/accessPasses")
+                post("/registry/access-passes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\n" +
-                                "  \"passType\": \"INDIVIDUAL\",\n" +
-                                "  \"firstName\": \"Jonas\",\n" +
-                                "  \"lastName\": \"Espelita\",\n" +
-                                "  \"mobileNumber\": \"0915999999\",\n" +
-                                "  \"email\": \"jonas.was.here@gmail.com\",\n" +
-                                "  \"destAddress\": \"Somewhere in the PH\",\n" +
-                                "  \"company\": \"DEVCON\",\n" +
-                                "  \"accessType\": \"O\",\n" +
-                                "  \"remarks\": \"This is a test for INDIVIDUAL REQUEST\"\n" +
-                                "}"))
+                        .content(jsonRequestBody))
                 .andExpect(status().isCreated());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
@@ -123,20 +135,26 @@ class RegistryControllerTest {
      */
     @Test
     void newRequestPass_VEHICLE() throws Exception {
+
+        RapidPassRequest request = RapidPassRequest.builder()
+                .passType(VEHICLE)
+                .plateOrId("ABCD 1234")
+                .mobileNumber("0915999999")
+                .email("jonas.was.here@gmail.com")
+                .destAddress("Somewhere in the PH")
+                .company("DEVCON")
+                .aporType(MED)
+                .remarks("This is a test for VEHICLE REQUEST")
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(request);
+
         // perform post request with json payload to mock server
         mockMvc.perform(
-                post("/api/v1/registry/accessPasses")
+                post("/registry/access-passes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\n" +
-                                "  \"passType\": \"VEHICLE\",\n" +
-                                "  \"plateOrId\": \"ABCD 1234\",\n" +
-                                "  \"mobileNumber\": \"0915999999\",\n" +
-                                "  \"email\": \"jonas.was.here@gmail.com\",\n" +
-                                "  \"destAddress\": \"Somewhere in the PH\",\n" +
-                                "  \"company\": \"DEVCON\",\n" +
-                                "  \"accessType\": \"MED\",\n" +
-                                "  \"remarks\": \"This is a test for VEHICLE REQUEST\"\n" +
-                                "}"))
+                        .content(jsonRequestBody))
                 .andExpect(status().isCreated());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
@@ -158,7 +176,7 @@ class RegistryControllerTest {
         when(mockRegistryService.find(eq("ABCD 1234")))
                 .thenReturn(TEST_VEHICLE_PASS);
 
-        final String getAccessPathUrlTemplate = "/api/v1/registry/accessPasses/{referenceID}";
+        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}";
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
@@ -166,11 +184,7 @@ class RegistryControllerTest {
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("INDIVIDUAL"))
-                .andExpect(jsonPath("$.firstName").value("Jonas"))
-                .andExpect(jsonPath("$.lastName").value("Espelita"))
-                .andExpect(jsonPath("$.mobileNumber").value("0915999999"))
-                .andExpect(jsonPath("$.remarks").value("This is a test for INDIVIDUAL REQUEST"))
-                .andExpect(jsonPath("$.requestStatus").value("PENDING"))
+                .andExpect(jsonPath("$.status").value("PENDING"))
                 .andDo(print());
 
         // perform GET requestPass with plateNum
@@ -180,8 +194,7 @@ class RegistryControllerTest {
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
                 .andExpect(jsonPath("$.plateOrId").value("ABCD 1234"))
-                .andExpect(jsonPath("$.remarks").value("This is a test for VEHICLE REQUEST"))
-                .andExpect(jsonPath("$.requestStatus").value("PENDING"))
+                .andExpect(jsonPath("$.status").value("PENDING"))
                 .andDo(print());
     }
 

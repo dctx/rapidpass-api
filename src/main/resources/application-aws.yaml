@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dctx.cxjtwxfv3gt3.us-east-2.rds.amazonaws.comlocalhost:5432/rapidpass
+    username: dctx
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    url: jdbc:h2:file:./h2
+    user: dctx
+    password: password
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
+#    default-property-inclusion: non_empty
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: rapidpass@talino.mg.amihan.net
+    password: ***REMOVED***
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /api-docs
+
+semaphore:
+  url: https://api.semaphore.co/api/v4/messages
+  key: ''
+
+server:
+  servlet:
+    context-path: /api/v1
