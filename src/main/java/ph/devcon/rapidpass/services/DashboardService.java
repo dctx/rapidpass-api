@@ -59,4 +59,19 @@ public class DashboardService {
     public RapidPass decline(String referenceId) throws  RegistryService.UpdateAccessPassException {
         return this.updateStatus(referenceId, RequestStatus.DENIED);
     }
+
+    /**
+     * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is revoked.
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @return Data stored on the database
+     */
+    public RapidPass revoke(String referenceId) {
+
+        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+
+        accessPass.setStatus(RequestStatus.DENIED.toString());
+        accessPassRepository.saveAndFlush(accessPass);
+
+        return RapidPass.buildFrom(accessPass);
+    }
 }

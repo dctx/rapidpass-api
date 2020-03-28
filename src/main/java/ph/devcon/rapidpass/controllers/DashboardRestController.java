@@ -30,7 +30,7 @@ public class DashboardRestController {
         this.dashboardService = dashboardService;
     }
 
-    @PutMapping("/accessPasses/{referenceId}")
+    @PutMapping("/access-passes/{referenceId}")
     public HttpEntity<RapidPass> approveOrDecline(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
         String status = rapidPass.getStatus();
 
@@ -49,6 +49,12 @@ public class DashboardRestController {
         }
 
         return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/access-passes/{referenceId}")
+    HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) {
+        RapidPass rapidPass = dashboardService.revoke(referenceId);
+        return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
 }
