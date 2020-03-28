@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -223,6 +224,23 @@ class RegistryRestControllerTest {
         mockMvc.perform(
                 get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    public void revokeAccessPass() throws Exception {
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.revoke(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_PASS);
+
+        // mock service to return null
+        mockMvc.perform(
+                delete("/registry/access-passes/{referenceID}", "0915999999"))
+                .andExpect(status().isOk());
+
+        // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
+        verify(mockRegistryService, only()).revoke(eq("0915999999"));
     }
 
     @Test
