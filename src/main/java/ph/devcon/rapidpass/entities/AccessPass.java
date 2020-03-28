@@ -30,7 +30,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
 /**
- *
+ * Data model representing an access pass, that maps out directly to the table definition in the database.
  * @author eric
  */
 @Entity
