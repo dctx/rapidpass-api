@@ -279,4 +279,36 @@
         </profile>
     </profiles>
 
+    <repositories>
+        <repository>
+            <id>maven</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+          <id>central</id>
+          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-releases</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>snapshots</id>
+          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-snapshots</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+        </repository>
+      </repositories>
+    
+      <distributionManagement>
+        <snapshotRepository>
+          <id>snapshots</id>
+          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-snapshots</url>
+        </snapshotRepository>
+        <repository>
+          <id>central</id>
+          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-releases</url>
+        </repository>
+      </distributionManagement>
+
 </project>
