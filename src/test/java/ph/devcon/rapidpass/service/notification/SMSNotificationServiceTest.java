@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.service.notification;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -101,7 +102,7 @@ class SMSNotificationServiceTest {
 
     // sample test with actual rest template
     @Test
-    @Ignore
+    @Disabled
     void actualSend() throws NotificationException {
         // use actual rest template
         smsNotificationService = new SMSNotificationService(new RestTemplate());

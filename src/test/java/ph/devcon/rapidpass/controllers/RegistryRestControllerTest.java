@@ -8,11 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.controllers.RegistryRestController;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.APORType;
-import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -23,7 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ph.devcon.rapidpass.enums.PassType.*;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
 /**
  * Tests for PwaController.
@@ -172,7 +169,7 @@ class RegistryRestControllerTest {
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
-                .andExpect(jsonPath("$.plateOrId").value("ABCD 1234"))
+                .andExpect(jsonPath("$.identifierNumber").value("ABCD 1234"))
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andDo(print());
     }
