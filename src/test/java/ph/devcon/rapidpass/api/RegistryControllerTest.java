@@ -59,7 +59,7 @@ class RegistryControllerTest {
         AccessPass individualAccessPass = new AccessPass();
 
         individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
-        individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestCity());
+        individualAccessPass.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
         individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
@@ -69,7 +69,7 @@ class RegistryControllerTest {
         AccessPass vehicleAccessPass = new AccessPass();
 
         vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
-        vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestCity());
+        vehicleAccessPass.setDestinationCity(TEST_VEHICLE_REQUEST.getDestCity());
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
