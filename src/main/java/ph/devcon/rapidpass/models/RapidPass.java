@@ -8,9 +8,13 @@ import ph.devcon.rapidpass.entities.Registrant;
 import java.util.Date;
 
 /**
- * This is the data definition for messaging to and from API consumers.
+ * Data model representing an {@link AccessPass}, but is only a subset of the model's properties.
  *
- * For creating a RapidPass, please see {@link RapidPassRequest}.
+ * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
+ *
+ * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
+ *
+ * This is JSON format returned to the user when they request for a GET on the AccessPass Resource.
  */
 @Data
 @Builder
@@ -71,6 +75,7 @@ public class RapidPass {
     private Registrant registrantId;
 
     public static RapidPass buildFrom(AccessPass accessPass) {
+        // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
         return RapidPass.builder()
                 .referenceId(accessPass.getReferenceId())
                 .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode())

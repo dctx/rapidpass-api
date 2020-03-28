@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -29,7 +30,7 @@ public class RegistryRestController {
 
     @GetMapping("/access-passes")
     public List<RapidPass> getAccessPasses() {
-        return registryService.findAll();
+        return registryService.findAllRapidPasses();
     }
 
     @GetMapping("/access-passes/{referenceId}")
@@ -44,8 +45,9 @@ public class RegistryRestController {
     }
 
     @GetMapping("/control-codes")
-    public Iterable<RapidPass> getControlCodes() {
-        return registryService.findAll();
+    public ResponseEntity<Iterable<ControlCode>> getControlCodes() {
+        Iterable<ControlCode> controlCodes = registryService.getControlCodes();
+        return ResponseEntity.ok(controlCodes);
     }
 
     @PutMapping("/access-passes/{referenceId}")
