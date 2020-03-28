@@ -78,7 +78,9 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
         vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
-        vehicleAccessPass.setPlateOrId(TEST_VEHICLE_REQUEST.getPlateOrId());
+        vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
+        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+
         vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
@@ -102,20 +104,8 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_INDIVIDUAL() throws Exception {
 
-        RapidPassRequest request = RapidPassRequest.builder()
-                .passType(INDIVIDUAL)
-                .firstName("Jonas")
-                .lastName("Espelita")
-                .mobileNumber("0915999999")
-                .email("jonas.was.here@gmail.com")
-                .destAddress("Somewhere in the PH")
-                .company("DEVCON")
-                .aporType(O)
-                .remarks("This is a test for INDIVIDUAL REQUEST")
-                .build();
-
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(request);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
@@ -136,19 +126,8 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_VEHICLE() throws Exception {
 
-        RapidPassRequest request = RapidPassRequest.builder()
-                .passType(VEHICLE)
-                .plateOrId("ABCD 1234")
-                .mobileNumber("0915999999")
-                .email("jonas.was.here@gmail.com")
-                .destAddress("Somewhere in the PH")
-                .company("DEVCON")
-                .aporType(MED)
-                .remarks("This is a test for VEHICLE REQUEST")
-                .build();
-
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(request);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
