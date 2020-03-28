@@ -16,4 +16,4 @@
 FROM openjdk:8-jdk-alpine
 # COPY --from=build /target/api.jar /api.jar
 COPY ./target/rapidpass-api.jar /rapidpass-api.jar
-ENTRYPOINT [ "java", "-jar", "/rapidpass-api.jar", "--spring.profiles.active=docker" ] 
+ENTRYPOINT [ "java", "-jar", "/rapidpass-api.jar", "--spring.profiles.active=env" ] 

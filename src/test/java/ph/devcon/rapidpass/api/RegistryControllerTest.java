@@ -7,11 +7,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.controller.RegistryRestController;
-import ph.devcon.rapidpass.model.AccessPass;
-import ph.devcon.rapidpass.model.RapidPass;
-import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.service.RegistryService;
+import ph.devcon.rapidpass.controllers.RegistryRestController;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.services.RegistryService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,10 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.MED;
-import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.O;
-import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.INDIVIDUAL;
-import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
+import static ph.devcon.rapidpass.enums.PassType.*;
+import static ph.devcon.rapidpass.enums.APORType.*;
 
 /**
  * Tests for PwaController.
@@ -39,7 +37,7 @@ class RegistryControllerTest {
                     .email("jonas.was.here@gmail.com")
                     .destAddress("Somewhere in the PH")
                     .company("DEVCON")
-                    .accessType(O)
+                    .aporType(O)
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
 
@@ -50,7 +48,7 @@ class RegistryControllerTest {
             .email("jonas.was.here@gmail.com")
             .destAddress("Somewhere in the PH")
             .company("DEVCON")
-            .accessType(MED)
+            .aporType(MED)
             .remarks("This is a test for VEHICLE REQUEST").build();
 
     public RapidPass TEST_INDIVIDUAL_PASS;
@@ -64,7 +62,7 @@ class RegistryControllerTest {
         individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
         individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestAddress());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
-        individualAccessPass.setAccessType(TEST_INDIVIDUAL_REQUEST.getAccessType().toString());
+        individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         individualAccessPass.setReferenceId(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
@@ -74,7 +72,7 @@ class RegistryControllerTest {
         vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
         vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestAddress());
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
-        vehicleAccessPass.setAccessType(TEST_VEHICLE_REQUEST.getAccessType().toString());
+        vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());

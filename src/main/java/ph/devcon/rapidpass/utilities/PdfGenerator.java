@@ -17,12 +17,14 @@ import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
 
-import ph.devcon.rapidpass.model.AccessPass;
-import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.model.RapidPassRequest.PassType;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.api.models.ApprovedRapidPass;
+import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassRequest;
 
-import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.INDIVIDUAL;
-import static ph.devcon.rapidpass.model.RapidPassRequest.PassType.VEHICLE;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
 
 /**
@@ -103,38 +105,33 @@ public class PdfGenerator {
 
         //processes the data that will be on the pdf
         Paragraph header = new Paragraph();
+        header.setFontSize(44);
+        header.setTextAlignment(TextAlignment.CENTER);
+        header.setMarginTop(-50);
+        header.setBold();
+
         Paragraph details = new Paragraph();
+        details.setFontSize(24);
+        details.setMarginLeft(70);
 
         // checks if pass type is individual or vehicle
-        final String passType = accessPass.getPassType();
-        if (passType.equals(INDIVIDUAL)) {
+        final String passType = accessPass.getPassType().toLowerCase();
+        if (passType.equals("individual")) {
             //header
-            header.setFontSize(44);
-            header.setTextAlignment(TextAlignment.CENTER);
-            header.setMarginTop(-50);
-            header.setBold();
             header.add(accessPass.getControlCode() + "\n");
 
             //details
-            details.setFontSize(24);
-            details.setMarginLeft(70);
-            details.add("Access Type:\t" + accessPass.getAccessType() + "\n" +
+            details.add("APOR Type:\t" + accessPass.getAporType() + "\n" +
                     "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Vallid Until:\t" + accessPass.getValidTo().toString());
-        } else if (passType.equals(VEHICLE)) {
+                    "Valid Until:\t" + accessPass.getValidTo());
+        } else if (passType.equals("vehicle")) {
             //header
-            header.setFontSize(44);
-            header.setTextAlignment(TextAlignment.CENTER);
-            header.setMarginTop(-50);
-            header.setBold();
             header.add(accessPass.getPlateOrId() + "\n");
 
             //details
-            details.setFontSize(24);
-            details.setMarginLeft(70);
-            details.add("Access Type:\t" + accessPass.getAccessType() + "\n" +
+            details.add("APOR Type:\t" + accessPass.getAporType() + "\n" +
                     "Company:\t" + accessPass.getCompany() + "\n" +
-                    "Vallid Until:\t" + accessPass.getValidTo().toString());
+                    "Valid Until:\t" + accessPass.getValidTo());
         }
 
         //writes to the document

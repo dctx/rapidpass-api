@@ -5,15 +5,15 @@ import org.hamcrest.io.FileMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
-import ph.devcon.rapidpass.model.RapidPassRequest;
-import ph.devcon.rapidpass.service.QrGeneratorServiceImpl;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import java.io.File;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static ph.devcon.rapidpass.model.RapidPassRequest.AccessType.MED;
-import static ph.devcon.rapidpass.model.RapidPassRequest.RequestType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.APORType.MED;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 
 class PdfGeneratorTest {
 
@@ -56,8 +56,9 @@ class PdfGeneratorTest {
                         qrCodeFile,
                         RapidPassRequest.builder()
                                 .passType(INDIVIDUAL)
-                                .name("Jonas Was Here")
-                                .accessType(MED)
+                                .firstName("Jonas Was Here")
+                                .lastName("Donasco")
+                                .aporType(MED)
                                 .company("DEVCON")
                                 .build());
 
