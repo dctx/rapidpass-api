@@ -53,7 +53,7 @@ public class RegistryService {
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
         log.info("New RapidPass Request: {}", rapidPassRequest);
 
-        Optional<Registrar> registrarResult = registryRepository.findById(1 );
+        Optional<Registrar> registrarResult = registryRepository.findById(1);
         Registrar registrar = registrarResult.orElse(null);
 
         Registrant registrant = new Registrant();
@@ -131,6 +131,7 @@ public class RegistryService {
 
     /**
      * Used when the inspector or approver wishes to view more details about the
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
@@ -148,7 +149,8 @@ public class RegistryService {
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
-     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     *
+     * @param referenceId      The reference id of the {@link AccessPass} you are retrieving.
      * @param rapidPassRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
@@ -202,11 +204,11 @@ public class RegistryService {
     }
 
 
-
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @param status The status to apply
+     * @param status      The status to apply
      * @return Data stored on the database
      */
     private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
@@ -232,16 +234,17 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    public RapidPass grant(String referenceId) throws  RegistryService.UpdateAccessPassException {
+    public RapidPass grant(String referenceId) throws RegistryService.UpdateAccessPassException {
         return this.updateStatus(referenceId, RequestStatus.APPROVED);
     }
 
-    public RapidPass decline(String referenceId) throws  RegistryService.UpdateAccessPassException {
+    public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
         return this.updateStatus(referenceId, RequestStatus.DENIED);
     }
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is revoked.
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
@@ -263,6 +266,14 @@ public class RegistryService {
         return null;
     }
 
+    /**
+     * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already converted to bytes for easy sending to HTTP.
+     *
+     * @param referenceId access ass reference id
+     * @return bytes of PDF file containing the QR code
+     * @throws IOException     on error writing the PDF
+     * @throws WriterException on error writing the QR code
+     */
     public byte[] generateQrPdf(String referenceId) throws IOException, WriterException {
 
         final AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
