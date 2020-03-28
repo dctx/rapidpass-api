@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.RequestStatus;
@@ -18,6 +19,8 @@ import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.ArrayList;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -269,5 +272,19 @@ class RegistryRestControllerTest {
                 .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
                 .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
                 .andDo(print());
+    }
+
+    @Test
+    public void downloadQrCode() throws Exception {
+        final byte[] samplePdf = {1, 0, 1, 0, 1, 0};
+        when(mockRegistryService.generateQrPdf(eq("1234556"))).thenReturn(samplePdf);
+        final MockHttpServletResponse response = mockMvc.perform(get("/registry/qr-codes/{referenceId}", "1234556"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+
+        assertThat(response.getContentType(), is(MediaType.APPLICATION_PDF.toString()));
+        assertThat(response.getContentAsByteArray(), is(samplePdf));
+
+
     }
 }
