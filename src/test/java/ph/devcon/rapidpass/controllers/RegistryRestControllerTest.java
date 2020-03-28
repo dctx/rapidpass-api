@@ -8,9 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.controllers.RegistryRestController;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.APORType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -19,8 +17,10 @@ import ph.devcon.rapidpass.services.RegistryService;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static ph.devcon.rapidpass.enums.PassType.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
 /**
  * Tests for PwaController.
@@ -77,6 +77,7 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
         vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
         vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+
         vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
@@ -99,9 +100,6 @@ class RegistryRestControllerTest {
      */
     @Test
     void newRequestPass_INDIVIDUAL() throws Exception {
-
-        when(mockRegistryService.newRequestPass(eq(TEST_INDIVIDUAL_REQUEST)))
-                .thenReturn(TEST_INDIVIDUAL_PASS);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
