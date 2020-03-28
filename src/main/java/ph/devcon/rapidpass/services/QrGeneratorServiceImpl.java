@@ -44,12 +44,12 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      * QR code width in pixels. Default to 500px. Configurable via {@code rapidpass.qr.width} property.
      */
     @Value("${rapidpass.qr.width:500}")
-    private int qrWidth = 500;
+    private int qrWidth = 1200;
     /**
      * QR code height in pixels. Default to 500px. Configurable via {@code rapidpass.qr.height} property.
      */
     @Value("${rapidpass.qr.height:500}")
-    private int qrHeight = 500;
+    private int qrHeight = 1200;
 
     @Override
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
