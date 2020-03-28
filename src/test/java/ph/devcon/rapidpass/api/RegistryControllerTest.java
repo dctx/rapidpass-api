@@ -14,11 +14,9 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ph.devcon.rapidpass.enums.PassType.*;
 import static ph.devcon.rapidpass.enums.APORType.*;
 
@@ -193,4 +191,22 @@ class RegistryControllerTest {
                 get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
                 .andExpect(status().isNotFound());
     }
+
+
+    @Test
+    public void revokeAccessPass() throws Exception {
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.revoke(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_PASS);
+
+        // mock service to return null
+        mockMvc.perform(
+                delete("/registry/access-passes/{referenceID}", "0915999999"))
+                .andExpect(status().isOk());
+
+        // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
+        verify(mockRegistryService, only()).revoke(eq("0915999999"));
+    }
+
 }
