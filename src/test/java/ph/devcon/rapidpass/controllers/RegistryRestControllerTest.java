@@ -186,10 +186,12 @@ class RegistryRestControllerTest {
     }
 
     @Test
-    public void grantOrRevokeRequest() throws Exception, RegistryService.UpdateAccessPassException {
+    public void grantOrDenyRequest() throws Exception, RegistryService.UpdateAccessPassException {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        when(mockRegistryService.update(eq("0915999999"), eq(TEST_VEHICLE_REQUEST)))
+        TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
+
+        when(mockRegistryService.grant(eq(TEST_VEHICLE_PASS.getReferenceId())))
                 .thenReturn(TEST_VEHICLE_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
@@ -197,7 +199,7 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_PASS);
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
