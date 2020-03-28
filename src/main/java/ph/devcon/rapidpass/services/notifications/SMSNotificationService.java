@@ -1,5 +1,9 @@
 package ph.devcon.rapidpass.services.notifications;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -23,19 +27,15 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class SMSNotificationService implements NotificationService {
 
-    private RestTemplate restTemplate;
+    @NonNull
+    private final RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;
 
     @Value("${semaphore.url}")
     private String url;
-    
-    public SMSNotificationService(RestTemplate restTemplate)
-    {
-        this.restTemplate = restTemplate;
-    }
-    
+
     @Override
     public void send(NotificationMessage message) throws NotificationException {
         if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");

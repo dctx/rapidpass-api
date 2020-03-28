@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * This the JSON format when performing a batch upload of the user data expected by the backend.
+ *
+ * TODO: This is incorrect, as the batch data is uploaded not using JSON data (as arrays) but instead uploaded as a CSV.
+ *
  * The {@link RapidPassBatchRequest} class models a Rapid Pass Request.
  */
 @Data

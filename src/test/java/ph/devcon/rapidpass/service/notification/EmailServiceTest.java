@@ -1,22 +1,23 @@
 package ph.devcon.rapidpass.service.notification;
 
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import ph.devcon.rapidpass.services.notifications.EmailNotificationService;
 import ph.devcon.rapidpass.services.notifications.NotificationException;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 
-@SpringBootTest
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 public class EmailServiceTest{
 
     @Mock
@@ -39,7 +40,7 @@ public class EmailServiceTest{
         String from = "from@email.com";
         String title = "test title";
         String message = "test message";
-        
+
         // ==== how to send notification
         String attachmentName = "attachment";
         byte[] sampleAttachment = { 0, 1, 2 };
@@ -58,7 +59,7 @@ public class EmailServiceTest{
             }
 
             // add more verification here
-            
-    } 
+
+    }
 
 }
