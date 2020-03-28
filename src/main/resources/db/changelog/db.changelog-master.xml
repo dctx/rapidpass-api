@@ -141,7 +141,7 @@
             <column name="registrant_id" type="INTEGER"/>
             <column name="reference_id" type="VARCHAR(30)"/>
             <column name="pass_type" type="VARCHAR(10)"/>
-            <column name="access_type" type="VARCHAR(10)"/>
+            <column name="apor_type" type="VARCHAR(10)"/>
             <column name="control_code" type="INTEGER"/>
             <column name="id_type" type="VARCHAR(10)"/>
             <column name="plate_or_id" type="VARCHAR(25)"/>
@@ -200,7 +200,9 @@
             <column name="reference_id_type" type="VARCHAR(20)"/>
             <column name="reference_id" type="VARCHAR(50)"/>
             <column name="first_name" type="VARCHAR(50)"/>
+            <column name="middle_name" type="VARCHAR(50)"/>
             <column name="last_name" type="VARCHAR(50)"/>
+            <column name="suffix" type="VARCHAR(10)"/>
             <column name="birth_date" type="date"/>
             <column name="address" type="VARCHAR(150)"/>
             <column name="province" type="VARCHAR(50)"/>

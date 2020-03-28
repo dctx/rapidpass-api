@@ -64,7 +64,7 @@ class RegistryControllerTest {
         individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
         individualAccessPass.setDestinationAddress(TEST_INDIVIDUAL_REQUEST.getDestAddress());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
-        individualAccessPass.setAccessType(TEST_INDIVIDUAL_REQUEST.getAccessType().toString());
+        individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAccessType().toString());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         individualAccessPass.setReferenceId(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
@@ -74,7 +74,7 @@ class RegistryControllerTest {
         vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
         vehicleAccessPass.setDestinationAddress(TEST_VEHICLE_REQUEST.getDestAddress());
         vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
-        vehicleAccessPass.setAccessType(TEST_VEHICLE_REQUEST.getAccessType().toString());
+        vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAccessType().toString());
         vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());

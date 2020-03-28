@@ -117,13 +117,13 @@ public class PdfGenerator {
             details.setFontSize(20);
             details.setMarginLeft(70);
             details.add("Name:\t" + approvedRapidPass.getName() + "\n" +
-                    "Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
+                    "APOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
                     "Pass Type:\t" + passType + "\n" +
                     "Company:\t" + approvedRapidPass.getCompany());
         } else if (passType.equals(VEHICLE)) {
             details.setFontSize(20);
             details.setMarginLeft(70);
-            details.add("Access Type:\t" + approvedRapidPass.getAccessType() + "\n" +
+            details.add("AOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
                     "Pass Type:\t" + passType + "\n" +
                     "Plate:\t" + approvedRapidPass.getPlateOrId() + "\n" +
                     "Name:\t" + approvedRapidPass.getName());

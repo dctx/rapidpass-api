@@ -22,7 +22,7 @@ public class RapidPass {
                 .referenceId(accessPass.getReferenceId())
                 .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
                 .passType(accessPass.getPassType())
-                .accessType(accessPass.getAccessType())
+                .accessType(accessPass.getAporType())
                 .plateOrId(accessPass.getPlateOrId())
                 .status(accessPass.getStatus())
                 .validFrom(accessPass.getValidFrom())

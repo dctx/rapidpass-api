@@ -26,10 +26,12 @@ public final class RapidPassRequest {
     private String refNum = UUID.randomUUID().toString();
 
     @NotNull
-    private RapidPassRequest.PassType passType;
-    private AccessType accessType;
+    private PassType passType;
+    private String aporType;
     private String firstName;
+    private String middleName;
     private String lastName;
+    private String suffix;
     private String company;
     private String idType;
     private String plateOrId; // todo validate. use validation annotations.

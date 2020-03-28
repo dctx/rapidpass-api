@@ -30,35 +30,6 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "access_pass", schema = "public")
-@NamedQueries({
-    @NamedQuery(name = "AccessPass.findAll", query = "SELECT a FROM AccessPass a"),
-    @NamedQuery(name = "AccessPass.findById", query = "SELECT a FROM AccessPass a WHERE a.id = :id"),
-    @NamedQuery(name = "AccessPass.findByReferenceId", query = "SELECT a FROM AccessPass a WHERE a.referenceId = :referenceId"),
-    @NamedQuery(name = "AccessPass.findByPassType", query = "SELECT a FROM AccessPass a WHERE a.passType = :passType"),
-    @NamedQuery(name = "AccessPass.findByAccessType", query = "SELECT a FROM AccessPass a WHERE a.accessType = :accessType"),
-    @NamedQuery(name = "AccessPass.findByControlCode", query = "SELECT a FROM AccessPass a WHERE a.controlCode = :controlCode"),
-    @NamedQuery(name = "AccessPass.findByIdType", query = "SELECT a FROM AccessPass a WHERE a.idType = :idType"),
-    @NamedQuery(name = "AccessPass.findByPlateOrId", query = "SELECT a FROM AccessPass a WHERE a.plateOrId = :plateOrId"),
-    @NamedQuery(name = "AccessPass.findByName", query = "SELECT a FROM AccessPass a WHERE a.name = :name"),
-    @NamedQuery(name = "AccessPass.findByCompany", query = "SELECT a FROM AccessPass a WHERE a.company = :company"),
-    @NamedQuery(name = "AccessPass.findByRemarks", query = "SELECT a FROM AccessPass a WHERE a.remarks = :remarks"),
-    @NamedQuery(name = "AccessPass.findByScope", query = "SELECT a FROM AccessPass a WHERE a.scope = :scope"),
-    @NamedQuery(name = "AccessPass.findByLimitations", query = "SELECT a FROM AccessPass a WHERE a.limitations = :limitations"),
-    @NamedQuery(name = "AccessPass.findByOriginName", query = "SELECT a FROM AccessPass a WHERE a.originName = :originName"),
-    @NamedQuery(name = "AccessPass.findByOriginAddress", query = "SELECT a FROM AccessPass a WHERE a.originAddress = :originAddress"),
-    @NamedQuery(name = "AccessPass.findByOriginProvince", query = "SELECT a FROM AccessPass a WHERE a.originProvince = :originProvince"),
-    @NamedQuery(name = "AccessPass.findByOriginCity", query = "SELECT a FROM AccessPass a WHERE a.originCity = :originCity"),
-    @NamedQuery(name = "AccessPass.findByDestinationName", query = "SELECT a FROM AccessPass a WHERE a.destinationName = :destinationName"),
-    @NamedQuery(name = "AccessPass.findByDestinationAddress", query = "SELECT a FROM AccessPass a WHERE a.destinationAddress = :destinationAddress"),
-    @NamedQuery(name = "AccessPass.findByDestinationProvince", query = "SELECT a FROM AccessPass a WHERE a.destinationProvince = :destinationProvince"),
-    @NamedQuery(name = "AccessPass.findByDestinationCity", query = "SELECT a FROM AccessPass a WHERE a.destinationCity = :destinationCity"),
-    @NamedQuery(name = "AccessPass.findByValidFrom", query = "SELECT a FROM AccessPass a WHERE a.validFrom = :validFrom"),
-    @NamedQuery(name = "AccessPass.findByValidTo", query = "SELECT a FROM AccessPass a WHERE a.validTo = :validTo"),
-    @NamedQuery(name = "AccessPass.findByIssuedBy", query = "SELECT a FROM AccessPass a WHERE a.issuedBy = :issuedBy"),
-    @NamedQuery(name = "AccessPass.findByUpdates", query = "SELECT a FROM AccessPass a WHERE a.updates = :updates"),
-    @NamedQuery(name = "AccessPass.findByStatus", query = "SELECT a FROM AccessPass a WHERE a.status = :status"),
-    @NamedQuery(name = "AccessPass.findByDateTimeCreated", query = "SELECT a FROM AccessPass a WHERE a.dateTimeCreated = :dateTimeCreated"),
-    @NamedQuery(name = "AccessPass.findByDateTimeUpdated", query = "SELECT a FROM AccessPass a WHERE a.dateTimeUpdated = :dateTimeUpdated")})
 public class AccessPass implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -74,8 +45,8 @@ public class AccessPass implements Serializable {
     @Column(name = "pass_type")
     private String passType;
     @Size(max = 10)
-    @Column(name = "access_type")
-    private String accessType;
+    @Column(name = "apor_type")
+    private String aporType;
     @Column(name = "control_code")
     private Integer controlCode;
     @Size(max = 10)
@@ -180,12 +151,12 @@ public class AccessPass implements Serializable {
         this.passType = passType;
     }
 
-    public String getAccessType() {
-        return accessType;
+    public String getAporType() {
+        return aporType;
     }
 
-    public void setAccessType(String accessType) {
-        this.accessType = accessType;
+    public void setAporType(String aporType) {
+        this.aporType = aporType;
     }
 
     public Integer getControlCode() {
