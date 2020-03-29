@@ -21,12 +21,20 @@ import ph.devcon.rapidpass.repositories.RegistryRepository;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
+import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
 @ExtendWith(MockitoExtension.class)
 class RegistryServiceTest {
@@ -509,10 +517,10 @@ class RegistryServiceTest {
         // for no existing pass, new registrant, expect the ff:
         // save registrant
         verify(mockRegistrantRepository, times(1))
-                .save(any(Registrant.class));
+                .save(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
         verify(mockAccessPassRepository, times(1))
-                .saveAndFlush(any(AccessPass.class));
+                .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
     @Test
