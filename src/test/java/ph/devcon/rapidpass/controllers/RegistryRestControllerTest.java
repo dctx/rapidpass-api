@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -267,7 +266,7 @@ class RegistryRestControllerTest {
         )
                 .andExpect(status().isOk())
                 // test json is expected
-                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType()))
+                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType().name()))
                 .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
                 .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
                 .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))

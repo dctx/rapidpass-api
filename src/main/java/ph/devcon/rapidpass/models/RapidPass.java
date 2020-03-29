@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.enums.PassType;
 
 import java.util.Date;
 
@@ -20,87 +21,43 @@ import java.util.Date;
 @Builder
 public class RapidPass {
 
-    private String referenceId;
-
-    private String passType;
-
+    private PassType passType;
+    /**
+     * Authorized Personnel Outside Residence
+     */
     private String aporType;
-
+    private String referenceId;
     private String controlCode;
-
-    private String idType;
-
-    private String identifierNumber;
-
     private String name;
-
     private String company;
-
-    private String remarks;
-
-    private Integer scope;
-
-    private String limitations;
-
-    private String originName;
-
-    private String originStreet;
-
-    private String originProvince;
-
-    private String originCity;
-
-    private String destinationName;
-
-    private String destinationStreet;
-
-    private String destinationCity;
-
-    private String destinationProvince;
-
-    private Date validFrom;
-
-    private Date validTo;
-
-    private String issuedBy;
-
-    private String updates;
-
+    private String idType;
+    private String identifierNumber;
+    private String destName;
+    private String destStreet;
+    private String destCity;
     private String status;
-
-    private Date dateTimeCreated;
-
-    private Date dateTimeUpdated;
-
-    private Registrant registrantId;
+    private String validFrom;
+    private String validUntil;
+    private String remarks;
 
     public static RapidPass buildFrom(AccessPass accessPass) {
         // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
         return RapidPass.builder()
                 .referenceId(accessPass.getReferenceId())
                 .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode())
-                .passType(accessPass.getPassType())
+                .passType(PassType.valueOf(accessPass.getPassType()))
                 .aporType(accessPass.getAporType())
+                .name(accessPass.getName())
+                .company(accessPass.getCompany())
                 .idType(accessPass.getIdType())
                 .identifierNumber(accessPass.getIdentifierNumber())
-                .name(accessPass.getName())
                 .status(accessPass.getStatus())
-                .validFrom(accessPass.getValidFrom())
-                .validTo(accessPass.getValidTo())
-                .destinationCity(accessPass.getDestinationCity())
-                .destinationName(accessPass.getDestinationName())
-                .destinationProvince(accessPass.getDestinationProvince())
-                .originCity(accessPass.getOriginCity())
-                .originName(accessPass.getOriginName())
-                .originProvince(accessPass.getOriginProvince())
-                .originStreet(accessPass.getOriginStreet())
-                .dateTimeCreated(accessPass.getDateTimeCreated())
-                .dateTimeUpdated(accessPass.getDateTimeUpdated())
-                .registrantId(accessPass.getRegistrantId())
-                .limitations(accessPass.getLimitations())
-                .scope(accessPass.getScope())
+                .validFrom(accessPass.getValidFrom() == null ? "" : accessPass.getValidFrom().toString())
+                .validUntil(accessPass.getValidTo() == null ? "" : accessPass.getValidTo().toString())
+                .destName(accessPass.getDestinationName())
+                .destStreet(accessPass.getDestinationStreet())
+                .destCity(accessPass.getDestinationCity())
                 .remarks(accessPass.getRemarks())
-                .company(accessPass.getCompany())
                 .build();
     }
 }
