@@ -263,73 +263,65 @@
         </createTable>
     </changeSet>
     <changeSet author="eric (generated)" id="1585195345769-13">
-        <createTable tableName="apor_lookup">
-            <column name="code" type="VARCHAR(5)">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="apor_lookup_pk"/>
-            </column>
-            <column name="description" type="VARCHAR(50)"/>
-        </createTable>
-    </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-14">
         <addForeignKeyConstraint baseColumnNames="region_id" baseTableName="province"
                                  constraintName="province_region_id_fk" deferrable="false" initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
                                  referencedTableName="region" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-15">
+    <changeSet author="eric (generated)" id="1585195345769-14">
         <addForeignKeyConstraint baseColumnNames="parent_registrar_id" baseTableName="registrar"
                                  constraintName="registrar_registrar_id_fk" deferrable="false" initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
                                  referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-16">
+    <changeSet author="eric (generated)" id="1585195345769-15">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="registrar_user"
                                  constraintName="registrar_user_registrar_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-17">
+    <changeSet author="eric (generated)" id="1585195345769-16">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="scanner_device"
                                  constraintName="scanner_device_registrar_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-18">
+    <changeSet author="eric (generated)" id="1585195345769-17">
         <addForeignKeyConstraint baseColumnNames="registrar_user_id" baseTableName="scanner_device"
                                  constraintName="scanner_device_registrar_user_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-19">
+    <changeSet author="eric (generated)" id="1585195345769-18">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="registrant"
                                  constraintName="registrant_registrar_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-20">
+    <changeSet author="eric (generated)" id="1585195345769-19">
         <addForeignKeyConstraint baseColumnNames="province_id" baseTableName="city" constraintName="city_province_id_fk"
                                  deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="province" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-21">
+    <changeSet author="eric (generated)" id="1585195345769-20">
         <addForeignKeyConstraint baseColumnNames="access_pass_id" baseTableName="access_pass_log"
                                  constraintName="access_pass_log_access_pass_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="access_pass" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-22">
+    <changeSet author="eric (generated)" id="1585195345769-21">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="registrar_user_activity_log"
                                  constraintName="activity_log_registrar_user_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-23">
+    <changeSet author="eric (generated)" id="1585195345769-22">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="system_user_activity_log"
                                  constraintName="activity_log_system_user_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="system_user" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-24">
+    <changeSet author="eric (generated)" id="1585195345769-23">
         <addForeignKeyConstraint baseColumnNames="registrant_id" baseTableName="access_pass"
                                  constraintName="access_pass_registrant_id_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
@@ -356,6 +348,34 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
+    <changeSet author="eric (generated)" id="1585195345769-24">
+        <createTable tableName="apor_lookup">
+            <column name="code" type="VARCHAR(5)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="apor_lookup_pk"/>
+            </column>
+            <column name="description" type="VARCHAR(50)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="eric (generated)" id="1585195345769-25">
+        <createTable tableName="id_type_lookup">
+            <column name="pass_type" type="VARCHAR(5)"/>
+            <column name="id_type" type="VARCHAR(10)"/>
+            <column name="description" type="VARCHAR(50)"/>
+        </createTable>
+        <addPrimaryKey columnNames="pass_type, id_type"
+                       constraintName="id_type_lookup_pk"
+                       schemaName="public"
+                       tableName="id_type_lookup"/>
+    </changeSet>
+    <changeSet author="eric (generated)" id="1585195345769-26">
+        <createTable tableName="config_lookup">
+            <column name="config_key" type="VARCHAR(25)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="config_lookup_pk"/>
+            </column>
+            <column name="config_value" type="VARCHAR(25)"/>
+            <column name="description" type="VARCHAR(75)"/>
+        </createTable>
+    </changeSet>
     <changeSet author="eric" id="seeData-apor-lookup">
         <loadData encoding="UTF-8"
                   file="apor-lookup.csv"
@@ -364,6 +384,28 @@
                   schemaName="public"
                   separator=","
                   tableName="apor_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="eric" id="seeData-id_type-lookup">
+        <loadData encoding="UTF-8"
+                  file="id_type-lookup.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="id_type_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="eric" id="seeData-config-lookup">
+        <loadData encoding="UTF-8"
+                  file="config-lookup.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="config_lookup"
                   usePreparedStatements="true">
         </loadData>
     </changeSet>

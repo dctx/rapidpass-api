@@ -1,0 +1,15 @@
+pass_type,id_type,description
+I,LTO,"Driver's License"
+I,COM,Company ID
+I,NBI,NBI Clearance
+I,OFW,OFW ID
+I,DFA,Passport
+I,PHC,PhilHealth IDD
+I,POS,Postal ID
+I,PRC,PRC
+I,SNR,Senior Citizen
+I,SSS,SSS/UMID
+I,BIR,TIN
+I,CML,"Voter's ID"
+V,PLT,Plate Number
+V,CND,Conduction Sticker
