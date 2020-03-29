@@ -7,6 +7,8 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -62,8 +64,8 @@ public class Registrant implements Serializable {
     @Column(name = "suffix")
     private String suffix;
     @Column(name = "birth_date")
-    @Temporal(TemporalType.DATE)
-    private Date birthDate;
+    
+    private LocalDate birthDate;
     @Size(max = 150)
     @Column(name = "address")
     private String address;
@@ -108,11 +110,11 @@ public class Registrant implements Serializable {
     @Column(name = "status")
     private String status;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "registrantId")
     private Collection<AccessPass> accessPassCollection;
     @JoinColumn(name = "registrar_id", referencedColumnName = "id")

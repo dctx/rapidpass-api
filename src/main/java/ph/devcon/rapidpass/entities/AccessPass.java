@@ -9,24 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ph.devcon.rapidpass.enums.APORType;
-import ph.devcon.rapidpass.models.RapidPassRequest;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 /**
@@ -49,7 +37,7 @@ public class AccessPass implements Serializable {
     private Integer id;
     @Size(max = 30)
     @Column(name = "reference_id")
-    private String referenceId;
+    private String referenceID;
     @Size(max = 10)
     @Column(name = "pass_type")
     private String passType;
@@ -103,11 +91,11 @@ public class AccessPass implements Serializable {
     @Column(name = "destination_province")
     private String destinationProvince;
     @Column(name = "valid_from")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validFrom;
+    
+    private OffsetDateTime validFrom;
     @Column(name = "valid_to")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validTo;
+    
+    private OffsetDateTime validTo;
     @Size(max = 20)
     @Column(name = "issued_by")
     private String issuedBy;
@@ -118,15 +106,20 @@ public class AccessPass implements Serializable {
     @Column(name = "status")
     private String status;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+
+    private OffsetDateTime dateTimeUpdated;
+    
+    @Column(name = "last_used_on")
+
+    private OffsetDateTime lastUsedOn;
+    
     @JoinColumn(name = "registrant_id", referencedColumnName = "id")
     @ManyToOne
     private Registrant registrantId;
-    @OneToMany(mappedBy = "accessPassId")
+    @OneToMany(mappedBy = "accessPassId",fetch = FetchType.LAZY)
     private Collection<AccessPassLog> accessPassLogCollection;
 
     @Override

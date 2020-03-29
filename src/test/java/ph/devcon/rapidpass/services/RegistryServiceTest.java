@@ -21,6 +21,7 @@ import ph.devcon.rapidpass.repositories.RegistryRepository;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -57,15 +58,16 @@ class RegistryServiceTest {
     @Test
     void generateQrPdf_INDIVIDUAL() throws IOException, WriterException {
 
-        when(mockAccessPassRepository.findByReferenceId("12345"))
+        final OffsetDateTime now = OffsetDateTime.now();
+        when(mockAccessPassRepository.findByReferenceID("12345"))
                 .thenReturn(AccessPass.builder().
                         status("approved")
                         .passType("individual")
                         .controlCode("123456")
                         .identifierNumber("ABCD 123")
                         .aporType("AB")
-                        .validFrom(new Date())
-                        .validTo(new Date())
+                        .validFrom(now)
+                        .validTo(now.plusDays(1))
                         .build());
         final byte[] bytes = instance.generateQrPdf("12345");
 
@@ -75,15 +77,15 @@ class RegistryServiceTest {
     @Test
     void generateQrPdf_VEHICLE() throws IOException, WriterException {
 
-        when(mockAccessPassRepository.findByReferenceId("12345"))
+        when(mockAccessPassRepository.findByReferenceID("12345"))
                 .thenReturn(AccessPass.builder().
                         status("approved")
                         .passType("vehicle")
                         .controlCode("123456")
                         .identifierNumber("ABCD 123")
                         .aporType("AB")
-                        .validFrom(new Date())
-                        .validTo(new Date())
+                        .validFrom(OffsetDateTime.now())
+                        .validTo(OffsetDateTime.now())
                         .build());
         final byte[] bytes = instance.generateQrPdf("12345");
 

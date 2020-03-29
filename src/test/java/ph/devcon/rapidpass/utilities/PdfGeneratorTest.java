@@ -6,17 +6,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.APORType;
-import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import java.io.File;
+import java.time.OffsetDateTime;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static ph.devcon.rapidpass.enums.APORType.MED;
-import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 
 class PdfGeneratorTest {
 
@@ -54,6 +51,7 @@ class PdfGeneratorTest {
         assertThat("pdf file is created!", tmpFile, is(not(FileMatchers.anExistingFile())));
 
         // do pdf generation
+        final OffsetDateTime now = OffsetDateTime.now();
         final File pdfFile =
                 PdfGenerator.generatePdf(pdfPath,
                         qrCodeFile,
@@ -63,8 +61,8 @@ class PdfGeneratorTest {
                                 .controlCode("123456")
                                 .identifierNumber("ABCD 123")
                                 .aporType("AB")
-                                .validFrom(new Date())
-                                .validTo(new Date())
+                                .validFrom(now)
+                                .validTo(now.plusDays(1))
                                 .build());
 
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.anExistingFile()));
