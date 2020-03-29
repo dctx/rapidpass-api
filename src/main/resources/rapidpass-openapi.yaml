@@ -140,20 +140,20 @@ paths:
         '200':
           description: Upload successful
 
-  /dashboard/control-codes:
+  /dashboard/access-passes:
     get:
       tags:
-        - inspector
         - dashboard
-      summary: Downloads a list of approved control numbers
-      operationId: retrieveApprovedControlCodes
+      summary: Downloads CSV/Excel file of approved control numbers
+      operationId: downloadBatchOfAccessPasses in CSV or any approved format.
       responses:
         '200':
-          description: list of all approved control numbers
+          description: Upload successful
           content:
-            application/json:
+            text/csv:
               schema:
-                $ref: '#/components/schemas/ControlCodes'
+                type: string
+                description: CSV representation of Access Passes controlCode,identificationNumber,passType,approvedBy,validUntil,lastUsed
 
   /registry/access-passes/{referenceID}:
     get:
@@ -329,25 +329,6 @@ components:
         approvedBy:
           type: string
           description: Name of the approving organization
-
-    ControlCodes:
-      type: array
-      items:
-        $ref: '#/components/schemas/ControlCode'
-
-    ControlCode:
-      type: object
-      required:
-        - referenceId
-      properties:
-        referenceId:
-          type: string
-          description: backend generated reference id, created upon request
-        controlCode:
-          type: string
-          description: approved control control code
-        passType:
-          $ref: '#/components/schemas/PassRequestType'
 
     Link:
       type: object
