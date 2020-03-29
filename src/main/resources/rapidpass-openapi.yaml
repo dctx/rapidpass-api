@@ -1,5 +1,6 @@
 openapi: 3.0.0
-## removed the servers. we don't need it now as there's no more basePath. This defaults to `host-scheme://host-name`.
+servers:
+  - url: /api/v1
 info:
   description: >-
     API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
@@ -289,13 +290,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/CommonElements'
       properties:
-        first_name:
-          type: string
-          description: Type of pass being requested. Can be INDIVIDUAL or VEHICLE.
-          enum:
-            - INDIVIDUAL
-            - VEHICLE
-          example: "INDIVIDUAL"
         firstName:
           type: string
           description: The first name of the individual that will use the access pass
@@ -394,6 +388,11 @@ components:
           description: Code for Authorized Personnel Outside Residence. Check IATF doc for details.
           enum: [AG,BA,BP,CA,DC,DO,ER,FC,FS,GO,GR,HM,HT,IP,LW,ME,MS,MF,MT,PH,PM,PI,SH,SS,TF,UT,VE]
           example: "AG"
-        passtype:
+        passType:
           type: string
-          description: type of pass, either vehicle or individual
+          description: type of pass, either VEHICLE or INDIVIDUAL
+          enum:
+            - INDIVIDUAL
+            - VEHICLE
+          example: INDIVIDUAL
+
