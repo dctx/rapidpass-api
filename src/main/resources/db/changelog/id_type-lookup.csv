@@ -4,14 +4,15 @@ I,COM,Company ID
 I,NBI,NBI Clearance
 I,OFW,OFW ID
 I,DFA,Passport
-I,PHC,PhilHealth IDD
+I,PHC,PhilHealth ID
 I,POS,Postal ID
-I,PRC,PRC
-I,SNR,Senior Citizen
-I,SSS,SSS/UMID
-I,BIR,TIN
+I,PRC,PRC ID
+I,SNR,Senior Citizen ID
+I,SSS,SSS UMID Card
+I,BIR,TIN ID
 I,CML,"Voter's ID"
 V,PLT,Plate Number
 V,CND,Conduction Sticker
 I,PGB,PAGIBIG ID
 I,PWD,PWD ID
+I,DPL,Diplomat ID

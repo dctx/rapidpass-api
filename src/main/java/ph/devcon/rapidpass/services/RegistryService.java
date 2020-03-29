@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,11 +18,12 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.utilities.PdfGenerator;
+import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -243,7 +245,17 @@ public class RegistryService {
      * @return Data stored on the database
      */
     private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
-        AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
+        List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        if (accessPassesRetrieved.isEmpty()) {
+            throw new NullPointerException("Failed to retrieve access pass with reference ID=" + referenceId + ".");
+        }
+
+        AccessPass accessPass = accessPassesRetrieved.get(0);
+
+        if (accessPassesRetrieved.size() > 1) {
+            log.warn("Found " + accessPassesRetrieved.size() + " AccessPasses for referenceId=" + referenceId + ".");
+        }
 
         String currentStatus = accessPass.getStatus();
 
@@ -305,12 +317,36 @@ public class RegistryService {
      * @throws IOException     on error writing the PDF
      * @throws WriterException on error writing the QR code
      */
-    public byte[] generateQrPdf(String referenceId) throws IOException, WriterException {
+    public byte[] generateQrPdf(String referenceId) throws IOException, WriterException, ParseException {
 
         final AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
+
+        if ("".equals(accessPass.getName()) || accessPass.getName() == null) {
+            throw new IllegalArgumentException("AccessPass.name is a required parameter for rendering the PDF.");
+        }
+
         if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
-            // access pass is not approved. Return no QR
-            return null;
+            throw new IllegalArgumentException("Cannot render PDF with QR for an AccessPass that is not yet approved.");
+        }
+
+        if ("".equals(accessPass.getCompany()) || accessPass.getCompany() == null) {
+            throw new IllegalArgumentException("AccessPass.company is a required parameter for rendering the PDF.");
+        }
+
+        if ("".equals(accessPass.getAporType()) || accessPass.getAporType() == null) {
+            throw new IllegalArgumentException("AccessPass.aporType is a required parameter for rendering the PDF.");
+        }
+
+        if ("".equals(accessPass.getPassType()) || accessPass.getPassType() == null) {
+            throw new IllegalArgumentException("AccessPass.passType is a required parameter for rendering the PDF.");
+        }
+
+        if (accessPass.getValidFrom() == null) {
+            throw new IllegalArgumentException("AccessPass.validFrom is a required parameter for rendering the PDF.");
+        }
+
+        if (accessPass.getValidTo() == null) {
+            throw new IllegalArgumentException("AccessPass.validTo is a required parameter for rendering the PDF.");
         }
 
         // generate qr code data
@@ -340,7 +376,11 @@ public class RegistryService {
         final File qrImage = qrGeneratorService.generateQr(qrCodeData);
 
         // generate qr pdf
-        final File qrPdf = PdfGenerator.generatePdf(File.createTempFile("qrPdf", ".pdf").getAbsolutePath(), qrImage, accessPass);
+        PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
+
+        String temporaryFile  = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
+
+        final File qrPdf = pdfGenerator.generatePdf(temporaryFile, qrImage, RapidPass.buildFrom(accessPass));
 
         // send over as bytes
         return Files.readAllBytes(qrPdf.toPath());
