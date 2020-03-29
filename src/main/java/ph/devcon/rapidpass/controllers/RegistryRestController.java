@@ -15,6 +15,7 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -89,7 +90,7 @@ public class RegistryRestController {
      * @return PDF download
      */
     @GetMapping("/qr-codes/{referenceId}")
-    public HttpEntity<byte[]> downloadQrCode(@PathVariable String referenceId) throws IOException, WriterException {
+    public HttpEntity<byte[]> downloadQrCode(@PathVariable String referenceId) throws IOException, WriterException, ParseException {
         log.debug("Processing /qr-codes/{}", referenceId);
         byte[] responseBody = registryService.generateQrPdf(referenceId);
 

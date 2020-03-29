@@ -6,6 +6,7 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
@@ -18,6 +19,7 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class QrGeneratorServiceImplTest {
 
@@ -48,7 +50,8 @@ class QrGeneratorServiceImplTest {
     private static final int MAR_27_2020 = 1585267200;
 
     @Test
-    //@Disabled // fails in CICD for some reason. JDK things....
+    // @Disabled
+    // fails in CICD for some reason. JDK things....
     void generateQr() throws IOException, WriterException {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")
@@ -72,5 +75,50 @@ class QrGeneratorServiceImplTest {
 
         final QrCodeData decodedQrData = QrCodeDeserializer.decode(Base64.decodeBase64(decodedQrPayloadStr.getBytes()));
         assertThat("decoded data is same as payload", decodedQrData, is(testPayload));
+    }
+
+    @Test
+    void failToGenerateQr_idOrPlateMissing() throws IOException, WriterException, NullPointerException {
+
+        assertThrows(NullPointerException.class, () -> {
+
+            // This causes the exception
+            String emptyIdOrPlate = "";
+
+            // Currently, commons package doesn't do NPE checking if the string values are non null.
+            // This means, this potentially throws a NullPointerException, in the case where `Apor` or `idOrPlate` is null.
+            final QrCodeData testPayload = QrCodeData.individual()
+                    .idOrPlate(emptyIdOrPlate)
+                    .controlCode(CC_1234_ENCRYPTED)
+                    .apor("AB")
+                    .validFrom(MAR_23_2020)
+                    .validUntil(MAR_27_2020)
+                    .build();
+
+            instance.generateQr(testPayload);
+        });
+    }
+
+    @Test
+    void failToGenerateQr_aporCodeMissing() throws IOException, WriterException, NullPointerException {
+
+        assertThrows(NullPointerException.class, () -> {
+
+            // This causes the exception
+            String emptyIdOrPlate = "";
+
+            // Currently, commons package doesn't do NPE checking if the string values are non null.
+            // This means, this potentially throws a NullPointerException, in the case where `Apor` or `idOrPlate` is null.
+            final QrCodeData testPayload = QrCodeData.individual()
+                    // This causes the exception
+                    .idOrPlate("ABC 123")
+                    .controlCode(CC_1234_ENCRYPTED)
+                    .apor("")
+                    .validFrom(MAR_23_2020)
+                    .validUntil(MAR_27_2020)
+                    .build();
+
+            instance.generateQr(testPayload);
+        });
     }
 }
