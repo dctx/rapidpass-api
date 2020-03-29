@@ -11,10 +11,10 @@ config:
   smtp:
     auth: "true"
     host: smtp.mailgun.org
-    password: ***REMOVED***
+    password: ''
     port: "587"
     tls: "true"
-    username: rapidpass@talino.mg.amihan.net
+    username: ''
 ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod

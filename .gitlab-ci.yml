@@ -1,15 +1,18 @@
 stages:
-  - test
+  - build
   - package
   - deploy
 
-Run Unit Tests:
-  stage: test
+build-jar:
+  stage: build
   image: openjdk:15-jdk-alpine
   script:
-  - ./mvnw test
+  - ./mvnw package
+  artifacts:
+    paths:
+    - target/
 
-Test and Publish Docker Image:
+package-image:
   stage: package
   image: docker:19.03.1
   services:
@@ -19,19 +22,15 @@ Test and Publish Docker Image:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
   - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-  # get cached build step create new cache and push
-  - docker pull dctx/rapidpass-api:cache
-  - docker build --target build --cache-from=dctx/rapidpass-api:cache -t dctx/rapidpass-api:cache .
-  - docker push dctx/rapidpass-api:cache
-  # get latest image
-  - docker pull dctx/rapidpass-api:latest
   script:
-  - docker build --cache-from=dctx/rapidpass-api:cache,dctx/rapidpass-api:latest -t dctx/rapidpass-api:latest .
+  - docker build -t dctx/rapidpass-api:latest .
   - docker push dctx/rapidpass-api:latest
   only:
   - develop
+  dependencies:
+  - build-jar
 
-Deploy to Dev Environment:
+deploy-dev:
   stage: deploy
   image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
   before_script:
@@ -41,11 +40,11 @@ Deploy to Dev Environment:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api-dev --install --namespace rapidpass-api-dev --values config/dev-values.yaml helm/rapidpass-api
+  - helm upgrade rapidpass-api-dev --install --namespace rapidpass-api-dev --values config/dev-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} helm/rapidpass-api
   only:
   - develop
 
-Deploy to Test Environment:
+deploy-test:
   stage: deploy
   image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
   before_script:
@@ -55,7 +54,7 @@ Deploy to Test Environment:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml helm/rapidpass-api
+  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} helm/rapidpass-api
   when: manual
   only:
   - develop
