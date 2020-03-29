@@ -67,7 +67,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!-- <plugin>
                 <groupId>io.swagger.codegen.v3</groupId>
                 <artifactId>swagger-codegen-maven-plugin</artifactId>
                 <version>3.0.14</version>
@@ -114,7 +114,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
             <!-- display active profile in compile phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
