@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
+import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 
 import java.io.File;
 import java.util.Date;
@@ -16,7 +17,7 @@ import static org.hamcrest.Matchers.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
-class PdfGeneratorTest {
+class PdfGeneratorImplTest {
 
     QrGeneratorServiceImpl qrGeneratorService;
 
@@ -39,12 +40,13 @@ class PdfGeneratorTest {
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL.toString())
+                .name("Jonas Jose Almendras Domingo")
                 .controlCode("12345")
                 .idType("Driver's License")
                 .identifierNumber("N01-234235345")
-                .aporType("AB")
-                .company("DEVCON")
-                .controlCode("2346324-AB")
+                .aporType("NR")
+                .company("Banco ng Pilipinas Incorporated")
+                .controlCode("#NCR9NP")
                 .validFrom(MAR_23_2020_UTC)
                 .validTo(MAR_27_2020_UTC)
                 .build();
@@ -83,12 +85,13 @@ class PdfGeneratorTest {
         assertThat("pdf file is created!", tmpFile, is(not(FileMatchers.anExistingFile())));
 
         // do pdf generation
-        final File pdfFile = PdfGenerator.generatePdf(pdfPath, qrCodeFile, mockRapidPassData);
+        PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
+        final File pdfFile = pdfGenerator.generatePdf(pdfPath, qrCodeFile, mockRapidPassData);
 
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.anExistingFile()));
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.aFileWithSize(greaterThan(0L))));
 
         // cleanup!
-        pdfFile.delete();
+//        pdfFile.delete();
     }
 }
