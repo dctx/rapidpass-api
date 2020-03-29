@@ -53,6 +53,7 @@ paths:
     get:
       tags:
         - pwa
+        - dashboard
       summary: Gets a list of access passes
       operationId: getAccessPasses
       parameters:
@@ -110,7 +111,6 @@ paths:
     delete:
       tags:
         - dashboard
-        - inspector
       summary: Suspends an active access pass
       operationId: deleteAccessPass
       parameters:
