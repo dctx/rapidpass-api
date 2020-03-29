@@ -108,6 +108,9 @@ class RegistryRestControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
 
+        // referenceId should have been created
+        when(mockRegistryService.newRequestPass(any())).thenReturn(RapidPass.builder().build());
+
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
@@ -129,6 +132,9 @@ class RegistryRestControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
+
+        // referenceId should have been created
+        when(mockRegistryService.newRequestPass(any())).thenReturn(RapidPass.builder().build());
 
         // perform post request with json payload to mock server
         mockMvc.perform(
