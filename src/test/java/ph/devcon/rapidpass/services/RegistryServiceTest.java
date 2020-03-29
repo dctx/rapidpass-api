@@ -19,12 +19,14 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -114,7 +116,7 @@ class RegistryServiceTest {
             .remarks("This is a test for VEHICLE REQUEST").build();
 
     @Test
-    void newRequestPass_VALID_PASS_NEW_REGISTRANT() {
+    void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
@@ -154,5 +156,37 @@ class RegistryServiceTest {
         // save and flush access pass
         verify(mockAccessPassRepository, times(1))
                 .saveAndFlush(any(AccessPass.class));
+    }
+
+    @Test
+    void newRequestPass_EXISTING_PASS() {
+
+        final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
+        FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
+        final AccessPass samplePendingAccessPass = AccessPass.builder()
+                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
+                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
+                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
+                .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
+                .status(RequestStatus.PENDING.toString())
+                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
+                .referenceId(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .validTo(FIVE_DAYS_FROM_NOW.getTime())
+                .build();
+
+        // mock registry always returns a registry
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setId(1);
+        // repository returns an access pass!
+        when(mockAccessPassRepository.findAllByReferenceIdOrderByValidToDesc(anyString())).thenReturn(Collections.singletonList(samplePendingAccessPass));
+
+
+        try {
+            this.instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
+            fail("should throw exception");
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
+        }
     }
 }

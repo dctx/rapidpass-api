@@ -75,6 +75,7 @@ public class RegistryService {
         } else existingAccessPass = Optional.empty();
 
         if (existingAccessPass.isPresent()) {
+            log.debug("  existing pass exists!");
             throw new IllegalArgumentException(
                     String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
                             rapidPassRequest.getIdentifierNumber()));
