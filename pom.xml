@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.6.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>ph.devcon</groupId>
@@ -67,7 +66,54 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>io.swagger.codegen.v3</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>3.0.14</version>
+                <executions>
+                    <execution>
+                        <id>generate-server-side</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger-definition-file}</inputSpec>
+                            <language>spring</language>
+                            <!--                            <configHelp>true</configHelp>-->
+                            <!-- if generating client -->
+                            <!--                            <language>java</language>-->
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                            <importMappings>
+                                <importMapping>DateTime=java.time.OffsetDateTime</importMapping>
+                            </importMappings>
+                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
+                            <configOptions>
+                                <modelPackage>${project.groupId}.rapidpass.api.models</modelPackage>
+                                <apiPackage>${project.groupId}.rapidpass.api.controllers</apiPackage>
+                                <configPackage>${project.groupId}.rapidpass.api.configurations</configPackage>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <java8>true</java8>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-client-side</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger-definition-file}</inputSpec>
+                            <language>csharp</language>
+                            <modelPackage>IpilaMoKo.APIServices.Model</modelPackage>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
+                            <output>${project.basedir}/../csharp-client/</output>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- display active profile in compile phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -155,13 +201,13 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.11</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext7-core</artifactId>
             <version>7.1.10</version>
             <type>pom</type>
-         </dependency>      
+        </dependency>
 
         <!-- end of persistence -->
 
@@ -289,30 +335,30 @@
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
-          <id>central</id>
-          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-releases</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
+            <id>central</id>
+            <url>https://artifactory.dctx.amihan.net/artifactory/dctx-releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
-          <id>snapshots</id>
-          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-snapshots</url>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
+            <id>snapshots</id>
+            <url>https://artifactory.dctx.amihan.net/artifactory/dctx-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
-      </repositories>
-    
-      <distributionManagement>
+    </repositories>
+
+    <distributionManagement>
         <snapshotRepository>
-          <id>snapshots</id>
-          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-snapshots</url>
+            <id>snapshots</id>
+            <url>https://artifactory.dctx.amihan.net/artifactory/dctx-snapshots</url>
         </snapshotRepository>
         <repository>
-          <id>central</id>
-          <url>https://artifactory.dctx.amihan.net/artifactory/dctx-releases</url>
+            <id>central</id>
+            <url>https://artifactory.dctx.amihan.net/artifactory/dctx-releases</url>
         </repository>
-      </distributionManagement>
+    </distributionManagement>
 
 </project>

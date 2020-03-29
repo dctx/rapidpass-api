@@ -3,6 +3,7 @@
 FROM openjdk:15-jdk-alpine as build
 
 # caching
+WORKDIR /rapidpass
 COPY pom.xml pom.xml
 COPY mvnw mvnw
 COPY .mvn .mvn
@@ -13,5 +14,5 @@ RUN ./mvnw package -Dmaven.test.skip=true
 
 # Just copy the Jar and run it. No extra stuff from maven. Should help with the image size
 FROM openjdk:15-jdk-alpine
-COPY --from=build /target/rapidpass-api.jar /rapidpass-api.jar
+COPY --from=build /rapidpass/target/rapidpass-api.jar /rapidpass-api.jar
 ENTRYPOINT [ "java", "-jar", "/rapidpass-api.jar", "--spring.profiles.active=env" ] 
