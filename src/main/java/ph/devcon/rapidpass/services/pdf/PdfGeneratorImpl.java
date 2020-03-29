@@ -22,14 +22,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.util.ResourceUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-
-import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
-import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
-
 
 /**
  * Utility class for generating Pdf using File qrcode file from QRCode Generator.

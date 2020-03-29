@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.utilities;
+package ph.devcon.rapidpass.service.pdf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.io.FileMatchers;
@@ -93,7 +93,7 @@ class PdfGeneratorImplTest {
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.aFileWithSize(greaterThan(0L))));
 
         // cleanup!
-//        pdfFile.delete();
+        pdfFile.delete();
     }
 
     @Test
