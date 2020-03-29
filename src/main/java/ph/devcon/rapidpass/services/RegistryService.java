@@ -61,13 +61,18 @@ public class RegistryService {
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
         // check if there is an existing PENDING/APPROVED RapidPass for referenceId
-        final Optional<AccessPass> existingAccessPass = accessPassRepository
-                .findAllByReferenceIdOrderByValidToDesc(rapidPassRequest.getIdentifierNumber())
-                .stream()
-                // get all valid PENDING or APPROVED rapid pass requests for referenceid
-                .filter(accessPass -> !RequestStatus.DENIED.toString().equalsIgnoreCase(accessPass.getStatus())
-                        && accessPass.getValidTo().after(new Date()))
-                .findAny();
+        final List<AccessPass> existingAcessPasses = accessPassRepository
+                .findAllByReferenceIdOrderByValidToDesc(rapidPassRequest.getIdentifierNumber());
+
+        final Optional<AccessPass> existingAccessPass;
+        if (existingAcessPasses != null) {
+            existingAccessPass = existingAcessPasses
+                    .stream()
+                    // get all valid PENDING or APPROVED rapid pass requests for referenceid
+                    .filter(accessPass -> !RequestStatus.DENIED.toString().equalsIgnoreCase(accessPass.getStatus())
+                            && accessPass.getValidTo().after(new Date()))
+                    .findAny();
+        } else existingAccessPass = Optional.empty();
 
         if (existingAccessPass.isPresent()) {
             throw new IllegalArgumentException(
