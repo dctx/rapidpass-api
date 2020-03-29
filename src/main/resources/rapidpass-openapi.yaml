@@ -391,7 +391,7 @@ components:
       properties:
         aporType:
           type: string
-          description: The APOR type. Check design doc for details.
+          description: Code for Authorized Personnel Outside Residence. Check IATF doc for details.
           enum: [AG,BA,BP,CA,DC,DO,ER,FC,FS,GO,GR,HM,HT,IP,LW,ME,MS,MF,MT,PH,PM,PI,SH,SS,TF,UT,VE]
           example: "AG"
         controlCode:
