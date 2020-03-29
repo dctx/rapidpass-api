@@ -1,31 +1,25 @@
 package ph.devcon.rapidpass.services;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.entities.Registrar;
+import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassBatchRequest;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.repositories.RegistrantRepository;
+import ph.devcon.rapidpass.repositories.RegistryRepository;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import ph.devcon.rapidpass.enums.RequestStatus;
-import lombok.extern.slf4j.Slf4j;
-import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.enums.RequestStatus;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassBatchRequest;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.Registrar;
 
 @Component
 @Slf4j
@@ -44,10 +38,33 @@ public class RegistryService {
         this.accessPassRepository = accessPassRepository;
     }
 
+    /**
+     * Creates a new {@link RapidPass} with PENDING status.
+     *
+     * @param rapidPassRequest rapid passs request.
+     * @return new rapid pass with PENDING status
+     */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        log.info("New RapidPass Request: {}", rapidPassRequest);
+        // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        log.debug("New RapidPass Request: {}", rapidPassRequest);
 
-        Optional<Registrar> registrarResult = registryRepository.findById(1 );
+        // check if there is an existing PENDING/APPROVED RapidPass for referenceId
+        final Optional<AccessPass> existingAccessPass = accessPassRepository
+                .findAllByReferenceIdOrderByValidToDesc(rapidPassRequest.getIdentifierNumber())
+                .stream()
+                // get all valid PENDING or APPROVED rapid pass requests for referenceid
+                .filter(accessPass -> !RequestStatus.DENIED.toString().equalsIgnoreCase(accessPass.getStatus())
+                        && accessPass.getValidTo().after(new Date()))
+                .findAny();
+
+        if (existingAccessPass.isPresent()) {
+            throw new IllegalArgumentException(
+                    String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
+                            rapidPassRequest.getIdentifierNumber()));
+        }
+
+
+        Optional<Registrar> registrarResult = registryRepository.findById(1);
         Registrar registrar = registrarResult.orElse(null);
 
         Registrant registrant = new Registrant();
@@ -125,6 +142,7 @@ public class RegistryService {
 
     /**
      * Used when the inspector or approver wishes to view more details about the
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
@@ -134,7 +152,7 @@ public class RegistryService {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIdOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 1) {
             log.error("Multiple Access Pass found for reference ID: {}", referenceId);
-        } else if (accessPasses.size() <= 0){
+        } else if (accessPasses.size() <= 0) {
             return null;
         }
         return RapidPass.buildFrom(accessPasses.get(0));
@@ -142,7 +160,8 @@ public class RegistryService {
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
-     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     *
+     * @param referenceId      The reference id of the {@link AccessPass} you are retrieving.
      * @param rapidPassRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
@@ -196,11 +215,11 @@ public class RegistryService {
     }
 
 
-
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @param status The status to apply
+     * @param status      The status to apply
      * @return Data stored on the database
      */
     private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
@@ -226,16 +245,17 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    public RapidPass grant(String referenceId) throws  RegistryService.UpdateAccessPassException {
+    public RapidPass grant(String referenceId) throws RegistryService.UpdateAccessPassException {
         return this.updateStatus(referenceId, RequestStatus.APPROVED);
     }
 
-    public RapidPass decline(String referenceId) throws  RegistryService.UpdateAccessPassException {
+    public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
         return this.updateStatus(referenceId, RequestStatus.DENIED);
     }
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is revoked.
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
@@ -251,7 +271,7 @@ public class RegistryService {
 
     /**
      * Returns a list of rapid passes that were requested for granting or approval.
-     *
+     * <p>
      * TODO: This needs to be reworked such that the batch data is not uploaded via json request body, but by excel file or csv.
      *
      * @param rapidPassBatchRequest JSON object containing an array of rapid pass requests
