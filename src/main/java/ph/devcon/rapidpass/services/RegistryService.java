@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,21 +51,43 @@ public class RegistryService {
         this.qrGeneratorService = qrGeneratorService;
     }
 
+    /**
+     * Creates a new {@link RapidPass} with PENDING status.
+     *
+     * @param rapidPassRequest rapid passs request.
+     * @return new rapid pass with PENDING status
+     */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        log.info("New RapidPass Request: {}", rapidPassRequest);
+        // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        log.debug("New RapidPass Request: {}", rapidPassRequest);
 
-        Optional<Registrar> registrarResult = registryRepository.findById(1);
-        Registrar registrar = registrarResult.orElse(null);
+        // check if there is an existing PENDING/APPROVED RapidPass for referenceId
+        final List<AccessPass> existingAcessPasses = accessPassRepository
+                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber());
 
-        Registrant registrant = new Registrant();
-        // set essential fields for registrant
-        if (registrarResult.isPresent()) {
-            registrant.setRegistrarId(registrarResult.get());
-        } else {
-            log.error("Unable to retrieve Registrar");
+        final Optional<AccessPass> existingAccessPass;
+        if (existingAcessPasses != null) {
+            existingAccessPass = existingAcessPasses
+                    .stream()
+                    // get all valid PENDING or APPROVED rapid pass requests for referenceid
+                    .filter(accessPass -> !RequestStatus.DENIED.toString().equalsIgnoreCase(accessPass.getStatus())
+                            && accessPass.getValidTo().isAfter(OffsetDateTime.now()))
+                    .findAny();
+        } else existingAccessPass = Optional.empty();
+
+        if (existingAccessPass.isPresent()) {
+            log.debug("  existing pass exists!");
+            throw new IllegalArgumentException(
+                    String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
+                            rapidPassRequest.getIdentifierNumber()));
         }
+
+        // check if registrant is already in the system
+        Registrant registrant = registrantRepository.findByReferenceId(rapidPassRequest.getIdentifierNumber());
+        if (registrant == null) registrant = new Registrant();
+
         registrant.setRegistrantType(1);
-        registrant.setRegistrantName(rapidPassRequest.getFirstName() + " " + rapidPassRequest.getLastName());
+        registrant.setRegistrantName(rapidPassRequest.getName());
         registrant.setFirstName(rapidPassRequest.getFirstName());
         registrant.setMiddleName(rapidPassRequest.getMiddleName());
         registrant.setLastName(rapidPassRequest.getLastName());
@@ -76,8 +96,20 @@ public class RegistryService {
         registrant.setMobile(rapidPassRequest.getMobileNumber());
         registrant.setReferenceIdType(rapidPassRequest.getIdType());
         registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
+
+        // create/update registrant
         registrant = registrantRepository.save(registrant);
-        // map an access pass to the registrant
+
+        Optional<Registrar> registrarResult = registryRepository.findById(1);
+
+        // set essential fields for registrant
+        if (registrarResult.isPresent()) {
+            registrant.setRegistrarId(registrarResult.get());
+        } else {
+            log.error("Unable to retrieve Registrar");
+        }
+
+        // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceID(registrant.getMobile());
@@ -105,7 +137,7 @@ public class RegistryService {
         accessPass.setDateTimeUpdated(now);
         accessPass.setStatus("PENDING");
 
-        log.info("Persisting Registrant: {}", registrant.toString());
+        log.debug("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
@@ -324,8 +356,8 @@ public class RegistryService {
                     .controlCode(Long.parseLong(accessPass.getControlCode()))
                     .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
-                    .validFrom((int)accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int)accessPass.getValidTo().toEpochSecond())
+                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
+                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
                     .vehiclePass(false)
                     .build();
 
@@ -335,7 +367,7 @@ public class RegistryService {
                     .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
                     .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int)accessPass.getValidTo().toEpochSecond())
+                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
                     .vehiclePass(false)
                     .build();
         }

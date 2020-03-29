@@ -16,9 +16,9 @@ import static ph.devcon.rapidpass.enums.RequestStatus.PENDING;
 
 /**
  * Data model representing a request to create a new {@link AccessPass}. It contains details about an AccessPass and a {@link Registrant}.
- *
+ * <p>
  * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
- *
+ * <p>
  * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
  */
 @Data
@@ -66,8 +66,8 @@ public final class RapidPassRequest {
     private RequestStatus requestStatus = PENDING;
 
     public String getName() {
-        return getFirstName() + " " + getLastName();
+        return String.format("%s %s", getFirstName(), getLastName());
     }
 
-    
+
 }
