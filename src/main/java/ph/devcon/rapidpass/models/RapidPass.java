@@ -43,7 +43,7 @@ public class RapidPass {
     public static RapidPass buildFrom(AccessPass accessPass) {
         // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
         return RapidPass.builder()
-                .referenceId(accessPass.getReferenceId())
+                .referenceId(accessPass.getReferenceID())
                 .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode())
                 .passType(PassType.valueOf(accessPass.getPassType()))
                 .aporType(accessPass.getAporType())

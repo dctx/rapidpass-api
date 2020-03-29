@@ -72,7 +72,7 @@ class RegistryRestControllerTest {
         individualAccessPass.setStatus(TEST_INDIVIDUAL_REQUEST.getRequestStatus().toString());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
-        individualAccessPass.setReferenceId(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
+        individualAccessPass.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
 
         AccessPass vehicleAccessPass = new AccessPass();
 
@@ -86,7 +86,7 @@ class RegistryRestControllerTest {
 
         vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
         // Mobile number is the reference ID?
-        vehicleAccessPass.setReferenceId(TEST_VEHICLE_REQUEST.getMobileNumber());
+        vehicleAccessPass.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
 
         TEST_INDIVIDUAL_PASS = RapidPass.buildFrom(individualAccessPass);
 

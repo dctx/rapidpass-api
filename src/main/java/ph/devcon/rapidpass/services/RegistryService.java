@@ -22,6 +22,7 @@ import ph.devcon.rapidpass.utilities.PdfGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +78,7 @@ public class RegistryService {
         // map an access pass to the registrant
         AccessPass accessPass = new AccessPass();
         accessPass.setRegistrantId(registrant);
-        accessPass.setReferenceId(registrant.getMobile());
+        accessPass.setReferenceID(registrant.getMobile());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
@@ -95,13 +96,11 @@ public class RegistryService {
         accessPass.setDestinationName(rapidPassRequest.getDestName());
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
-        Calendar c = Calendar.getInstance();
-        Date currentDateTime = c.getTime();
-        accessPass.setValidFrom(currentDateTime);
-        c.add(Calendar.DATE, DEFAULT_VALIDITY_DAYS);
-        accessPass.setValidTo(currentDateTime);
-        accessPass.setDateTimeCreated(currentDateTime);
-        accessPass.setDateTimeUpdated(currentDateTime);
+        OffsetDateTime now = OffsetDateTime.now();
+        accessPass.setValidFrom(now);
+        accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
+        accessPass.setDateTimeCreated(now);
+        accessPass.setDateTimeUpdated(now);
         accessPass.setStatus("PENDING");
 
         log.info("Persisting Registrant: {}", registrant.toString());
@@ -138,7 +137,7 @@ public class RegistryService {
     public RapidPass find(String referenceId) {
 //        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
         // TODO: how to deal with 'renewals'? i.e.
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIdOrderByValidToDesc(referenceId);
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 1) {
             log.error("Multiple Access Pass found for reference ID: {}", referenceId);
         } else if (accessPasses.size() <= 0) {
@@ -155,7 +154,7 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
-        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
 
         String status = accessPass.getStatus();
 
@@ -212,7 +211,7 @@ public class RegistryService {
      * @return Data stored on the database
      */
     private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
-        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
 
         String currentStatus = accessPass.getStatus();
 
@@ -276,7 +275,7 @@ public class RegistryService {
      */
     public byte[] generateQrPdf(String referenceId) throws IOException, WriterException {
 
-        final AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        final AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
         if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
             // access pass is not approved. Return no QR
             return null;
@@ -289,8 +288,8 @@ public class RegistryService {
                     .controlCode(Long.parseLong(accessPass.getControlCode()))
                     .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
-                    .validFrom((int) (accessPass.getValidFrom().getTime() / 1000)) // convert long time to int
-                    .validUntil((int) (accessPass.getValidTo().getTime() / 1000))
+                    .validFrom((int)accessPass.getValidFrom().toEpochSecond()) // convert long time to int
+                    .validUntil((int)accessPass.getValidTo().toEpochSecond())
                     .vehiclePass(false)
                     .build();
 
@@ -299,8 +298,8 @@ public class RegistryService {
                     .controlCode(Long.parseLong(accessPass.getControlCode()))
                     .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
-                    .validFrom((int) (accessPass.getValidFrom().getTime() / 1000)) // convert long time to int
-                    .validUntil((int) (accessPass.getValidTo().getTime() / 1000))
+                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
+                    .validUntil((int)accessPass.getValidTo().toEpochSecond())
                     .vehiclePass(false)
                     .build();
         }

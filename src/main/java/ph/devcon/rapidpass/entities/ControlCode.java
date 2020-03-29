@@ -24,7 +24,7 @@ public class ControlCode {
 
         return ControlCode.builder()
             .passType(accessPass.getPassType())
-            .referenceId(accessPass.getReferenceId())
+            .referenceId(accessPass.getReferenceID())
             .controlCode(encodedControlCode)
             .build();
     }

@@ -409,4 +409,11 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
+    <changeSet author="RoyDonasco" id="addLastUsed">
+        <addColumn
+                   schemaName="public"
+                   tableName="access_pass">
+            <column name="last_used_on" type="TIMESTAMP without time zone"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -8,6 +8,7 @@ package ph.devcon.rapidpass.entities;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.Basic;
@@ -65,11 +66,11 @@ public class SystemUser implements Serializable {
     @Column(name = "description")
     private String description;
     @Column(name = "valid_from")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validFrom;
+    
+    private OffsetDateTime validFrom;
     @Column(name = "valid_to")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validTo;
+    
+    private OffsetDateTime validTo;
     @Size(max = 2147483647)
     @Column(name = "updates")
     private String updates;
@@ -83,8 +84,8 @@ public class SystemUser implements Serializable {
     @Column(name = "created_by")
     private String createdBy;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @OneToMany(mappedBy = "userId")
     private Collection<SystemUserActivityLog> systemUserActivityLogCollection;
 
