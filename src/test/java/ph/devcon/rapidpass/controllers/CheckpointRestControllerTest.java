@@ -8,14 +8,14 @@ import ph.devcon.rapidpass.api.models.AccessPass;
 import ph.devcon.rapidpass.api.models.Address;
 import ph.devcon.rapidpass.api.models.IdentificationType;
 import ph.devcon.rapidpass.api.models.PassRequestType;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.services.CheckpointService;
 
 import java.time.OffsetDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 
 public class CheckpointRestControllerTest extends BaseApiTest
@@ -49,10 +49,10 @@ public class CheckpointRestControllerTest extends BaseApiTest
 
         when(checkpointService.retrieveAccessPassByControlCode(controlCode)).thenReturn(accessPass);
 
-        final MvcResult gotData = getData("/checkpoint/access-pass/verify-control-code/"+controlCode);
+        final MvcResult gotData = getData("/checkpoint/access-pass/verify-control-code/" + controlCode);
         ph.devcon.rapidpass.api.models.AccessPass retrievedAccessPass = mapFromJson(gotData.getResponse().getContentAsString(), AccessPass.class);
-        assertEquals(controlCode,retrievedAccessPass.getControlCode());
-        LOGGER.log(Level.INFO, "AccessPass:"+accessPass);
+        assertEquals(controlCode, retrievedAccessPass.getControlCode());
+        LOGGER.log(Level.INFO, "AccessPass:" + accessPass);
 
     }
 

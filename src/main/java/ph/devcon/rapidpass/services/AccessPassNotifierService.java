@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,7 +22,6 @@ import java.text.ParseException;
  * @author jonasespelita@gmail.com
  */
 @Service
-@RequiredArgsConstructor
 @Setter
 @Slf4j
 public class AccessPassNotifierService {
@@ -38,10 +36,8 @@ public class AccessPassNotifierService {
      */
     private final RegistryService registryService;
 
-    @Qualifier("email")
     private final NotificationService emailService;
 
-    @Qualifier("sms")
     private final NotificationService smsService;
 
     // todo move to @ConfigurationProperties
@@ -68,6 +64,16 @@ public class AccessPassNotifierService {
      */
     @Value("${notifier.qrCodeEndpoint:/api/v1/registry/qr-codes/}")
     private String qrCodeEndpoint = "/api/v1/registry/qr-codes/";
+
+    public AccessPassNotifierService(AccessPassRepository accessPassRepository,
+                                     RegistryService registryService,
+                                     @Qualifier("email") NotificationService emailService,
+                                     @Qualifier("sms") NotificationService smsService) {
+        this.accessPassRepository = accessPassRepository;
+        this.registryService = registryService;
+        this.emailService = emailService;
+        this.smsService = smsService;
+    }
 
     /**
      * Pushes APPROVAL notifications to sms and email. Called on access pass APPROVAL.
