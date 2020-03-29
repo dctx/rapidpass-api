@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -212,7 +213,17 @@ public class RegistryService {
      * @return Data stored on the database
      */
     private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
-        AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
+        List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        if (accessPassesRetrieved.isEmpty()) {
+            throw new NullPointerException("Failed to retrieve access pass with reference ID=" + referenceId + ".");
+        }
+
+        AccessPass accessPass = accessPassesRetrieved.get(0);
+
+        if (accessPassesRetrieved.size() > 1) {
+            log.warn("Found " + accessPassesRetrieved.size() + " AccessPasses for referenceId=" + referenceId + ".");
+        }
 
         String currentStatus = accessPass.getStatus();
 
