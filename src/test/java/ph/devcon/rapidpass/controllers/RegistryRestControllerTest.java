@@ -108,9 +108,6 @@ class RegistryRestControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
 
-        // referenceId should have been created
-        when(mockRegistryService.newRequestPass(any())).thenReturn(RapidPass.builder().build());
-
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
@@ -132,9 +129,6 @@ class RegistryRestControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_REQUEST);
-
-        // referenceId should have been created
-        when(mockRegistryService.newRequestPass(any())).thenReturn(RapidPass.builder().build());
 
         // perform post request with json payload to mock server
         mockMvc.perform(
@@ -270,7 +264,7 @@ class RegistryRestControllerTest {
         )
                 .andExpect(status().isOk())
                 // test json is expected
-                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType()))
+                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType().name()))
                 .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
                 .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
                 .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
