@@ -292,8 +292,19 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass revoke(String referenceId) {
-        // TODO: implement
-        return null;
+        List<AccessPass> allAccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        Optional<AccessPass> firstAccessPass = allAccessPasses.stream()
+                .filter(ap -> RequestStatus.DENIED.toString().equals(ap.getStatus()))
+                .findFirst();
+
+        AccessPass accessPass = firstAccessPass.orElse(null);
+        if (accessPass == null) return null;
+
+        accessPass.setStatus(RequestStatus.DENIED.toString());
+        accessPassRepository.saveAndFlush(accessPass);
+
+        return RapidPass.buildFrom(accessPass);
     }
 
     /**
