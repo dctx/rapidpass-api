@@ -20,11 +20,11 @@ import static org.mockito.Mockito.*;
 
 public class CheckpointRestControllerTest extends BaseApiTest
 {
-    
+
     private static Logger LOGGER = Logger.getLogger(CheckpointRestControllerTest.class.getName());
     @MockBean
     private CheckpointService checkpointService;
-    
+
     @Test
     public void testGetRapidPassByControlCode() throws Exception
     {
@@ -46,14 +46,14 @@ public class CheckpointRestControllerTest extends BaseApiTest
         accessPass.setApprovedBy("ApprovingOrg");
         String controlCode = "12345A";
         accessPass.setControlCode(controlCode);
-        
+
         when(checkpointService.retrieveAccessPassByControlCode(controlCode)).thenReturn(accessPass);
-        
+
         final MvcResult gotData = getData("/checkpoint/access-pass/verify-control-code/"+controlCode);
         ph.devcon.rapidpass.api.models.AccessPass retrievedAccessPass = mapFromJson(gotData.getResponse().getContentAsString(), AccessPass.class);
         assertEquals(controlCode,retrievedAccessPass.getControlCode());
         LOGGER.log(Level.INFO, "AccessPass:"+accessPass);
-        
+
     }
 
 }

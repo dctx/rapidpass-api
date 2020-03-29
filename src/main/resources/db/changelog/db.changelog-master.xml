@@ -409,6 +409,28 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
+    <changeSet author="eric" id="seeData-id_type-lookup">
+        <loadData encoding="UTF-8"
+                  file="id_type-lookup.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="id_type_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="eric" id="seeData-config-lookup">
+        <loadData encoding="UTF-8"
+                  file="config-lookup.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="config_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
     <changeSet author="RoyDonasco" id="addLastUsed">
         <addColumn
                    schemaName="public"

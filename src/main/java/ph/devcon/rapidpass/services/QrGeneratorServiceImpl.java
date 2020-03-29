@@ -44,15 +44,32 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      * QR code width in pixels. Default to 500px. Configurable via {@code rapidpass.qr.width} property.
      */
     @Value("${rapidpass.qr.width:500}")
-    private int qrWidth = 500;
+    private int qrWidth = 800;
     /**
      * QR code height in pixels. Default to 500px. Configurable via {@code rapidpass.qr.height} property.
      */
     @Value("${rapidpass.qr.height:500}")
-    private int qrHeight = 500;
+    private int qrHeight = 800;
 
     @Override
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
+
+        if (payload.getAporCode() == null || "".equals(payload.getAporCode())) {
+            throw new NullPointerException("The QrCodeData.aporCode is needed to generate the QR.");
+        }
+
+        if (payload.getIdOrPlate() == null || "".equals(payload.getIdOrPlate())) {
+            throw new NullPointerException("The QrCodeData.getIdOrPlate is needed to generate the QR.");
+        }
+
+        if (payload.getValidFrom() == 0) {
+            throw new NullPointerException("The QrCodeData.validFrom date is needed to generate the QR.");
+        }
+
+        if (payload.getValidUntil() == 0) {
+            throw new NullPointerException("The QrCodeData.validUntil is needed to generate the QR.");
+        }
+
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix matrix = qrCodeWriter.encode(
                 serializePayload(payload),
@@ -78,4 +95,6 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     String serializePayload(QrCodeData payload) {
         return Base64.getEncoder().encodeToString(QrCodeSerializer.serialize(payload));
     }
+
+
 }

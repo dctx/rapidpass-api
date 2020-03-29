@@ -6,8 +6,6 @@ stages:
 Run Unit Tests:
   stage: test
   image: openjdk:15-jdk-alpine
-  except:
-  - develop
   script:
   - ./mvnw test
 
