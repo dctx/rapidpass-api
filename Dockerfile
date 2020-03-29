@@ -8,7 +8,7 @@ COPY .mvn .mvn
 RUN ./mvnw dependency:go-offline
 # building jar. doing test too
 ADD src src
-RUN ./mvnw package -Dmaven.test.skip=true
+RUN ./mvnw test package
 
 # Just copy the Jar and run it. No extra stuff from maven. Should help with the image size
 FROM openjdk:15-jdk-alpine
