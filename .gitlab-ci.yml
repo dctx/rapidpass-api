@@ -6,6 +6,8 @@ stages:
 Run Unit Tests:
   stage: test
   image: openjdk:15-jdk-alpine
+  except:
+  - develop
   script:
   - ./mvnw test
 
@@ -20,11 +22,11 @@ Test and Publish Docker Image:
   before_script:
   - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
   # get cached build step create new cache and push
-  # - docker pull dctx/rapidpass-api:cache
+  - docker pull dctx/rapidpass-api:cache
   - docker build --target build --cache-from=dctx/rapidpass-api:cache -t dctx/rapidpass-api:cache .
   - docker push dctx/rapidpass-api:cache
   # get latest image
-  - docker pull dctx/rapidpass-api:latest | true
+  - docker pull dctx/rapidpass-api:latest
   script:
   - docker build --cache-from=dctx/rapidpass-api:cache,dctx/rapidpass-api:latest -t dctx/rapidpass-api:latest .
   - docker push dctx/rapidpass-api:latest
