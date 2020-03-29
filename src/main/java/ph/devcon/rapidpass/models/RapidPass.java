@@ -32,11 +32,6 @@ public class RapidPass {
     private String company;
     private String idType;
     private String identifierNumber;
-    private String mobileNumber; // todo validate. use validation annotations.
-    private String email;  // todo validate. use validation annotations.
-    private String originName;
-    private String originStreet;
-    private String originCity;
     private String destName;
     private String destStreet;
     private String destCity;
