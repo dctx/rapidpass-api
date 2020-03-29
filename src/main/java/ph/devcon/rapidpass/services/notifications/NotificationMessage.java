@@ -1,10 +1,9 @@
 package ph.devcon.rapidpass.services.notifications;
 
+import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
 import java.util.HashMap;
 import java.util.Map;
-
-import  javax.activation.DataSource;
-import javax.mail.util.ByteArrayDataSource;
 
 
 public class NotificationMessage {
@@ -75,11 +74,11 @@ public class NotificationMessage {
             return this;
         }
 
-        public MessageBuilder addAttachment(final String name, final String type, final byte[] data) {
+        public MessageBuilder addAttachment(final String name, final String mimeType, final byte[] data) {
             if (this.tempAttachments == null) {
                 this.tempAttachments = new HashMap<String, DataSource>();
             }
-            DataSource attachment = new ByteArrayDataSource(data, type);
+            DataSource attachment = new ByteArrayDataSource(data, mimeType);
             this.tempAttachments.put(name, attachment);
             return this;
         }
