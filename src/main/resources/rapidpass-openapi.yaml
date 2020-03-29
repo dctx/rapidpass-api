@@ -313,17 +313,6 @@ components:
         company:
           type: string
           description: company of access pass holder
-        idType:
-          type: string
-          description: >-
-            for vehicles this could be plate number or conduction sticker, for
-            individuals this will be the type of ID, e.g. company ID, driver's
-            license, etc.
-          example: passport
-        identifierNumber:
-          type: string
-          description: plate number of vehicle or ID of individual
-          example: VV1234567
         mobileNumber:
           type: string
           description: mobile number of access pass holder
@@ -399,3 +388,14 @@ components:
             - INDIVIDUAL
             - VEHICLE
           example: INDIVIDUAL
+        idType:
+          type: string
+          description: >-
+            for vehicles this could be plate number or conduction sticker, for
+            individuals this will be the type of ID, e.g. company ID, driver's
+            license, etc.
+          example: passport
+        identifierNumber:
+          type: string
+          description: plate number of vehicle or ID of individual
+          example: VV1234567
