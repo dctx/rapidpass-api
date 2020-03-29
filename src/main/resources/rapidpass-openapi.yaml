@@ -374,12 +374,16 @@ components:
             name:
               type: string
               description: name of the person the acess pass is assigned to (first name + last name + suffix)
+            controlCode:
+              type: string
+              description: generated identifer for approved requests
             referenceId:
               type: string
               description: used for searching the access pass, either the plate number or ID of the individual
             status:
               type: string
               description: status of the access pass
+              enum: [PENDING, APPROVED, DECLINED]
             validFrom:
               type: string
               description: start date of the access pass's validity period
@@ -394,9 +398,6 @@ components:
           description: Code for Authorized Personnel Outside Residence. Check IATF doc for details.
           enum: [AG,BA,BP,CA,DC,DO,ER,FC,FS,GO,GR,HM,HT,IP,LW,ME,MS,MF,MT,PH,PM,PI,SH,SS,TF,UT,VE]
           example: "AG"
-        controlCode:
-          type: string
-          description: generated identifer for approved requests
         passtype:
           type: string
           description: type of pass, either vehicle or individual
