@@ -1,6 +1,6 @@
 package ph.devcon.rapidpass.services;
 
-import ph.devcon.rapidpass.api.models.AccessPass;
+import ph.devcon.rapidpass.entities.AccessPass;
 
 public interface CheckpointService
 {
