@@ -1,5 +1,12 @@
 package ph.devcon.rapidpass.services.pdf;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -13,11 +20,13 @@ import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
+
+import org.springframework.util.ResourceUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.utilities.DateOnlyFormat;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,6 +34,7 @@ import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import ph.devcon.rapidpass.utilities.DateFormatter;
 
 /**
  * Utility class for generating Pdf using File qrcode file from QRCode Generator.
@@ -158,7 +168,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph[] generateValidUntil(RapidPass rapidPass) throws ParseException {
         SimpleDateFormat formatToPdf = new SimpleDateFormat("MM/dd");
 
-        Date validUntilDate = DateOnlyFormat.parse(rapidPass.getValidUntil());
+        Date validUntilDate = DateFormatter.parse(rapidPass.getValidUntil());
         String validUntil = formatToPdf.format(validUntilDate);
 
         Paragraph details = new Paragraph();
