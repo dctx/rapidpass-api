@@ -13,3 +13,5 @@ I,BIR,TIN
 I,CML,"Voter's ID"
 V,PLT,Plate Number
 V,CND,Conduction Sticker
+I,PGB,PAGIBIG ID
+I,PWD,PWD ID
