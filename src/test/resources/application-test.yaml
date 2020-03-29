@@ -2,6 +2,13 @@ logging:
   level:
     ph.devcon: debug
 
+# using inmemory DB for unit testing
+  h2:
+    console:
+      settings:
+        trace: true
+
+
 # disabling liquibase autoconfig for tests.
 spring:
   liquibase:

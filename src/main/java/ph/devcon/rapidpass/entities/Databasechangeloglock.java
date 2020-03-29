@@ -6,6 +6,7 @@
 package ph.devcon.rapidpass.entities;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -44,8 +45,8 @@ public class Databasechangeloglock implements Serializable {
     @Column(name = "locked")
     private boolean locked;
     @Column(name = "lockgranted")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lockgranted;
+    
+    private OffsetDateTime lockgranted;
     @Size(max = 255)
     @Column(name = "lockedby")
     private String lockedby;
@@ -78,11 +79,11 @@ public class Databasechangeloglock implements Serializable {
         this.locked = locked;
     }
 
-    public Date getLockgranted() {
+    public OffsetDateTime getLockgranted() {
         return lockgranted;
     }
 
-    public void setLockgranted(Date lockgranted) {
+    public void setLockgranted(OffsetDateTime lockgranted) {
         this.lockgranted = lockgranted;
     }
 

@@ -8,6 +8,7 @@ package ph.devcon.rapidpass.entities;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -48,8 +49,8 @@ public class RegistrarUserActivityLog implements Serializable {
     @Column(name = "type")
     private String type;
     @Column(name = "action_timestamp")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date actionTimestamp;
+    
+    private OffsetDateTime actionTimestamp;
     @Size(max = 50)
     @Column(name = "action")
     private String action;

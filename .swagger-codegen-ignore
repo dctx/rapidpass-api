@@ -29,9 +29,9 @@ README.md
 pom.xml
 
 ## other directories
-#**/controllers/*Controller*.java
+**/controllers/*Controller.java
 **/.swagger-codegen-ignore
-**/configurations/**/*
+**/configurations/*
 **/*.properties
-src/main/java/io/**/*
+**/src/main/java/io/*
 **/pom.xml

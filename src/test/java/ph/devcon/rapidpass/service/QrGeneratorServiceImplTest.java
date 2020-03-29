@@ -16,7 +16,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -52,8 +51,8 @@ class QrGeneratorServiceImplTest {
 
     @Test
     @Disabled
-    // fails in CICD for some reason. JDK things....
-    void generateQr() throws IOException, WriterException, NullPointerException {
+        // fails in CICD for some reason. JDK things....
+    void generateQr() throws IOException, WriterException {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")
                 .controlCode(CC_1234_ENCRYPTED)

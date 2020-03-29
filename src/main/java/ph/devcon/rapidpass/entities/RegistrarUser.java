@@ -8,6 +8,7 @@ package ph.devcon.rapidpass.entities;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.Basic;
@@ -100,17 +101,17 @@ public class RegistrarUser implements Serializable {
     @Column(name = "updates")
     private String updates;
     @Column(name = "valid_from")
-    @Temporal(TemporalType.TIMESTAMP)
+    
     private Date validFrom;
     @Column(name = "valid_to")
-    @Temporal(TemporalType.TIMESTAMP)
+    
     private Date validTo;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "userId")
     private Collection<RegistrarUserActivityLog> registrarUserActivityLogCollection;
     @JoinColumn(name = "registrar_id", referencedColumnName = "id")
