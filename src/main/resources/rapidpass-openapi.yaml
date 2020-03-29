@@ -177,8 +177,7 @@ paths:
         - name: referenceID
           in: path
           description: >-
-            Reference ID of the access pass request, mobile number for
-            individuals and plate numbers for vehicles
+            Reference Number of Access Pass request.
           required: true
           schema:
             type: string

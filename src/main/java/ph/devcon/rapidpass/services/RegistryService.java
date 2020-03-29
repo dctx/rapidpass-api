@@ -1,16 +1,12 @@
 package ph.devcon.rapidpass.services;
 
-import com.google.zxing.WriterException;
-import lombok.extern.java.Log;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.Registrar;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassBatchRequest;
@@ -18,12 +14,7 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,25 +22,15 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 15;
 
-    private RegistryRepository registryRepository;
-    private RegistrantRepository registrantRepository;
-    private AccessPassRepository accessPassRepository;
-    private final QrGeneratorService qrGeneratorService;
-
-    @Autowired // this should be mapped to a service
-    public RegistryService(RegistryRepository registryRepository,
-                           RegistrantRepository registrantRepository,
-                           AccessPassRepository accessPassRepository,
-                           QrGeneratorService qrGeneratorService) {
-        this.registryRepository = registryRepository;
-        this.registrantRepository = registrantRepository;
-        this.accessPassRepository = accessPassRepository;
-        this.qrGeneratorService = qrGeneratorService;
-    }
+    private final RegistryRepository registryRepository;
+    private final RegistrantRepository registrantRepository;
+    private final AccessPassRepository accessPassRepository;
+    private final AccessPassNotifierService accessPassNotifierService;
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -309,87 +290,30 @@ public class RegistryService {
         return null;
     }
 
-    /**
-     * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already converted to bytes for easy sending to HTTP.
-     *
-     * @param referenceId access ass reference id
-     * @return bytes of PDF file containing the QR code
-     * @throws IOException     on error writing the PDF
-     * @throws WriterException on error writing the QR code
-     */
-    public byte[] generateQrPdf(String referenceId) throws IOException, WriterException, ParseException {
 
-        final AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
-
-        if ("".equals(accessPass.getName()) || accessPass.getName() == null) {
-            throw new IllegalArgumentException("AccessPass.name is a required parameter for rendering the PDF.");
-        }
-
-        if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
-            throw new IllegalArgumentException("Cannot render PDF with QR for an AccessPass that is not yet approved.");
-        }
-
-        if ("".equals(accessPass.getCompany()) || accessPass.getCompany() == null) {
-            throw new IllegalArgumentException("AccessPass.company is a required parameter for rendering the PDF.");
-        }
-
-        if ("".equals(accessPass.getAporType()) || accessPass.getAporType() == null) {
-            throw new IllegalArgumentException("AccessPass.aporType is a required parameter for rendering the PDF.");
-        }
-
-        if ("".equals(accessPass.getPassType()) || accessPass.getPassType() == null) {
-            throw new IllegalArgumentException("AccessPass.passType is a required parameter for rendering the PDF.");
-        }
-
-        if (accessPass.getValidFrom() == null) {
-            throw new IllegalArgumentException("AccessPass.validFrom is a required parameter for rendering the PDF.");
-        }
-
-        if (accessPass.getValidTo() == null) {
-            throw new IllegalArgumentException("AccessPass.validTo is a required parameter for rendering the PDF.");
-        }
-
-        // generate qr code data
-        final QrCodeData qrCodeData;
-        if (PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType())) {
-            qrCodeData = QrCodeData.individual()
-                    .controlCode(Long.parseLong(accessPass.getControlCode()))
-                    .idOrPlate(accessPass.getIdentifierNumber())
-                    .apor(accessPass.getAporType())
-                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
-                    .vehiclePass(false)
-                    .build();
-
+    public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
+        final RapidPass updatedRapidPass;
+        final String status = rapidPass.getStatus();
+        if (RequestStatus.APPROVED.toString().equals(status)) {
+            // persist approval
+            updatedRapidPass = grant(referenceId);
+            // push APPROVED notifications
+            accessPassNotifierService.pushApprovalNotifs(accessPassRepository.findByReferenceID(referenceId));
+        } else if (RequestStatus.DENIED.toString().equals(status)) {
+            updatedRapidPass = decline(referenceId);
+            // push DENIED notifications
+            // TODO DENIED NOTIFICATIONS!
         } else {
-            qrCodeData = QrCodeData.vehicle()
-                    .controlCode(Long.parseLong(accessPass.getControlCode()))
-                    .idOrPlate(accessPass.getIdentifierNumber())
-                    .apor(accessPass.getAporType())
-                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
-                    .vehiclePass(false)
-                    .build();
+            throw new IllegalArgumentException("Request Status unknown");
         }
 
-        // generate qr image file
-        final File qrImage = qrGeneratorService.generateQr(qrCodeData);
-
-        // generate qr pdf
-        PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
-
-        String temporaryFile  = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
-
-        final File qrPdf = pdfGenerator.generatePdf(temporaryFile, qrImage, RapidPass.buildFrom(accessPass));
-
-        // send over as bytes
-        return Files.readAllBytes(qrPdf.toPath());
+        return updatedRapidPass;
     }
 
     /**
      * This is thrown when updates are not allowed for the AccessPass.
      */
-    public static class UpdateAccessPassException extends Throwable {
+    public static class UpdateAccessPassException extends Exception {
         public UpdateAccessPassException(String s) {
             super(s);
         }

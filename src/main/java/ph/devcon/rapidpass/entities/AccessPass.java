@@ -9,16 +9,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
+import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.enums.RequestStatus;
 
+import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Date;
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 
 /**
  * Data model representing an access pass, that maps out directly to the table definition in the database.
+ *
  * @author eric
  */
 @Entity
@@ -91,10 +94,10 @@ public class AccessPass implements Serializable {
     @Column(name = "destination_province")
     private String destinationProvince;
     @Column(name = "valid_from")
-    
+
     private OffsetDateTime validFrom;
     @Column(name = "valid_to")
-    
+
     private OffsetDateTime validTo;
     @Size(max = 20)
     @Column(name = "issued_by")
@@ -111,15 +114,15 @@ public class AccessPass implements Serializable {
     @Column(name = "date_time_updated")
 
     private OffsetDateTime dateTimeUpdated;
-    
+
     @Column(name = "last_used_on")
 
     private OffsetDateTime lastUsedOn;
-    
+
     @JoinColumn(name = "registrant_id", referencedColumnName = "id")
     @ManyToOne
     private Registrant registrantId;
-    @OneToMany(mappedBy = "accessPassId",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accessPassId", fetch = FetchType.LAZY)
     private Collection<AccessPassLog> accessPassLogCollection;
 
     @Override
@@ -129,6 +132,22 @@ public class AccessPass implements Serializable {
         return hash;
     }
 
+    /**
+     * Checks if an AccessPass is currently valid. A valid access pass is APPROVED and has not yet expired (sysdate < validTo).
+     *
+     * @param accessPass Access pass to check
+     * @return true if valid
+     */
+    public static boolean isValid(AccessPass accessPass) {
+        return RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())
+                && accessPass.getValidTo().isAfter(OffsetDateTime.now());
+    }
+
+    @Override
+    public String toString() {
+        return "ph.devcon.rapidpass.entities.AccessPass[ id=" + id + " ]";
+    }
+
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
@@ -136,15 +155,33 @@ public class AccessPass implements Serializable {
             return false;
         }
         AccessPass other = (AccessPass) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
-    @Override
-    public String toString() {
-        return "ph.devcon.rapidpass.entities.AccessPass[ id=" + id + " ]";
+    /**
+     * Converts an {@link AccessPass} to {@link QrCodeData}
+     *
+     * @param accessPass access pass to convert
+     */
+    public static QrCodeData toQrCodeData(AccessPass accessPass) {
+        // convert access pass to qr code data
+        return PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType()) ?
+                QrCodeData.individual()
+                        .apor(accessPass.getAporType())
+                        // long to int -> int = long / 1000
+                        .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
+                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
+                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .idOrPlate(accessPass.getIdentifierNumber())
+                        .build() :
+                QrCodeData.vehicle()
+                        .apor(accessPass.getAporType())
+                        // long to int -> int = long / 1000
+                        .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
+                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
+                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .idOrPlate(accessPass.getIdentifierNumber())
+                        .build();
     }
 
 }

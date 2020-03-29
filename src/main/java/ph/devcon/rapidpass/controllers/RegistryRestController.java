@@ -1,18 +1,19 @@
 package ph.devcon.rapidpass.controllers;
 
 import com.google.zxing.WriterException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
+import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -25,14 +26,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/registry")
 @Slf4j
+@RequiredArgsConstructor
 public class RegistryRestController {
 
-    private RegistryService registryService;
-
-    @Autowired
-    public RegistryRestController(RegistryService registryService) {
-        this.registryService = registryService;
-    }
+    private final RegistryService registryService;
+    private final QrPdfService qrPdfService;
 
     @GetMapping("/access-passes")
     public List<RapidPass> getAccessPasses() {
@@ -57,24 +55,13 @@ public class RegistryRestController {
     }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<RapidPass> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        String status = rapidPass.getStatus();
-
-        RapidPass result = null;
-
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
         try {
-
-            if (RequestStatus.APPROVED.toString().equals(status)) {
-                result = registryService.grant(referenceId);
-            } else if (RequestStatus.DENIED.toString().equals(status)) {
-                result = registryService.decline(referenceId);
-            }
-
-        } catch (RegistryService.UpdateAccessPassException e) {
-            e.printStackTrace();
+            RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
+            return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
+        } catch (UpdateAccessPassException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/access-passes/{referenceId}")
@@ -92,7 +79,7 @@ public class RegistryRestController {
     @GetMapping("/qr-codes/{referenceId}")
     public HttpEntity<byte[]> downloadQrCode(@PathVariable String referenceId) throws IOException, WriterException, ParseException {
         log.debug("Processing /qr-codes/{}", referenceId);
-        byte[] responseBody = registryService.generateQrPdf(referenceId);
+        byte[] responseBody = qrPdfService.generateQrPdf(referenceId);
 
         if (responseBody == null || responseBody.length == 0) return ResponseEntity.notFound().build();
 

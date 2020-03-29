@@ -16,10 +16,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Qualifier("sms")
 @Slf4j
@@ -38,6 +34,7 @@ public class SMSNotificationService implements NotificationService {
 
     @Override
     public void send(NotificationMessage message) throws NotificationException {
+        log.debug("sending SMS msg to {}", message.getTo());
         if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");
         if (StringUtils.isEmpty(this.url)) throw new NotificationException("url is not provided");
 
@@ -65,5 +62,9 @@ public class SMSNotificationService implements NotificationService {
         log.info("response: {}", response.getBody());
 
         // todo: more checks on semaphore response...
+
+
+        log.debug("  SMS msg sent! {}", message.getTo());
+
     }
 }

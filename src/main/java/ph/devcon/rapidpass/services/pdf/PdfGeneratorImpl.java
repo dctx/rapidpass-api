@@ -1,13 +1,5 @@
 package ph.devcon.rapidpass.services.pdf;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -21,19 +13,24 @@ import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
-
-import com.itextpdf.layout.property.UnitValue;
-import org.springframework.util.ResourceUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateOnlyFormat;
-import ph.devcon.rapidpass.utilities.RFC3339DateFormat;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Utility class for generating Pdf using File qrcode file from QRCode Generator.
  */
 @Slf4j
+@Service
 public class PdfGeneratorImpl implements PdfGeneratorService {
 
 
@@ -281,4 +278,6 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         log.debug("saved pdf at {}", pdfFile.getAbsolutePath());
         return pdfFile;
     }
+
+
 }
