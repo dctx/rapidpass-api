@@ -394,28 +394,7 @@ components:
           type: string
           description: city
           example: sin city
-        region:
-          type: string
-          description: region where
-          example: Metro Manila
-        zip:
-          type: string
-          description: zip code
-          example: 12343D
-        country:
-          $ref: '#/components/schemas/Country'
 
-    Country:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Country Code
-          example: PH
-        name:
-          type: string
-          description: Country name
-          example: Philippines
     IdentificationType:
       type: string
       description: for vehicles this could be plate number or conduction sticker, for individuals this will be the type of ID, e.g. company ID, driver's license, etc.
