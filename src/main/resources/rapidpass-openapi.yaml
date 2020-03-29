@@ -58,7 +58,6 @@ paths:
     get:
       tags:
         - dashboard
-        - inspector
       summary: Gets a list of access passes
       parameters:
         - name: status
@@ -118,7 +117,7 @@ paths:
       tags:
         - inspector
         - dashboard
-      summary: Downloads a list of approved control numbers
+      summary: TBD - is this really needed? Downloads a list of approved control numbers
       responses:
         '200':
           description: list of all approved control numbers
@@ -243,6 +242,7 @@ paths:
       operationId: verifyPlateNo
       tags:
         - inspector
+        - public
       summary: Verify if the plate number is registered or not
       parameters:
         - name: plateNo
@@ -262,17 +262,18 @@ paths:
         '404':
           description: RapidPass not found using the plate number.
 
-  '/checkpoint/verify-control-code/{controlCode}':
+  '/checkpoint/verify-concrol-code/{controlCode}':
     get:
-      operationId: controlCode
+      operationId: verifyControlCode
       tags:
         - inspector
-      summary: Verify if the control code is valid or not.
+        - public
+      summary: Verify if the plate number is registered or not
       parameters:
         - name: controlCode
           in: path
           description: >-
-            The RapidPass's Control Code
+            Vehicle's plate number
           required: true
           schema:
             type: string
@@ -284,7 +285,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/RapidPass'
         '404':
-          description: RapidPass not found using the control code
+          description: RapidPass not found using the plate number.
+
 components:
   schemas:
     RapidPassRequest:
@@ -397,4 +399,3 @@ components:
             - INDIVIDUAL
             - VEHICLE
           example: INDIVIDUAL
-
