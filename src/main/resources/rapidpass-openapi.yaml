@@ -241,7 +241,35 @@ paths:
             approves the Rapid Pass Request with referenced reference Number.
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
-
+            
+  '/registry/access-passes/{referenceID}/qr-code':
+    get:
+      operationId: getQRCode
+      tags:
+        - inspector
+        - registration
+        - dashboard
+      summary: Retrieve the base64-encouded QR code
+      parameters:
+        - name: referenceID
+          in: path
+          description: >-
+            Reference ID of the access pass request, mobile number for
+            individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: More information on control number
+          content:
+            application/json:
+              schema:
+                properties:
+                  qrcode:
+                    type: string
+        '404':
+          description: reference number not found
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
     get:
       operationId: verifyPlateNo
@@ -359,11 +387,13 @@ paths:
             type: string
       responses:
         '200':
-          description: Status of the request pass
+          description: successful retrieval of mobile device information
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MobileDevice'
+        '400':
+          description: device not found
 
 components:
   schemas:
