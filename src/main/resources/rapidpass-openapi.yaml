@@ -1,7 +1,13 @@
 openapi: 3.0.0
 
 servers:
-  - url: /api/v1/
+  - description: Test Environment Configuration
+    url: /api/v1
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/tiongks/RapidPass-API/1.0.0
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/jonasespelita/rapidpass-api/1.0.0
 info:
   description: API for Rapid Pass Web Services.
   version: "1.1.0"
@@ -243,7 +249,7 @@ paths:
       parameters:
         - name: controlCode
           in: path
-          description: Control Code to use on retrievinv the access pass
+          description: Control Code to use on retrieving the access pass
           required: true
           schema:
             type: string
@@ -264,19 +270,30 @@ components:
       properties:
         passType:
           $ref: '#/components/schemas/PassRequestType'
-        accessType:
+        aporType:
           type: string
-          enum:
-            - Medical
-            - Basic Service
-            - BPO
-            - Agriculture
-            - Logistics
-            - Others
-          description: Type of access needed. This is tied to gov agency that will approve pass
-        name:
+          description: Allowed Person Outside of Residence Type (APOR Type). It's a two character code of the kind pass type outside the person's residence.
+          example:
+            MM
+        firstName:
           type: string
-          description: name of individual that will use the access pass
+          description: firstname of individual that will use the access pass
+          example:
+            Juan
+        middleName:
+          type: string
+          description: middleName of individual that will use the access pass
+          example:
+            Dipahuhuli
+        lastName:
+          type: string
+          description: lastName of individual that will use the access pass
+            Dimaunahan
+        suffix:
+          type: string
+          description: Name i.e. Jr. the III
+          example:
+            Jr.
         company:
           type: string
           description: company of access pass holder
@@ -297,6 +314,9 @@ components:
           $ref: '#/components/schemas/Address'
         remarks:
           type: string
+          description: Reason why the pass is needed
+          example:
+            To deliver medical supplies
         status:
           $ref: '#/components/schemas/AccessPassStatus'
 
