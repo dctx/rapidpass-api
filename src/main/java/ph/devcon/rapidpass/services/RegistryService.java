@@ -1,12 +1,15 @@
 package ph.devcon.rapidpass.services;
 
+import com.google.zxing.WriterException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.Registrar;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassBatchRequest;
@@ -14,7 +17,11 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
+import ph.devcon.rapidpass.utilities.PdfGenerator;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -30,12 +37,17 @@ public class RegistryService {
     private RegistryRepository registryRepository;
     private RegistrantRepository registrantRepository;
     private AccessPassRepository accessPassRepository;
+    private final QrGeneratorService qrGeneratorService;
 
     @Autowired // this should be mapped to a service
-    public RegistryService(RegistryRepository registryRepository, RegistrantRepository registrantRepository, AccessPassRepository accessPassRepository) {
+    public RegistryService(RegistryRepository registryRepository,
+                           RegistrantRepository registrantRepository,
+                           AccessPassRepository accessPassRepository,
+                           QrGeneratorService qrGeneratorService) {
         this.registryRepository = registryRepository;
         this.registrantRepository = registrantRepository;
         this.accessPassRepository = accessPassRepository;
+        this.qrGeneratorService = qrGeneratorService;
     }
 
     /**
@@ -113,7 +125,7 @@ public class RegistryService {
         accessPass.setValidTo(currentDateTime);
         accessPass.setDateTimeCreated(currentDateTime);
         accessPass.setDateTimeUpdated(currentDateTime);
-        accessPass.setStatus("pending");
+        accessPass.setStatus("PENDING");
 
         log.info("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
@@ -260,13 +272,8 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass revoke(String referenceId) {
-
-        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-
-        accessPass.setStatus(RequestStatus.DENIED.toString());
-        accessPassRepository.saveAndFlush(accessPass);
-
-        return RapidPass.buildFrom(accessPass);
+        // TODO: implement
+        return null;
     }
 
     /**
@@ -280,6 +287,55 @@ public class RegistryService {
     public Iterable<RapidPass> batchUpload(RapidPassBatchRequest rapidPassBatchRequest) {
         // TODO: implement
         return null;
+    }
+
+    /**
+     * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already converted to bytes for easy sending to HTTP.
+     *
+     * @param referenceId access ass reference id
+     * @return bytes of PDF file containing the QR code
+     * @throws IOException     on error writing the PDF
+     * @throws WriterException on error writing the QR code
+     */
+    public byte[] generateQrPdf(String referenceId) throws IOException, WriterException {
+
+        final AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
+            // access pass is not approved. Return no QR
+            return null;
+        }
+
+        // generate qr code data
+        final QrCodeData qrCodeData;
+        if (PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType())) {
+            qrCodeData = QrCodeData.individual()
+                    .controlCode(Long.parseLong(accessPass.getControlCode()))
+                    .idOrPlate(accessPass.getIdentifierNumber())
+                    .apor(accessPass.getAporType())
+                    .validFrom((int) (accessPass.getValidFrom().getTime() / 1000)) // convert long time to int
+                    .validUntil((int) (accessPass.getValidTo().getTime() / 1000))
+                    .vehiclePass(false)
+                    .build();
+
+        } else {
+            qrCodeData = QrCodeData.vehicle()
+                    .controlCode(Long.parseLong(accessPass.getControlCode()))
+                    .idOrPlate(accessPass.getIdentifierNumber())
+                    .apor(accessPass.getAporType())
+                    .validFrom((int) (accessPass.getValidFrom().getTime() / 1000)) // convert long time to int
+                    .validUntil((int) (accessPass.getValidTo().getTime() / 1000))
+                    .vehiclePass(false)
+                    .build();
+        }
+
+        // generate qr image file
+        final File qrImage = qrGeneratorService.generateQr(qrCodeData);
+
+        // generate qr pdf
+        final File qrPdf = PdfGenerator.generatePdf(File.createTempFile("qrPdf", ".pdf").getAbsolutePath(), qrImage, accessPass);
+
+        // send over as bytes
+        return Files.readAllBytes(qrPdf.toPath());
     }
 
     /**
