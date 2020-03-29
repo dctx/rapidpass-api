@@ -77,6 +77,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessPasses'
 
+  '/registry/qr-codes/{referenceID}':
+    get:
+      operationId: getQrCodesById
+      tags:
+        - pwa
+      summary: Download PDF of QR code for a reference ID
+      parameters:
+        - name: referenceID
+          in: path
+          description: >-
+            Reference ID of the access pass request, mobile number for
+            individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A PDF file with QR code
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
   /dashboard/access-passes/{referenceID}:
     put:
       tags:
