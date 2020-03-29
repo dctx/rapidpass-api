@@ -10,9 +10,16 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RapidPassRequestResponse;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.List;
+
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.OPTIONS;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * Registry API Rest Controller
@@ -41,9 +48,13 @@ public class RegistryRestController {
     }
 
     @PostMapping("/access-passes")
-    ResponseEntity<RapidPass> newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
+    ResponseEntity<RapidPassRequestResponse> newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
-        return ResponseEntity.status(201).body(rapidPass);
+        RapidPassRequestResponse response = RapidPassRequestResponse
+                .builder()
+                .referenceId(rapidPass.getReferenceId())
+                .build();
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping("/control-codes")

@@ -1,7 +1,5 @@
 openapi: 3.0.0
-servers:
-  - description: Test Environment Configuration
-    url: /api/v1
+## removed the servers. we don't need it now as there's no more basePath. This defaults to `host-scheme://host-name`.
 info:
   description: >-
     API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
@@ -25,7 +23,7 @@ paths:
         - pwa
         - dashboard
       summary: >-
-        Creates a request for a new RapidPass, can be for individual or vehicle
+        Creates a request for a new RapidPass, can be for INDIVIDUAL or VEHICLE
         depending on pass type
       operationId: requestAccessPass
       description: >
@@ -295,15 +293,32 @@ components:
       properties:
         passType:
           type: string
-          description: Type of pass being requested. Can be individual or vehicle
-        accessType:
+          description: Type of pass being requested. Can be INDIVIDUAL or VEHICLE.
+          enum:
+            - INDIVIDUAL
+            - VEHICLE
+          example: "INDIVIDUAL"
+        aporType:
           type: string
-          description: >-
-            Type of access needed. This is tied to gov agency that will approve
-            pass
-        name:
+          description: The APOR type. Check design doc for details.
+          enum: [AG,BA,BP,CA,DC,DO,ER,FC,FS,GO,GR,HM,HT,IP,LW,ME,MS,MF,MT,PH,PM,PI,SH,SS,TF,UT,VE]
+          example: "AG"
+        firstName:
           type: string
-          description: name of individual that will use the access pass
+          description: The first name of the individual that will use the access pass
+          example: Juan
+        middleName:
+          type: string
+          description: The middle name of the individual that will use the access pass
+          example: Mercedes
+        lastName:
+          type: string
+          description: The last name of the individual that will use the access pass
+          example: de la Cruz
+        suffix:
+          type: string
+          description: The suffix of the individual that will use the access pass
+          example: III
         company:
           type: string
           description: company of access pass holder
@@ -313,23 +328,47 @@ components:
             for vehicles this could be plate number or conduction sticker, for
             individuals this will be the type of ID, e.g. company ID, driver's
             license, etc.
-        plateOrId:
+          example: passport
+        identifierNumber:
           type: string
           description: plate number of vehicle or ID of individual
+          example: VV1234567
         mobileNumber:
           type: string
           description: mobile number of access pass holder
+          example: '+639991230000'
         email:
           type: string
           description: email address of access pass holder
-        originAddress:
+          example: jdelacruz@some-email.com
+        originName:
           type: string
-          description: general location where the requester is coming from
-        destAddress:
+          description: source company name
+          example: Acme Inc.
+        originStreet:
           type: string
-          description: general location where ther requester is heading to
+          description: source street address
+          example: '123 Somewhere Ave'
+        originCity:
+          type: string
+          description: source city
+          example: 'Makati City'
+        destName:
+          type: string
+          description: destination location
+          example: Zuelig Building
+        destStreet:
+          type: string
+          description: destination street address
+          example: 'Paseo de Roxas'
+        destCity:
+          type: string
+          description: source city
+          example: 'Makati City'
         remarks:
           type: string
+          description: additional remarks
+          example: will buy groceries
     RapidPass:
       allOf:
         - $ref: '#/components/schemas/RapidPassRequest'
