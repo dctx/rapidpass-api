@@ -34,7 +34,7 @@ public class AccessPassNotifierService {
     /**
      * Service providing PDF creation for an access pass.
      */
-    private final RegistryService registryService;
+    private final QrPdfService qrPdfService;
 
     private final NotificationService emailService;
 
@@ -66,11 +66,11 @@ public class AccessPassNotifierService {
     private String qrCodeEndpoint = "/api/v1/registry/qr-codes/";
 
     public AccessPassNotifierService(AccessPassRepository accessPassRepository,
-                                     RegistryService registryService,
+                                     QrPdfService qrPdfService,
                                      @Qualifier("email") NotificationService emailService,
                                      @Qualifier("sms") NotificationService smsService) {
+        this.qrPdfService = qrPdfService;
         this.accessPassRepository = accessPassRepository;
-        this.registryService = registryService;
         this.emailService = emailService;
         this.smsService = smsService;
     }
@@ -175,7 +175,7 @@ public class AccessPassNotifierService {
                 .title("RapidPass is APPROVED")
                 // attach QR code PDF
                 .addAttachment("rapidpass-qr.pdf", "application/pdf",
-                        registryService.generateQrPdf(accessPassReferenceId))
+                        qrPdfService.generateQrPdf(accessPassRepository.findByReferenceID(accessPassReferenceId)))
                 .create();
     }
 

@@ -55,6 +55,8 @@ class AccessPassNotifierServiceTest {
     @Mock
     RegistryService mockRegistryService;
 
+    @Mock
+    QrPdfService mockQrPdfService;
 
     @Mock
     NotificationService mockEmailService;
@@ -64,10 +66,7 @@ class AccessPassNotifierServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new AccessPassNotifierService(mockAccessPassRepo,
-                mockRegistryService,
-                mockSmsService,
-                mockEmailService);
+        instance = new AccessPassNotifierService(mockAccessPassRepo, mockQrPdfService, mockEmailService, mockSmsService);
 
         instance.setMailFrom(TEST_MAILBOX);
         instance.setRapidPassUrl(TEST_RP_URL);
@@ -94,7 +93,10 @@ class AccessPassNotifierServiceTest {
 
     @Test
     void buildEmailMessage() throws ParseException, IOException, WriterException {
-        when(mockRegistryService.generateQrPdf(anyString())).thenReturn(new byte[]{1, 0, 1, 0, 1});
+        when(mockAccessPassRepo.findByReferenceID(INDIVIDUAL_ACCESSPASS.getReferenceID()))
+                .thenReturn(INDIVIDUAL_ACCESSPASS);
+        when(mockQrPdfService.generateQrPdf(eq(INDIVIDUAL_ACCESSPASS)))
+                .thenReturn(new byte[]{1, 0, 1, 0, 1});
         final String toAddress = "my-email@email.com";
         final String testPassLink = "a-test-url.com";
         final NotificationMessage notificationMessage =

@@ -14,6 +14,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.ArrayList;
@@ -98,6 +99,9 @@ class RegistryRestControllerTest {
 
     @MockBean
     RegistryService mockRegistryService;
+
+    @MockBean
+    QrPdfService mockQrPdfService;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.
@@ -243,12 +247,12 @@ class RegistryRestControllerTest {
     }
 
     @Test
-    public void grantOrDenyRequest() throws Exception, RegistryService.UpdateAccessPassException {
+    public void grantOrDenyRequest() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
         TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
 
-        when(mockRegistryService.grant(eq(TEST_VEHICLE_PASS.getReferenceId())))
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(TEST_VEHICLE_PASS)))
                 .thenReturn(TEST_VEHICLE_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
@@ -276,14 +280,12 @@ class RegistryRestControllerTest {
     @Test
     public void downloadQrCode() throws Exception {
         final byte[] samplePdf = {1, 0, 1, 0, 1, 0};
-        when(mockRegistryService.generateQrPdf(eq("1234556"))).thenReturn(samplePdf);
+        when(mockQrPdfService.generateQrPdf(eq("1234556"))).thenReturn(samplePdf);
         final MockHttpServletResponse response = mockMvc.perform(get("/registry/qr-codes/{referenceId}", "1234556"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
         assertThat(response.getContentType(), is(MediaType.APPLICATION_PDF.toString()));
         assertThat(response.getContentAsByteArray(), is(samplePdf));
-
-
     }
 }
