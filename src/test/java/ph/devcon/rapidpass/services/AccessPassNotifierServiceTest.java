@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.services;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.zxing.WriterException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,6 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.notifications.NotificationException;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.NotificationService;
-import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
-import ph.devcon.rapidpass.services.pdf.PdfGeneratorService;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -23,7 +20,6 @@ import java.time.OffsetDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,11 +27,11 @@ class AccessPassNotifierServiceTest {
 
     public static final String TEST_MAILBOX = "test@my-mail.com";
     public static final String TEST_RP_URL = "the-testing-grounds.com";
-    public static final String TEST_ACCESSPASS_REFID = "some-accesspass-ref-id";
     public static final OffsetDateTime NOW = OffsetDateTime.now();
 
     public static final AccessPass INDIVIDUAL_ACCESSPASS = AccessPass.builder().
             status("APPROVED")
+            .referenceID("a-reference-id")
             .passType("INDIVIDUAL")
             .controlCode("123456")
             .idType("Driver's License")
@@ -56,7 +52,9 @@ class AccessPassNotifierServiceTest {
     @Mock
     AccessPassRepository mockAccessPassRepo;
 
-    QrGeneratorService qrGenerator = new QrGeneratorServiceImpl(new JsonMapper());
+    @Mock
+    RegistryService mockRegistryService;
+
 
     @Mock
     NotificationService mockEmailService;
@@ -64,15 +62,10 @@ class AccessPassNotifierServiceTest {
     @Mock
     NotificationService mockSmsService;
 
-
-    PdfGeneratorService pdfGeneratorService = new PdfGeneratorImpl();
-
     @BeforeEach
     void setUp() {
-        instance = new AccessPassNotifierService(
-                mockAccessPassRepo,
-                qrGenerator,
-                pdfGeneratorService,
+        instance = new AccessPassNotifierService(mockAccessPassRepo,
+                mockRegistryService,
                 mockSmsService,
                 mockEmailService);
 
@@ -81,12 +74,10 @@ class AccessPassNotifierServiceTest {
     }
 
     @Test
-    void pushNotifications_SUCCESS() throws NotificationException, IOException, WriterException {
-        // arrange
-        when(mockAccessPassRepo.findByReferenceID(eq(TEST_ACCESSPASS_REFID)))
-                .thenReturn(INDIVIDUAL_ACCESSPASS);
+    void pushNotifications_SUCCESS() throws NotificationException {
 
-        instance.pushApprovalNotifs(TEST_ACCESSPASS_REFID);
+        // mock send notifs to access pass
+        instance.pushApprovalNotifs(INDIVIDUAL_ACCESSPASS);
 
         // verify email and sms send will be called
 
@@ -103,11 +94,12 @@ class AccessPassNotifierServiceTest {
 
     @Test
     void buildEmailMessage() throws ParseException, IOException, WriterException {
+        when(mockRegistryService.generateQrPdf(anyString())).thenReturn(new byte[]{1, 0, 1, 0, 1});
         final String toAddress = "my-email@email.com";
         final String testPassLink = "a-test-url.com";
         final NotificationMessage notificationMessage =
                 instance.buildEmailMessage(testPassLink,
-                        INDIVIDUAL_ACCESSPASS,
+                        INDIVIDUAL_ACCESSPASS.getReferenceID(),
                         toAddress);
 
         final DataSource attachement = notificationMessage.getAttachments().get("rapidpass-qr.pdf");
@@ -118,7 +110,6 @@ class AccessPassNotifierServiceTest {
         assertThat(notificationMessage.getMessage(), is("Your RapidPass is available here: " + testPassLink));
         assertThat(notificationMessage.getTitle(), is("RapidPass is APPROVED"));
 
-        // you can visually inspect the PDF file generated, by looking for path in the logs
     }
 
     @Test

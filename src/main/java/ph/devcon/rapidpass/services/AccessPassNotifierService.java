@@ -8,18 +8,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.notifications.NotificationException;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.NotificationService;
-import ph.devcon.rapidpass.services.pdf.PdfGeneratorService;
 
-import java.io.File;
+import javax.validation.constraints.Size;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.text.ParseException;
 
 /**
@@ -33,9 +28,15 @@ import java.text.ParseException;
 @Slf4j
 public class AccessPassNotifierService {
 
+    /**
+     * Repo for access path queries.
+     */
     private final AccessPassRepository accessPassRepository;
-    private final QrGeneratorService qrGeneratorService;
-    private final PdfGeneratorService pdfGeneratorService;
+
+    /**
+     * Service providing PDF creation for an access pass.
+     */
+    private final RegistryService registryService;
 
     @Qualifier("email")
     private final NotificationService emailService;
@@ -71,12 +72,11 @@ public class AccessPassNotifierService {
     /**
      * Pushes APPROVAL notifications to sms and email. Called on access pass APPROVAL.
      *
-     * @param accessPassReferenceId referenceId of an Access Pass
+     * @param accessPass an access pass
      */
-    public void pushApprovalNotifs(String accessPassReferenceId) throws IOException, WriterException, NotificationException {
-        log.debug("pusing approval notifications for {}", accessPassReferenceId);
-        // get access pass correspoinding to reference ID
-        final AccessPass accessPass = accessPassRepository.findByReferenceID(accessPassReferenceId);
+    public void pushApprovalNotifs(AccessPass accessPass) {
+        @Size(max = 30) final String accessPassReferenceId = accessPass.getReferenceID();
+        log.debug("pushing approval notifications for {}", accessPassReferenceId);
 
         // pre checks
 
@@ -98,7 +98,7 @@ public class AccessPassNotifierService {
         if (!StringUtils.isEmpty(email)) {
             try {
                 emailService.send(
-                        buildEmailMessage(accessPassUrl, accessPass, email));
+                        buildEmailMessage(accessPassUrl, accessPassReferenceId, email));
             } catch (Exception e) {
                 // we want to continue despite any error in emailService
                 log.error("Error sending email message to " + email, e);
@@ -116,6 +116,7 @@ public class AccessPassNotifierService {
                 log.error("Error sending SMS message to " + mobile, e);
             }
         }
+        log.debug("pushed approval notifications for {}", accessPassReferenceId);
 
     }
 
@@ -156,11 +157,9 @@ public class AccessPassNotifierService {
      * @throws WriterException on error generating qr code
      */
     NotificationMessage buildEmailMessage(String accessPassUrl,
-                                          AccessPass accessPass,
+                                          String accessPassReferenceId,
                                           String email)
             throws IOException, WriterException, ParseException {
-
-        final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass);
         return NotificationMessage.New()
                 .from(mailFrom)
                 .to(email)
@@ -170,11 +169,7 @@ public class AccessPassNotifierService {
                 .title("RapidPass is APPROVED")
                 // attach QR code PDF
                 .addAttachment("rapidpass-qr.pdf", "application/pdf",
-                        Files.readAllBytes(
-                                pdfGeneratorService.generatePdf(File.createTempFile("qrPdf", ".pdf").getAbsolutePath(),
-                                        qrGeneratorService.generateQr(qrCodeData),
-                                        RapidPass.buildFrom(accessPass))
-                                        .toPath()))
+                        registryService.generateQrPdf(accessPassReferenceId))
                 .create();
     }
 

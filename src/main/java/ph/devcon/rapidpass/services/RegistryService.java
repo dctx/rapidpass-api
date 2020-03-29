@@ -9,7 +9,6 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.Registrar;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassBatchRequest;
@@ -348,28 +347,8 @@ public class RegistryService {
             throw new IllegalArgumentException("AccessPass.validTo is a required parameter for rendering the PDF.");
         }
 
-        // generate qr code data
-        final QrCodeData qrCodeData;
-        if (PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType())) {
-            qrCodeData = QrCodeData.individual()
-                    .controlCode(Long.parseLong(accessPass.getControlCode()))
-                    .idOrPlate(accessPass.getIdentifierNumber())
-                    .apor(accessPass.getAporType())
-                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
-                    .vehiclePass(false)
-                    .build();
-
-        } else {
-            qrCodeData = QrCodeData.vehicle()
-                    .controlCode(Long.parseLong(accessPass.getControlCode()))
-                    .idOrPlate(accessPass.getIdentifierNumber())
-                    .apor(accessPass.getAporType())
-                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
-                    .vehiclePass(false)
-                    .build();
-        }
+        // generate qr code data from access pass
+        final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass);
 
         // generate qr image file
         final File qrImage = qrGeneratorService.generateQr(qrCodeData);
@@ -377,7 +356,7 @@ public class RegistryService {
         // generate qr pdf
         PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
 
-        String temporaryFile  = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
+        String temporaryFile = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
 
         final File qrPdf = pdfGenerator.generatePdf(temporaryFile, qrImage, RapidPass.buildFrom(accessPass));
 
