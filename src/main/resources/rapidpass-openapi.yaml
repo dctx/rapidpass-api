@@ -1,11 +1,14 @@
 openapi: 3.0.0
 servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/tiongks/RapidPass/1.0.0
   - url: /api/v1
 info:
   description: >-
     API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
     Please send Merge Requests to update details. Thanks!
-  version: "1.0.0-oas3"
+  version: "1.0.0"
   title: RapidPass API
   license:
     name: Apache 2.0
@@ -19,6 +22,8 @@ tags:
     description: Endpoints for web console for the review and approval of requests
   - name: public
     description: Publicly accessible endpoint (future)
+  - name: bulk
+    description: bulk/batch operations
 paths:
   /registry/access-passes:
     post:
@@ -89,6 +94,7 @@ paths:
       tags:
         - dashboard
         - inspector
+        - bulk
       summary: downloads a list of access passes in csv format
       parameters:
         - name: compressed
@@ -109,6 +115,7 @@ paths:
     post:
       tags:
         - dashboard
+        - bulk
       summary: Upload CSV/Excel file of approved control numbers TODO
       requestBody:
         content:
@@ -124,7 +131,41 @@ paths:
       responses:
         '200':
           description: Upload successful
-  '/registry/access-passes/{referenceID}':
+  /batch/scanner-devices:
+    get:
+      tags:
+        - dashboard
+        - bulk
+      summary: downloads a list of mobile devices in csv format
+      responses:
+        '200':
+          description: Download initiated.
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: byte[]
+                description: csv file containing all registered mobile devices
+    post:
+      tags:
+        - dashboard
+        - bulk
+      summary: upload CSV file mobile devices for registration
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                filename:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Upload successful
+  /registry/access-passes/{referenceID}:
     get:
       operationId: getAccessPassById
       tags:
@@ -165,7 +206,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RapidPassUpdate'
+              $ref: '#/components/schemas/RapidPass'
       responses:
         '200':
           description: >-
@@ -250,13 +291,86 @@ paths:
                 $ref: '#/components/schemas/RapidPass'
         '404':
           description: RapidPass not found using the plate number.
+  '/registry/scanner-devices':
+    post:
+      tags:
+        - inspector
+        - dashboard
+      summary: registers a new mobile device for use in checkpoints
+      operationId: registerDevice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileDevice'
+        description: mobile device configuration
+      responses:
+        '201':
+          description: Mobile device registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+          links:
+            GetAccessPassById:
+              operationId: getAccessPassById
+              parameters:
+                referenceId: '$response.body#/deviceId'
+        '400':
+          description: Invalid Input
+    get:
+      tags:
+        - dashboard
+      summary: Gets a list of registered mobile devices
+      operationId: getScannerDevices
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: status of mobile devices to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status of the request pass
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileDevice'
+      description: Retrieves a set of registered mobile devices based on the optional query parameters.
+  '/registry/sanner-devices/{deviceId}':
+    get:
+      tags:
+        - dashboard
+        - inspector
+      summary: Get details of a registered mobile devices
+      operationId: getScannerDeviceDetails
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: unique mobile devices identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status of the request pass
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDevice'
 
 components:
   schemas:
     RapidPassRequest:
       type: object
       allOf:
-        - $ref: '#/components/schemas/CommonElements'
+        - $ref: '#/components/schemas/CommonRapidPassFields'
       properties:
         firstName:
           type: string
@@ -316,7 +430,7 @@ components:
     RapidPass:
       type: object
       allOf:
-        - $ref: '#/components/schemas/CommonElements'
+        - $ref: '#/components/schemas/CommonRapidPassFields'
         - properties:
             name:
               type: string
@@ -343,7 +457,7 @@ components:
               type: string
               description: date and time the QR code was used in a checkpoint
               example: Mon Mar 30 14:15:00 GMT 2020
-    CommonElements:
+    CommonRapidPassFields:
       type: object
       properties:
         aporType:
@@ -369,11 +483,16 @@ components:
           type: string
           description: plate number of vehicle or ID of individual
           example: VV1234567
-    RapidPassUpdate:
+    MobileDevice:
       type: object
       properties:
-        referenceId:
+        imei:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        mobileNumber:
           type: string
         status:
           type: string
-          description: either APPROVED, DECLINED or SUPSPEND
