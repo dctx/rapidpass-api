@@ -297,7 +297,7 @@ paths:
         - inspector
         - dashboard
       summary: registers a new mobile device for use in checkpoints
-      operationId: registerDevice
+      operationId: registerScannerDevice
       requestBody:
         content:
           application/json:
@@ -306,7 +306,7 @@ paths:
         description: mobile device configuration
       responses:
         '201':
-          description: Mobile device registered
+          description: mobile device registered
           content:
             application/json:
               schema:
@@ -324,7 +324,7 @@ paths:
     get:
       tags:
         - dashboard
-      summary: Gets a list of registered mobile devices
+      summary: gets a list of registered mobile devices
       operationId: getScannerDevices
       parameters:
         - name: status
@@ -335,7 +335,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Status of the request pass
+          description: successful mobile/scanner device operation
           content:
             application/json:
               schema:
@@ -348,7 +348,7 @@ paths:
       tags:
         - dashboard
         - inspector
-      summary: Get details of a registered mobile devices
+      summary: get details of a registered mobile devices
       operationId: getScannerDeviceDetails
       parameters:
         - name: deviceId
