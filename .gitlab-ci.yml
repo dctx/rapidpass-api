@@ -1,15 +1,18 @@
 stages:
-  - test
+  - build
   - package
   - deploy
 
-Run Unit Tests:
-  stage: test
+build-jar:
+  stage: build
   image: openjdk:15-jdk-alpine
   script:
-  - ./mvnw test
+  - ./mvnw package
+  artifacts:
+    paths:
+    - target/
 
-Test and Publish Docker Image:
+package-image:
   stage: package
   image: docker:19.03.1
   services:
@@ -30,8 +33,10 @@ Test and Publish Docker Image:
   - docker push dctx/rapidpass-api:latest
   only:
   - develop
+  dependencies:
+  - build-jar
 
-Deploy to Dev Environment:
+deploy-dev:
   stage: deploy
   image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
   before_script:
@@ -45,7 +50,7 @@ Deploy to Dev Environment:
   only:
   - develop
 
-Deploy to Test Environment:
+deploy-test:
   stage: deploy
   image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
   before_script:
