@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -29,24 +31,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "system_user")
-@NamedQueries({
-    @NamedQuery(name = "SystemUser.findAll", query = "SELECT s FROM SystemUser s"),
-    @NamedQuery(name = "SystemUser.findById", query = "SELECT s FROM SystemUser s WHERE s.id = :id"),
-    @NamedQuery(name = "SystemUser.findByRole", query = "SELECT s FROM SystemUser s WHERE s.role = :role"),
-    @NamedQuery(name = "SystemUser.findByName", query = "SELECT s FROM SystemUser s WHERE s.name = :name"),
-    @NamedQuery(name = "SystemUser.findByUsername", query = "SELECT s FROM SystemUser s WHERE s.username = :username"),
-    @NamedQuery(name = "SystemUser.findByPassword", query = "SELECT s FROM SystemUser s WHERE s.password = :password"),
-    @NamedQuery(name = "SystemUser.findByAccessKey", query = "SELECT s FROM SystemUser s WHERE s.accessKey = :accessKey"),
-    @NamedQuery(name = "SystemUser.findByEmail", query = "SELECT s FROM SystemUser s WHERE s.email = :email"),
-    @NamedQuery(name = "SystemUser.findByMobile", query = "SELECT s FROM SystemUser s WHERE s.mobile = :mobile"),
-    @NamedQuery(name = "SystemUser.findByDescription", query = "SELECT s FROM SystemUser s WHERE s.description = :description"),
-    @NamedQuery(name = "SystemUser.findByValidFrom", query = "SELECT s FROM SystemUser s WHERE s.validFrom = :validFrom"),
-    @NamedQuery(name = "SystemUser.findByValidTo", query = "SELECT s FROM SystemUser s WHERE s.validTo = :validTo"),
-    @NamedQuery(name = "SystemUser.findByUpdates", query = "SELECT s FROM SystemUser s WHERE s.updates = :updates"),
-    @NamedQuery(name = "SystemUser.findByPasswordHistory", query = "SELECT s FROM SystemUser s WHERE s.passwordHistory = :passwordHistory"),
-    @NamedQuery(name = "SystemUser.findByStatus", query = "SELECT s FROM SystemUser s WHERE s.status = :status"),
-    @NamedQuery(name = "SystemUser.findByCreatedBy", query = "SELECT s FROM SystemUser s WHERE s.createdBy = :createdBy"),
-    @NamedQuery(name = "SystemUser.findByDateTimeCreated", query = "SELECT s FROM SystemUser s WHERE s.dateTimeCreated = :dateTimeCreated")})
+@Data
 public class SystemUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -105,146 +90,6 @@ public class SystemUser implements Serializable {
     private Collection<SystemUserActivityLog> systemUserActivityLogCollection;
 
     public SystemUser() {
-    }
-
-    public SystemUser(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public OffsetDateTime getValidFrom() {
-        return validFrom;
-    }
-
-    public void setValidFrom(OffsetDateTime validFrom) {
-        this.validFrom = validFrom;
-    }
-
-    public OffsetDateTime getValidTo() {
-        return validTo;
-    }
-
-    public void setValidTo(OffsetDateTime validTo) {
-        this.validTo = validTo;
-    }
-
-    public String getUpdates() {
-        return updates;
-    }
-
-    public void setUpdates(String updates) {
-        this.updates = updates;
-    }
-
-    public String getPasswordHistory() {
-        return passwordHistory;
-    }
-
-    public void setPasswordHistory(String passwordHistory) {
-        this.passwordHistory = passwordHistory;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public OffsetDateTime getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public Collection<SystemUserActivityLog> getSystemUserActivityLogCollection() {
-        return systemUserActivityLogCollection;
-    }
-
-    public void setSystemUserActivityLogCollection(Collection<SystemUserActivityLog> systemUserActivityLogCollection) {
-        this.systemUserActivityLogCollection = systemUserActivityLogCollection;
     }
 
     @Override

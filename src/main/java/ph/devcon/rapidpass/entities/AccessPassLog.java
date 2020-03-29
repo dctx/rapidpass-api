@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -74,90 +76,6 @@ public class AccessPassLog implements Serializable {
     private AccessPass accessPassId;
 
     public AccessPassLog() {
-    }
-
-    public AccessPassLog(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public void setEvent(String event) {
-        this.event = event;
-    }
-
-    public BigInteger getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigInteger latitude) {
-        this.latitude = latitude;
-    }
-
-    public BigInteger getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigInteger longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public Integer getCheckpointId() {
-        return checkpointId;
-    }
-
-    public void setCheckpointId(Integer checkpointId) {
-        this.checkpointId = checkpointId;
-    }
-
-    public Integer getScannerDeviceId() {
-        return scannerDeviceId;
-    }
-
-    public void setScannerDeviceId(Integer scannerDeviceId) {
-        this.scannerDeviceId = scannerDeviceId;
-    }
-
-    public OffsetDateTime getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public OffsetDateTime getDateTimeUpdated() {
-        return dateTimeUpdated;
-    }
-
-    public void setDateTimeUpdated(OffsetDateTime dateTimeUpdated) {
-        this.dateTimeUpdated = dateTimeUpdated;
-    }
-
-    public AccessPass getAccessPassId() {
-        return accessPassId;
-    }
-
-    public void setAccessPassId(AccessPass accessPassId) {
-        this.accessPassId = accessPassId;
     }
 
     @Override

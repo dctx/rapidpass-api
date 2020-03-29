@@ -5,14 +5,15 @@ import org.hamcrest.io.FileMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import java.io.File;
+import java.time.OffsetDateTime;
+import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 
 class PdfGeneratorTest {
 
@@ -34,7 +35,7 @@ class PdfGeneratorTest {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")
                 .controlCode(CC_1234_ENCRYPTED)
-                .apor("D")
+                .apor("AB")
                 .validFrom(MAR_23_2020)
                 .validUntil(MAR_27_2020)
                 .build();
@@ -50,15 +51,18 @@ class PdfGeneratorTest {
         assertThat("pdf file is created!", tmpFile, is(not(FileMatchers.anExistingFile())));
 
         // do pdf generation
+        final OffsetDateTime now = OffsetDateTime.now();
         final File pdfFile =
                 PdfGenerator.generatePdf(pdfPath,
                         qrCodeFile,
-                        RapidPassRequest.builder()
-                                .passType(INDIVIDUAL)
-                                .firstName("Jonas Was Here")
-                                .lastName("Donasco")
-                                .aporType("M")
-                                .company("DEVCON")
+                        AccessPass.builder()
+                                .status("approved")
+                                .passType("individual")
+                                .controlCode("123456")
+                                .identifierNumber("ABCD 123")
+                                .aporType("AB")
+                                .validFrom(now)
+                                .validTo(now.plusDays(1))
                                 .build());
 
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.anExistingFile()));

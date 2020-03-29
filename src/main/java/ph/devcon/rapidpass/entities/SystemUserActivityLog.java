@@ -5,6 +5,8 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Date;
@@ -28,15 +30,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "system_user_activity_log")
-@NamedQueries({
-    @NamedQuery(name = "SystemUserActivityLog.findAll", query = "SELECT s FROM SystemUserActivityLog s"),
-    @NamedQuery(name = "SystemUserActivityLog.findById", query = "SELECT s FROM SystemUserActivityLog s WHERE s.id = :id"),
-    @NamedQuery(name = "SystemUserActivityLog.findBySessionId", query = "SELECT s FROM SystemUserActivityLog s WHERE s.sessionId = :sessionId"),
-    @NamedQuery(name = "SystemUserActivityLog.findByIpAddress", query = "SELECT s FROM SystemUserActivityLog s WHERE s.ipAddress = :ipAddress"),
-    @NamedQuery(name = "SystemUserActivityLog.findByType", query = "SELECT s FROM SystemUserActivityLog s WHERE s.type = :type"),
-    @NamedQuery(name = "SystemUserActivityLog.findByActionTimestamp", query = "SELECT s FROM SystemUserActivityLog s WHERE s.actionTimestamp = :actionTimestamp"),
-    @NamedQuery(name = "SystemUserActivityLog.findByAction", query = "SELECT s FROM SystemUserActivityLog s WHERE s.action = :action"),
-    @NamedQuery(name = "SystemUserActivityLog.findByComments", query = "SELECT s FROM SystemUserActivityLog s WHERE s.comments = :comments")})
+@Data
 public class SystemUserActivityLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -68,74 +62,6 @@ public class SystemUserActivityLog implements Serializable {
     private SystemUser userId;
 
     public SystemUserActivityLog() {
-    }
-
-    public SystemUserActivityLog(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public OffsetDateTime getActionTimestamp() {
-        return actionTimestamp;
-    }
-
-    public void setActionTimestamp(OffsetDateTime actionTimestamp) {
-        this.actionTimestamp = actionTimestamp;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-
-    public SystemUser getUserId() {
-        return userId;
-    }
-
-    public void setUserId(SystemUser userId) {
-        this.userId = userId;
     }
 
     @Override

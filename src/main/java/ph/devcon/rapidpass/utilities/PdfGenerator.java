@@ -16,6 +16,7 @@ import com.itextpdf.layout.property.TextAlignment;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ResourceUtils;
+import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
@@ -82,7 +83,7 @@ public class PdfGenerator {
      */
     public static File generatePdf(String filePath,
                                    File qrCodeFile,
-                                   RapidPassRequest approvedRapidPass)
+                                   AccessPass approvedRapidPass)
             throws FileNotFoundException, MalformedURLException {
         log.debug("generating pdf at {}", filePath);
 
@@ -112,20 +113,20 @@ public class PdfGenerator {
         Paragraph details = new Paragraph();
 
         // checks if pass type is individual or vehicle
-        final PassType passType = approvedRapidPass.getPassType();
-        if (passType.equals(INDIVIDUAL)) {
+        final String passType = approvedRapidPass.getPassType();
+        if ("individual".equalsIgnoreCase(passType)) {
             details.setFontSize(20);
             details.setMarginLeft(70);
             details.add("Name:\t" + approvedRapidPass.getName() + "\n" +
                     "APOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
                     "Pass Type:\t" + passType + "\n" +
                     "Company:\t" + approvedRapidPass.getCompany());
-        } else if (passType.equals(VEHICLE)) {
+        } else if ("vehicle".equalsIgnoreCase(passType)) {
             details.setFontSize(20);
             details.setMarginLeft(70);
             details.add("AOR Type:\t" + approvedRapidPass.getAporType() + "\n" +
                     "Pass Type:\t" + passType + "\n" +
-                    "Plate:\t" + approvedRapidPass.getPlateOrId() + "\n" +
+                    "Plate:\t" + approvedRapidPass.getIdentifierNumber() + "\n" +
                     "Name:\t" + approvedRapidPass.getName());
         }
 

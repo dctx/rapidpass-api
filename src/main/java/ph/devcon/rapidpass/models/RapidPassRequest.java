@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 
@@ -13,7 +15,11 @@ import java.util.UUID;
 import static ph.devcon.rapidpass.enums.RequestStatus.PENDING;
 
 /**
- * The {@link RapidPassRequest} class models a Rapid Pass Request.
+ * Data model representing a request to create a new {@link AccessPass}. It contains details about an AccessPass and a {@link Registrant}.
+ *
+ * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
+ *
+ * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
  */
 @Data
 @Builder
@@ -36,11 +42,15 @@ public final class RapidPassRequest {
     private String suffix;
     private String company;
     private String idType;
-    private String plateOrId; // todo validate. use validation annotations.
+    private String identifierNumber;
     private String mobileNumber; // todo validate. use validation annotations.
     private String email;  // todo validate. use validation annotations.
-    private String originAddress;
-    private String destAddress;
+    private String originName;
+    private String originStreet;
+    private String originCity;
+    private String destName;
+    private String destStreet;
+    private String destCity;
     private String remarks;
 
     /**

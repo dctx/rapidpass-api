@@ -1,34 +1,35 @@
 openapi: 3.0.0
-# Added by API Auto Mocking Plugin
-
-## The server is set to a relative path so when a swagger ui instance reads this, it will use the host + this relative
-## path. this path should be the same as the base path of the api.
 servers:
   - url: /api/v1/
 info:
-  description: API for Rapid Pass Web Services. Guys, currently super simple pass ng API. Please send Merge Requests to update details. Thanks!
-  version: "1.0.0"
+  description: >-
+    API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
+    Please send Merge Requests to update details. Thanks!
+  version: "1.0.0-oas3"
   title: RapidPass API
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: checkpoint
-    description: Endpoints for inspector app which is mainly used at checkpoints.
-  - name: registry
-    description: Endpoints for registring rapidpass users. Also the main API for PWA/mobile end-user app
+  - name: inspector
+    description: Endpoints for inspector app
+  - name: pwa
+    description: Endpoints for PWA/mobile registraation app
   - name: dashboard
-    description: Endpoints for approval applications
-
+    description: Endpoints for web console for the review and approval of requests
 paths:
   /registry/access-passes:
     post:
       tags:
-        - registry
-      summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
+        - pwa
+        - dashboard
+      summary: >-
+        Creates a request for a new RapidPass, can be for individual or vehicle
+        depending on pass type
       operationId: requestAccessPass
-      description: |
-        Called from the PWA or web site registration page to register a user.  All new access passes will have a status of 'pending'.
+      description: >
+        Called from the PWA or web site registration page to register a user.
+        All new access passes will have a status of 'pending'.
       requestBody:
         content:
           application/json:
@@ -51,7 +52,8 @@ paths:
           description: Invalid Input
     get:
       tags:
-        - registry
+        - pwa
+        - dashboard
       summary: Gets a list of access passes
       operationId: getAccessPasses
       parameters:
@@ -74,6 +76,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccessPasses'
+
+  '/registry/qr-codes/{referenceID}':
+    get:
+      operationId: getQrCodesById
+      tags:
+        - pwa
+      summary: Download PDF of QR code for a reference ID
+      parameters:
+        - name: referenceID
+          in: path
+          description: >-
+            Reference ID of the access pass request, mobile number for
+            individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A PDF file with QR code
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
 
   /dashboard/access-passes/{referenceID}:
     put:
@@ -120,7 +146,7 @@ paths:
             type: string
       responses:
         '200':
-          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+          description: Suspended the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
 
   /dashboard/access-passes/batch-approve:
     post:
@@ -138,30 +164,35 @@ paths:
         '200':
           description: Upload successful
 
-  /dashboard/control-codes:
+  /dashboard/access-passes:
     get:
       tags:
         - dashboard
-      summary: Downloads a list of approved control numbers
-      operationId: retrieveApprovedControlCodes
+      summary: Downloads CSV/Excel file of approved control numbers
+      operationId: downloadBatchOfAccessPasses in CSV or any approved format.
       responses:
         '200':
-          description: list of all approved control numbers
+          description: Upload successful
           content:
-            application/json:
+            text/csv:
               schema:
-                $ref: '#/components/schemas/ControlCodes'
+                type: string
+                description: CSV representation of Access Passes controlCode,identificationNumber,passType,approvedBy,validUntil,lastUsed
 
   /registry/access-passes/{referenceID}:
     get:
       operationId: getAccessPassById
       tags:
-        - registry
+        - inspector
+        - pwa
+        - dashboard
       summary: Get information about an access pass
       parameters:
         - name: referenceID
           in: path
-          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
+          description: >-
+            Reference ID of the access pass request, mobile number for
+            individuals and plate numbers for vehicles
           required: true
           schema:
             type: string
@@ -177,8 +208,9 @@ paths:
     get:
       operationId: getAccessPassByQrCode
       tags:
-        - checkpoint
-      summary: Get access pass using QR Code to check if it is valid pass
+        - dashboard
+        - inspector
+      summary: Approves or Declines a Rapid Pass request
       parameters:
         - name: qrCode
           in: path
@@ -200,7 +232,7 @@ paths:
     get:
       operationId: getAccessPassByPlateNumber
       tags:
-        - checkpoint
+        - inspector
       summary: Get access pass using Plate Number to check if it is valid pass
       parameters:
         - name: plateNo
@@ -223,7 +255,7 @@ paths:
     get:
       operationId: getAccessPassByControlCode
       tags:
-        - checkpoint
+        - inspector
       summary: Get access pass using Control Code to check if it is valid pass
       parameters:
         - name: controlCode
@@ -322,25 +354,6 @@ components:
           type: string
           description: Name of the approving organization
 
-    ControlCodes:
-      type: array
-      items:
-        $ref: '#/components/schemas/ControlCode'
-
-    ControlCode:
-      type: object
-      required:
-        - referenceId
-      properties:
-        referenceId:
-          type: string
-          description: backend generated reference id, created upon request
-        controlCode:
-          type: string
-          description: approved control control code
-        passType:
-          $ref: '#/components/schemas/PassRequestType'
-
     Link:
       type: object
       description: URL  to the resource already created in the back end.
@@ -386,28 +399,7 @@ components:
           type: string
           description: city
           example: sin city
-        region:
-          type: string
-          description: region where
-          example: Metro Manila
-        zip:
-          type: string
-          description: zip code
-          example: 12343D
-        country:
-          $ref: '#/components/schemas/Country'
 
-    Country:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Country Code
-          example: PH
-        name:
-          type: string
-          description: Country name
-          example: Philippines
     IdentificationType:
       type: string
       description: for vehicles this could be plate number or conduction sticker, for individuals this will be the type of ID, e.g. company ID, driver's license, etc.

@@ -43,7 +43,7 @@ public class CheckpointServiceTest
         accessPassEntity.setPassType(PassType.INDIVIDUAL.toString());
         accessPassEntity.setReferenceID("Sample");
         accessPassEntity.setCompany("Sample company");
-        accessPassEntity.setDestinationAddress("Sample Address");
+        accessPassEntity.setDestinationCity("Sample City");
         accessPassEntity.setIdType(IdentificationType.PERSONALID.toString());
         accessPassEntity.setReferenceID("M-JIV9H149");
         accessPassEntity.setIssuedBy("ApprovingOrg");
@@ -61,7 +61,7 @@ public class CheckpointServiceTest
         // check the data elements needed by the UX
     
         
-        assertEquals(accessPassEntity.getPlateOrId(),accessPass.getIdentificationNumber(),"Plate or ID");
+        assertEquals(accessPassEntity.getIdentifierNumber(),accessPass.getIdentificationNumber(),"Plate or ID");
         assertEquals(accessPassEntity.getAporType(),accessPass.getAporType(),"APOR Type");
         assertEquals(controlCode,accessPass.getControlCode(),"Control Code");
         assertEquals(accessPassEntity.getIssuedBy(),accessPass.getApprovedBy(),"Approved By");

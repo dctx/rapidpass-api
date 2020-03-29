@@ -1,7 +1,7 @@
 rapidpass-api
 -------------
 
-For details about this proeject please visit https://gitlab.com/dctx/rapidpass-api/-/wikis/About-this-project
+For details about this project please visit https://gitlab.com/dctx/rapidpass-api/-/wikis/About-this-project
 
 ## Prerequisite
 

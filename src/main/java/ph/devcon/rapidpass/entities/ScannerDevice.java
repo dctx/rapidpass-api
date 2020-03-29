@@ -5,8 +5,9 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -30,14 +31,7 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Table(name = "scanner_device")
-@NamedQueries({
-    @NamedQuery(name = "ScannerDevice.findAll", query = "SELECT s FROM ScannerDevice s"),
-    @NamedQuery(name = "ScannerDevice.findById", query = "SELECT s FROM ScannerDevice s WHERE s.id = :id"),
-    @NamedQuery(name = "ScannerDevice.findByDeviceType", query = "SELECT s FROM ScannerDevice s WHERE s.deviceType = :deviceType"),
-    @NamedQuery(name = "ScannerDevice.findByUniqueDeviceId", query = "SELECT s FROM ScannerDevice s WHERE s.uniqueDeviceId = :uniqueDeviceId"),
-    @NamedQuery(name = "ScannerDevice.findByDateTimeLastUsed", query = "SELECT s FROM ScannerDevice s WHERE s.dateTimeLastUsed = :dateTimeLastUsed"),
-    @NamedQuery(name = "ScannerDevice.findByDateTimeCreated", query = "SELECT s FROM ScannerDevice s WHERE s.dateTimeCreated = :dateTimeCreated"),
-    @NamedQuery(name = "ScannerDevice.findByDateTimeUpdated", query = "SELECT s FROM ScannerDevice s WHERE s.dateTimeUpdated = :dateTimeUpdated")})
+@Data
 public class ScannerDevice implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -56,14 +50,14 @@ public class ScannerDevice implements Serializable {
     @Column(name = "unique_device_id")
     private String uniqueDeviceId;
     @Column(name = "date_time_last_used")
-    
-    private OffsetDateTime dateTimeLastUsed;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateTimeLastUsed;
     @Column(name = "date_time_created")
-    
-    private OffsetDateTime dateTimeCreated;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateTimeCreated;
     @Column(name = "date_time_updated")
-    
-    private OffsetDateTime dateTimeUpdated;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateTimeUpdated;
     @JoinColumn(name = "registrar_id", referencedColumnName = "id")
     @ManyToOne
     private Registrar registrarId;
@@ -72,80 +66,6 @@ public class ScannerDevice implements Serializable {
     private RegistrarUser registrarUserId;
 
     public ScannerDevice() {
-    }
-
-    public ScannerDevice(Integer id) {
-        this.id = id;
-    }
-
-    public ScannerDevice(Integer id, int deviceType, String uniqueDeviceId) {
-        this.id = id;
-        this.deviceType = deviceType;
-        this.uniqueDeviceId = uniqueDeviceId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public int getDeviceType() {
-        return deviceType;
-    }
-
-    public void setDeviceType(int deviceType) {
-        this.deviceType = deviceType;
-    }
-
-    public String getUniqueDeviceId() {
-        return uniqueDeviceId;
-    }
-
-    public void setUniqueDeviceId(String uniqueDeviceId) {
-        this.uniqueDeviceId = uniqueDeviceId;
-    }
-
-    public OffsetDateTime getDateTimeLastUsed() {
-        return dateTimeLastUsed;
-    }
-
-    public void setDateTimeLastUsed(OffsetDateTime dateTimeLastUsed) {
-        this.dateTimeLastUsed = dateTimeLastUsed;
-    }
-
-    public OffsetDateTime getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(OffsetDateTime dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public OffsetDateTime getDateTimeUpdated() {
-        return dateTimeUpdated;
-    }
-
-    public void setDateTimeUpdated(OffsetDateTime dateTimeUpdated) {
-        this.dateTimeUpdated = dateTimeUpdated;
-    }
-
-    public Registrar getRegistrarId() {
-        return registrarId;
-    }
-
-    public void setRegistrarId(Registrar registrarId) {
-        this.registrarId = registrarId;
-    }
-
-    public RegistrarUser getRegistrarUserId() {
-        return registrarUserId;
-    }
-
-    public void setRegistrarUserId(RegistrarUser registrarUserId) {
-        this.registrarUserId = registrarUserId;
     }
 
     @Override

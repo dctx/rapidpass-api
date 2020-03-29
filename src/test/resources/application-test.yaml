@@ -26,6 +26,10 @@ spring:
           starttls:
             enable: true
 
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
 semaphore:
   url: https://api.semaphore.co/api/v4/messages
   key: ''
