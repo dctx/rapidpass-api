@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
@@ -110,40 +109,55 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         // checks if pass type is individual or vehicle
         final String passType = rapidPass.getPassType().toLowerCase();
         if (passType.equals("individual")) {
-            header.add(rapidPass.getControlCode() + "\n");
+            header.add(rapidPass.getControlCode());
 
         } else if (passType.equals("vehicle")) {
-            header.add(rapidPass.getIdentifierNumber() + "\n");
+            header.add(rapidPass.getIdentifierNumber());
         }
 
         return header;
 
     }
 
-    private static Paragraph generateDetails(RapidPass rapidPass) {
+    private static Paragraph[] generateDetails(RapidPass rapidPass) {
 
-        Paragraph details = new Paragraph();
-        details.setFontSize(26);
-        details.setMarginLeft(70);
-        details.setFixedPosition(20, 140, 500);
+        Paragraph nameParagraph = new Paragraph();
+        Paragraph companyParagraph = new Paragraph();
+        Paragraph[] results = new Paragraph[2];
+
+        int defaultFontSize = 26;
+        int smallerFontSize = 14;
+
+        nameParagraph.setFixedPosition(20, 180, 380);
+        companyParagraph.setFixedPosition(20, 140, 380);
 
         // checks if pass type is individual or vehicle
         final String passType = rapidPass.getPassType().toLowerCase();
-        if (passType.equals("individual")) {
 
-            String name = rapidPass.getName();
-            String company = rapidPass.getCompany();
+        String name = rapidPass.getName();
+        String company = rapidPass.getCompany();
 
-            details.add(name + "\n" + company);
+        nameParagraph.add(name);
+        companyParagraph.add(company);
 
-        } else if (passType.equals("vehicle")) {
+        nameParagraph.setFontSize(defaultFontSize);
+        companyParagraph.setFontSize(defaultFontSize);
 
-            String name = rapidPass.getName();
-            String company = rapidPass.getCompany();
-
-            details.add(name + "\n" + company);
+        if (name.length() > 35)
+        {
+            nameParagraph.setFontSize(smallerFontSize);
         }
-        return details;
+
+        if (company.length() > 35)
+        {
+            companyParagraph.setFontSize(smallerFontSize);
+        }
+
+
+        results[0] = nameParagraph;
+        results[1] = companyParagraph;
+
+        return results;
     }
 
     private static Paragraph[] generateValidUntil(RapidPass rapidPass) {
@@ -188,7 +202,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
 
         PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getFirstPage());
-        Rectangle rectangle = new Rectangle(420, 5, 170, 210);
+        Rectangle rectangle = new Rectangle(415, 10, 170, 230);
         canvas.setFillColor(ColorConstants.BLACK);
         canvas.rectangle(rectangle);
         canvas.fillStroke();
@@ -229,14 +243,16 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         //processes the data that will be on the pdf
 
-
-
         //writes to the document
 
         document.add(qrcode);
         document.add(generateRapidPassHeader());
         document.add(generateTitle(rapidPass));
-        document.add(generateDetails(rapidPass));
+
+        Paragraph[] details = generateDetails(rapidPass);
+
+        document.add(details[0]);
+        document.add(details[1]);
 
         Paragraph[] paragraphs = generateValidUntil(rapidPass);
         document.add(paragraphs[0]);
