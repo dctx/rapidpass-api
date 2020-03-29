@@ -3,7 +3,7 @@ package ph.devcon.rapidpass.services;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ph.devcon.rapidpass.api.models.AccessPass;
+import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
 import java.time.LocalDate;
@@ -28,8 +28,8 @@ public class CheckpointServiceImpl implements CheckpointService
         // Copy similar properties
         BeanUtils.copyProperties(entity,accessPass);
         // Manual copy those that are not the same attribute. Or later change the repo to make it simple
-        accessPass.setApprovedBy(entity.getIssuedBy());
-        accessPass.setValidUntil(entity.getValidTo());
+        accessPass.setIssuedBy(entity.getIssuedBy());
+        accessPass.setValidTo(entity.getValidTo());
         return accessPass;
     }
     
