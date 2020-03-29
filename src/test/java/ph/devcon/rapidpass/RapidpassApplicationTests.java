@@ -10,7 +10,7 @@ class RapidpassApplicationTests
 {
 
     @Test
-    @Disabled
+    @Disabled // disabling because AWS profiles stick in Gitlab CICD
     void contextLoads()
     {
     }
