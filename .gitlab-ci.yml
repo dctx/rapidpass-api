@@ -63,8 +63,7 @@ deploy-test:
   - helm dep update helm/rapidpass-api
   - helm upgrade rapidpass-api-test \
       --install \
-      --namespace \
-      rapidpass-api-test \
+      --namespace rapidpass-api-test \
       --values config/test-values.yaml \
       --set config.smtp.username=${SMTP_USERNAME} \
       --set config.smtp.password=${SMTP_PASSWORD} \
