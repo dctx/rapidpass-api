@@ -47,10 +47,11 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.findByReferenceId("12345"))
                 .thenReturn(AccessPass.builder().
-                        status("approved")
-                        .passType("individual")
+                        status("APPROVED")
+                        .passType("INDIVIDUAL")
                         .controlCode("123456")
-                        .identifierNumber("ABCD 123")
+                        .idType("Driver's License")
+                        .identifierNumber("Darren Karl A. Sapalo")
                         .aporType("AB")
                         .validFrom(new Date())
                         .validTo(new Date())
@@ -65,10 +66,11 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.findByReferenceId("12345"))
                 .thenReturn(AccessPass.builder().
-                        status("approved")
-                        .passType("vehicle")
+                        status("APPROVED")
+                        .passType("VEHICLE")
                         .controlCode("123456")
-                        .identifierNumber("ABCD 123")
+                        .idType("Plate Number")
+                        .identifierNumber("ABC 123")
                         .aporType("AB")
                         .validFrom(new Date())
                         .validTo(new Date())
