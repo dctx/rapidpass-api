@@ -19,10 +19,10 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
-import java.time.OffsetDateTime;
-import java.util.Date;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -127,15 +127,15 @@ class RegistryServiceTest {
                 .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
                 .status(RequestStatus.PENDING.toString())
                 .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
-                .referenceId(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
                 .build();
 
         // mock registry always returns a registry
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
         when(mockRegistryRepository.findById(anyInt())).thenReturn(Optional.of(mockRegistrar));
-        // no pending passes. Assuming JPA returns empty li
-        when(mockAccessPassRepository.findAllByReferenceIdOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
+
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
 
         // no existing user
         when(mockRegistrantRepository.findByReferenceId(anyString())).thenReturn(null);
@@ -172,15 +172,15 @@ class RegistryServiceTest {
                 .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
                 .status(RequestStatus.PENDING.toString())
                 .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
-                .referenceId(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .validTo(FIVE_DAYS_FROM_NOW.getTime())
+                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .validTo(OffsetDateTime.ofInstant(FIVE_DAYS_FROM_NOW.toInstant(), ZoneId.systemDefault()))
                 .build();
 
         // mock registry always returns a registry
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
         // repository returns an access pass!
-        when(mockAccessPassRepository.findAllByReferenceIdOrderByValidToDesc(anyString())).thenReturn(Collections.singletonList(samplePendingAccessPass));
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.singletonList(samplePendingAccessPass));
 
 
         try {

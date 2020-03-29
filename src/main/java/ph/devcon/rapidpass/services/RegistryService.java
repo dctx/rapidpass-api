@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,7 +61,7 @@ public class RegistryService {
 
         // check if there is an existing PENDING/APPROVED RapidPass for referenceId
         final List<AccessPass> existingAcessPasses = accessPassRepository
-                .findAllByReferenceIdOrderByValidToDesc(rapidPassRequest.getIdentifierNumber());
+                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber());
 
         final Optional<AccessPass> existingAccessPass;
         if (existingAcessPasses != null) {
@@ -71,7 +69,7 @@ public class RegistryService {
                     .stream()
                     // get all valid PENDING or APPROVED rapid pass requests for referenceid
                     .filter(accessPass -> !RequestStatus.DENIED.toString().equalsIgnoreCase(accessPass.getStatus())
-                            && accessPass.getValidTo().after(new Date()))
+                            && accessPass.getValidTo().isAfter(OffsetDateTime.now()))
                     .findAny();
         } else existingAccessPass = Optional.empty();
 
@@ -322,8 +320,8 @@ public class RegistryService {
                     .controlCode(Long.parseLong(accessPass.getControlCode()))
                     .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
-                    .validFrom((int)accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int)accessPass.getValidTo().toEpochSecond())
+                    .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
+                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
                     .vehiclePass(false)
                     .build();
 
@@ -333,7 +331,7 @@ public class RegistryService {
                     .idOrPlate(accessPass.getIdentifierNumber())
                     .apor(accessPass.getAporType())
                     .validFrom((int) accessPass.getValidFrom().toEpochSecond()) // convert long time to int
-                    .validUntil((int)accessPass.getValidTo().toEpochSecond())
+                    .validUntil((int) accessPass.getValidTo().toEpochSecond())
                     .vehiclePass(false)
                     .build();
         }
