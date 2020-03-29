@@ -92,6 +92,7 @@ paths:
                       type: string
                     RequestPass:
                       $ref: '#/components/schemas/RapidPass'
+      description: Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
   /api/v1/batch/access-passes:
     get:
       tags:
@@ -269,7 +270,7 @@ paths:
       operationId: controlCode
       tags:
         - inspector
-      summary: Verify if the plate number is registered or not
+      summary: Verify if the control code is valid or not.
       parameters:
         - name: controlCode
           in: path
