@@ -1,13 +1,11 @@
 openapi: 3.0.0
-# Added by API Auto Mocking Plugin
-
-## The server is set to a relative path so when a swagger ui instance reads this, it will use the host + this relative
-## path. this path should be the same as the base path of the api.
 servers:
   - url: /api/v1/
 info:
-  description: API for Rapid Pass Web Services. Guys, currently super simple pass ng API. Please send Merge Requests to update details. Thanks!
-  version: "1.0.0"
+  description: >-
+    API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
+    Please send Merge Requests to update details. Thanks!
+  version: "1.0.0-oas3"
   title: RapidPass API
   license:
     name: Apache 2.0
@@ -19,16 +17,19 @@ tags:
     description: Endpoints for PWA/mobile registraation app
   - name: dashboard
     description: Endpoints for web console for the review and approval of requests
-
 paths:
   /registry/access-passes:
     post:
       tags:
         - pwa
-      summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
+        - dashboard
+      summary: >-
+        Creates a request for a new RapidPass, can be for individual or vehicle
+        depending on pass type
       operationId: requestAccessPass
-      description: |
-        Called from the PWA or web site registration page to register a user.  All new access passes will have a status of 'pending'.
+      description: >
+        Called from the PWA or web site registration page to register a user.
+        All new access passes will have a status of 'pending'.
       requestBody:
         content:
           application/json:
@@ -109,6 +110,7 @@ paths:
     delete:
       tags:
         - dashboard
+        - inspector
       summary: Suspends an active access pass
       operationId: deleteAccessPass
       parameters:
@@ -120,7 +122,7 @@ paths:
             type: string
       responses:
         '200':
-          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+          description: Suspended the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
 
   /dashboard/access-passes/batch-approve:
     post:
@@ -141,6 +143,7 @@ paths:
   /dashboard/control-codes:
     get:
       tags:
+        - inspector
         - dashboard
       summary: Downloads a list of approved control numbers
       operationId: retrieveApprovedControlCodes
@@ -156,12 +159,16 @@ paths:
     get:
       operationId: getAccessPassById
       tags:
+        - inspector
         - pwa
+        - dashboard
       summary: Get information about an access pass
       parameters:
         - name: referenceID
           in: path
-          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
+          description: >-
+            Reference ID of the access pass request, mobile number for
+            individuals and plate numbers for vehicles
           required: true
           schema:
             type: string
@@ -177,8 +184,9 @@ paths:
     get:
       operationId: getAccessPassByQrCode
       tags:
+        - dashboard
         - inspector
-      summary: Get access pass using QR Code to check if it is valid pass
+      summary: Approves or Declines a Rapid Pass request
       parameters:
         - name: qrCode
           in: path

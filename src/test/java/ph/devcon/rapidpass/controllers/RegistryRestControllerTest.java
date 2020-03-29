@@ -9,13 +9,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.enums.RequestStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.RegistryService;
 
+import java.util.ArrayList;
+
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -174,6 +178,42 @@ class RegistryRestControllerTest {
                 .andDo(print());
     }
 
+    /**
+     * This tests GETting `requestPass` with either mobileNum or plateNum.
+     *
+     * @throws Exception on failed test
+     */
+    @Test
+    void getControlCodes() throws Exception {
+
+        ControlCode controlCode = ControlCode.builder()
+                .controlCode("12345")
+                .passType(INDIVIDUAL.toString())
+                .referenceId("ABCDE")
+                .build();
+
+        ArrayList<ControlCode> controlCodes = new ArrayList<>();
+        controlCodes.add(controlCode);
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.getControlCodes())
+                .thenReturn(controlCodes);
+
+        final String getAccessPathUrlTemplate = "/registry/control-codes/";
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate))
+                .andExpect(status().isOk())
+                // test json is expected
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").isMap())
+                .andExpect(jsonPath("$[0].controlCode").value("12345"))
+                .andExpect(jsonPath("$[0].passType").value("INDIVIDUAL"))
+                .andExpect(jsonPath("$[0].referenceId").value("ABCDE"))
+                .andDo(print());
+    }
+
 
     @Test
     public void getPassRequest_NULL() throws Exception {
@@ -181,5 +221,53 @@ class RegistryRestControllerTest {
         mockMvc.perform(
                 get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    public void revokeAccessPass() throws Exception {
+
+        // mock service to return dummy INDIVIDUAL pass request when individual is request type.
+        when(mockRegistryService.revoke(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_PASS);
+
+        // mock service to return null
+        mockMvc.perform(
+                delete("/registry/access-passes/{referenceID}", "0915999999"))
+                .andExpect(status().isOk());
+
+        // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
+        verify(mockRegistryService, only()).revoke(eq("0915999999"));
+    }
+
+    @Test
+    public void grantOrDenyRequest() throws Exception, RegistryService.UpdateAccessPassException {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
+
+        when(mockRegistryService.grant(eq(TEST_VEHICLE_PASS.getReferenceId())))
+                .thenReturn(TEST_VEHICLE_PASS);
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_PASS);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, "0915999999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isOk())
+                // test json is expected
+                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType()))
+                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
+                .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
+                .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
+                .andDo(print());
     }
 }
