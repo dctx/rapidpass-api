@@ -2,10 +2,11 @@
 # host machine. This compiles the jar.
 FROM openjdk:15-jdk-alpine as build
 
+# caching
 COPY pom.xml pom.xml
 COPY mvnw mvnw
 COPY .mvn .mvn
-RUN ./mvnw dependency:go-offline -DincludeScope=runtime,compile,test,provided,system
+RUN ./mvnw test
 # building jar. doing test too
 ADD src src
 RUN ./mvnw test package
