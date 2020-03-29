@@ -75,19 +75,12 @@ public class RegistryService {
                             rapidPassRequest.getIdentifierNumber()));
         }
 
+        // check if registrant is already in the system
+        Registrant registrant = registrantRepository.findByReferenceId(rapidPassRequest.getIdentifierNumber());
+        if (registrant == null) registrant = new Registrant();
 
-        Optional<Registrar> registrarResult = registryRepository.findById(1);
-        Registrar registrar = registrarResult.orElse(null);
-
-        Registrant registrant = new Registrant();
-        // set essential fields for registrant
-        if (registrarResult.isPresent()) {
-            registrant.setRegistrarId(registrarResult.get());
-        } else {
-            log.error("Unable to retrieve Registrar");
-        }
         registrant.setRegistrantType(1);
-        registrant.setRegistrantName(rapidPassRequest.getFirstName() + " " + rapidPassRequest.getLastName());
+        registrant.setRegistrantName(rapidPassRequest.getName());
         registrant.setFirstName(rapidPassRequest.getFirstName());
         registrant.setMiddleName(rapidPassRequest.getMiddleName());
         registrant.setLastName(rapidPassRequest.getLastName());
@@ -96,8 +89,20 @@ public class RegistryService {
         registrant.setMobile(rapidPassRequest.getMobileNumber());
         registrant.setReferenceIdType(rapidPassRequest.getIdType());
         registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
+
+        // create/update registrant
         registrant = registrantRepository.save(registrant);
-        // map an access pass to the registrant
+
+        Optional<Registrar> registrarResult = registryRepository.findById(1);
+
+        // set essential fields for registrant
+        if (registrarResult.isPresent()) {
+            registrant.setRegistrarId(registrarResult.get());
+        } else {
+            log.error("Unable to retrieve Registrar");
+        }
+
+        // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceId(registrant.getMobile());
@@ -127,7 +132,7 @@ public class RegistryService {
         accessPass.setDateTimeUpdated(currentDateTime);
         accessPass.setStatus("PENDING");
 
-        log.info("Persisting Registrant: {}", registrant.toString());
+        log.debug("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
