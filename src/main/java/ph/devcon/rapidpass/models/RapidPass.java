@@ -3,7 +3,6 @@ package ph.devcon.rapidpass.models;
 import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.utilities.DateOnlyFormat;
 

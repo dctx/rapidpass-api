@@ -4,21 +4,29 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.zxing.WriterException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.notifications.NotificationException;
+import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.NotificationService;
+import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorService;
 
+import javax.activation.DataSource;
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.OffsetDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AccessPassNotifierServiceTest {
 
     public static final String TEST_MAILBOX = "test@my-mail.com";
@@ -37,6 +45,10 @@ class AccessPassNotifierServiceTest {
             .aporType("AB")
             .validFrom(NOW)
             .validTo(NOW.plusDays(1))
+            .registrantId(Registrant.builder()
+                    .email("my-email@email.com").
+                            mobile("0915890883")
+                    .build())
             .build();
 
     AccessPassNotifierService instance;
@@ -52,12 +64,13 @@ class AccessPassNotifierServiceTest {
     @Mock
     NotificationService mockSmsService;
 
-    @Mock
-    PdfGeneratorService pdfGeneratorService;
+
+    PdfGeneratorService pdfGeneratorService = new PdfGeneratorImpl();
 
     @BeforeEach
     void setUp() {
-        instance = new AccessPassNotifierService(mockAccessPassRepo,
+        instance = new AccessPassNotifierService(
+                mockAccessPassRepo,
                 qrGenerator,
                 pdfGeneratorService,
                 mockSmsService,
@@ -75,6 +88,11 @@ class AccessPassNotifierServiceTest {
 
         instance.pushApprovalNotifs(TEST_ACCESSPASS_REFID);
 
+        // verify email and sms send will be called
+
+        verify(mockSmsService, times(1)).send(any());
+        verify(mockEmailService, times(1)).send(any());
+
     }
 
     @Test
@@ -84,7 +102,33 @@ class AccessPassNotifierServiceTest {
     }
 
     @Test
-    void buildEmailMessage() {
+    void buildEmailMessage() throws ParseException, IOException, WriterException {
+        final String toAddress = "my-email@email.com";
+        final String testPassLink = "a-test-url.com";
+        final NotificationMessage notificationMessage =
+                instance.buildEmailMessage(testPassLink,
+                        INDIVIDUAL_ACCESSPASS,
+                        toAddress);
 
+        final DataSource attachement = notificationMessage.getAttachments().get("rapidpass-qr.pdf");
+        assertThat(attachement.getContentType(), is("application/pdf"));
+
+        assertThat(notificationMessage.getFrom(), is(TEST_MAILBOX));
+        assertThat(notificationMessage.getTo(), is(toAddress));
+        assertThat(notificationMessage.getMessage(), is("Your RapidPass is available here: " + testPassLink));
+        assertThat(notificationMessage.getTitle(), is("RapidPass is APPROVED"));
+
+        // you can visually inspect the PDF file generated, by looking for path in the logs
+    }
+
+    @Test
+    void buildSmsMessage() {
+        final String testPassLink = "a-test-url.com";
+        final String testMobile = "09158977011";
+        final NotificationMessage smsMessage = instance.buildSmsMessage(testPassLink, testMobile);
+
+        assertThat(smsMessage.getFrom(), is("RAPIDPASS.PH"));
+        assertThat(smsMessage.getTo(), is(testMobile));
+        assertThat(smsMessage.getMessage(), is("Your RapidPass is available here: " + testPassLink));
     }
 }

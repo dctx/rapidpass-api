@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

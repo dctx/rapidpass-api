@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RequestStatus;
 
 import javax.persistence.*;
@@ -154,6 +156,32 @@ public class AccessPass implements Serializable {
         }
         AccessPass other = (AccessPass) object;
         return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
+    }
+
+    /**
+     * Converts an {@link AccessPass} to {@link QrCodeData}
+     *
+     * @param accessPass access pass to convert
+     */
+    public static QrCodeData toQrCodeData(AccessPass accessPass) {
+        // convert access pass to qr code data
+        return PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType()) ?
+                QrCodeData.individual()
+                        .apor(accessPass.getAporType())
+                        // long to int -> int = long / 1000
+                        .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
+                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
+                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .idOrPlate(accessPass.getIdentifierNumber())
+                        .build() :
+                QrCodeData.vehicle()
+                        .apor(accessPass.getAporType())
+                        // long to int -> int = long / 1000
+                        .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
+                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
+                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .idOrPlate(accessPass.getIdentifierNumber())
+                        .build();
     }
 
 }

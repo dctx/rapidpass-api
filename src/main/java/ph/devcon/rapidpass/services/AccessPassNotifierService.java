@@ -8,14 +8,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.notifications.NotificationException;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.NotificationService;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorService;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.text.ParseException;
 
 /**
  * The {@link AccessPassNotifierService} service is responsible for sending out sms and emails for approved access passes.
@@ -44,11 +49,18 @@ public class AccessPassNotifierService {
      */
     @Value("${notifier.rapidPassUrl:http://rapidpass.ph}")
     private String rapidPassUrl = "http://rapidpass.ph";
+
     /**
-     * The URL value notifier will use when inserting links to access pass. Defaults to localhost.
+     * The email address that will appear in the from field of the email sent.
      */
     @Value("${notifier.mailFrom:rapidpass-dctx@devcon.ph}")
     private String mailFrom = "rapidpass-dctx@devcon.ph";
+
+    /**
+     * The sender that will appear in the sms messages sent.
+     */
+    @Value("${notifier.smsFrom:RAPIDPASS.PH}")
+    private String smsFrom = "RAPIDPASS.PH";
 
     /**
      * The configurable endpoint to send for users to download qr codes. Defaults to /api/v1/registry/qr-codes/{referenceId}
@@ -83,13 +95,27 @@ public class AccessPassNotifierService {
         // create NotificationMessages to send out
         // email
         final String email = accessPass.getRegistrantId().getEmail();
-        if (!StringUtils.isEmpty(email)) emailService.send(
-                buildEmailMessage(accessPassUrl, accessPass, email));
+        if (!StringUtils.isEmpty(email)) {
+            try {
+                emailService.send(
+                        buildEmailMessage(accessPassUrl, accessPass, email));
+            } catch (Exception e) {
+                // we want to continue despite any error in emailService
+                log.error("Error sending email message to " + email, e);
+            }
+        }
 
         final String mobile = accessPass.getRegistrantId().getMobile();
         // sms
-        if (!StringUtils.isEmpty(mobile)) smsService.send(
-                buildSmsMessage(accessPassUrl, mobile));
+        if (!StringUtils.isEmpty(mobile)) {
+            try {
+                smsService.send(
+                        buildSmsMessage(accessPassUrl, mobile));
+            } catch (Exception e) {
+                // we want to continue despite any error in smsService
+                log.error("Error sending SMS message to " + mobile, e);
+            }
+        }
 
     }
 
@@ -113,7 +139,7 @@ public class AccessPassNotifierService {
      */
     NotificationMessage buildSmsMessage(String accessPassUrl, String mobile) {
         return NotificationMessage.New()
-                .from("RAPIDPASS.PH")
+                .from(smsFrom)
                 .to(mobile)
                 // todo get SMS format - make configurable
                 .message("Your RapidPass is available here: " + accessPassUrl)
@@ -129,22 +155,26 @@ public class AccessPassNotifierService {
      * @throws IOException     on error generating qr code
      * @throws WriterException on error generating qr code
      */
-    NotificationMessage buildEmailMessage(String accessPassUrl, AccessPass accessPass, String email)
-            throws IOException, WriterException {
+    NotificationMessage buildEmailMessage(String accessPassUrl,
+                                          AccessPass accessPass,
+                                          String email)
+            throws IOException, WriterException, ParseException {
 
-        // convert access pass to qr code data
-
+        final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass);
         return NotificationMessage.New()
                 .from(mailFrom)
                 .to(email)
-                // todo prolly need to move this to email templatr - thymeleaf? velocity? etc..
+                // todo prolly need to move this to email templatr - thymeleaf? velocity? etc...
                 // simple message for now
                 .message("Your RapidPass is available here: " + accessPassUrl)
                 .title("RapidPass is APPROVED")
                 // attach QR code PDF
                 .addAttachment("rapidpass-qr.pdf", "application/pdf",
-                        null// todo
-                )
+                        Files.readAllBytes(
+                                pdfGeneratorService.generatePdf(File.createTempFile("qrPdf", ".pdf").getAbsolutePath(),
+                                        qrGeneratorService.generateQr(qrCodeData),
+                                        RapidPass.buildFrom(accessPass))
+                                        .toPath()))
                 .create();
     }
 

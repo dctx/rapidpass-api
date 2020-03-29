@@ -19,7 +19,7 @@ public class NotificationMessage {
     }
 
     private NotificationMessage(final String from, final String to, final String title, final String message,
-            final Map<String, DataSource> attachments) {
+                                final Map<String, DataSource> attachments) {
         this.from = from;
         this.to = to;
         this.title = title;
