@@ -255,9 +255,6 @@
         </profile>
         <profile>
             <id>aws</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <activateSpringProfile>aws</activateSpringProfile>
             </properties>

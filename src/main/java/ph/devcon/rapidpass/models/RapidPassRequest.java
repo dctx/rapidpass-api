@@ -43,7 +43,7 @@ public final class RapidPassRequest {
     private String suffix;
     private String company;
     private String idType;
-    private String identifierNumber; // todo validate. use validation annotations.
+    private String identifierNumber;
     private String mobileNumber; // todo validate. use validation annotations.
     private String email;  // todo validate. use validation annotations.
     private String originName;

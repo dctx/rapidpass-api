@@ -1,7 +1,6 @@
 openapi: 3.0.0
 servers:
-  - description: Test Environment Configuration
-    url: /api/v1
+  - url: /api/v1
 info:
   description: >-
     API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
@@ -19,13 +18,13 @@ tags:
   - name: dashboard
     description: Endpoints for web console for the review and approval of requests
 paths:
-  /api/v1/registry/access-passes:
+  /registry/access-passes:
     post:
       tags:
         - pwa
         - dashboard
       summary: >-
-        Creates a request for a new RapidPass, can be for individual or vehicle
+        Creates a request for a new RapidPass, can be for INDIVIDUAL or VEHICLE
         depending on pass type
       operationId: requestAccessPass
       description: >
@@ -45,12 +44,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  referenceId:
-                    type: string
-                    description: >-
-                      backend generated reference id for the requested access
-                      pass
-                description: reference id of the access pass
+                  schema:
+                    $ref: '#/components/schemas/RapidPass'
           links:
             GetAccessPassById:
               operationId: getAccessPassById
@@ -93,7 +88,7 @@ paths:
                     RequestPass:
                       $ref: '#/components/schemas/RapidPass'
       description: Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
-  /api/v1/batch/access-passes:
+  /batch/access-passes:
     get:
       tags:
         - dashboard
@@ -116,7 +111,7 @@ paths:
       responses:
         '200':
           description: Upload successful
-  /api/v1/registry/control-codes:
+  /registry/control-codes:
     get:
       tags:
         - inspector
@@ -146,7 +141,7 @@ paths:
                     plateOrId:
                       type: string
                       description: plateNumber or id of associated with access pass
-  '/api/v1/registry/access-passes/{referenceID}':
+  '/registry/access-passes/{referenceID}':
     get:
       operationId: getAccessPassById
       tags:
@@ -241,7 +236,7 @@ paths:
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
 
-  '/api/v1/checkpoint/verify-plate-no/{plateNo}':
+  '/checkpoint/verify-plate-no/{plateNo}':
     get:
       operationId: verifyPlateNo
       tags:
@@ -265,7 +260,7 @@ paths:
         '404':
           description: RapidPass not found using the plate number.
 
-  '/api/v1/checkpoint/verify-control-code/{controlCode}':
+  '/checkpoint/verify-control-code/{controlCode}':
     get:
       operationId: controlCode
       tags:
@@ -292,18 +287,25 @@ components:
   schemas:
     RapidPassRequest:
       type: object
+      allOf:
+        - $ref: '#/components/schemas/CommonElements'
       properties:
-        passType:
+        firstName:
           type: string
-          description: Type of pass being requested. Can be individual or vehicle
-        accessType:
+          description: The first name of the individual that will use the access pass
+          example: Juan
+        middleName:
           type: string
-          description: >-
-            Type of access needed. This is tied to gov agency that will approve
-            pass
-        name:
+          description: The middle name of the individual that will use the access pass
+          example: Mercedes
+        lastName:
           type: string
-          description: name of individual that will use the access pass
+          description: The last name of the individual that will use the access pass
+          example: de la Cruz
+        suffix:
+          type: string
+          description: The suffix of the individual that will use the access pass
+          example: III
         company:
           type: string
           description: company of access pass holder
@@ -313,34 +315,84 @@ components:
             for vehicles this could be plate number or conduction sticker, for
             individuals this will be the type of ID, e.g. company ID, driver's
             license, etc.
-        plateOrId:
+          example: passport
+        identifierNumber:
           type: string
           description: plate number of vehicle or ID of individual
+          example: VV1234567
         mobileNumber:
           type: string
           description: mobile number of access pass holder
+          example: '+639991230000'
         email:
           type: string
           description: email address of access pass holder
-        originAddress:
+          example: jdelacruz@some-email.com
+        originName:
           type: string
-          description: general location where the requester is coming from
-        destAddress:
+          description: source company name
+          example: Acme Inc.
+        originStreet:
           type: string
-          description: general location where ther requester is heading to
+          description: source street address
+          example: '123 Somewhere Ave'
+        originCity:
+          type: string
+          description: source city
+          example: 'Makati City'
+        destName:
+          type: string
+          description: destination location
+          example: Zuelig Building
+        destStreet:
+          type: string
+          description: destination street address
+          example: 'Paseo de Roxas'
+        destCity:
+          type: string
+          description: source city
+          example: 'Makati City'
         remarks:
           type: string
+          description: additional remarks
+          example: will buy groceries
     RapidPass:
+      type: object
       allOf:
-        - $ref: '#/components/schemas/RapidPassRequest'
+        - $ref: '#/components/schemas/CommonElements'
         - properties:
+            name:
+              type: string
+              description: name of the person the acess pass is assigned to (first name + last name + suffix)
             controlCode:
               type: string
-              description: generated by the backend when a pass has been approved.
+              description: generated identifer for approved requests
+            referenceId:
+              type: string
+              description: used for searching the access pass, either the plate number or ID of the individual
             status:
               type: string
               description: status of the access pass
+              enum: [PENDING, APPROVED, DECLINED]
+            validFrom:
+              type: string
+              description: start date of the access pass's validity period
             validUntil:
               type: string
               description: expiration date of the access pass
+    CommonElements:
       type: object
+      properties:
+        aporType:
+          type: string
+          description: Code for Authorized Personnel Outside Residence. Check IATF doc for details.
+          enum: [AG,BA,BP,CA,DC,DO,ER,FC,FS,GO,GR,HM,HT,IP,LW,ME,MS,MF,MT,PH,PM,PI,SH,SS,TF,UT,VE]
+          example: "AG"
+        passType:
+          type: string
+          description: type of pass, either VEHICLE or INDIVIDUAL
+          enum:
+            - INDIVIDUAL
+            - VEHICLE
+          example: INDIVIDUAL
+

@@ -96,7 +96,7 @@ public class RegistryService {
         accessPass.setValidTo(currentDateTime);
         accessPass.setDateTimeCreated(currentDateTime);
         accessPass.setDateTimeUpdated(currentDateTime);
-        accessPass.setStatus("pending");
+        accessPass.setStatus("PENDING");
 
         log.info("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
