@@ -6,7 +6,6 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
@@ -49,7 +48,7 @@ class QrGeneratorServiceImplTest {
     private static final int MAR_27_2020 = 1585267200;
 
     @Test
-    @Disabled // fails in CICD for some reason. JDK things....
+    //@Disabled // fails in CICD for some reason. JDK things....
     void generateQr() throws IOException, WriterException {
         final QrCodeData testPayload = QrCodeData.individual()
                 .idOrPlate("ABCD 1234")

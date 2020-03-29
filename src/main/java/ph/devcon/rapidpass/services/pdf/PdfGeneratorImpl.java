@@ -3,7 +3,10 @@ package ph.devcon.rapidpass.services.pdf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -24,6 +27,8 @@ import org.springframework.util.ResourceUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.utilities.DateOnlyFormat;
+import ph.devcon.rapidpass.utilities.RFC3339DateFormat;
 
 /**
  * Utility class for generating Pdf using File qrcode file from QRCode Generator.
@@ -107,7 +112,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         header.setBold();
 
         // checks if pass type is individual or vehicle
-        final String passType = rapidPass.getPassType().toLowerCase();
+        final String passType = rapidPass.getPassType().toString().toLowerCase();
         if (passType.equals("individual")) {
             header.add(rapidPass.getControlCode());
 
@@ -131,11 +136,11 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         companyParagraph.setFixedPosition(220, 120, 340);
 
         // checks if pass type is individual or vehicle
-        final String passType = rapidPass.getPassType().toLowerCase();
+        final String passType = rapidPass.getPassType().toString().toLowerCase();
 
         String name = rapidPass.getName();
 
-        if (rapidPass.getPassType().equals("VEHICLE")) {
+        if ("VEHICLE".equals(rapidPass.getPassType().toString())) {
             name = "PLATE# " + name;
         }
 
@@ -153,10 +158,11 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return results;
     }
 
-    private static Paragraph[] generateValidUntil(RapidPass rapidPass) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd");
+    private static Paragraph[] generateValidUntil(RapidPass rapidPass) throws ParseException {
+        SimpleDateFormat formatToPdf = new SimpleDateFormat("MM/dd");
 
-        String validUntil = sdf.format(rapidPass.getValidTo());
+        Date validUntilDate = DateOnlyFormat.parse(rapidPass.getValidUntil());
+        String validUntil = formatToPdf.format(validUntilDate);
 
         Paragraph details = new Paragraph();
         details.setFontSize(20);
@@ -196,7 +202,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Paragraph passType = new Paragraph();
 
-        String passTypeText = "INDIVIDUAL".equals(rapidPass.getPassType()) ? "PERSON" : rapidPass.getPassType();
+        String passTypeText = "INDIVIDUAL".equals(rapidPass.getPassType().toString()) ? "PERSON" : rapidPass.getPassType().toString();
 
         passType.add(passTypeText);
         passType.setFontSize(26);
@@ -232,7 +238,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     public File generatePdf(String filePath,
                                    File qrCodeFile,
                                    RapidPass rapidPass)
-            throws FileNotFoundException, MalformedURLException {
+            throws FileNotFoundException, MalformedURLException, ParseException {
         log.debug("generating pdf at {}", filePath);
 
         Document document = createDocument(filePath);
@@ -267,7 +273,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         document.add(iBlockElements[0]);
         document.add(iBlockElements[1]);
         document.add(iBlockElements[2]);
-        document.add(dctxLogo);
+//        document.add(dctxLogo);
 
         document.close();
 

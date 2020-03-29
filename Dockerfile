@@ -5,7 +5,7 @@ FROM openjdk:15-jdk-alpine as build
 COPY pom.xml pom.xml
 COPY mvnw mvnw
 COPY .mvn .mvn
-RUN ./mvnw dependency:go-offline
+RUN ./mvnw dependency:go-offline -DincludeScope=runtime,compile,test,provided,system
 # building jar. doing test too
 ADD src src
 RUN ./mvnw test package

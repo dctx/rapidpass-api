@@ -1,0 +1,35 @@
+config:
+  postgres:
+    database: rapidpass
+    host: rapidpass-postgres
+    password: password
+    port: "5432"
+    username: dctx
+  semaphore:
+    key: ""
+    url: https://api.semaphore.co/api/v4/messages
+  smtp:
+    auth: "true"
+    host: smtp.mailgun.org
+    password: ***REMOVED***
+    port: "587"
+    tls: "true"
+    username: rapidpass@talino.mg.amihan.net
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  enabled: enabled
+  host: api.dev.rapidpass.amihan.net
+  tls:
+    enabled: true
+    secretName: rapidpass-tls
+swaggerUI:
+  config:
+    urls:
+    - name: Test Environment
+      url: https://api.dev.rapidpass.amihan.net/api/v1/spec
+tags:
+  postgres: true
+

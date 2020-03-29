@@ -1,7 +1,6 @@
 openapi: 3.0.0
 servers:
-  - description: Test Environment Configuration
-    url: /api/v1
+  - url: /api/v1/
 info:
   description: >-
     API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
@@ -19,7 +18,7 @@ tags:
   - name: dashboard
     description: Endpoints for web console for the review and approval of requests
 paths:
-  /api/v1/registry/access-passes:
+  /registry/access-passes:
     post:
       tags:
         - pwa
@@ -43,14 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  referenceId:
-                    type: string
-                    description: >-
-                      backend generated reference id for the requested access
-                      pass
-                description: reference id of the access pass
+                $ref: '#/components/schemas/Link'
           links:
             GetAccessPassById:
               operationId: getAccessPassById
@@ -60,9 +52,10 @@ paths:
           description: Invalid Input
     get:
       tags:
+        - pwa
         - dashboard
-        - inspector
       summary: Gets a list of access passes
+      operationId: getAccessPasses
       parameters:
         - name: status
           in: query
@@ -73,80 +66,120 @@ paths:
         - name: validUntil
           in: query
           required: false
-          description: >-
-            returns a list of access passes that are valid until the specified
-            date
+          description: returns a list of access passes that are valid until the specified date time
           schema:
-            type: string
+            $ref: '#/components/schemas/DateTime'
       responses:
         '200':
           description: Status of the request pass
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    referenceId:
-                      type: string
-                    RequestPass:
-                      $ref: '#/components/schemas/RapidPass'
-      description: Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
-  /api/v1/batch/access-passes:
+                $ref: '#/components/schemas/AccessPasses'
+
+  '/registry/qr-codes/{referenceID}':
     get:
+      operationId: getQrCodesById
       tags:
-        - dashboard
-        - inspector
-      summary: downloads a list of access passes in csv format
+        - pwa
+      summary: Download PDF of QR code for a reference ID
       parameters:
-        - name: compressed
-          in: query
-          description: 'specifies whether to compress the csv file or not, default is false'
-          required: false
+        - name: referenceID
+          in: path
+          description: >-
+            Reference ID of the access pass request, mobile number for
+            individuals and plate numbers for vehicles
+          required: true
           schema:
             type: string
       responses:
         '200':
-          description: Upload successful
+          description: A PDF file with QR code
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /dashboard/access-passes/{referenceID}:
+    put:
+      tags:
+        - dashboard
+      summary: Approves or Declines a Rapid Pass request
+      operationId: updateAccessPassStatus
+      parameters:
+        - name: referenceID
+          in: path
+          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessPass'
+
+      responses:
+        '200':
+          description: approves the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+          links:
+            GetAccessPassById:
+              operationId: getAccessPassById
+              parameters:
+                referenceId: '$response.body#/referenceId'
+    delete:
+      tags:
+        - dashboard
+      summary: Suspends an active access pass
+      operationId: deleteAccessPass
+      parameters:
+        - name: referenceID
+          in: path
+          description: Reference ID of the access pass request, mobile number for individuals and plate numbers for vehicles
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Suspended the Rapid Pass Request with referenced reference Number. Will generate a control code in system and send notifications to Requestor along with QR code.
+
+  /dashboard/access-passes/batch-approve:
     post:
       tags:
         - dashboard
       summary: Upload CSV/Excel file of approved control numbers TODO
+      operationId: approveBatchOfAccessPasses
+      requestBody:
+        description: batch of RapidPassRequest
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RapidPassRequests'
       responses:
         '200':
           description: Upload successful
-  /api/v1/registry/control-codes:
+
+  /dashboard/access-passes:
     get:
       tags:
-        - inspector
         - dashboard
-      summary: Downloads a list of approved control numbers
+      summary: Downloads CSV/Excel file of approved control numbers
+      operationId: downloadBatchOfAccessPasses in CSV or any approved format.
       responses:
         '200':
-          description: list of all approved control numbers
+          description: Upload successful
           content:
-            application/json:
+            text/csv:
               schema:
-                type: array
-                items:
-                  type: object
-                  required:
-                    - referenceId
-                  properties:
-                    referenceId:
-                      type: string
-                      description: 'backend generated reference id, created upon request'
-                    controlCode:
-                      type: string
-                      description: approved control control code
-                    passType:
-                      type: string
-                      description: type of access pass
-                    plateOrId:
-                      type: string
-                      description: plateNumber or id of associated with access pass
-  '/api/v1/registry/access-passes/{referenceID}':
+                type: string
+                description: CSV representation of Access Passes controlCode,identificationNumber,passType,approvedBy,validUntil,lastUsed
+
+  /registry/access-passes/{referenceID}:
     get:
       operationId: getAccessPassById
       tags:
@@ -169,153 +202,122 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RapidPass'
-    put:
+                $ref: '#/components/schemas/AccessPass'
+
+  /checkpoint/access-pass/verify-qr/{qrCode}:
+    get:
+      operationId: getAccessPassByQrCode
       tags:
         - dashboard
+        - inspector
       summary: Approves or Declines a Rapid Pass request
       parameters:
-        - name: referenceID
+        - name: qrCode
           in: path
-          description: >-
-            Reference ID of the access pass request, mobile number for
-            individuals and plate numbers for vehicles
+          description: QR Code to retrieve
           required: true
           schema:
             type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                referenceId:
-                  type: string
-                passType:
-                  type: string
-                plateOrId:
-                  type: string
-                validUntil:
-                  type: string
-                status:
-                  type: string
       responses:
-        '200':
-          description: >-
-            approves the Rapid Pass Request with referenced reference Number.
-            Will generate a control code in system and send notifications to
-            Requestor along with QR code.
+        200:
+          description: Access Pass retrieved
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  referenceId:
-                    type: string
-                    description: >-
-                      backend generated reference id for the requested access
-                      pass
-                description: reference id of the access pass
-          links:
-            GetAccessPassById:
-              operationId: getAccessPassById
-              parameters:
-                referenceId: '$response.body#/referenceId'
-    delete:
-      tags:
-        - dashboard
-      summary: Suspends an active access pass
-      parameters:
-        - name: referenceID
-          in: path
-          description: >-
-            Reference ID of the access pass request, mobile number for
-            individuals and plate numbers for vehicles
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: >-
-            approves the Rapid Pass Request with referenced reference Number.
-            Will generate a control code in system and send notifications to
-            Requestor along with QR code.
+                $ref: '#/components/schemas/AccessPass'
+        404:
+          description: QR Code not found or not valid
 
-  '/api/v1/checkpoint/verify-plate-no/{plateNo}':
+  /checkpoint/access-pass/verify-plate-no/{plateNo}:
     get:
-      operationId: verifyPlateNo
+      operationId: getAccessPassByPlateNumber
       tags:
         - inspector
-      summary: Verify if the plate number is registered or not
+      summary: Get access pass using Plate Number to check if it is valid pass
       parameters:
         - name: plateNo
           in: path
-          description: >-
-            Vehicle's plate number
+          description: Get Access Pass using Plate number
           required: true
           schema:
             type: string
       responses:
-        '200':
-          description: Rapid Pass retrieved
+        200:
+          description: Access Pass retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RapidPass'
-        '404':
-          description: RapidPass not found using the plate number.
+                $ref: '#/components/schemas/AccessPass'
+        404:
+          description: Plate number not found or not valid
 
-  '/api/v1/checkpoint/verify-control-code/{controlCode}':
+  /checkpoint/access-pass/verify-control-code/{controlCode}:
     get:
-      operationId: controlCode
+      operationId: getAccessPassByControlCode
       tags:
         - inspector
-      summary: Verify if the control code is valid or not.
+      summary: Get access pass using Control Code to check if it is valid pass
       parameters:
         - name: controlCode
           in: path
-          description: >-
-            The RapidPass's Control Code
+          description: Control Code to use on retrieving the access pass
           required: true
           schema:
             type: string
       responses:
-        '200':
-          description: Rapid Pass retrieved
+        200:
+          description: Access Pass retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RapidPass'
-        '404':
-          description: RapidPass not found using the control code
+                $ref: '#/components/schemas/AccessPass'
+        404:
+          description: Plate number not found or not valid
+
 components:
   schemas:
     RapidPassRequest:
       type: object
       properties:
+        referenceID:
+          type: string
+          description: Reference ID of the request. Populated upon registraiton
+          example:
+            ADSFSD
         passType:
+          $ref: '#/components/schemas/PassRequestType'
+        aporType:
           type: string
-          description: Type of pass being requested. Can be individual or vehicle
-        accessType:
+          description: Allowed Person Outside of Residence Type (APOR Type). It's a two character code of the kind pass type outside the person's residence.
+          example:
+            MM
+        firstName:
           type: string
-          description: >-
-            Type of access needed. This is tied to gov agency that will approve
-            pass
-        name:
+          description: firstname of individual that will use the access pass
+          example:
+            Juan
+        middleName:
           type: string
-          description: name of individual that will use the access pass
+          description: middleName of individual that will use the access pass
+          example:
+            Dipahuhuli
+        lastName:
+          type: string
+          description: lastName of individual that will use the access pass
+            Dimaunahan
+        suffix:
+          type: string
+          description: Name i.e. Jr. the III
+          example:
+            Jr.
         company:
           type: string
           description: company of access pass holder
         idType:
+          $ref: '#/components/schemas/IdentificationType'
+        identificationNumber:
           type: string
-          description: >-
-            for vehicles this could be plate number or conduction sticker, for
-            individuals this will be the type of ID, e.g. company ID, driver's
-            license, etc.
-        plateOrId:
-          type: string
-          description: plate number of vehicle or ID of individual
+          description: Identification number depending on the idType
         mobileNumber:
           type: string
           description: mobile number of access pass holder
@@ -323,24 +325,87 @@ components:
           type: string
           description: email address of access pass holder
         originAddress:
-          type: string
-          description: general location where the requester is coming from
+          $ref: '#/components/schemas/Address'
         destAddress:
-          type: string
-          description: general location where ther requester is heading to
+          $ref: '#/components/schemas/Address'
         remarks:
           type: string
-    RapidPass:
+          description: Reason why the pass is needed
+          example:
+            To deliver medical supplies
+        status:
+          $ref: '#/components/schemas/AccessPassStatus'
+
+    AccessPass:
       allOf:
         - $ref: '#/components/schemas/RapidPassRequest'
-        - properties:
-            controlCode:
-              type: string
-              description: generated by the backend when a pass has been approved.
-            status:
-              type: string
-              description: status of the access pass
-            validUntil:
-              type: string
-              description: expiration date of the access pass
       type: object
+      properties:
+        controlCode:
+          type: string
+          description: Control Code generated for this pass
+          example:
+            2A8B043
+        validUntil:
+          $ref: '#/components/schemas/DateTime'
+        lastUsedOn:
+          $ref: '#/components/schemas/DateTime'
+        approvedBy:
+          type: string
+          description: Name of the approving organization
+
+    Link:
+      type: object
+      description: URL  to the resource already created in the back end.
+      properties:
+        href:
+          type: string
+          example: /{resource} . . .
+        templated:
+          type: boolean
+
+    AccessPasses:
+      type: array
+      items:
+        $ref: '#/components/schemas/AccessPass'
+
+    RapidPassRequests:
+      type: array
+      items:
+        $ref: '#/components/schemas/RapidPassRequest'
+
+    PassRequestType:
+      description: Pass Request Type
+      type: string
+      enum:
+        - INDIVIDUAL
+        - VEHICLE
+    AccessPassStatus:
+      type: string
+      enum:
+        - APPROVED
+        - DENIED
+        - PENDING
+      description: status of the access pass
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: street address
+          example: 1 out of nowhere
+        city:
+          type: string
+          description: city
+          example: sin city
+
+    IdentificationType:
+      type: string
+      description: for vehicles this could be plate number or conduction sticker, for individuals this will be the type of ID, e.g. company ID, driver's license, etc.
+      enum:
+        - PersonalID
+        - VehicleID
+    DateTime:
+      type: string
+      format: 'date-time'

@@ -36,7 +36,9 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "access_pass", schema = "public")
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class AccessPass implements Serializable {
 
     private static final long serialVersionUID = 1L;
