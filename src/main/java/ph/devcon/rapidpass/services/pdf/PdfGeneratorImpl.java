@@ -19,6 +19,7 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 
+import com.itextpdf.layout.property.UnitValue;
 import org.springframework.util.ResourceUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -75,11 +76,11 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     private static Paragraph generateRapidPassHeader() {
         Paragraph header = new Paragraph();
-        header.setFontSize(72);
+        header.setFontSize(54);
         header.setTextAlignment(TextAlignment.CENTER);
         header.setBold();
-        header.setFixedPosition(50, 720, 500);
-        header.add("RAPIDPASS");
+        header.setFixedPosition(50, 730, 500);
+        header.add("RAPIDPASS.PH");
         return header;
 
     }
@@ -99,7 +100,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph generateTitle(RapidPass rapidPass) {
 
         Paragraph header = new Paragraph();
-        header.setFixedPosition(20, 60, 500);
+        header.setFixedPosition(220, 50, 350);
         header.setFontSize(54);
         header.setTextAlignment(TextAlignment.LEFT);
         header.setMarginTop(-50);
@@ -124,16 +125,20 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Paragraph companyParagraph = new Paragraph();
         Paragraph[] results = new Paragraph[2];
 
-        int defaultFontSize = 26;
-        int smallerFontSize = 14;
+        int defaultFontSize = 20;
 
-        nameParagraph.setFixedPosition(20, 180, 380);
-        companyParagraph.setFixedPosition(20, 140, 380);
+        nameParagraph.setFixedPosition(220, 180, 340);
+        companyParagraph.setFixedPosition(220, 120, 340);
 
         // checks if pass type is individual or vehicle
         final String passType = rapidPass.getPassType().toLowerCase();
 
         String name = rapidPass.getName();
+
+        if (rapidPass.getPassType().equals("VEHICLE")) {
+            name = "PLATE# " + name;
+        }
+
         String company = rapidPass.getCompany();
 
         nameParagraph.add(name);
@@ -142,17 +147,6 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         nameParagraph.setFontSize(defaultFontSize);
         companyParagraph.setFontSize(defaultFontSize);
 
-        if (name.length() > 35)
-        {
-            nameParagraph.setFontSize(smallerFontSize);
-        }
-
-        if (company.length() > 35)
-        {
-            companyParagraph.setFontSize(smallerFontSize);
-        }
-
-
         results[0] = nameParagraph;
         results[1] = companyParagraph;
 
@@ -160,19 +154,20 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     }
 
     private static Paragraph[] generateValidUntil(RapidPass rapidPass) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/YYYY");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd");
 
         String validUntil = sdf.format(rapidPass.getValidTo());
 
         Paragraph details = new Paragraph();
-        details.setFontSize(24);
-        details.setFixedPosition(20, 10, 250);
-        details.add("EXPIRES");
+        details.setFontSize(20);
+        details.setFixedPosition(220, 30, 230);
+        details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
         Paragraph date = new Paragraph();
-        date.setFontSize(44);
-        date.setFixedPosition(130, 0, 500);
-        date.add(validUntil);
+        date.setFontSize(20);
+        date.setFixedPosition(370, 30, 230);
+        date.add(validUntil).setCharacterSpacing(1.3f);
+        date.setBold();
 
         Paragraph[] results = new Paragraph[2];
         results[0] = details;
@@ -183,31 +178,42 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     private static IBlockElement[] generateAporCode(RapidPass rapidPass, Document document) {
 
-        IBlockElement[] elements = new IBlockElement[2];
+        IBlockElement[] elements = new IBlockElement[3];
 
         Paragraph aporLabel = new Paragraph();
         aporLabel.add("APOR");
         aporLabel.setFontSize(42);
         aporLabel.setFontColor(ColorConstants.WHITE);
         aporLabel.setTextAlignment(TextAlignment.CENTER);
-        aporLabel.setFixedPosition(420, 40, 170);
+        aporLabel.setFixedPosition(30, 40, 170);
 
         Paragraph aporValue = new Paragraph();
-        aporValue.add("NR");
+        aporValue.add(rapidPass.getAporType());
         aporValue.setFontSize(90);
         aporValue.setFontColor(ColorConstants.WHITE);
         aporValue.setTextAlignment(TextAlignment.CENTER);
-        aporValue.setFixedPosition(420, 60, 170);
+        aporValue.setFixedPosition(30, 70, 170);
+
+        Paragraph passType = new Paragraph();
+
+        String passTypeText = "INDIVIDUAL".equals(rapidPass.getPassType()) ? "PERSON" : rapidPass.getPassType();
+
+        passType.add(passTypeText);
+        passType.setFontSize(26);
+        passType.setFontColor(ColorConstants.WHITE);
+        passType.setTextAlignment(TextAlignment.CENTER);
+        passType.setFixedPosition(30, 190, 170);
 
 
         PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getFirstPage());
-        Rectangle rectangle = new Rectangle(415, 10, 170, 230);
+        Rectangle rectangle = new Rectangle(30, 30, 170, 210);
         canvas.setFillColor(ColorConstants.BLACK);
         canvas.rectangle(rectangle);
         canvas.fillStroke();
 
         elements[0] = aporValue;
         elements[1] = aporLabel;
+        elements[2] = passType;
 
         return elements;
     }
@@ -260,7 +266,8 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         IBlockElement[] iBlockElements = generateAporCode(rapidPass, document);
         document.add(iBlockElements[0]);
         document.add(iBlockElements[1]);
-//        document.add(dctxLogo);
+        document.add(iBlockElements[2]);
+        document.add(dctxLogo);
 
         document.close();
 

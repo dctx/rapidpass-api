@@ -41,12 +41,12 @@ class PdfGeneratorImplTest {
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL.toString())
-                .name("Jonas Jose Almendras Domingo")
+                .name("Jonas Jose Almendras Domingo Delas Alas")
                 .controlCode("12345")
                 .idType("Driver's License")
                 .identifierNumber("N01-234235345")
                 .aporType("NR")
-                .company("Banco ng Pilipinas Incorporated")
+                .company("Banco ng Pilipinas Incorporated International")
                 .controlCode("#NCR9NP")
                 .validFrom(MAR_23_2020_UTC)
                 .validTo(MAR_27_2020_UTC)
@@ -93,7 +93,7 @@ class PdfGeneratorImplTest {
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.aFileWithSize(greaterThan(0L))));
 
         // cleanup!
-        pdfFile.delete();
+//        pdfFile.delete();
     }
 
     @Test
