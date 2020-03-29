@@ -3,9 +3,8 @@ package ph.devcon.rapidpass.models;
 import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.utilities.DateOnlyFormat;
+import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.util.Date;
 
@@ -53,8 +52,8 @@ public class RapidPass {
                 .idType(accessPass.getIdType())
                 .identifierNumber(accessPass.getIdentifierNumber())
                 .status(accessPass.getStatus())
-                .validFrom(accessPass.getValidFrom() == null ? "" : DateOnlyFormat.format(new Date(accessPass.getValidFrom().toEpochSecond())))
-                .validUntil(accessPass.getValidTo() == null ? "" : DateOnlyFormat.format(new Date(accessPass.getValidTo().toEpochSecond())))
+                .validFrom(accessPass.getValidFrom() == null ? "" : DateFormatter.format(new Date(accessPass.getValidFrom().toEpochSecond())))
+                .validUntil(accessPass.getValidTo() == null ? "" : DateFormatter.format(new Date(accessPass.getValidTo().toEpochSecond())))
                 .destName(accessPass.getDestinationName())
                 .destStreet(accessPass.getDestinationStreet())
                 .destCity(accessPass.getDestinationCity())
