@@ -13,22 +13,24 @@ info:
 tags:
   - name: inspector
     description: Endpoints for inspector app
-  - name: pwa
-    description: Endpoints for PWA/mobile registraation app
+  - name: registration
+    description: Endpoints for mobile registraation app
   - name: dashboard
     description: Endpoints for web console for the review and approval of requests
+  - name: public
+    description: Publicly accessible endpoint (future)
 paths:
   /registry/access-passes:
     post:
       tags:
-        - pwa
+        - registration
         - dashboard
       summary: >-
         Creates a request for a new RapidPass, can be for INDIVIDUAL or VEHICLE
         depending on pass type
       operationId: requestAccessPass
       description: >
-        Called from the PWA or web site registration page to register a user.
+        Called from the registration or web site registration page to register a user.
         All new access passes will have a status of 'pending'.
       requestBody:
         content:
@@ -146,7 +148,7 @@ paths:
       operationId: getAccessPassById
       tags:
         - inspector
-        - pwa
+        - registration
         - dashboard
       summary: Get information about an access pass
       parameters:
