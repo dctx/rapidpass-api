@@ -9,26 +9,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.api.controllers.CheckpointApi;
-import ph.devcon.rapidpass.api.models.AccessPass;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.CheckpointService;
 
 @CrossOrigin
 @RestController
 @Slf4j
 @Api(tags = "checkpoint")
-public class CheckpointRestController implements CheckpointApi
+public class CheckpointRestController
 {
     @Autowired
     private CheckpointService checkpointService;
-    
-    @Override
-    public ResponseEntity getAccessPassByControlCode(String controlCode)
+
+    public ResponseEntity<?> getAccessPassByControlCode(String controlCode)
     {
         ResponseEntity response = null;
         try
         {
-            final AccessPass accessPass = checkpointService.retrieveAccessPassByControlCode(controlCode);
-            response = new ResponseEntity(accessPass, HttpStatus.OK);
+            AccessPass accessPass = checkpointService.retrieveAccessPassByControlCode(controlCode);
+            RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+            response = new ResponseEntity(rapidPass, HttpStatus.OK);
         }
         catch (Exception e)
         {
@@ -37,8 +38,7 @@ public class CheckpointRestController implements CheckpointApi
         }
         return response;
     }
-    
-    @Override
+
     public ResponseEntity getAccessPassByPlateNumber(String plateNo)
     {
         ResponseEntity response = null;
@@ -54,8 +54,7 @@ public class CheckpointRestController implements CheckpointApi
         }
         return response;
     }
-    
-    @Override
+
     public ResponseEntity getAccessPassByQrCode(String qrCode)
     {
         ResponseEntity response = null;
