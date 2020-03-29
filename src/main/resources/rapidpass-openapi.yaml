@@ -13,18 +13,18 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: checkpoint
-    description: Endpoints for inspector app which is mainly used at checkpoints.
-  - name: registry
-    description: Endpoints for registring rapidpass users. Also the main API for PWA/mobile end-user app
+  - name: inspector
+    description: Endpoints for inspector app
+  - name: pwa
+    description: Endpoints for PWA/mobile registraation app
   - name: dashboard
-    description: Endpoints for approval applications
+    description: Endpoints for web console for the review and approval of requests
 
 paths:
   /registry/access-passes:
     post:
       tags:
-        - registry
+        - pwa
       summary: Creates a request for a new RapidPass, can be for individual or vehicle depending on pass type
       operationId: requestAccessPass
       description: |
@@ -51,7 +51,7 @@ paths:
           description: Invalid Input
     get:
       tags:
-        - registry
+        - pwa
       summary: Gets a list of access passes
       operationId: getAccessPasses
       parameters:
@@ -156,7 +156,7 @@ paths:
     get:
       operationId: getAccessPassById
       tags:
-        - registry
+        - pwa
       summary: Get information about an access pass
       parameters:
         - name: referenceID
@@ -177,7 +177,7 @@ paths:
     get:
       operationId: getAccessPassByQrCode
       tags:
-        - checkpoint
+        - inspector
       summary: Get access pass using QR Code to check if it is valid pass
       parameters:
         - name: qrCode
@@ -200,7 +200,7 @@ paths:
     get:
       operationId: getAccessPassByPlateNumber
       tags:
-        - checkpoint
+        - inspector
       summary: Get access pass using Plate Number to check if it is valid pass
       parameters:
         - name: plateNo
@@ -223,7 +223,7 @@ paths:
     get:
       operationId: getAccessPassByControlCode
       tags:
-        - checkpoint
+        - inspector
       summary: Get access pass using Control Code to check if it is valid pass
       parameters:
         - name: controlCode
