@@ -70,15 +70,7 @@ paths:
           required: false
           description: status of access passes to retrieve
           schema:
-            type: string
-        - name: validUntil
-          in: query
-          required: false
-          description: >-
-            returns a list of access passes that are valid until the specified
-            date
-          schema:
-            type: string
+            $ref: '#/components/schemas/QueryFilter'
       responses:
         '200':
           description: Status of the request pass
@@ -519,3 +511,14 @@ components:
           type: string
         status:
           type: string
+    QueryFilter:
+      type: object
+      properties:
+        status:
+          type: string
+        validUntil:
+          type: string
+        pageNo:
+          type: integer
+        batchSize:
+          type: integer
