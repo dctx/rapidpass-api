@@ -1,9 +1,9 @@
 package ph.devcon.rapidpass.services;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.IdType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
 @Service
@@ -17,22 +17,13 @@ public class CheckpointServiceImpl implements ICheckpointService {
     }
     
     @Override
-    public AccessPass retrieveAccessPassByControlCode(String controlCode)
-    {
-        AccessPass entity = this.accessPassRepository.findByControlCode(controlCode);
-        AccessPass accessPass = new AccessPass();
-        // Copy similar properties
-        BeanUtils.copyProperties(entity,accessPass);
-        // Manual copy those that are not the same attribute. Or later change the repo to make it simple
-        accessPass.setIssuedBy(entity.getIssuedBy());
-        accessPass.setValidTo(entity.getValidTo());
-        return accessPass;
+    public AccessPass retrieveAccessPassByControlCode(String controlCode) {
+        return this.accessPassRepository.findByControlCode(controlCode);
     }
     
     @Override
-    public AccessPass retrieveAccessPassByLicenseNumber(String licenseNumber)
-    {
-        return null;
+    public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
+        return this.accessPassRepository.findByIdTypeAndIdentifierNumber(IdType.VehicleID.toString(), plateNo);
     }
     
     @Override

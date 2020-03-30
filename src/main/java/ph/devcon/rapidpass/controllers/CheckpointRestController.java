@@ -31,30 +31,26 @@ public class CheckpointRestController
     @GetMapping("/access-pass/verify-control-code/{control-code}")
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
         ResponseEntity response = null;
-        try
-        {
-            AccessPass accessPass = this.checkpointService.retrieveAccessPassByControlCode(controlCode);
-            RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+        try {
+            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByControlCode(controlCode);
+            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
             response = new ResponseEntity(rapidPass, HttpStatus.OK);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             log.error(e.getMessage(),e);
             response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
     }
 
-    public ResponseEntity getAccessPassByPlateNumber(String plateNo)
-    {
+    @GetMapping("/access-pass/verify-plate-no/{plate-no}")
+    public ResponseEntity<?> getAccessPassByPlateNumber(@PathVariable("plate-no") String plateNo) {
         ResponseEntity response = null;
-        try
-        {
-            final AccessPass accessPass = checkpointService.retrieveAccessPassByLicenseNumber(plateNo);
-            response = new ResponseEntity(accessPass, HttpStatus.OK);
-        }
-        catch (Exception e)
-        {
+        try {
+            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByPlateNo(plateNo);
+            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
+            response = new ResponseEntity(rapidPass, HttpStatus.OK);
+        } catch (Exception e) {
             log.error(e.getMessage(),e);
             response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
