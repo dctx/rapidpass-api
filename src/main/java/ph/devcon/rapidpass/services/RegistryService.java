@@ -119,6 +119,7 @@ public class RegistryService {
         accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
         accessPass.setDateTimeCreated(now);
         accessPass.setDateTimeUpdated(now);
+        accessPass.setRemarks(rapidPassRequest.getRemarks());
         accessPass.setStatus("PENDING");
 
         log.debug("Persisting Registrant: {}", registrant.toString());
