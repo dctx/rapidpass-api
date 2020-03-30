@@ -34,10 +34,10 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
  */
 @WebMvcTest(RegistryRestController.class)
 class RegistryRestControllerTest {
-
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
                     .passType(INDIVIDUAL)
+                    .identifierNumber("ILOVEYOUPOHZ")
                     .firstName("Jonas")
                     .lastName("Espelita")
                     .mobileNumber("0915999999")
@@ -45,9 +45,16 @@ class RegistryRestControllerTest {
                     .destCity("Somewhere in the PH")
                     .company("DEVCON")
                     .aporType("MO")
+                    .originStreet("my street")
+                    .lastName("pangit")
+                    .firstName("ganda")
+                    .destName("your heart")
+                    .destStreet("love street")
+                    .idType("DE")
+                    .originName("Abangers lane")
+                    .originCity("Friendly Zone")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
-
     public static final RapidPassRequest TEST_VEHICLE_REQUEST = RapidPassRequest.builder()
             .passType(VEHICLE)
             .identifierNumber("ABCD 1234")
@@ -56,7 +63,16 @@ class RegistryRestControllerTest {
             .destCity("Somewhere in the PH")
             .company("DEVCON")
             .aporType("M")
+            .originStreet("my street")
+            .lastName("pangit")
+            .firstName("ganda")
+            .destName("your heart")
+            .destStreet("love street")
+            .idType("DE")
+            .originName("Abangers lane")
+            .originCity("Friendly Zone")
             .remarks("This is a test for VEHICLE REQUEST").build();
+    private final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     public RapidPass TEST_INDIVIDUAL_PASS;
 
@@ -111,8 +127,7 @@ class RegistryRestControllerTest {
     @Test
     void newRequestPass_INDIVIDUAL() throws Exception {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
+        String jsonRequestBody = JSON_MAPPER.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
 
         // perform post request with json payload to mock server
         mockMvc.perform(
@@ -123,6 +138,25 @@ class RegistryRestControllerTest {
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
         verify(mockRegistryService, only()).newRequestPass(eq(TEST_INDIVIDUAL_REQUEST));
+    }
+
+    @Test
+    void newRequestPass_INDIVIDUAL_NULL_FIELDS() throws Exception {
+        String jsonRequestBody = JSON_MAPPER.writeValueAsString(
+                RapidPassRequest
+                        .builder().passType(INDIVIDUAL)
+                        .build());
+        // perform post request with json payload to mock server
+        mockMvc.perform(
+                post("/registry/access-passes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                // spot check some errors
+                .andExpect(jsonPath("$.identifierNumber", is("must not be empty")))
+                .andExpect(jsonPath("$.lastName", is("must not be empty")))
+                .andExpect(jsonPath("$.mobileNumber", is("must not be empty")));
     }
 
     /**

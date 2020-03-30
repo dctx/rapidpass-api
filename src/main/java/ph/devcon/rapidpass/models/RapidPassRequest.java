@@ -6,9 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.enums.PassType;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
@@ -33,23 +34,39 @@ public final class RapidPassRequest {
     @EqualsAndHashCode.Exclude
     private String refNum = UUID.randomUUID().toString();
 
+    // required fields reference: https://docs.google.com/spreadsheets/d/1YemwomlhoKnDcBDI3OlrA5-yMSOSfA3BHj0N6PijmT4/edit#gid=0
     @NotNull
     private PassType passType;
+
+    @NotEmpty
     private String aporType;
+    @NotEmpty
     private String firstName;
     private String middleName;
+    @NotEmpty
     private String lastName;
     private String suffix;
+    @NotEmpty
     private String company;
+    @NotEmpty
     private String idType;
+    @NotEmpty
     private String identifierNumber;
+    @NotEmpty
     private String mobileNumber; // todo validate. use validation annotations.
+    @NotEmpty
     private String email;  // todo validate. use validation annotations.
+    @NotEmpty
     private String originName;
+    @NotEmpty
     private String originStreet;
+    @NotEmpty
     private String originCity;
+    @NotEmpty
     private String destName;
+    @NotEmpty
     private String destStreet;
+    @NotEmpty
     private String destCity;
     private String remarks;
 
