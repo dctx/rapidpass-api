@@ -117,8 +117,8 @@ public class RegistrarUser implements Serializable {
     @JoinColumn(name = "registrar_id", referencedColumnName = "id")
     @ManyToOne
     private Registrar registrarId;
-    @OneToMany(mappedBy = "registrarUserId")
-    private Collection<ScannerDevice> scannerDeviceCollection;
+//    @OneToMany(mappedBy = "registrarUserId")
+//    private Collection<ScannerDevice> scannerDeviceCollection;
 
     public RegistrarUser() {
     }
