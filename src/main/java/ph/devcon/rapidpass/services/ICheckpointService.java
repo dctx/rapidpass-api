@@ -5,6 +5,6 @@ import ph.devcon.rapidpass.entities.AccessPass;
 public interface ICheckpointService
 {
     AccessPass retrieveAccessPassByControlCode(String controlCode);
-    AccessPass retrieveAccessPassByLicenseNumber(String licenseNumber);
+    AccessPass retrieveAccessPassByPlateNo(String plateNo);
     AccessPass retrieveAccessPassByQrCode(String qrCode);
 }

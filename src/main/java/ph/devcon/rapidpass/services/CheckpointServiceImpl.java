@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.IdType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
 @Service
@@ -30,9 +31,8 @@ public class CheckpointServiceImpl implements ICheckpointService {
     }
     
     @Override
-    public AccessPass retrieveAccessPassByLicenseNumber(String licenseNumber)
-    {
-        return null;
+    public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
+        return this.accessPassRepository.findByIdTypeAndIdentifierNumber(IdType.VehicleID.toString(), plateNo);
     }
     
     @Override

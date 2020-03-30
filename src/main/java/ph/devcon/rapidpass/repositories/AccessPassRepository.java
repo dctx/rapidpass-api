@@ -16,4 +16,6 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     List<AccessPass> findAllByReferenceIDOrderByValidToDesc(String referenceId);
     
     AccessPass findByControlCode(String controlCode);
+
+    AccessPass findByIdTypeAndIdentifierNumber(String idType, String identifierNumber);
 }
