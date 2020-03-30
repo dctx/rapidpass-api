@@ -166,6 +166,9 @@ public class AccessPassNotifierService {
                                           String accessPassReferenceId,
                                           String email)
             throws IOException, WriterException, ParseException {
+
+        byte[] generatedQrData = qrPdfService.generateQrPdf(accessPassReferenceId);
+
         return NotificationMessage.New()
                 .from(mailFrom)
                 .to(email)
@@ -174,8 +177,7 @@ public class AccessPassNotifierService {
                 .message("Your RapidPass is available here: " + accessPassUrl)
                 .title("RapidPass is APPROVED")
                 // attach QR code PDF
-                .addAttachment("rapidpass-qr.pdf", "application/pdf",
-                        qrPdfService.generateQrPdf(accessPassRepository.findByReferenceID(accessPassReferenceId)))
+                .addAttachment("rapidpass-qr.pdf", "application/pdf", generatedQrData)
                 .create();
     }
 
