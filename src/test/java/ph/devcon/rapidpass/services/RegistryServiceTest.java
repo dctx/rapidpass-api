@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.services;
 
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -155,7 +156,7 @@ class RegistryServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     void generateControlCode() {
         // Currently ignoring this test, because Alistair still hasn't updated the commons to 0.2.0
 
