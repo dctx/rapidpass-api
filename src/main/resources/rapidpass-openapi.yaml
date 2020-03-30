@@ -116,7 +116,7 @@ paths:
       tags:
         - dashboard
         - bulk
-      summary: Upload CSV/Excel file of approved control numbers TODO
+      summary: Upload CSV file of pre-approved passes
       requestBody:
         content:
           multipart/form-data:
