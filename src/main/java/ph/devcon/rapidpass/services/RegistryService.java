@@ -147,21 +147,46 @@ public class RegistryService {
     }
 
     /**
+     * Helper function to retrieve an {@link AccessPass} by referenceId.
+     *
+     * We need this helper function right now because access passes can have multiple instances given the same
+     * referenceId (because we are currently using mobile numbers as the referenceId).
+     *
+     * Eventually, referenceIds will be unique. Then, this code will become deprecated, because
+     * accessPassRepository.findByReferenceId() will be unique.
+     *
+     * @param referenceId the reference ID, which is the user's mobile number.
+     * @return An access pass
+     */
+    private AccessPass findByNonUniqueReferenceId(String referenceId) {
+        // AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        // TODO: how to deal with 'renewals'? i.e.
+
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        if (accessPasses.size() <= 0) return null;
+
+        if (accessPasses.size() > 1) {
+            // Setting this to warning, as this is an expected use-case while reference IDs are mobile numbers.
+            log.warn("Multiple Access Pass found for reference ID: {}", referenceId);
+        }
+
+        return accessPasses.get(0);
+    }
+
+    /**
      * Used when the inspector or approver wishes to view more details about the
      *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
     public RapidPass find(String referenceId) {
-//        AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-        // TODO: how to deal with 'renewals'? i.e.
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
-        if (accessPasses.size() > 1) {
-            log.error("Multiple Access Pass found for reference ID: {}", referenceId);
-        } else if (accessPasses.size() <= 0) {
-            return null;
-        }
-        return RapidPass.buildFrom(accessPasses.get(0));
+
+        AccessPass accessPass = findByNonUniqueReferenceId(referenceId);
+
+        if (accessPass != null) return RapidPass.buildFrom(accessPass);
+
+        return null;
     }
 
     /**
@@ -172,7 +197,11 @@ public class RegistryService {
      * @return Data stored on the database
      */
     public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
-        AccessPass accessPass = accessPassRepository.findByReferenceID(referenceId);
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        if (accessPasses.size() == 0) throw new IllegalArgumentException("No AccessPass found with referenceId=" + referenceId);
+
+        AccessPass accessPass = accessPasses.get(0);
 
         String status = accessPass.getStatus();
 
@@ -304,7 +333,12 @@ public class RegistryService {
             // persist approval
             updatedRapidPass = grant(referenceId);
             // push APPROVED notifications
-            accessPassNotifierService.pushApprovalNotifs(accessPassRepository.findByReferenceID(referenceId));
+
+            AccessPass accessPass = findByNonUniqueReferenceId(referenceId);
+
+            if (accessPass == null) throw new IllegalArgumentException("Failed to find AccessPass with referenceId=" + referenceId);
+
+            accessPassNotifierService.pushApprovalNotifs(accessPass);
         } else if (AccessPassStatus.DECLINED.toString().equals(status)) {
             updatedRapidPass = decline(referenceId);
             // push DENIED notifications
