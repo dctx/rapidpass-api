@@ -276,13 +276,13 @@ public class RegistryService {
         List<AccessPass> allAccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         Optional<AccessPass> firstAccessPass = allAccessPasses.stream()
-                .filter(ap -> RequestStatus.DENIED.toString().equals(ap.getStatus()))
+                .filter(ap -> AccessPassStatus.APPROVED.toString().equals(ap.getStatus()))
                 .findFirst();
 
         AccessPass accessPass = firstAccessPass.orElse(null);
         if (accessPass == null) return null;
 
-        accessPass.setStatus(RequestStatus.DENIED.toString());
+        accessPass.setStatus(AccessPassStatus.DECLINED.toString());
         accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
