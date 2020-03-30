@@ -58,7 +58,7 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
 
 
     private boolean isGranted() {
-        return StringUtils.isEmpty(controlCode);
+        return !StringUtils.isEmpty(controlCode);
     }
 
     private String vehicle() {
