@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.ParseException;
+import java.util.List;
 
 /**
  * This service combines PDF generator and QR generator to create PDF's of generated QR codes.
@@ -40,7 +41,14 @@ public class QrPdfService {
      * @throws WriterException on error writing the QR code
      */
     public byte[] generateQrPdf(String referenceId) throws ParseException, IOException, WriterException {
-        return generateQrPdf(accessPassRepository.findByReferenceID(referenceId));
+
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        if (accessPasses.size() == 0) throw new IllegalArgumentException("Failed to find AccessPass with referenceId=" + referenceId);
+
+        AccessPass accessPass = accessPasses.get(0);
+
+        return generateQrPdf(accessPass);
     }
 
     /**
