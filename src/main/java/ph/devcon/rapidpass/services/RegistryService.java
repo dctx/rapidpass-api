@@ -10,12 +10,14 @@ import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassBatchRequest;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -120,6 +122,7 @@ public class RegistryService {
         accessPass.setDateTimeCreated(now);
         accessPass.setDateTimeUpdated(now);
         accessPass.setStatus("PENDING");
+        accessPass.setRemarks(rapidPassRequest.getRemarks());
 
         log.debug("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
@@ -192,6 +195,7 @@ public class RegistryService {
         accessPass.setOriginName(rapidPassRequest.getOriginName());
         accessPass.setOriginCity(rapidPassRequest.getOriginCity());
         accessPass.setOriginStreet(rapidPassRequest.getOriginStreet());
+        accessPass.setRemarks(rapidPassRequest.getRemarks());
 
         accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
         accessPass.setIdType(rapidPassRequest.getIdType());
@@ -284,18 +288,6 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-    /**
-     * Returns a list of rapid passes that were requested for granting or approval.
-     * <p>
-     * TODO: This needs to be reworked such that the batch data is not uploaded via json request body, but by excel file or csv.
-     *
-     * @param rapidPassBatchRequest JSON object containing an array of rapid pass requests
-     * @return a list of generated rapid passes, whose status are all pending (because they have just been requested).
-     */
-    public Iterable<RapidPass> batchUpload(RapidPassBatchRequest rapidPassBatchRequest) {
-        // TODO: implement
-        return null;
-    }
 
     public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
@@ -315,6 +307,30 @@ public class RegistryService {
 
         return updatedRapidPass;
     }
+
+
+    /**
+     * Returns a list of rapid passes that were requested for granting or approval.
+     *
+     * @param approvedRapidPasses  Iterable<RapidPass> of Approved passes application
+     * @return a list of generated rapid passes, whose status are all approved.
+     */
+    public List<RapidPass> batchUpload(List <RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+
+        log.info("Process Batch Approving of AccessPass");
+        List <RapidPass> passes = new ArrayList<RapidPass>();
+        RapidPass pass;
+        for ( RapidPassCSVdata rapidPassRequest: approvedRapidPasses) {
+            pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
+
+            if ( pass != null ){
+                pass = this.grant(rapidPassRequest.getMobileNumber());
+                passes.add(pass);
+            }
+        }
+        return passes;
+    }
+
 
     /**
      * This is thrown when updates are not allowed for the AccessPass.
