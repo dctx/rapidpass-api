@@ -40,8 +40,9 @@ public class RegistryRestController {
     }
 
     @GetMapping("/access-passes/{referenceId}")
-    RapidPass getAccessPassDetails(@PathVariable String referenceId) {
-        return registryService.find(referenceId);
+    ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) {
+        RapidPass rapidPass = registryService.find(referenceId);
+        return (rapidPass != null) ? ResponseEntity.ok().body(rapidPass) : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/access-passes")
