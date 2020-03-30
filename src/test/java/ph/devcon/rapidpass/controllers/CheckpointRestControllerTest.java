@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import ph.devcon.rapidpass.api.models.CommonRapidPassFields;
 import ph.devcon.rapidpass.api.models.RapidPass;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.services.CheckpointService;
+import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.utilities.DateOnlyFormat;
 
 import java.time.OffsetDateTime;
@@ -25,7 +25,7 @@ public class CheckpointRestControllerTest extends BaseApiTest
 
     private static Logger LOGGER = Logger.getLogger(CheckpointRestControllerTest.class.getName());
     @MockBean
-    private CheckpointService checkpointService;
+    private ICheckpointService checkpointService;
 
     @Test
     @Disabled

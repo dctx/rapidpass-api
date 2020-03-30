@@ -2,15 +2,12 @@ package ph.devcon.rapidpass.services;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
-import java.time.LocalDate;
-
-@Component
-public class CheckpointServiceImpl implements CheckpointService
-{
+@Service
+public class CheckpointServiceImpl implements ICheckpointService {
     private AccessPassRepository accessPassRepository;
     
     @Autowired
@@ -22,8 +19,7 @@ public class CheckpointServiceImpl implements CheckpointService
     @Override
     public AccessPass retrieveAccessPassByControlCode(String controlCode)
     {
-        final ph.devcon.rapidpass.entities.AccessPass
-            entity = accessPassRepository.findByControlCode(controlCode);
+        AccessPass entity = this.accessPassRepository.findByControlCode(controlCode);
         AccessPass accessPass = new AccessPass();
         // Copy similar properties
         BeanUtils.copyProperties(entity,accessPass);

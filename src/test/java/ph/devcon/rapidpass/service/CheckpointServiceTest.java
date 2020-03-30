@@ -8,7 +8,7 @@ import ph.devcon.rapidpass.RapidpassApplication;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.CheckpointService;
+import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.CheckpointServiceImpl;
 
 import java.time.OffsetDateTime;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(classes = RapidpassApplication.class)
 public class CheckpointServiceTest
 {
-    private CheckpointService checkpointService;
+    private ICheckpointService checkpointService;
     
     private AccessPassRepository accessPassRepository;
 
