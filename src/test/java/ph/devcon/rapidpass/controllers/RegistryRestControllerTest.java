@@ -86,7 +86,6 @@ class RegistryRestControllerTest {
         individualAccessPass.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
         individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
-        individualAccessPass.setStatus(TEST_INDIVIDUAL_REQUEST.getAccessPassStatus().toString());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         individualAccessPass.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
@@ -101,7 +100,6 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
         vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
 
-        vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getAccessPassStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
 

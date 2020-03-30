@@ -63,28 +63,19 @@ public final class RapidPassRequest {
     @NotEmpty
     private String originCity;
     @NotEmpty
+    private String originProvince;
+    @NotEmpty
     private String destName;
     @NotEmpty
     private String destStreet;
     @NotEmpty
     private String destCity;
+    @NotEmpty
+    private String destProvince;
     private String remarks;
-
-    /**
-     * Control number set when APPROVED.
-     */
-    private String controlCode;
-
-    /**
-     * The status of this request. Initially set to PENDING when built by builders.
-     */
-    @NotNull
-    @Builder.Default
-    private AccessPassStatus accessPassStatus = PENDING;
 
     public String getName() {
         return String.format("%s %s", getFirstName(), getLastName());
     }
-
 
 }

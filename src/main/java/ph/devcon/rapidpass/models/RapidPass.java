@@ -35,6 +35,7 @@ public class RapidPass {
     private String destName;
     private String destStreet;
     private String destCity;
+    private String destProvince;
     private String status;
     private String validFrom;
     private String validUntil;
@@ -57,6 +58,7 @@ public class RapidPass {
                 .destName(accessPass.getDestinationName())
                 .destStreet(accessPass.getDestinationStreet())
                 .destCity(accessPass.getDestinationCity())
+                .destProvince(accessPass.getDestinationProvince())
                 .remarks(accessPass.getRemarks())
                 .build();
     }

@@ -109,9 +109,11 @@ public class RegistryService {
         accessPass.setOriginName(rapidPassRequest.getOriginName());
         accessPass.setOriginStreet(rapidPassRequest.getOriginStreet());
         accessPass.setOriginCity(rapidPassRequest.getOriginCity());
+        accessPass.setOriginProvince(rapidPassRequest.getOriginProvince());
         accessPass.setDestinationName(rapidPassRequest.getDestName());
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
+        accessPass.setDestinationProvince(rapidPassRequest.getDestProvince());
         OffsetDateTime now = OffsetDateTime.now();
         accessPass.setValidFrom(now);
         accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
@@ -178,13 +180,6 @@ public class RegistryService {
 
         if (!isPending) {
             throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
-        }
-
-        if (rapidPassRequest.getAccessPassStatus() != null)
-            accessPass.setStatus(rapidPassRequest.getAccessPassStatus().toString());
-
-        if (rapidPassRequest.getAccessPassStatus() != null) {
-            accessPass.setStatus(rapidPassRequest.getAccessPassStatus().toString());
         }
 
         accessPass.setRemarks(rapidPassRequest.getRemarks());
@@ -283,7 +278,7 @@ public class RegistryService {
         AccessPass accessPass = firstAccessPass.orElse(null);
         if (accessPass == null) return null;
 
-        accessPass.setStatus(AccessPassStatus.DECLINED.toString());
+        accessPass.setStatus(AccessPassStatus.SUSPENDED.toString());
         accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
@@ -301,7 +296,6 @@ public class RegistryService {
         // TODO: implement
         return null;
     }
-
 
     public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
