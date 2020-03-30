@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -56,11 +57,15 @@ public class RegistryRestController {
 
     @PutMapping("/access-passes/{referenceId}")
     ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        try {
-            RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
-            return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
-        } catch (UpdateAccessPassException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        if (!AccessPassStatus.isValid(rapidPass.getStatus().toString())) {
+            return ResponseEntity.badRequest().body("Unknown status code.");
+        } else {
+            try {
+                RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
+                return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
+            } catch (UpdateAccessPassException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
         }
     }
 

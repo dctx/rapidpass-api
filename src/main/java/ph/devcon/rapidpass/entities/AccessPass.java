@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -139,7 +139,7 @@ public class AccessPass implements Serializable {
      * @return true if valid
      */
     public static boolean isValid(AccessPass accessPass) {
-        return RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())
+        return AccessPassStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())
                 && accessPass.getValidTo().isAfter(OffsetDateTime.now());
     }
 

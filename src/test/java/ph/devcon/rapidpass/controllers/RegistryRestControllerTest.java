@@ -11,7 +11,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -70,7 +70,7 @@ class RegistryRestControllerTest {
         individualAccessPass.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
         individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
         individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
-        individualAccessPass.setStatus(TEST_INDIVIDUAL_REQUEST.getRequestStatus().toString());
+        individualAccessPass.setStatus(TEST_INDIVIDUAL_REQUEST.getAccessPassStatus().toString());
         individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         individualAccessPass.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
@@ -85,7 +85,7 @@ class RegistryRestControllerTest {
         vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
         vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
 
-        vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getRequestStatus().toString());
+        vehicleAccessPass.setStatus(TEST_VEHICLE_REQUEST.getAccessPassStatus().toString());
         // Mobile number is the reference ID?
         vehicleAccessPass.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
 
@@ -250,14 +250,14 @@ class RegistryRestControllerTest {
     public void grantOrDenyRequest() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
+        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(TEST_VEHICLE_PASS)))
                 .thenReturn(TEST_VEHICLE_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
 
-        TEST_VEHICLE_PASS.setStatus(RequestStatus.APPROVED.toString());
+        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_PASS);
