@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import ph.devcon.rapidpass.RapidpassApplication;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.IdType;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.ICheckpointService;
@@ -34,18 +35,7 @@ public class CheckpointServiceTest
     {
         checkpointService = new CheckpointServiceImpl(accessPassRepository);
         // GIVEN
-        OffsetDateTime validUntil = OffsetDateTime.now().plusDays(1);
-        AccessPass accessPassEntity = new AccessPass();
-        accessPassEntity.setValidTo(validUntil);
-        accessPassEntity.setLastUsedOn(OffsetDateTime.now());
-        accessPassEntity.setAporType("ME");
-        accessPassEntity.setPassType(PassType.INDIVIDUAL.toString());
-        accessPassEntity.setReferenceID("Sample");
-        accessPassEntity.setCompany("Sample company");
-        accessPassEntity.setDestinationCity("Sample City");
-        accessPassEntity.setIdType("Driver's License");
-        accessPassEntity.setReferenceID("M-JIV9H149");
-        accessPassEntity.setIssuedBy("ApprovingOrg");
+        AccessPass accessPassEntity = createAccessPassEntity();
         String controlCode = "12345A";
         accessPassEntity.setControlCode(controlCode);
     
@@ -66,5 +56,40 @@ public class CheckpointServiceTest
         assertEquals(accessPassEntity.getValidTo(),accessPass.getValidTo(),"Valid Until");
         assertEquals(accessPassEntity.getLastUsedOn(),accessPass.getLastUsedOn(),"LastUsed");
         assertEquals(accessPassEntity.getReferenceID(),accessPass.getReferenceID(),"Reference ID");
+    }
+
+    @Test
+    public void TestRetrieveAccessPassByPlateNumber() {
+        checkpointService = new CheckpointServiceImpl(accessPassRepository);
+        // GIVEN
+        AccessPass accessPassEntity = createAccessPassEntity();
+        String idNumber = "xxx-1234";
+        accessPassEntity.setIdentifierNumber(idNumber);
+
+        // WHEN
+        Mockito.when(accessPassRepository.findByIdTypeAndIdentifierNumber(IdType.VehicleID.toString(), idNumber))
+                .thenReturn(accessPassEntity);
+
+        // THEN
+        AccessPass accessPass = checkpointService.retrieveAccessPassByPlateNo(idNumber);
+
+        assertNotNull(accessPass);
+        assertEquals(accessPassEntity.getIdentifierNumber(), idNumber);
+    }
+
+    private AccessPass createAccessPassEntity() {
+        OffsetDateTime validUntil = OffsetDateTime.now().plusDays(1);
+        AccessPass accessPassEntity = new AccessPass();
+        accessPassEntity.setValidTo(validUntil);
+        accessPassEntity.setLastUsedOn(OffsetDateTime.now());
+        accessPassEntity.setAporType("ME");
+        accessPassEntity.setPassType(PassType.INDIVIDUAL.toString());
+        accessPassEntity.setReferenceID("Sample");
+        accessPassEntity.setCompany("Sample company");
+        accessPassEntity.setDestinationCity("Sample City");
+        accessPassEntity.setIdType("VehicleID");
+        accessPassEntity.setReferenceID("M-JIV9H149");
+        accessPassEntity.setIssuedBy("ApprovingOrg");
+        return accessPassEntity;
     }
 }
