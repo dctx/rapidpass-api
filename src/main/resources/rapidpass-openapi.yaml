@@ -237,7 +237,7 @@ paths:
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
 
-  '/registry/access-passes/{referenceID}/qr-code':
+  '/registry/qr-codes/{referenceID}':
     get:
       operationId: getQRCode
       tags:
@@ -256,13 +256,11 @@ paths:
             type: string
       responses:
         '200':
-          description: More information on control number
+          description: Base64-encoded string of the QR Code
           content:
-            application/json:
+            text/plain:
               schema:
-                properties:
-                  qrcode:
-                    type: string
+                type: string
         '404':
           description: reference number not found
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
