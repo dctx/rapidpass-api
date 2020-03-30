@@ -16,6 +16,7 @@ import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -44,7 +45,7 @@ public class RegistryRestController {
     }
 
     @PostMapping("/access-passes")
-    ResponseEntity<RapidPass> newRequestPass(@RequestBody RapidPassRequest rapidPassRequest) {
+    ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
         return ResponseEntity.status(201).body(rapidPass);
     }
@@ -57,7 +58,7 @@ public class RegistryRestController {
 
     @PutMapping("/access-passes/{referenceId}")
     ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        if (!AccessPassStatus.isValid(rapidPass.getStatus().toString())) {
+        if (!AccessPassStatus.isValid(rapidPass.getStatus())) {
             return ResponseEntity.badRequest().body("Unknown status code.");
         } else {
             try {
