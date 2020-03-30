@@ -8,12 +8,12 @@ package ph.devcon.rapidpass.entities;
 import lombok.Data;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
@@ -21,39 +21,43 @@ import javax.validation.constraints.Size;
  * @author eric
  */
 @Entity
-@Table(name = "apor_lookup")
+@Table(name = "lookup_table")
 @Data
-public class AporLookup implements Serializable {
+public class LookupTable implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 5)
-    @Column(name = "code")
-    private String code;
-    @Size(max = 50)
+    @EmbeddedId
+    protected LookupTablePK lookupTablePK;
+    @Size(max = 80)
     @Column(name = "description")
     private String description;
 
-    public AporLookup() {
+    public LookupTable() {
+    }
+
+    public LookupTable(LookupTablePK lookupTablePK) {
+        this.lookupTablePK = lookupTablePK;
+    }
+
+    public LookupTable(String key, String value) {
+        this.lookupTablePK = new LookupTablePK(key, value);
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (code != null ? code.hashCode() : 0);
+        hash += (lookupTablePK != null ? lookupTablePK.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof AporLookup)) {
+        if (!(object instanceof LookupTable)) {
             return false;
         }
-        AporLookup other = (AporLookup) object;
-        if ((this.code == null && other.code != null) || (this.code != null && !this.code.equals(other.code))) {
+        LookupTable other = (LookupTable) object;
+        if ((this.lookupTablePK == null && other.lookupTablePK != null) || (this.lookupTablePK != null && !this.lookupTablePK.equals(other.lookupTablePK))) {
             return false;
         }
         return true;
@@ -61,7 +65,7 @@ public class AporLookup implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.entities.AporLookup[ code=" + code + " ]";
+        return "ph.devcon.rapidpass.entities.LookupTable[ lookupTablePK=" + lookupTablePK + " ]";
     }
-
+    
 }

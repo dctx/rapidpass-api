@@ -1,18 +1,18 @@
-pass_type,id_type,description
-I,LTO,"Driver's License"
-I,COM,Company ID
-I,NBI,NBI Clearance
-I,OFW,OFW ID
-I,DFA,Passport
-I,PHC,PhilHealth ID
-I,POS,Postal ID
-I,PRC,PRC ID
-I,SNR,Senior Citizen ID
-I,SSS,SSS UMID Card
-I,BIR,TIN ID
-I,CML,"Voter's ID"
-V,PLT,Plate Number
-V,CND,Conduction Sticker
-I,PGB,PAGIBIG ID
-I,PWD,PWD ID
-I,DPL,Diplomat ID
+key,value,description
+IDTYPE-IND,LTO,"Driver's License"
+IDTYPE-IND,COM,Company ID
+IDTYPE-IND,NBI,NBI Clearance
+IDTYPE-IND,OFW,OFW ID
+IDTYPE-IND,DFA,Passport
+IDTYPE-IND,PHC,PhilHealth ID
+IDTYPE-IND,POS,Postal ID
+IDTYPE-IND,PRC,PRC ID
+IDTYPE-IND,SNR,Senior Citizen ID
+IDTYPE-IND,SSS,SSS UMID Card
+IDTYPE-IND,BIR,TIN ID
+IDTYPE-IND,CML,"Voter's ID"
+IDTYPE-VHC,PLT,Plate Number
+IDTYPE-VHC,CND,Conduction Sticker
+IDTYPE-IND,PGB,PAGIBIG ID
+IDTYPE-IND,PWD,PWD ID
+IDTYPE-IND,DPL,Diplomat ID
