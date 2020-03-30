@@ -327,7 +327,7 @@
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrant" validate="true"/>
     </changeSet>
-    <changeSet author="eric" id="registrar-sequcne">
+    <changeSet author="eric" id="registrar-sequence">
         <createSequence cacheSize="481818"
                         cycle="false"
                         dataType="int"
@@ -357,15 +357,15 @@
         </createTable>
     </changeSet>
     <changeSet author="eric (generated)" id="1585195345769-25">
-        <createTable tableName="id_type_lookup">
-            <column name="pass_type" type="VARCHAR(5)"/>
-            <column name="id_type" type="VARCHAR(10)"/>
-            <column name="description" type="VARCHAR(50)"/>
+        <createTable tableName="lookup_table">
+            <column name="key" type="VARCHAR(15)"/>
+            <column name="value" type="VARCHAR(20)"/>
+            <column name="description" type="VARCHAR(80)"/>
         </createTable>
-        <addPrimaryKey columnNames="pass_type, id_type"
-                       constraintName="id_type_lookup_pk"
+        <addPrimaryKey columnNames="key, value"
+                       constraintName="lookup_table_pk"
                        schemaName="public"
-                       tableName="id_type_lookup"/>
+                       tableName="lookup_table"/>
     </changeSet>
     <changeSet author="eric (generated)" id="1585195345769-26">
         <createTable tableName="config_lookup">
@@ -383,7 +383,7 @@
                   relativeToChangelogFile="true"
                   schemaName="public"
                   separator=","
-                  tableName="apor_lookup"
+                  tableName="lookup_table"
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
@@ -394,7 +394,7 @@
                   relativeToChangelogFile="true"
                   schemaName="public"
                   separator=","
-                  tableName="id_type_lookup"
+                  tableName="lookup_table"
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
@@ -406,17 +406,6 @@
                   schemaName="public"
                   separator=","
                   tableName="config_lookup"
-                  usePreparedStatements="true">
-        </loadData>
-    </changeSet>
-    <changeSet author="eric" id="seeData-id_type-lookup">
-        <loadData encoding="UTF-8"
-                  file="id_type-lookup.csv"
-                  quotchar='"'
-                  relativeToChangelogFile="true"
-                  schemaName="public"
-                  separator=","
-                  tableName="id_type_lookup"
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
