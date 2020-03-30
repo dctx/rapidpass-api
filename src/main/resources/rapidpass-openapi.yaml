@@ -123,9 +123,7 @@ paths:
             schema:
               type: object
               properties:
-                userName:
-                  type: string
-                filename:
+                file:
                   type: string
                   format: binary
       responses:
@@ -157,9 +155,7 @@ paths:
             schema:
               type: object
               properties:
-                userName:
-                  type: string
-                filename:
+                file:
                   type: string
                   format: binary
       responses:
@@ -240,7 +236,7 @@ paths:
             approves the Rapid Pass Request with referenced reference Number.
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
-            
+
   '/registry/access-passes/{referenceID}/qr-code':
     get:
       operationId: getQRCode
@@ -294,7 +290,7 @@ paths:
         '404':
           description: RapidPass not found using the plate number.
 
-  '/checkpoint/access-passes/concrol-codes/{controlCode}':
+  '/checkpoint/access-passes/control-codes/{controlCode}':
     get:
       operationId: verifyControlCode
       tags:
