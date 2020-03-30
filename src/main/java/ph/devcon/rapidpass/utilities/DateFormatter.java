@@ -2,6 +2,11 @@ package ph.devcon.rapidpass.utilities;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -20,11 +25,77 @@ public class DateFormatter {
      * @return the date in a {@link Date} object
      * @throws ParseException when the string is not formatted correctly.
      */
-    public static Date parse(String string) throws ParseException {
-        return dateFormat.parse(string);
+    public static Instant parse(String string) throws ParseException {
+        return Instant.parse(string);
     }
 
-    public static String format(Date localDate) {
-        return dateFormat.format(localDate);
+    /**
+     * String machine format for date times are stored as ISO8601 as UTC.
+     *
+     * If we're storing dates internally as strings, we make sure to use UTC.
+     *
+     * This is used when transmitting data over APIs, for easy parsing of API consumers.
+     */
+    public static String machineFormat(Date localDate) {
+        return toInstant(localDate).toString();
+    }
+
+    /**
+     * String machine format for date times are stored as ISO8601 as UTC.
+     *
+     * If we're storing dates internally as strings, we make sure to use UTC.
+     *
+     * This is used when transmitting data over APIs, for easy parsing of API consumers.
+     */
+    public static String machineFormat(Instant instant) {
+        return instant.toString();
+    }
+
+    /**
+     * You can display the readable date of an instant.
+     */
+    public static String readable(Instant instant, String pattern, ZoneId zone) {
+        ZonedDateTime gmt = instant.atZone(zone);
+        return gmt.format(DateTimeFormatter.ofPattern(pattern));
+    }
+
+    /**
+     * Not specifying the zone defaults to using +8 GMT, which is PHT.
+     */
+    public static String readable(Instant instant, String pattern) {
+        ZoneId defaultGmt = ZoneId.ofOffset("GMT", ZoneOffset.ofHours(8));
+        return readable(instant, pattern, defaultGmt);
+    }
+
+    /**
+     * Displaying dates in the following format:
+     *
+     * Mar 31, 2020, 08:00:00
+     */
+    public static String readableDateTime(Instant instant) {
+        return readable(instant, "MMM dd yyyy, HH:mm:ss");
+    }
+
+    /**
+     * Displaying dates in the following format:
+     *
+     * Mar 31, 2020
+     */
+    public static String readableDate(Instant instant) {
+        return readable(instant, "MMM dd yyyy");
+    }
+
+    /**
+     * Helper function to transform a {@link Date} into an {@link Instant}.
+     */
+    public static Instant toInstant(Date localDate) {
+        return Instant.ofEpochMilli(localDate.getTime());
+    }
+
+    /**
+     * Helper function to transform an {@link Instant} into a {@link Date}.
+     */
+    public static Date toDate(Instant instant) {
+        return new Date(instant.toEpochMilli());
     }
 }

@@ -43,8 +43,8 @@ class PdfGeneratorImplTest {
         Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
         Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
 
-        String formattedStart = DateFormatter.format(MAR_23_2020_UTC);
-        String formattedEnd = DateFormatter.format(MAR_27_2020_UTC);
+        String formattedStart = DateFormatter.machineFormat(MAR_23_2020_UTC);
+        String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)
@@ -93,8 +93,8 @@ class PdfGeneratorImplTest {
         Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
         Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
 
-        String formattedStart = DateFormatter.format(MAR_23_2020_UTC);
-        String formattedEnd = DateFormatter.format(MAR_27_2020_UTC);
+        String formattedStart = DateFormatter.machineFormat(MAR_23_2020_UTC);
+        String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)
