@@ -58,12 +58,16 @@ public class ScannerDevice implements Serializable {
     @Column(name = "date_time_updated")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateTimeUpdated;
-    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
-    @ManyToOne
-    private Registrar registrarId;
-    @JoinColumn(name = "registrar_user_id", referencedColumnName = "id")
-    @ManyToOne
-    private RegistrarUser registrarUserId;
+//    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
+//    @ManyToOne
+//    private Registrar registrarId;
+    @Column(name = "registrar_id")
+    private Integer registrarId;
+//    @JoinColumn(name = "registrar_user_id", referencedColumnName = "id")
+//    @ManyToOne
+//    private RegistrarUser registrarUserId;
+    @Column(name = "registrar_user_id")
+    private Integer registrarUserId;
 
     public ScannerDevice() {
     }

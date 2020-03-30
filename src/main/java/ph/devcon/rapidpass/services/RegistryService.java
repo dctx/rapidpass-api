@@ -81,14 +81,15 @@ public class RegistryService {
         // create/update registrant
         registrant = registrantRepository.save(registrant);
 
-        Optional<Registrar> registrarResult = registryRepository.findById(1);
+        // get default registrar and assign it to registrant
+//        Optional<Registrar> registrarResult = registryRepository.findById(1);
+//        if (registrarResult.isPresent()) {
+//            registrant.setRegistrarId(registrarResult.get());
+//        } else {
+//            log.error("Unable to retrieve Registrar");
+//        }
 
-        // set essential fields for registrant
-        if (registrarResult.isPresent()) {
-            registrant.setRegistrarId(registrarResult.get());
-        } else {
-            log.error("Unable to retrieve Registrar");
-        }
+        registrant.setRegistrarId(0);
 
         // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();

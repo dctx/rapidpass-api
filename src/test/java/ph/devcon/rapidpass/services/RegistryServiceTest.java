@@ -106,7 +106,8 @@ class RegistryServiceTest {
 
         // mock save and flush
         when(mockRegistrantRepository.save(ArgumentMatchers.any()))
-                .thenReturn(Registrant.builder().registrarId(mockRegistrar)
+//                .thenReturn(Registrant.builder().registrarId(mockRegistrar)
+                .thenReturn(Registrant.builder().registrarId(0)
                         .firstName("Jonas").build());
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);

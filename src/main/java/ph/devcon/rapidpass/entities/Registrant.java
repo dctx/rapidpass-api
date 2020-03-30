@@ -63,7 +63,6 @@ public class Registrant implements Serializable {
     @Column(name = "suffix")
     private String suffix;
     @Column(name = "birth_date")
-    
     private LocalDate birthDate;
     @Size(max = 150)
     @Column(name = "address")
@@ -109,26 +108,18 @@ public class Registrant implements Serializable {
     @Column(name = "status")
     private String status;
     @Column(name = "date_time_created")
-    
     private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    
     private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "registrantId")
     private Collection<AccessPass> accessPassCollection;
-    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
-    @ManyToOne
-    private Registrar registrarId;
+//    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
+//    @ManyToOne
+//    private Registrar registrarId;
+    @Column(name = "registrar_id")
+    private Integer registrarId;
 
     public Registrant() {
-    }
-
-    public Registrar getRegistrarId() {
-        return registrarId;
-    }
-
-    public void setRegistrarId(Registrar registrarId) {
-        this.registrarId = registrarId;
     }
 
     @Override

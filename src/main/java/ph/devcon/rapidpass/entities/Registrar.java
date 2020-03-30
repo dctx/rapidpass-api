@@ -150,10 +150,10 @@ public class Registrar implements Serializable {
     private Registrar parentRegistrarId;
     @OneToMany(mappedBy = "registrarId")
     private Collection<RegistrarUser> registrarUserCollection;
-    @OneToMany(mappedBy = "registrarId")
-    private Collection<ScannerDevice> scannerDeviceCollection;
-    @OneToMany(mappedBy = "registrarId")
-    private Collection<Registrant> registrantCollection;
+//    @OneToMany(mappedBy = "registrarId")
+//    private Collection<ScannerDevice> scannerDeviceCollection;
+//    @OneToMany(mappedBy = "registrarId")
+//    private Collection<Registrant> registrantCollection;
 
     public Registrar() {
     }
