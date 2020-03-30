@@ -20,12 +20,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
@@ -97,7 +95,6 @@ class RegistryServiceTest {
         // mock registry always returns a registry
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
-        when(mockRegistryRepository.findById(anyInt())).thenReturn(Optional.of(mockRegistrar));
 
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
 
@@ -106,7 +103,6 @@ class RegistryServiceTest {
 
         // mock save and flush
         when(mockRegistrantRepository.save(ArgumentMatchers.any()))
-//                .thenReturn(Registrant.builder().registrarId(mockRegistrar)
                 .thenReturn(Registrant.builder().registrarId(0)
                         .firstName("Jonas").build());
 
