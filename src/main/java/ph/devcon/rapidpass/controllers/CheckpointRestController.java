@@ -1,33 +1,39 @@
 package ph.devcon.rapidpass.controllers;
 
 import io.swagger.annotations.Api;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
-import ph.devcon.rapidpass.api.controllers.CheckpointApi;
+import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.services.CheckpointService;
+import ph.devcon.rapidpass.services.ICheckpointService;
 
+
+/**
+ *  Checkpoint API Rest Controller
+ */
 @CrossOrigin
 @RestController
 @Slf4j
 @Api(tags = "checkpoint")
+@RequestMapping("/checkpoint")
 public class CheckpointRestController
 {
-    @Autowired
-    private CheckpointService checkpointService;
+    private ICheckpointService checkpointService;
 
-    public ResponseEntity<?> getAccessPassByControlCode(String controlCode)
-    {
+    @Autowired
+    public CheckpointRestController(ICheckpointService checkpointService) {
+        this.checkpointService = checkpointService;
+    }
+
+    @GetMapping("/access-pass/verify-control-code/{control-code}")
+    public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
         ResponseEntity response = null;
         try
         {
-            AccessPass accessPass = checkpointService.retrieveAccessPassByControlCode(controlCode);
+            AccessPass accessPass = this.checkpointService.retrieveAccessPassByControlCode(controlCode);
             RapidPass rapidPass = RapidPass.buildFrom(accessPass);
             response = new ResponseEntity(rapidPass, HttpStatus.OK);
         }
