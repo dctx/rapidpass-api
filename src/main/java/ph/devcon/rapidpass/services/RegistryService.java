@@ -1,12 +1,15 @@
 package ph.devcon.rapidpass.services;
 
+import com.boivie.skip32.Skip32;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
+import ph.devcon.dctx.rapidpass.commons.Damm32;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassBatchRequest;
@@ -15,6 +18,7 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 
+import javax.xml.bind.DatatypeConverter;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +35,12 @@ public class RegistryService {
     private final RegistrantRepository registrantRepository;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
+
+    /**
+     * Secret key used for control code generation
+     */
+    @Value("${rapidpass.controlCode.secretKey:***REMOVED***}")
+    private String secretKey = "***REMOVED***";
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -93,6 +103,7 @@ public class RegistryService {
 
         // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
+
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceID(registrant.getMobile());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
@@ -125,6 +136,25 @@ public class RegistryService {
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
+    }
+
+    public static class ControlCodeGenerator {
+        /**
+         * Generates a control code.
+         *
+         * @param originalInput This is a unique pass phrase which can be configured using @value. See
+         * {@link RegistryService}.
+         * @param id The id of the access pass being generated. This should be unique, so make sure you create the
+         * {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
+         *           code of the AccessPass.
+         * @return A control code in string format.
+         */
+        public static String generate(String originalInput, int id) {
+            byte[] encryptionKey = DatatypeConverter.parseBase64Binary(originalInput);
+            long obfuscatedId = Skip32.encrypt(id, encryptionKey);
+            int checkdigit = Damm32.compute(obfuscatedId);
+            return CrockfordBase32.encode(obfuscatedId,7) + CrockfordBase32.encode(checkdigit);
+        }
     }
 
     public List<RapidPass> findAllRapidPasses() {
@@ -254,8 +284,21 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    public RapidPass grant(String referenceId) throws RegistryService.UpdateAccessPassException {
-        return this.updateStatus(referenceId, AccessPassStatus.APPROVED);
+    public RapidPass grant(String referenceId) throws UpdateAccessPassException {
+
+        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED);
+
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+        if (accessPasses.size() > 0) {
+            AccessPass accessPass = accessPasses.get(0);
+            accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
+            accessPass = accessPassRepository.saveAndFlush(accessPass);
+            return RapidPass.buildFrom(accessPass);
+        }
+
+        // Generate control code using the unique ID specified by the database.
+
+        throw new IllegalStateException("No access passes found with reference ID " + referenceId + ".");
     }
 
     public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
@@ -304,7 +347,13 @@ public class RegistryService {
             // persist approval
             updatedRapidPass = grant(referenceId);
             // push APPROVED notifications
-            accessPassNotifierService.pushApprovalNotifs(accessPassRepository.findByReferenceID(referenceId));
+            List<AccessPass> allByReferenceIDOrderByValidToDesc = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+            if (allByReferenceIDOrderByValidToDesc.size() > 0) {
+                AccessPass accessPass = allByReferenceIDOrderByValidToDesc.get(0);
+                accessPassNotifierService.pushApprovalNotifs(accessPass);
+            }
+
         } else if (AccessPassStatus.DECLINED.toString().equals(status)) {
             updatedRapidPass = decline(referenceId);
             // push DENIED notifications

@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.services;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -151,6 +152,15 @@ class RegistryServiceTest {
             e.printStackTrace();
             assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
         }
+    }
+
+    @Test
+    @Ignore
+    void generateControlCode() {
+        // Currently ignoring this test, because Alistair still hasn't updated the commons to 0.2.0
+
+        String controlCode = RegistryService.ControlCodeGenerator.generate("***REMOVED***", 14);
+        assertThat("Generated control code matches", controlCode.equals("06SV72CA"));
     }
 
 }

@@ -274,7 +274,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/com.boivie/skip32 -->
+        <dependency>
+            <groupId>com.boivie</groupId>
+            <artifactId>skip32</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
