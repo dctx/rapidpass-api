@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.Registrar;
-import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
@@ -89,7 +89,7 @@ class RegistryServiceTest {
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
                 .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
-                .status(RequestStatus.PENDING.toString())
+                .status(AccessPassStatus.PENDING.toString())
                 .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
                 .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
                 .build();
@@ -134,7 +134,7 @@ class RegistryServiceTest {
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
                 .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
-                .status(RequestStatus.PENDING.toString())
+                .status(AccessPassStatus.PENDING.toString())
                 .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
                 .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
                 .validTo(OffsetDateTime.ofInstant(FIVE_DAYS_FROM_NOW.toInstant(), ZoneId.systemDefault()))

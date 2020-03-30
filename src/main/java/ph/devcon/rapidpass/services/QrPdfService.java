@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
@@ -58,7 +58,7 @@ public class QrPdfService {
             throw new IllegalArgumentException("AccessPass.name is a required parameter for rendering the PDF.");
         }
 
-        if (!RequestStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
+        if (!AccessPassStatus.APPROVED.toString().equalsIgnoreCase(accessPass.getStatus())) {
             throw new IllegalArgumentException("Cannot render PDF with QR for an AccessPass that is not yet approved.");
         }
 

@@ -7,7 +7,7 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.Registrar;
-import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassBatchRequest;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -51,7 +51,7 @@ public class RegistryService {
             existingAccessPass = existingAcessPasses
                     .stream()
                     // get all valid PENDING or APPROVED rapid pass requests for referenceid
-                    .filter(accessPass -> !RequestStatus.DENIED.toString().equalsIgnoreCase(accessPass.getStatus())
+                    .filter(accessPass -> !AccessPassStatus.DECLINED.toString().equalsIgnoreCase(accessPass.getStatus())
                             && accessPass.getValidTo().isAfter(OffsetDateTime.now()))
                     .findAny();
         } else existingAccessPass = Optional.empty();
@@ -173,17 +173,17 @@ public class RegistryService {
 
         String status = accessPass.getStatus();
 
-        boolean isPending = RequestStatus.PENDING.toString().equals(status);
+        boolean isPending = AccessPassStatus.PENDING.toString().equals(status);
 
         if (!isPending) {
             throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
         }
 
-        if (rapidPassRequest.getRequestStatus() != null)
-            accessPass.setStatus(rapidPassRequest.getRequestStatus().toString());
+        if (rapidPassRequest.getAccessPassStatus() != null)
+            accessPass.setStatus(rapidPassRequest.getAccessPassStatus().toString());
 
-        if (rapidPassRequest.getRequestStatus() != null) {
-            accessPass.setStatus(rapidPassRequest.getRequestStatus().toString());
+        if (rapidPassRequest.getAccessPassStatus() != null) {
+            accessPass.setStatus(rapidPassRequest.getAccessPassStatus().toString());
         }
 
         accessPass.setRemarks(rapidPassRequest.getRemarks());
@@ -225,7 +225,7 @@ public class RegistryService {
      * @param status      The status to apply
      * @return Data stored on the database
      */
-    private RapidPass updateStatus(String referenceId, RequestStatus status) throws RegistryService.UpdateAccessPassException {
+    private RapidPass updateStatus(String referenceId, AccessPassStatus status) throws RegistryService.UpdateAccessPassException {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
@@ -240,7 +240,7 @@ public class RegistryService {
 
         String currentStatus = accessPass.getStatus();
 
-        boolean isPending = RequestStatus.PENDING.toString().equals(currentStatus);
+        boolean isPending = AccessPassStatus.PENDING.toString().equals(currentStatus);
 
         if (!isPending) {
             throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
@@ -259,11 +259,11 @@ public class RegistryService {
     }
 
     public RapidPass grant(String referenceId) throws RegistryService.UpdateAccessPassException {
-        return this.updateStatus(referenceId, RequestStatus.APPROVED);
+        return this.updateStatus(referenceId, AccessPassStatus.APPROVED);
     }
 
     public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
-        return this.updateStatus(referenceId, RequestStatus.DENIED);
+        return this.updateStatus(referenceId, AccessPassStatus.DECLINED);
     }
 
     /**
@@ -294,12 +294,12 @@ public class RegistryService {
     public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
         final String status = rapidPass.getStatus();
-        if (RequestStatus.APPROVED.toString().equals(status)) {
+        if (AccessPassStatus.APPROVED.toString().equals(status)) {
             // persist approval
             updatedRapidPass = grant(referenceId);
             // push APPROVED notifications
             accessPassNotifierService.pushApprovalNotifs(accessPassRepository.findByReferenceID(referenceId));
-        } else if (RequestStatus.DENIED.toString().equals(status)) {
+        } else if (AccessPassStatus.DECLINED.toString().equals(status)) {
             updatedRapidPass = decline(referenceId);
             // push DENIED notifications
             // TODO DENIED NOTIFICATIONS!

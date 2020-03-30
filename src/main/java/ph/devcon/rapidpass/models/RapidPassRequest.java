@@ -7,12 +7,12 @@ import lombok.EqualsAndHashCode;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.enums.RequestStatus;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-import static ph.devcon.rapidpass.enums.RequestStatus.PENDING;
+import static ph.devcon.rapidpass.enums.AccessPassStatus.PENDING;
 
 /**
  * Data model representing a request to create a new {@link AccessPass}. It contains details about an AccessPass and a {@link Registrant}.
@@ -63,7 +63,7 @@ public final class RapidPassRequest {
      */
     @NotNull
     @Builder.Default
-    private RequestStatus requestStatus = PENDING;
+    private AccessPassStatus accessPassStatus = PENDING;
 
     public String getName() {
         return String.format("%s %s", getFirstName(), getLastName());
