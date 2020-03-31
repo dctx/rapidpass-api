@@ -315,7 +315,7 @@ paths:
       tags:
         - inspector
         - public
-      summary: Verify if the plate number is registered or not
+      summary: Verify if the control code is valid or not
       parameters:
         - name: controlCode
           in: path
