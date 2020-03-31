@@ -9,6 +9,7 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.CheckpointServiceImpl;
 
@@ -24,16 +25,19 @@ public class CheckpointServiceTest
     
     private AccessPassRepository accessPassRepository;
 
+    private ScannerDeviceRepository scannerDeviceRepository;
+
     @BeforeEach
     void initializeMocks()
     {
         accessPassRepository = Mockito.mock(AccessPassRepository.class);
+        scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
     }
     
     @Test
     public void TestRetrieveAccessPassByQrCode()
     {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         String controlCode = "12345A";
@@ -60,7 +64,7 @@ public class CheckpointServiceTest
 
     @Test
     public void TestRetrieveAccessPassByPlateNumber() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         accessPassEntity.setPassType(PassType.VEHICLE.toString());

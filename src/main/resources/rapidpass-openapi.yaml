@@ -274,7 +274,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CheckpointAuthResponse'
         '400':
-          description: ivalid request, imei and masterKey is required
+          description: invalid request, imei and masterKey is required
         '401':
           description: Unauthorized. Either the imei provide is not registered or the masterKey provided is wrong
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
@@ -570,7 +570,7 @@ components:
           type: string
           description: the secret needed to decode the QR Code
           example: supersecretkey
-        accesCode:
+        accessCode:
           type: string
           description: the JSON Web Token required for the device to access the APIs
           example: abcdefghijkl.mnopqrst.uvwxyz
