@@ -4,6 +4,8 @@ import com.boivie.skip32.Skip32;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
@@ -158,8 +160,8 @@ public class RegistryService {
         }
     }
 
-    public List<RapidPass> findAllRapidPasses() {
-        return this.findAllAccessPasses()
+    public List<RapidPass> findAllRapidPasses(Optional<Pageable> pageView) {
+        return this.findAllAccessPasses(pageView)
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
@@ -173,8 +175,12 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
-    public List<AccessPass> findAllAccessPasses() {
-        return accessPassRepository.findAll();
+    public List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
+        if (pageView.isPresent()) {
+            return accessPassRepository.findAll(pageView.get()).toList();
+        } else {
+            return accessPassRepository.findAll();
+        }
     }
 
     /**

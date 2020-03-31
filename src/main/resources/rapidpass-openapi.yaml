@@ -520,5 +520,5 @@ components:
           type: string
         pageNo:
           type: integer
-        batchSize:
+        pageSize:
           type: integer
