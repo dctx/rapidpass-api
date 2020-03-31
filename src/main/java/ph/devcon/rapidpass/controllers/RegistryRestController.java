@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +62,7 @@ public class RegistryRestController {
     @PostMapping("/access-passes")
     ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
-        return ResponseEntity.status(201).body(rapidPass);
+        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
     }
 
     @GetMapping("/control-codes")
