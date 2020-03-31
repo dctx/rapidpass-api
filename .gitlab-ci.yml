@@ -55,6 +55,19 @@ deploy-test:
   script:
   - helm dep update helm/rapidpass-api
   - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} helm/rapidpass-api
-  when: manual
   only:
-  - develop
+  - test
+
+deploy-prod:
+  stage: deploy
+  image: lwolf/helm-kubectl-docker:v1.16.2-v2.15.2
+  before_script:
+  - helm init --client-only
+  - helm repo add bitnami https://charts.bitnami.com/bitnami
+  - mkdir -p ~/.kube
+  - cp ${KUBECONFIG} ~/.kube/config
+  script:
+  - helm dep update helm/rapidpass-api
+  - helm upgrade rapidpass-api --install --namespace rapidpass-api --values config/prod-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.postgres.username=${PROD_DB_USERNAME} --config.postgres.password=${PROD_DB_PASSWORD} helm/rapidpass-api
+  only:
+  - master
