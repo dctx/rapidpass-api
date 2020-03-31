@@ -13,6 +13,7 @@ import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RequestResult;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -187,7 +188,14 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("APPROVED").build());
+        final RapidPass approved = instance.updateAccessPass(
+                "ref-id",
+                RequestResult.builder()
+                        .result("APPROVED")
+                        .referenceId("ref-id")
+                        .remarks(null) // No need for remarks if the user is approved
+                        .build()
+        );
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("APPROVED"));
@@ -213,7 +221,12 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("DECLINED").build());
+        final RapidPass approved = instance.updateAccessPass("ref-id", RequestResult.builder()
+                .result("DECLINED")
+                .referenceId("ref-id")
+                .remarks("Some reason here") // No need for remarks if the user is approved
+                .build()
+        );
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("DECLINED"));
