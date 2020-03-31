@@ -20,5 +20,5 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     
     AccessPass findByControlCode(String controlCode);
 
-    AccessPass findByIdTypeAndIdentifierNumber(String idType, String identifierNumber);
+    AccessPass findByPassTypeAndIdentifierNumber(String passType, String identifierNumber);
 }
