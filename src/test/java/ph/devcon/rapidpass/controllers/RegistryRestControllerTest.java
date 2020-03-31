@@ -50,7 +50,9 @@ class RegistryRestControllerTest {
                     .firstName("ganda")
                     .destName("your heart")
                     .destStreet("love street")
+                    .destProvince("Cold Shoulder")
                     .idType("DE")
+                    .originProvince("Province of Love")
                     .originName("Abangers lane")
                     .originCity("Friendly Zone")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
@@ -126,19 +128,24 @@ class RegistryRestControllerTest {
     void newRequestPass_INDIVIDUAL() throws Exception {
 
         String jsonRequestBody = JSON_MAPPER.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
+        final String idToReturn = "the-id-to-return";
+        when(mockRegistryService.newRequestPass(TEST_INDIVIDUAL_REQUEST))
+                .thenReturn(RapidPass.builder()
+                        .referenceId(idToReturn)
+                        .build());
 
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody))
-                .andReturn();
-                // FIXME
-//                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                // expect returned reference Id
+                .andExpect(jsonPath("$.referenceId", is(idToReturn)))
+                .andDo(print());
 
-        // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        // FIXME
-//        verify(mockRegistryService, only()).newRequestPass(eq(TEST_INDIVIDUAL_REQUEST));
+        // verify that the RapidPassRequest model created and matches expected attributes and passed to the pwaService
+        verify(mockRegistryService, only()).newRequestPass(eq(TEST_INDIVIDUAL_REQUEST));
     }
 
     @Test
