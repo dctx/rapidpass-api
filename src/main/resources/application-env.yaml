@@ -22,3 +22,7 @@ spring:
 semaphore:
   url: ${RAPIDPASS_SEMAPHORE_URL}
   key: ${RAPIDPASS_SEMAPHORE_KEY}
+
+management:
+  endpoint.prometheus.enabled: true
+  endpoints.web.exposure.include: info,health,prometheus
