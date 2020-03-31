@@ -18,6 +18,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RequestResult;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -307,7 +308,13 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(TEST_VEHICLE_PASS)))
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .result("APPROVED")
+                .remarks(null)
+                .build();
+
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
                 .thenReturn(TEST_VEHICLE_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
@@ -315,7 +322,7 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_PASS);
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(

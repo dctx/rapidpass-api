@@ -22,13 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.AgencyAuth;
-import ph.devcon.rapidpass.models.AgencyUser;
-import ph.devcon.rapidpass.models.Login;
-import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.models.QueryFilter;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -72,7 +66,6 @@ public class RegistryRestController {
             if (!StringUtils.isBlank(queryFilter.getAporType())) {
                 aporType = queryFilter.getAporType();
             }
-        } else {
         }
 
         return ResponseEntity.ok().body(registryService.findAllRapidPasses(aporType, Optional.ofNullable(pageView)));
@@ -98,12 +91,12 @@ public class RegistryRestController {
 //    }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        if (!AccessPassStatus.isValid(rapidPass.getStatus())) {
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RequestResult requestResult) {
+        if (!AccessPassStatus.isValid(requestResult.getResult())) {
             return ResponseEntity.badRequest().body("Unknown status code.");
         } else {
             try {
-                RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
+                RapidPass result = registryService.updateAccessPass(referenceId, requestResult);
                 return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
             } catch (UpdateAccessPassException e) {
                 return ResponseEntity.badRequest().body(e.getMessage());
