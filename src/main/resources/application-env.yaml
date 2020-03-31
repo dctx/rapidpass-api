@@ -28,3 +28,7 @@ management:
   endpoints.web.exposure.include: info,health,prometheus
 
 rapidpass.jwt.secret: ${RAPIDPASS_JWT_SECRET}
+
+qrmaster:
+  skey: ${RAPIDPASS_QRMASTER_SKEY}
+
