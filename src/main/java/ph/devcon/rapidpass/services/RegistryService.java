@@ -74,13 +74,10 @@ public class RegistryService {
 
         // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
         final List<AccessPass> existingAccessPasses = new ArrayList<>();
-        if (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) {
-            existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getMobileNumber(), now));
-        } else {
-            existingAccessPasses.addAll(accessPassRepository
-                    .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getPlateNumber().trim(), now));
-        }
+        existingAccessPasses.addAll(accessPassRepository
+                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getMobileNumber()));
+        existingAccessPasses.addAll(accessPassRepository
+                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber()));
 
         final Optional<AccessPass> existingAccessPass;
         if (existingAccessPasses != null) {
@@ -349,7 +346,7 @@ public class RegistryService {
 
     public RapidPass grant(String referenceId) throws UpdateAccessPassException {
         log.debug("APPROVING refId {}", referenceId);
-        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED);
+        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 0) {
@@ -372,7 +369,7 @@ public class RegistryService {
      * @param status      The status to apply
      * @return Data stored on the database
      */
-    private RapidPass updateStatus(String referenceId, AccessPassStatus status) throws RegistryService.UpdateAccessPassException {
+    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws RegistryService.UpdateAccessPassException {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
@@ -393,6 +390,10 @@ public class RegistryService {
             throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
         }
 
+        if (reason != null && status == AccessPassStatus.DECLINED) {
+            accessPass.setUpdates(reason);
+        }
+
         accessPass.setStatus(status.toString());
 
         // TODO: We need to verify that only the authorized people to modify this pass are allowed.
@@ -409,19 +410,19 @@ public class RegistryService {
      * Updates a referenceId with status of rapidPass.
      *
      * @param referenceId reference id to update
-     * @param rapidPass   object containing update status
+     * @param requestResult   object containing update status
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
-    public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
+    public RapidPass updateAccessPass(String referenceId, RequestResult requestResult) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
-        final AccessPassStatus status = AccessPassStatus.valueOf(rapidPass.getStatus().toUpperCase());
+        final AccessPassStatus status = AccessPassStatus.valueOf(requestResult.getResult().toUpperCase());
         switch (status) {
             case APPROVED:
                 updatedRapidPass = grant(referenceId);
                 break;
             case DECLINED:
-                updatedRapidPass = decline(referenceId);
+                updatedRapidPass = decline(referenceId, requestResult.getRemarks());
                 break;
             default:
                 // todo implement SUSPENDED
@@ -445,8 +446,8 @@ public class RegistryService {
         return updatedRapidPass;
     }
 
-    public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
-        return this.updateStatus(referenceId, AccessPassStatus.DECLINED);
+    public RapidPass decline(String referenceId, String reason) throws RegistryService.UpdateAccessPassException {
+        return this.updateStatus(referenceId, AccessPassStatus.DECLINED, reason);
     }
 
     /**
