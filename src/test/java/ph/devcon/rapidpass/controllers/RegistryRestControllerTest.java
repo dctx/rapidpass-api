@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -50,7 +51,9 @@ class RegistryRestControllerTest {
                     .firstName("ganda")
                     .destName("your heart")
                     .destStreet("love street")
+                    .destProvince("Cold Shoulder")
                     .idType("DE")
+                    .originProvince("Province of Love")
                     .originName("Abangers lane")
                     .originCity("Friendly Zone")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
@@ -126,19 +129,24 @@ class RegistryRestControllerTest {
     void newRequestPass_INDIVIDUAL() throws Exception {
 
         String jsonRequestBody = JSON_MAPPER.writeValueAsString(TEST_INDIVIDUAL_REQUEST);
+        final String idToReturn = "the-id-to-return";
+        when(mockRegistryService.newRequestPass(TEST_INDIVIDUAL_REQUEST))
+                .thenReturn(RapidPass.builder()
+                        .referenceId(idToReturn)
+                        .build());
 
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody))
-                .andReturn();
-                // FIXME
-//                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                // expect returned reference Id
+                .andExpect(jsonPath("$.referenceId", is(idToReturn)))
+                .andDo(print());
 
-        // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        // FIXME
-//        verify(mockRegistryService, only()).newRequestPass(eq(TEST_INDIVIDUAL_REQUEST));
+        // verify that the RapidPassRequest model created and matches expected attributes and passed to the pwaService
+        verify(mockRegistryService, only()).newRequestPass(eq(TEST_INDIVIDUAL_REQUEST));
     }
 
     @Test
@@ -226,6 +234,8 @@ class RegistryRestControllerTest {
      * @throws Exception on failed test
      */
     @Test
+    @Disabled
+    // controld codes are currently not implemented! Also, test below is not correct!!!
     void getControlCodes() throws Exception {
 
         ControlCode controlCode = ControlCode.builder()

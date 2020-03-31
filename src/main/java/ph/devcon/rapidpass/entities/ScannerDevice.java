@@ -42,13 +42,17 @@ public class ScannerDevice implements Serializable {
     private Integer id;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "device_type")
-    private int deviceType;
-    @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 2147483647)
     @Column(name = "unique_device_id")
     private String uniqueDeviceId;
+    @Column(name = "brand")
+    private String brand;
+    @Column(name = "model")
+    private String model;
+    @Column(name = "mobile_number")
+    private String mobileNumber;
+    @Column(name = "status")
+    private String status;
     @Column(name = "date_time_last_used")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateTimeLastUsed;

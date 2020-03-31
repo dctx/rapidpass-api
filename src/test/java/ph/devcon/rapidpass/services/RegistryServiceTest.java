@@ -16,6 +16,7 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
+import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -48,11 +49,15 @@ class RegistryServiceTest {
     @Mock
     AccessPassNotifierService mockAccessPassNotifierService;
 
+    @Mock
+    ScannerDeviceRepository mockScannerDeviceRepository;
+
     private OffsetDateTime now;
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, mockAccessPassRepository, mockAccessPassNotifierService);
+        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, mockAccessPassRepository,
+                mockAccessPassNotifierService, mockScannerDeviceRepository);
         now = OffsetDateTime.now();
     }
 

@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.QueryFilter;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -61,14 +62,14 @@ public class RegistryRestController {
     @PostMapping("/access-passes")
     ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
-        return ResponseEntity.status(201).body(rapidPass);
+        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
     }
 
-    @GetMapping("/control-codes")
-    public ResponseEntity<Iterable<ControlCode>> getControlCodes() {
-        Iterable<ControlCode> controlCodes = registryService.getControlCodes();
-        return ResponseEntity.ok(controlCodes);
-    }
+//    @GetMapping("/control-codes")
+//    public ResponseEntity<Iterable<ControlCode>> getControlCodes() {
+//        Iterable<ControlCode> controlCodes = registryService.getControlCodes();
+//        return ResponseEntity.ok(controlCodes);
+//    }
 
     @PutMapping("/access-passes/{referenceId}")
     ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
@@ -112,6 +113,17 @@ public class RegistryRestController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(responseBody);
+    }
+
+    @GetMapping("/scanner-devices")
+    public ResponseEntity<List<ScannerDevice>> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
+        Pageable pageView = null;
+        if (queryFilter.isPresent() && queryFilter.get().getPageNo() != null) {
+            int pageSize = (null != queryFilter.get().getPageSize()) ? queryFilter.get().getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
+            pageView = PageRequest.of(queryFilter.get().getPageNo(), pageSize);
+        }
+        List<ScannerDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
+        return ResponseEntity.ok().body(scannerDevices);
     }
 
 }
