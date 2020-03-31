@@ -127,4 +127,10 @@ public class RegistryRestController {
         return ResponseEntity.ok().body(scannerDevices);
     }
 
+    @PostMapping("/scanner-devices")
+    public ResponseEntity<?> registerScannerDevice(@RequestBody MobileDevice deviceRequest) {
+        ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
+
+        return ResponseEntity.status(201).body(ImmutableMap.of("deviceId", deviceRequest.getImei()));
+    }
 }

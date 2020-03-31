@@ -378,7 +378,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/MobileDevice'
       description: Retrieves a set of registered mobile devices based on the optional query parameters.
-  '/registry/sanner-devices/{deviceId}':
+  '/registry/scanner-devices/{deviceId}':
     get:
       tags:
         - dashboard
@@ -525,6 +525,8 @@ components:
       properties:
         imei:
           type: string
+          description: The device IMEI
+          example: '990000862471854'
         brand:
           type: string
         model:
