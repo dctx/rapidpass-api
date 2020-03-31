@@ -98,6 +98,7 @@ public class RegistryService {
         registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
 
         // create/update registrant
+        registrant.setRegistrarId(0);
         registrant = registrantRepository.save(registrant);
 
         // get default registrar and assign it to registrant
@@ -107,8 +108,6 @@ public class RegistryService {
 //        } else {
 //            log.error("Unable to retrieve Registrar");
 //        }
-
-        registrant.setRegistrarId(0);
 
         // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
