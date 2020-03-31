@@ -14,6 +14,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.MobileDevice;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
@@ -59,14 +60,18 @@ public class RegistryService {
      */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
         // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
         // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
         final List<AccessPass> existingAccessPasses = new ArrayList<>();
-        existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getMobileNumber()));
-        existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber()));
+        if (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) {
+            existingAccessPasses.addAll(accessPassRepository
+                .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getMobileNumber(), now));
+        } else {
+            existingAccessPasses.addAll(accessPassRepository
+                    .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getIdentifierNumber(), now));
+        }
 
         final Optional<AccessPass> existingAccessPass;
         if (existingAccessPasses != null) {
@@ -124,7 +129,8 @@ public class RegistryService {
         AccessPass accessPass = new AccessPass();
 
         accessPass.setRegistrantId(registrant);
-        accessPass.setReferenceID(registrant.getMobile());
+        accessPass.setReferenceID( rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
+                registrant.getMobile() : rapidPassRequest.getIdentifierNumber());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
@@ -144,7 +150,6 @@ public class RegistryService {
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
         accessPass.setDestinationProvince(rapidPassRequest.getDestProvince());
-        OffsetDateTime now = OffsetDateTime.now();
         accessPass.setValidFrom(now);
         accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
         accessPass.setDateTimeCreated(now);
