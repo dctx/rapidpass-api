@@ -255,6 +255,28 @@ paths:
                 type: string
         '404':
           description: reference number not found
+  '/checkpoint/auth':
+    post:
+      operationId: checkpointAuth
+      tags:
+        - inspector
+      summary: Authenticate a checkpoint device. This will provide the device with the necessary keys needed to decode the scanned QR data.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckpointAuthRequest'
+      responses:
+        '200':
+          description: success request returns the QR secret and the JWT access code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckpointAuthResponse'
+        '400':
+          description: ivalid request, imei and masterKey is required
+        '401':
+          description: Unauthorized. Either the imei provide is not registered or the masterKey provided is wrong
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
     get:
       operationId: verifyPlateNo
@@ -527,3 +549,26 @@ components:
         pageSize:
           type: integer
           description: number of records that will be returned, default of 25
+    CheckpointAuthRequest:
+      type: object
+      description: The checkpoint authentication request
+      properties:
+        imei:
+          type: string
+          description: The device IMEI
+          example: '990000862471854'
+        masterKey:
+          type: string
+          description: The Master Key that is scanned from a QR Code
+    CheckpointAuthResponse:
+      type: object
+      description: The response of valid checkpoint device authentication.
+      properties:
+        qrKey:
+          type: string
+          description: the secret needed to decode the QR Code
+          example: supersecretkey
+        accesCode:
+          type: string
+          description: the JSON Web Token required for the device to access the APIs
+          example: abcdefghijkl.mnopqrst.uvwxyz
