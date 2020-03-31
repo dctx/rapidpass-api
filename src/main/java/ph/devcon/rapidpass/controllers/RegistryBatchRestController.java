@@ -119,7 +119,7 @@ public class RegistryBatchRestController
             final List<RapidPass> allRapidPasses = registryService.findAllRapidPasses(Optional.of(Pageable.unpaged()));
             StringWriter writer = new StringWriter();
             ICSVWriter csvWriter = new CSVWriter(writer);
-            StatefulBeanToCsv<List<RapidPass>> sbc = new StatefulBeanToCsvBuilder(csvWriter)
+            StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)
                 .withSeparator(DEFAULT_SEPARATOR)
                 .build();
             sbc.write(allRapidPasses);
