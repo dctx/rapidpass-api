@@ -23,7 +23,6 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
