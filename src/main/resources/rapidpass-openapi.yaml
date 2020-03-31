@@ -65,10 +65,10 @@ paths:
         - dashboard
       summary: Gets a list of access passes
       parameters:
-        - name: status
+        - name: queryFilter
           in: query
           required: false
-          description: status of access passes to retrieve
+          description: query parameters for the records that will be returned by the server
           schema:
             $ref: '#/components/schemas/QueryFilter'
       responses:
@@ -513,12 +513,17 @@ components:
           type: string
     QueryFilter:
       type: object
+      description: optional filters for the records that will be returned by the operations
       properties:
         status:
           type: string
+          description: not implemented yet
         validUntil:
           type: string
+          description: not implemented yet
         pageNo:
           type: integer
+          description: page number, starts with zero
         pageSize:
           type: integer
+          description: number of records that will be returned, default of 25
