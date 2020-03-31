@@ -6,6 +6,7 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -53,8 +54,8 @@ public class RapidPass {
                 .idType(accessPass.getIdType())
                 .identifierNumber(accessPass.getIdentifierNumber())
                 .status(accessPass.getStatus())
-                .validFrom(accessPass.getValidFrom() == null ? "" : DateFormatter.machineFormat(new Date(accessPass.getValidFrom().toEpochSecond())))
-                .validUntil(accessPass.getValidTo() == null ? "" : DateFormatter.machineFormat(new Date(accessPass.getValidTo().toEpochSecond())))
+                .validFrom(accessPass.getValidFrom() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidFrom()))
+                .validUntil(accessPass.getValidTo() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidTo()))
                 .destName(accessPass.getDestinationName())
                 .destStreet(accessPass.getDestinationStreet())
                 .destCity(accessPass.getDestinationCity())
