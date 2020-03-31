@@ -1,12 +1,13 @@
 image:
-  tag: test
+  tag: prod
+  pullPolicy: IfNotPresent
 config:
   postgres:
     database: rapidpass
     host: rapidpass-postgres
-    password: password
+    password: ''
     port: "5432"
-    username: dctx
+    username: ''
   semaphore:
     key: ""
     url: https://api.semaphore.co/api/v4/messages
@@ -23,15 +24,14 @@ ingress:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
   enabled: enabled
-  host: api.test.rapidpass.amihan.net
+  host: api.rapidpass.amihan.net
   tls:
     enabled: true
     secretName: rapidpass-tls
 swaggerUI:
   config:
     urls:
-    - name: Test Environment
-      url: https://api.test.rapidpass.amihan.net/api/v1/spec
+    - name: Production
+      url: https://api.rapidpass.amihan.net/api/v1/spec
 tags:
   postgres: true
-

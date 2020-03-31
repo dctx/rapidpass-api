@@ -78,4 +78,28 @@ public final class RapidPassRequest {
         return String.format("%s %s", getFirstName(), getLastName());
     }
 
+    public static RapidPassRequest buildFrom(RapidPassCSVdata csvData) {
+        return RapidPassRequest.builder()
+                .passType(PassType.valueOf(csvData.getPassType()))
+                .aporType(csvData.getAporType())
+                .firstName(csvData.getFirstName())
+                .middleName(csvData.getMiddleName())
+                .lastName(csvData.getLastName())
+                .suffix(csvData.getSuffix())
+                .company(csvData.getCompany())
+                .idType(csvData.getIdType())
+                .identifierNumber(csvData.getIdentifierNumber())
+                .mobileNumber(csvData.getMobileNumber())
+                .email(csvData.getEmail())
+                .originName(csvData.getOriginName())
+                .originStreet(csvData.getOriginStreet())
+                .originCity(csvData.getOriginCity())
+                .destName(csvData.getDestName())
+                .destStreet(csvData.getDestStreet())
+                .destCity(csvData.getDestCity())
+                .remarks(csvData.getRemarks())
+                .build();
+    }
+
+
 }

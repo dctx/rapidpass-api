@@ -6,13 +6,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.services.notifications.EmailNotificationService;
 import ph.devcon.rapidpass.services.notifications.NotificationException;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
+import ph.devcon.rapidpass.services.notifications.templates.EmailNotificationTemplate;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -62,4 +67,69 @@ public class EmailServiceTest{
 
     }
 
+
+    @Test
+    public void testSmsFormatting_INDIVIDUAL() {
+
+        EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .passType(PassType.INDIVIDUAL)
+                .url("https://www.google.com")
+                .build();
+
+        String message = template.compose();
+
+        assertThat(message, equalTo("Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this link: https://www.google.com"));
+    }
+
+
+    @Test
+    public void testSmsFormatting_failIndividual() {
+
+        EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .reason("Arbitrary reason here")
+                .passType(PassType.INDIVIDUAL)
+                .build();
+
+        String message = template.compose();
+
+        assertThat(message, equalTo("Your entry has been rejected due to Arbitrary reason here. Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+    }
+
+    @Test
+    public void testSmsFormatting_VEHICLE() {
+
+        EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .passType(PassType.VEHICLE)
+                .url("https://www.google.com")
+                .build();
+
+        String message = template.compose();
+
+        assertThat(message, equalTo("Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this link: https://www.google.com"));
+    }
+
+    @Test
+    public void testSmsFormatting_failVehicle() {
+
+        EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .reason("Arbitrary reason here")
+                .passType(PassType.VEHICLE)
+                .build();
+
+        String message = template.compose();
+
+        assertThat(message, equalTo("Your entry for your vehicle has been rejected due to Arbitrary reason here. Please contact RapidPass-dctx@devcon.ph} for further concerns and inquiry."));
+    }
+
+    @Test
+    public void failSmsFormatting_missingParameterForVehicle() {
+
+        EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .passType(PassType.INDIVIDUAL)
+                .build();
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            String message = template.compose();
+        });
+    }
 }

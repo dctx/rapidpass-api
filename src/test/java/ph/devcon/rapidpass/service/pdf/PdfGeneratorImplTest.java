@@ -10,8 +10,7 @@ import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
-import ph.devcon.rapidpass.utilities.DateOnlyFormat;
-import ph.devcon.rapidpass.utilities.RFC3339DateFormat;
+import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +43,8 @@ class PdfGeneratorImplTest {
         Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
         Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
 
-        String formattedStart = DateOnlyFormat.format(MAR_23_2020_UTC);
-        String formattedEnd = DateOnlyFormat.format(MAR_27_2020_UTC);
+        String formattedStart = DateFormatter.machineFormat(MAR_23_2020_UTC);
+        String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)
@@ -94,8 +93,8 @@ class PdfGeneratorImplTest {
         Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
         Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
 
-        String formattedStart = DateOnlyFormat.format(MAR_23_2020_UTC);
-        String formattedEnd = DateOnlyFormat.format(MAR_27_2020_UTC);
+        String formattedStart = DateFormatter.machineFormat(MAR_23_2020_UTC);
+        String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)

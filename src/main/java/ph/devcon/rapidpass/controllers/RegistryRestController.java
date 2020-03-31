@@ -3,6 +3,8 @@ package ph.devcon.rapidpass.controllers;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.models.QueryFilter;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -20,6 +23,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Registry API Rest Controller
@@ -35,13 +39,23 @@ public class RegistryRestController {
     private final QrPdfService qrPdfService;
 
     @GetMapping("/access-passes")
-    public List<RapidPass> getAccessPasses() {
-        return registryService.findAllRapidPasses();
+    public ResponseEntity<List<RapidPass>> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
+        Pageable pageView = null;
+        if (queryParameter.isPresent()) {
+            QueryFilter queryFilter = queryParameter.get();
+            if (null != queryFilter.getPageNo()) {
+                int pageSize = (null != queryFilter.getPageSize())  ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
+                pageView = PageRequest.of(queryFilter.getPageNo(), pageSize);
+            }
+        } else {
+        }
+        return ResponseEntity.ok().body(registryService.findAllRapidPasses(Optional.ofNullable(pageView)));
     }
 
     @GetMapping("/access-passes/{referenceId}")
-    RapidPass getAccessPassDetails(@PathVariable String referenceId) {
-        return registryService.find(referenceId);
+    ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) {
+        RapidPass rapidPass = registryService.find(referenceId);
+        return (rapidPass != null) ? ResponseEntity.ok().body(rapidPass) : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/access-passes")

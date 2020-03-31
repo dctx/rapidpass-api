@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.utilities.DateOnlyFormat;
+import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Utility class for generating Pdf using File qrcode file from QRCode Generator.
@@ -158,8 +158,8 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph[] generateValidUntil(RapidPass rapidPass) throws ParseException {
         SimpleDateFormat formatToPdf = new SimpleDateFormat("MM/dd");
 
-        Date validUntilDate = DateOnlyFormat.parse(rapidPass.getValidUntil());
-        String validUntil = formatToPdf.format(validUntilDate);
+        Instant validUntilInstant = DateFormatter.parse(rapidPass.getValidUntil());
+        String validUntil = DateFormatter.readable(validUntilInstant, "MM/dd");
 
         Paragraph details = new Paragraph();
         details.setFontSize(20);

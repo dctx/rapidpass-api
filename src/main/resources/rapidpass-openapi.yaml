@@ -65,20 +65,12 @@ paths:
         - dashboard
       summary: Gets a list of access passes
       parameters:
-        - name: status
+        - name: queryFilter
           in: query
           required: false
-          description: status of access passes to retrieve
+          description: query parameters for the records that will be returned by the server
           schema:
-            type: string
-        - name: validUntil
-          in: query
-          required: false
-          description: >-
-            returns a list of access passes that are valid until the specified
-            date
-          schema:
-            type: string
+            $ref: '#/components/schemas/QueryFilter'
       responses:
         '200':
           description: Status of the request pass
@@ -237,7 +229,7 @@ paths:
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
 
-  '/registry/access-passes/{referenceID}/qr-code':
+  '/registry/qr-codes/{referenceID}':
     get:
       operationId: getQRCode
       tags:
@@ -256,13 +248,11 @@ paths:
             type: string
       responses:
         '200':
-          description: More information on control number
+          description: Base64-encoded string of the QR Code
           content:
-            application/json:
+            text/plain:
               schema:
-                properties:
-                  qrcode:
-                    type: string
+                type: string
         '404':
           description: reference number not found
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
@@ -521,3 +511,19 @@ components:
           type: string
         status:
           type: string
+    QueryFilter:
+      type: object
+      description: optional filters for the records that will be returned by the operations
+      properties:
+        status:
+          type: string
+          description: not implemented yet
+        validUntil:
+          type: string
+          description: not implemented yet
+        pageNo:
+          type: integer
+          description: page number, starts with zero
+        pageSize:
+          type: integer
+          description: number of records that will be returned, default of 25

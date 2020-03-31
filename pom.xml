@@ -172,7 +172,7 @@
         <dependency>
             <groupId>ph.devcon.dctx</groupId>
             <artifactId>rapidpass-commons</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
@@ -191,6 +191,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Reading CSV Files -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.1</version>
         </dependency>
 
         <!-- QR code generator/reader-->
@@ -285,7 +292,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/com.boivie/skip32 -->
+        <dependency>
+            <groupId>com.boivie</groupId>
+            <artifactId>skip32</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
