@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.services;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -24,6 +23,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -148,7 +148,7 @@ class RegistryServiceTest {
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
         // repository returns an access pass!
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.singletonList(samplePendingAccessPass));
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(singletonList(samplePendingAccessPass));
 
 
         try {
@@ -169,4 +169,55 @@ class RegistryServiceTest {
         assertThat("Generated control code matches", controlCode.equals("06SV72CA"));
     }
 
+    @Test
+    void updateAccessPass_APPROVED() throws RegistryService.UpdateAccessPassException {
+        final AccessPass approvedAccessPass = AccessPass.builder()
+                .id(123456)
+                .referenceID("ref-id")
+                .status("APPROVED")
+                .passType("INDIVIDUAL")
+                .build();
+
+        final AccessPass pendingAccessPass = AccessPass.builder()
+                .status("PENDING")
+                .id(123456)
+                .build();
+
+
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
+                .thenReturn(singletonList(pendingAccessPass));
+        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
+        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("APPROVED").build());
+
+        assertThat(approved, is(notNullValue()));
+        assertThat(approved.getStatus(), is("APPROVED"));
+
+        verify(mockAccessPassRepository, times(2)).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
+    }
+
+    @Test
+    void updateAccessPass_DENIED() throws RegistryService.UpdateAccessPassException {
+        final AccessPass approvedAccessPass = AccessPass.builder()
+                .id(123456)
+                .referenceID("ref-id")
+                .status("DECLINED")
+                .passType("INDIVIDUAL")
+                .build();
+
+        final AccessPass pendingAccessPass = AccessPass.builder()
+                .status("PENDING")
+                .id(123456)
+                .build();
+
+
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
+                .thenReturn(singletonList(pendingAccessPass));
+        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
+        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("DECLINED").build());
+
+        assertThat(approved, is(notNullValue()));
+        assertThat(approved.getStatus(), is("DECLINED"));
+
+        verify(mockAccessPassRepository).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
+    }
 }

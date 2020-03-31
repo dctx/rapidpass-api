@@ -8,11 +8,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.NotificationService;
+import ph.devcon.rapidpass.services.notifications.templates.EmailNotificationTemplate;
+import ph.devcon.rapidpass.services.notifications.templates.SMSNotificationTemplate;
 
-import javax.validation.constraints.Size;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -76,54 +81,79 @@ public class AccessPassNotifierService {
     }
 
     /**
-     * Pushes APPROVAL notifications to sms and email. Called on access pass APPROVAL.
+     * Pushes notifications depending on Access Pass status to sms and email.
      *
      * @param accessPass an access pass
      */
-    public void pushApprovalNotifs(AccessPass accessPass) {
-        @Size(max = 30) final String accessPassReferenceId = accessPass.getReferenceID();
+    public void pushApprovalDeniedNotifs(@Valid @NotNull AccessPass accessPass) throws ParseException, IOException, WriterException {
+        final String accessPassReferenceId = accessPass.getReferenceID();
+
         log.debug("pushing approval notifications for {}", accessPassReferenceId);
 
         // pre checks
 
         // check pass exists
-        if (accessPass == null)
-            throw new IllegalArgumentException(String.format("No RapidPass Request found for %s", accessPassReferenceId));
-
-        // check pass is APPROVED and NOT EXPIRED
-        if (!AccessPass.isValid(accessPass))
-            throw new IllegalArgumentException(String.format("The RapidPass %s is not a valid APPROVED pass.", accessPassReferenceId));
-
+        final AccessPassStatus accessPassStatus = AccessPassStatus.valueOf(accessPass.getStatus().toUpperCase());
 
         // generate link for the access pass
-        String accessPassUrl = generateAccessPassUrl(accessPassReferenceId);
+        final String email = accessPass.getRegistrantId().getEmail();
+        final String mobile = accessPass.getRegistrantId().getMobile();
+
+        final PassType passType = PassType.valueOf(accessPass.getPassType().toUpperCase());
+
+        final NotificationMessage emailMessage;
+        final NotificationMessage smsMessage;
+        switch (accessPassStatus) {
+            case APPROVED:
+                String accessPassUrl = generateAccessPassUrl(accessPassReferenceId);
+                emailMessage = buildApprovedEmailMessage(
+                        passType,
+                        accessPassUrl,
+                        accessPassReferenceId,
+                        email);
+                smsMessage = buildApprovedSmsMessage(
+                        passType,
+                        accessPassUrl,
+                        mobile,
+                        accessPass.getName(),
+                        accessPass.getControlCode(),
+                        accessPass.getIdentifierNumber());
+                break;
+            case DECLINED:
+                emailMessage = buildDeclinedEmailMessage(passType, email, "TODO");
+                smsMessage = buildDeclinedSmsMessage(
+                        passType,
+                        mobile,
+                        accessPass.getName(),
+                        accessPass.getIdentifierNumber());
+                break;
+            default:
+                log.warn("Not sending out notification for " + accessPassStatus);
+                return;
+
+        }
 
         // create NotificationMessages to send out
         // email
-        final String email = accessPass.getRegistrantId().getEmail();
         if (!StringUtils.isEmpty(email)) {
             try {
-                emailService.send(
-                        buildEmailMessage(accessPassUrl, accessPassReferenceId, email));
+                emailService.send(emailMessage);
             } catch (Exception e) {
                 // we want to continue despite any error in emailService
                 log.error("Error sending email message to " + email, e);
             }
         }
 
-        final String mobile = accessPass.getRegistrantId().getMobile();
         // sms
         if (!StringUtils.isEmpty(mobile)) {
             try {
-                smsService.send(
-                        buildSmsMessage(accessPassUrl, mobile));
+                smsService.send(smsMessage);
             } catch (Exception e) {
                 // we want to continue despite any error in smsService
                 log.error("Error sending SMS message to " + mobile, e);
             }
         }
         log.debug("pushed approval notifications for {}", accessPassReferenceId);
-
     }
 
     /**
@@ -144,12 +174,33 @@ public class AccessPassNotifierService {
      * @param mobile        mobile number to send message to
      * @return built message for sms service
      */
-    NotificationMessage buildSmsMessage(String accessPassUrl, String mobile) {
+    NotificationMessage buildApprovedSmsMessage(PassType passType,
+                                                String accessPassUrl,
+                                                String mobile,
+                                                String name,
+                                                String controlCode,
+                                                String vehiclePlateNumber) {
         return NotificationMessage.New()
                 .from(smsFrom)
                 .to(mobile)
-                // todo get SMS format - make configurable
-                .message("Your RapidPass is available here: " + accessPassUrl)
+                .message(SMSNotificationTemplate.builder()
+                        .passType(passType)
+                        .url(accessPassUrl)
+                        .name(name)
+                        .controlCode(controlCode)
+                        .vehiclePlateNumber(vehiclePlateNumber)
+                        .build().compose())
+                .create();
+    }
+
+    NotificationMessage buildDeclinedSmsMessage(PassType passType, String mobile, String name, String vehiclePlateNumber) {
+        return NotificationMessage.New()
+                .from(smsFrom)
+                .message(SMSNotificationTemplate.builder()
+                        .name(name)
+                        .passType(passType)
+                        .vehiclePlateNumber(vehiclePlateNumber)
+                        .build().compose())
                 .create();
     }
 
@@ -162,9 +213,10 @@ public class AccessPassNotifierService {
      * @throws IOException     on error generating qr code
      * @throws WriterException on error generating qr code
      */
-    NotificationMessage buildEmailMessage(String accessPassUrl,
-                                          String accessPassReferenceId,
-                                          String email)
+    NotificationMessage buildApprovedEmailMessage(PassType passType,
+                                                  String accessPassUrl,
+                                                  String accessPassReferenceId,
+                                                  String email)
             throws IOException, WriterException, ParseException {
 
         byte[] generatedQrData = qrPdfService.generateQrPdf(accessPassReferenceId);
@@ -172,13 +224,29 @@ public class AccessPassNotifierService {
         return NotificationMessage.New()
                 .from(mailFrom)
                 .to(email)
-                // todo prolly need to move this to email templatr - thymeleaf? velocity? etc...
-                // simple message for now
-                .message("Your RapidPass is available here: " + accessPassUrl)
+                // todo prolly need to move this to an actual email templatr - thymeleaf? velocity? etc...
+                .message(
+                        EmailNotificationTemplate.builder()
+                                .passType(passType)
+                                .url(accessPassUrl)
+                                .build()
+                                .compose()
+                )
                 .title("RapidPass is APPROVED")
                 // attach QR code PDF
                 .addAttachment("rapidpass-qr.pdf", "application/pdf", generatedQrData)
                 .create();
+    }
+
+    NotificationMessage buildDeclinedEmailMessage(PassType passType, String email, String reason) {
+        return NotificationMessage.New()
+                .from(mailFrom)
+                .to(email)
+                .message(EmailNotificationTemplate.builder()
+                        .passType(passType)
+                        .reason(reason).build().compose())
+                .create()
+                ;
     }
 
 

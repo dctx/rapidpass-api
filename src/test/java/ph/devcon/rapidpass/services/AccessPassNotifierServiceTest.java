@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.notifications.NotificationException;
 import ph.devcon.rapidpass.services.notifications.NotificationMessage;
@@ -73,10 +74,10 @@ class AccessPassNotifierServiceTest {
     }
 
     @Test
-    void pushNotifications_SUCCESS() throws NotificationException {
+    void pushNotifications_SUCCESS() throws NotificationException, ParseException, IOException, WriterException {
 
         // mock send notifs to access pass
-        instance.pushApprovalNotifs(INDIVIDUAL_ACCESSPASS);
+        instance.pushApprovalDeniedNotifs(INDIVIDUAL_ACCESSPASS);
 
         // verify email and sms send will be called
 
@@ -99,7 +100,7 @@ class AccessPassNotifierServiceTest {
         final String toAddress = "my-email@email.com";
         final String testPassLink = "a-test-url.com";
         final NotificationMessage notificationMessage =
-                instance.buildEmailMessage(testPassLink,
+                instance.buildApprovedEmailMessage(PassType.INDIVIDUAL, testPassLink,
                         INDIVIDUAL_ACCESSPASS.getReferenceID(),
                         toAddress);
 
@@ -108,19 +109,37 @@ class AccessPassNotifierServiceTest {
 
         assertThat(notificationMessage.getFrom(), is(TEST_MAILBOX));
         assertThat(notificationMessage.getTo(), is(toAddress));
-        assertThat(notificationMessage.getMessage(), is("Your RapidPass is available here: " + testPassLink));
+        assertThat(notificationMessage.getMessage(), is(
+                "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a" +
+                        " printable file that you can use at the checkpoint. " +
+                        "You can download your QR code on RapidPass.ph by following this link: a-test-url.com"));
         assertThat(notificationMessage.getTitle(), is("RapidPass is APPROVED"));
 
     }
 
+
     @Test
-    void buildSmsMessage() {
+    void buildDeclinedEmailMessage() {
+        final NotificationMessage declinedMessage = instance.buildDeclinedEmailMessage(PassType.INDIVIDUAL, "my-email.com", "blue balls");
+        assertThat(declinedMessage.getMessage(), is("Your entry has been rejected due to blue balls." +
+                " Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+    }
+
+    @Test
+    void buildDeclinedSmsMessage() {
+        final NotificationMessage declinedSms = instance.buildDeclinedSmsMessage(PassType.INDIVIDUAL, "091579123", "Jonas", "1234567234");
+        assertThat(declinedSms.getMessage(), is("Hi, Jonas. Your RapidPass has been rejected. Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+    }
+
+    @Test
+    void buildApprovedSmsMessage() {
         final String testPassLink = "a-test-url.com";
         final String testMobile = "09158977011";
-        final NotificationMessage smsMessage = instance.buildSmsMessage(testPassLink, testMobile);
+        final NotificationMessage smsMessage = instance.buildApprovedSmsMessage(PassType.INDIVIDUAL, testPassLink, testMobile, "JONAS", "12345", "ABCD 1234");
 
         assertThat(smsMessage.getFrom(), is("RAPIDPASS.PH"));
         assertThat(smsMessage.getTo(), is(testMobile));
-        assertThat(smsMessage.getMessage(), is("Your RapidPass is available here: " + testPassLink));
+        assertThat(smsMessage.getMessage(), is("Hi, JONAS. Your RapidPass has been approved! Your RapidPass control number is 12345. " +
+                "You can also download your QR code on RapidPass.ph by following this link: a-test-url.com"));
     }
 }
