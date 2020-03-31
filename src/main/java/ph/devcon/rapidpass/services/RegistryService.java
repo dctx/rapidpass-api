@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.services;
 
 import com.boivie.skip32.Skip32;
+import com.google.common.base.Strings;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,12 @@ public class RegistryService {
         OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
+        // conditional validation for the plate number
+        if (rapidPassRequest.getPassType().equals(PassType.VEHICLE) &&
+                (rapidPassRequest.getPlateNumber() == null || rapidPassRequest.getPlateNumber().trim().isEmpty())) {
+            throw new IllegalArgumentException("plate number must not be empty");
+        }
+
         // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
         final List<AccessPass> existingAccessPasses = new ArrayList<>();
         if (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) {
@@ -70,7 +77,7 @@ public class RegistryService {
                 .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getMobileNumber(), now));
         } else {
             existingAccessPasses.addAll(accessPassRepository
-                    .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getIdentifierNumber(), now));
+                    .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getPlateNumber().trim(), now));
         }
 
         final Optional<AccessPass> existingAccessPass;
@@ -95,7 +102,8 @@ public class RegistryService {
             log.debug("  existing pass exists!");
             throw new IllegalArgumentException(
                     String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
-                            rapidPassRequest.getIdentifierNumber()));
+                            (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) ?
+                            rapidPassRequest.getIdentifierNumber() : rapidPassRequest.getPlateNumber()));
         }
 
         // check if registrant is already in the system
@@ -130,11 +138,14 @@ public class RegistryService {
 
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceID( rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
-                registrant.getMobile() : rapidPassRequest.getIdentifierNumber());
+                registrant.getMobile() : rapidPassRequest.getPlateNumber());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
+        if (rapidPassRequest.getPlateNumber() != null) {
+            accessPass.setPlateNumber(rapidPassRequest.getPlateNumber().trim());
+        }
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
         if (null != registrant.getSuffix() && !registrant.getSuffix().isEmpty()) {

@@ -148,6 +148,7 @@
             <column name="control_code" type="VARCHAR(15)"/>
             <column name="id_type" type="VARCHAR(10)"/>
             <column name="identifier_number" type="VARCHAR(25)"/>
+            <column name="plate_number" type="VARCHAR(20)"/>
             <column name="name" type="VARCHAR(100)"/>
             <column name="company" type="VARCHAR(100)"/>
             <column name="remarks" type="VARCHAR(150)"/>
