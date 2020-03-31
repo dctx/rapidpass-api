@@ -23,11 +23,11 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -172,8 +172,9 @@ public class RegistryService {
          * @return A control code in string format.
          */
         public static String generate(String originalInput, int id) {
-            byte[] encryptionKey = DatatypeConverter.parseBase64Binary(originalInput);
-            long obfuscatedId = Skip32.encrypt(id, encryptionKey);
+            String encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
+            byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+            long obfuscatedId = Skip32.encrypt(id, decodedBytes);
             int checkdigit = Damm32.compute(obfuscatedId);
             return CrockfordBase32.encode(obfuscatedId, 7) + CrockfordBase32.encode(checkdigit);
         }
