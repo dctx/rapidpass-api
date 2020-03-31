@@ -178,7 +178,7 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
-    public List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
+    private List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
         if (pageView.isPresent()) {
             return accessPassRepository.findAll(pageView.get()).toList();
         } else {
@@ -427,11 +427,18 @@ public class RegistryService {
     /**
      * Retrieve Scanner Devices
      */
-    public List<ScannerDevice> getScannerDevices(Optional<Pageable> pageView) {
+    public List<MobileDevice> getScannerDevices(Optional<Pageable> pageView) {
+        List<ScannerDevice> scannerDevices;
         if (pageView.isPresent()) {
-            return scannerDeviceRepository.findAll(pageView.get()).toList();
+            return scannerDeviceRepository.findAll(pageView.get()).toList()
+                    .stream()
+                    .map(MobileDevice::buildFro)
+                    .collect(Collectors.toList());
         } else {
-            return scannerDeviceRepository.findAll();
+            return scannerDeviceRepository.findAll()
+                    .stream()
+                    .map(MobileDevice::buildFro)
+                    .collect(Collectors.toList());
         }
     }
 }

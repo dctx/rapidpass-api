@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import ph.devcon.rapidpass.RapidpassApplication;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.IdType;
+import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.ICheckpointService;
@@ -63,17 +63,20 @@ public class CheckpointServiceTest
         checkpointService = new CheckpointServiceImpl(accessPassRepository);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
+        accessPassEntity.setPassType(PassType.VEHICLE.toString());
+        accessPassEntity.setIdType(IdTypeVehicle.PLT.toString());
         String idNumber = "xxx-1234";
         accessPassEntity.setIdentifierNumber(idNumber);
 
         // WHEN
-        Mockito.when(accessPassRepository.findByIdTypeAndIdentifierNumber(IdType.VehicleID.toString(), idNumber))
+        Mockito.when(accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), idNumber))
                 .thenReturn(accessPassEntity);
 
         // THEN
         AccessPass accessPass = checkpointService.retrieveAccessPassByPlateNo(idNumber);
 
         assertNotNull(accessPass);
+        assertEquals(accessPassEntity.getIdType(), IdTypeVehicle.PLT.toString());
         assertEquals(accessPassEntity.getIdentifierNumber(), idNumber);
     }
 
@@ -87,7 +90,6 @@ public class CheckpointServiceTest
         accessPassEntity.setReferenceID("Sample");
         accessPassEntity.setCompany("Sample company");
         accessPassEntity.setDestinationCity("Sample City");
-        accessPassEntity.setIdType("VehicleID");
         accessPassEntity.setReferenceID("M-JIV9H149");
         accessPassEntity.setIssuedBy("ApprovingOrg");
         return accessPassEntity;

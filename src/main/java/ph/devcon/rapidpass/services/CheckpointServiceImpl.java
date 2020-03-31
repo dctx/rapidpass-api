@@ -1,9 +1,11 @@
 package ph.devcon.rapidpass.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.IdType;
+import ph.devcon.rapidpass.enums.IdTypeVehicle;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
 @Service
@@ -23,7 +25,8 @@ public class CheckpointServiceImpl implements ICheckpointService {
     
     @Override
     public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
-        return this.accessPassRepository.findByIdTypeAndIdentifierNumber(IdType.VehicleID.toString(), plateNo);
+        AccessPass accessPass = this.accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), plateNo);
+        return (null != accessPass && StringUtils.equals(IdTypeVehicle.PLT.toString(), accessPass.getIdType())) ? accessPass : null;
     }
     
     @Override

@@ -28,7 +28,7 @@ public class CheckpointRestController
         this.checkpointService = checkpointService;
     }
 
-    @GetMapping("/access-pass/verify-control-code/{control-code}")
+    @GetMapping("/access-passes/control-codes/{control-code}")
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
         ResponseEntity response = null;
         try {
@@ -43,7 +43,7 @@ public class CheckpointRestController
         return response;
     }
 
-    @GetMapping("/access-pass/verify-plate-no/{plate-no}")
+    @GetMapping("/access-passes/plate-numbers/{plate-no}")
     public ResponseEntity<?> getAccessPassByPlateNumber(@PathVariable("plate-no") String plateNo) {
         ResponseEntity response = null;
         try {

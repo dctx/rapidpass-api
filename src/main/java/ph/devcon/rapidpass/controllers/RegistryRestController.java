@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.models.MobileDevice;
 import ph.devcon.rapidpass.models.QueryFilter;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -116,13 +117,13 @@ public class RegistryRestController {
     }
 
     @GetMapping("/scanner-devices")
-    public ResponseEntity<List<ScannerDevice>> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
+    public ResponseEntity<List<MobileDevice>> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
         Pageable pageView = null;
         if (queryFilter.isPresent() && queryFilter.get().getPageNo() != null) {
             int pageSize = (null != queryFilter.get().getPageSize()) ? queryFilter.get().getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
             pageView = PageRequest.of(queryFilter.get().getPageNo(), pageSize);
         }
-        List<ScannerDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
+        List<MobileDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
         return ResponseEntity.ok().body(scannerDevices);
     }
 
