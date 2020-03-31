@@ -192,7 +192,7 @@ class RegistryServiceTest {
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("APPROVED"));
 
-        verify(mockAccessPassRepository).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
+        verify(mockAccessPassRepository, times(2)).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
     @Test

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
@@ -15,7 +14,9 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -391,31 +392,6 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-
-    public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
-        final RapidPass updatedRapidPass;
-        final String status = rapidPass.getStatus();
-        if (AccessPassStatus.APPROVED.toString().equals(status)) {
-            // persist approval
-            updatedRapidPass = grant(referenceId);
-            // push APPROVED notifications
-            List<AccessPass> allByReferenceIDOrderByValidToDesc = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
-
-            if (allByReferenceIDOrderByValidToDesc.size() > 0) {
-                AccessPass accessPass = allByReferenceIDOrderByValidToDesc.get(0);
-                accessPassNotifierService.pushApprovalNotifs(accessPass);
-            }
-
-        } else if (AccessPassStatus.DECLINED.toString().equals(status)) {
-            updatedRapidPass = decline(referenceId);
-            // push DENIED notifications
-            // TODO DENIED NOTIFICATIONS!
-        } else {
-            throw new IllegalArgumentException("Request Status unknown");
-        }
-
-        return updatedRapidPass;
-    }
 
     /**
      * Returns a list of rapid passes that were requested for granting or approval.
