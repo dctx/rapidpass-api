@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.opencsv.ICSVWriter.DEFAULT_SEPARATOR;
+
 
 /**
  * Registry API Rest Controller specifically for batch operations
@@ -99,76 +101,69 @@ public class RegistryBatchRestController
                     .build();
             
                 approvedAccessPass = csvToBean.parse();
-            
-                fileReader.close();
-            }
-            catch (Exception e)
-            {
-                throw e;
+                
             }
         }
         return this.registryService.batchUpload(approvedAccessPass);
     }
     
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.TEXT_PLAIN_VALUE})
-    public ResponseEntity<?> downloadAccesPasses(
+    public ResponseEntity downloadAccesPasses(
         @ApiParam(value = "specifies whether to compress the csv file or not, default is false")
-        @Valid @RequestParam(value = "compressed", required = false, defaultValue = "false") Boolean compressed)
+        @Valid @RequestParam(value = "compressed", required = false, defaultValue = "false") boolean compressed)
     {
+    
+        ResponseEntity response;
+        try
         {
-            ResponseEntity response = null;
-            try
+            final List<RapidPass> allRapidPasses = registryService.findAllRapidPasses(Optional.of(Pageable.unpaged()));
+            StringWriter writer = new StringWriter();
+            ICSVWriter csvWriter = new CSVWriter(writer);
+            StatefulBeanToCsv<List<RapidPass>> sbc = new StatefulBeanToCsvBuilder(csvWriter)
+                .withSeparator(DEFAULT_SEPARATOR)
+                .build();
+            sbc.write(allRapidPasses);
+            final String rapidPassCsv = writer.getBuffer().toString();
+            HttpHeaders headers = new HttpHeaders();
+            if (compressed)
             {
-                final List<RapidPass> allRapidPasses = registryService.findAllRapidPasses(Optional.of(Pageable.unpaged()));
-                StringWriter writer = new StringWriter();
-                ICSVWriter csvWriter = new CSVWriter(writer);
-                StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)
-                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
-                    .build();
-                sbc.write(allRapidPasses);
-                final String rapidPassCsv = writer.getBuffer().toString();
-                HttpHeaders headers = new HttpHeaders();
-                if (compressed)
-                {
-                
-                    byte[] compressedCsv = convertStringToZippedBytes(rapidPassCsv, "RapidPass-");
-                    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                    response = new ResponseEntity(compressedCsv, headers, HttpStatus.OK);
-                }
-                else
-                {
-                    headers.setContentType(MediaType.TEXT_PLAIN);
-                    response = new ResponseEntity(rapidPassCsv, headers, HttpStatus.OK);
-                }
+            
+                byte[] compressedCsv = convertStringToZippedBytes(rapidPassCsv, "RapidPass-");
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                response = new ResponseEntity(compressedCsv, headers, HttpStatus.OK);
             }
-            catch (Exception e)
+            else
             {
-                response = new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                headers.setContentType(MediaType.TEXT_PLAIN);
+                response = new ResponseEntity(rapidPassCsv, headers, HttpStatus.OK);
             }
-            return response;
-        
         }
+        catch (Exception e)
+        {
+            response = new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return response;
     
     }
     
     private byte[] convertStringToZippedBytes(String rapidPassCsv, String filePrefix) throws IOException
     {
-        byte[] compressedCsv = null;
+        byte[] compressedCsv;
         try(
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-            ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
+            ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)
         )
         {
             OffsetDateTime dateTime = OffsetDateTime.now();
-            StringBuilder fileNameBuilder = new StringBuilder(filePrefix)
+            String fileName = new StringBuilder(filePrefix)
                 .append(dateTime.getYear()).append("-")
                 .append(dateTime.getMonth()).append("-")
                 .append(dateTime.getDayOfMonth()).append("-")
                 .append(dateTime.getHour()).append("-")
                 .append(dateTime.getMinute()).append("-")
-                .append(dateTime.getSecond()).append(".csv");
-            zipOutputStream.putNextEntry(new ZipEntry(fileNameBuilder.toString()));
+                .append(dateTime.getSecond()).append(".csv").toString();
+            zipOutputStream.putNextEntry(new ZipEntry(fileName));
             zipOutputStream.write(rapidPassCsv.getBytes());
             zipOutputStream.closeEntry();
             zipOutputStream.finish();
