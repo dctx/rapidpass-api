@@ -174,7 +174,7 @@ public class RegistryService {
 
         return RapidPass.buildFrom(accessPass);
     }
-    
+
     public static class ControlCodeGenerator {
         /**
          * Generates a control code.
@@ -201,27 +201,27 @@ public class RegistryService {
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
     }
-    
+
     public Page<RapidPass> findAllApprovedOrSuspendedRapidPassAfter(OffsetDateTime lastUpdatedOn, Pageable page)
     {
         final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
         Function<List<AccessPass>, List<RapidPass>> collectionTransform = accessPasses -> accessPasses.stream()
             .map(RapidPass::buildFrom)
             .collect(Collectors.toList());
-    
+
         return PageableExecutionUtils.getPage(
             collectionTransform.apply(pagedAccessPasses.getContent()),
             page,
             pagedAccessPasses::getTotalElements);
     }
-    
+
     public Page<RapidPassCSVDownloadData> findAllApprovedOrSuspendedRapidPassCsvAfter(OffsetDateTime lastUpdatedOn, Pageable page)
     {
         final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
         Function<List<AccessPass>, List<RapidPassCSVDownloadData>> collectionTransform = accessPasses -> accessPasses.stream()
             .map(RapidPassCSVDownloadData::buildFrom)
             .collect(Collectors.toList());
-        
+
         return PageableExecutionUtils.getPage(
             collectionTransform.apply(pagedAccessPasses.getContent()),
             page,
@@ -245,7 +245,7 @@ public class RegistryService {
             return accessPassRepository.findAll(pageable).toList();
         }
     }
-    
+
 
     /**
      * Helper function to retrieve an {@link AccessPass} by referenceId.
