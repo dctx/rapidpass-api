@@ -1,3 +1,6 @@
+image:
+  tag: prod
+  pullPolicy: IfNotPresent
 config:
   postgres:
     database: rapidpass
