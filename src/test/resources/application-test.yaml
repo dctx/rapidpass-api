@@ -33,3 +33,6 @@ spring:
 semaphore:
   url: https://api.semaphore.co/api/v4/messages
   key: ''
+
+rapidpass.jwt.secret: secret
+

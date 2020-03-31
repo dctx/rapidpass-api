@@ -5,14 +5,20 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.ClaimJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toMap;
+
 public class JwtGenerator {
+
+    // jonas - maybe move this to commons?
 
     private static Logger log = LoggerFactory.getLogger(JwtGenerator.class);
 
@@ -28,6 +34,7 @@ public class JwtGenerator {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
+                // todo jwt expiration as configurable
                 .setExpiration(new Date(System.currentTimeMillis() + (1000 * 30)))
                 .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
@@ -58,5 +65,16 @@ public class JwtGenerator {
         Boolean isValid = jwt.getToken().equals(token);
 
         return (name.equals(claims.get("sub").toString()) && !isExpired && isValid);
+    }
+
+
+    public static Map<String, Object> claimsToMap(String token) {
+        return JwtGenerator.decodedJWT(token)
+                // [string,claims] to [string,obj]
+                .getClaims().entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().asString() != null)
+                .collect(toMap(Map.Entry::getKey,
+                        entry -> (Object) entry.getValue().asString()));
     }
 }

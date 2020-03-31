@@ -381,6 +381,7 @@ public class RegistryService {
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
+        log.debug("Sending out notifs for {}", referenceId);
         // push APPROVED/DENIED notifications.
         // TODO: someday let's do this asynchronously
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
