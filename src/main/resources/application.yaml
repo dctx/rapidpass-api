@@ -36,3 +36,6 @@ semaphore:
 server:
   servlet:
     context-path: /api/v1
+
+qrmaster:
+  skey: rapidmasterkey
