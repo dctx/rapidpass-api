@@ -1,0 +1,35 @@
+logging:
+  level:
+    ph.devcon: debug
+
+# using inmemory DB for unit testing
+  h2:
+    console:
+      settings:
+        trace: true
+
+
+# disabling liquibase autoconfig for tests.
+spring:
+  liquibase:
+    enabled: false
+
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: rapidpass@talino.mg.amihan.net
+    password: ***REMOVED***
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+semaphore:
+  url: https://api.semaphore.co/api/v4/messages
+  key: ''

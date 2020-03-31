@@ -1,0 +1,37 @@
+image:
+  tag: prod
+  pullPolicy: IfNotPresent
+config:
+  postgres:
+    database: rapidpass
+    host: rapidpass-postgres
+    password: ''
+    port: "5432"
+    username: ''
+  semaphore:
+    key: ""
+    url: https://api.semaphore.co/api/v4/messages
+  smtp:
+    auth: "true"
+    host: smtp.mailgun.org
+    password: ''
+    port: "587"
+    tls: "true"
+    username: ''
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  enabled: enabled
+  host: api.rapidpass.amihan.net
+  tls:
+    enabled: true
+    secretName: rapidpass-tls
+swaggerUI:
+  config:
+    urls:
+    - name: Production
+      url: https://api.rapidpass.amihan.net/api/v1/spec
+tags:
+  postgres: true

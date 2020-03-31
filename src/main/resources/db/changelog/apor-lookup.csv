@@ -1,0 +1,28 @@
+key,value,description
+APOR,AG,Agribusiness & Agricultural Workers
+APOR,BA,Banks
+APOR,BP,BPOs & Export-Oriented Business Personnel
+APOR,CA,Civil Aviation
+APOR,DC,Delivery personnel of cargoes
+APOR,DO,Distressed OFWs
+APOR,ER,Emergency Responders
+APOR,FC,Food Chain/ Resturants
+APOR,FS,Funeral Service
+APOR,GO,Government Agency
+APOR,GR,Grocery / Convenience Stores
+APOR,HM,Heads of Mission/Designated Foreign Mission Reps
+APOR,HT,Hotel Employees and Tenants
+APOR,IP,International Passengers and Driver
+APOR,LW,Logistics Warehouse
+APOR,ME,Media Personalities
+APOR,MS,Medical Services
+APOR,MF,Manufacturing
+APOR,MT,Money Transfer Services
+APOR,PH,Pharmacies / Drug Stores
+APOR,PM,Public Market
+APOR,PI,Private Individual (1 per HH) availing the service
+APOR,SH,Ship Captain & Crew
+APOR,SS,Security Services
+APOR,TF,Transportation Facilities
+APOR,UT,"Utilities (Sanitation, Water, Energy and Telecommu"
+APOR,VE,Veterinary

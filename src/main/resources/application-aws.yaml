@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dctx.cxjtwxfv3gt3.us-east-2.rds.amazonaws.com:5432/rapidpass
+    username: dctx
+    password: password
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: ''
+    password: ''
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+semaphore:
+  url: https://api.semaphore.co/api/v4/messages
+  key: ''
