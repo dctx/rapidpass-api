@@ -1,10 +1,10 @@
 package ph.devcon.rapidpass.services;
 
 import com.boivie.skip32.Skip32;
+import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
@@ -14,7 +14,6 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassBatchRequest;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
@@ -22,6 +21,8 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -144,23 +145,32 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-    public static class ControlCodeGenerator {
-        /**
-         * Generates a control code.
-         *
-         * @param originalInput This is a unique pass phrase which can be configured using @value. See
-         * {@link RegistryService}.
-         * @param id The id of the access pass being generated. This should be unique, so make sure you create the
-         * {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
-         *           code of the AccessPass.
-         * @return A control code in string format.
-         */
-        public static String generate(String originalInput, int id) {
-            byte[] encryptionKey = DatatypeConverter.parseBase64Binary(originalInput);
-            long obfuscatedId = Skip32.encrypt(id, encryptionKey);
-            int checkdigit = Damm32.compute(obfuscatedId);
-            return CrockfordBase32.encode(obfuscatedId,7) + CrockfordBase32.encode(checkdigit);
+    /**
+     * Helper function to retrieve an {@link AccessPass} by referenceId.
+     * <p>
+     * We need this helper function right now because access passes can have multiple instances given the same
+     * referenceId (because we are currently using mobile numbers as the referenceId).
+     * <p>
+     * Eventually, referenceIds will be unique. Then, this code will become deprecated, because
+     * accessPassRepository.findByReferenceId() will be unique.
+     *
+     * @param referenceId the reference ID, which is the user's mobile number.
+     * @return An access pass
+     */
+    private AccessPass findByNonUniqueReferenceId(String referenceId) {
+        // AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
+        // TODO: how to deal with 'renewals'? i.e.
+
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+
+        if (accessPasses.size() <= 0) return null;
+
+        if (accessPasses.size() > 1) {
+            // Setting this to warning, as this is an expected use-case while reference IDs are mobile numbers.
+            log.warn("Multiple Access Pass found for reference ID: {}", referenceId);
         }
+
+        return accessPasses.get(0);
     }
 
     public List<RapidPass> findAllRapidPasses(Optional<Pageable> pageView) {
@@ -187,49 +197,6 @@ public class RegistryService {
     }
 
     /**
-     * Helper function to retrieve an {@link AccessPass} by referenceId.
-     *
-     * We need this helper function right now because access passes can have multiple instances given the same
-     * referenceId (because we are currently using mobile numbers as the referenceId).
-     *
-     * Eventually, referenceIds will be unique. Then, this code will become deprecated, because
-     * accessPassRepository.findByReferenceId() will be unique.
-     *
-     * @param referenceId the reference ID, which is the user's mobile number.
-     * @return An access pass
-     */
-    private AccessPass findByNonUniqueReferenceId(String referenceId) {
-        // AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-        // TODO: how to deal with 'renewals'? i.e.
-
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
-
-        if (accessPasses.size() <= 0) return null;
-
-        if (accessPasses.size() > 1) {
-            // Setting this to warning, as this is an expected use-case while reference IDs are mobile numbers.
-            log.warn("Multiple Access Pass found for reference ID: {}", referenceId);
-        }
-
-        return accessPasses.get(0);
-    }
-
-    /**
-     * Used when the inspector or approver wishes to view more details about the
-     *
-     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @return Data stored on the database
-     */
-    public RapidPass find(String referenceId) {
-
-        AccessPass accessPass = findByNonUniqueReferenceId(referenceId);
-
-        if (accessPass != null) return RapidPass.buildFrom(accessPass);
-
-        return null;
-    }
-
-    /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
      *
      * @param referenceId      The reference id of the {@link AccessPass} you are retrieving.
@@ -239,7 +206,8 @@ public class RegistryService {
     public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
-        if (accessPasses.size() == 0) throw new IllegalArgumentException("No AccessPass found with referenceId=" + referenceId);
+        if (accessPasses.size() == 0)
+            throw new IllegalArgumentException("No AccessPass found with referenceId=" + referenceId);
 
         AccessPass accessPass = accessPasses.get(0);
 
@@ -283,6 +251,38 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
+    /**
+     * Used when the inspector or approver wishes to view more details about the
+     *
+     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @return Data stored on the database
+     */
+    public RapidPass find(String referenceId) {
+
+        AccessPass accessPass = findByNonUniqueReferenceId(referenceId);
+
+        if (accessPass != null) return RapidPass.buildFrom(accessPass);
+
+        return null;
+    }
+
+    public RapidPass grant(String referenceId) throws UpdateAccessPassException {
+        log.debug("APPROVING refId {}", referenceId);
+        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED);
+
+        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+        if (accessPasses.size() > 0) {
+            AccessPass accessPass = accessPasses.get(0);
+            accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
+            accessPass = accessPassRepository.saveAndFlush(accessPass);
+            return RapidPass.buildFrom(accessPass);
+        }
+
+        // Generate control code using the unique ID specified by the database.
+
+        throw new IllegalStateException("No access passes found with reference ID " + referenceId + ".");
+    }
+
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
@@ -324,21 +324,43 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    public RapidPass grant(String referenceId) throws UpdateAccessPassException {
-
-        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED);
-
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
-        if (accessPasses.size() > 0) {
-            AccessPass accessPass = accessPasses.get(0);
-            accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
-            accessPass = accessPassRepository.saveAndFlush(accessPass);
-            return RapidPass.buildFrom(accessPass);
+    /**
+     * Updates a referenceId with status of rapidPass.
+     *
+     * @param referenceId reference id to update
+     * @param rapidPass   object containing update status
+     * @return updated rapid pass
+     * @throws UpdateAccessPassException on error updating access pass
+     */
+    public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
+        final RapidPass updatedRapidPass;
+        final AccessPassStatus status = AccessPassStatus.valueOf(rapidPass.getStatus().toUpperCase());
+        switch (status) {
+            case APPROVED:
+                updatedRapidPass = grant(referenceId);
+                break;
+            case DECLINED:
+                updatedRapidPass = decline(referenceId);
+                break;
+            default:
+                // todo implement SUSPENDED
+                throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
-        // Generate control code using the unique ID specified by the database.
+        // push APPROVED/DENIED notifications.
+        // TODO: someday let's do this asynchronously
+        accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
+                .stream()
+                .findFirst()
+                .ifPresent(accessPass -> {
+                    try {
+                        accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
+                    } catch (ParseException | IOException | WriterException e) {
+                        log.error("Error sending out notifications for " + accessPass, e);
+                    }
+                });
 
-        throw new IllegalStateException("No access passes found with reference ID " + referenceId + ".");
+        return updatedRapidPass;
     }
 
     public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
@@ -367,53 +389,45 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-
-    public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
-        final RapidPass updatedRapidPass;
-        final String status = rapidPass.getStatus();
-        if (AccessPassStatus.APPROVED.toString().equals(status)) {
-            // persist approval
-            updatedRapidPass = grant(referenceId);
-            // push APPROVED notifications
-            List<AccessPass> allByReferenceIDOrderByValidToDesc = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
-
-            if (allByReferenceIDOrderByValidToDesc.size() > 0) {
-                AccessPass accessPass = allByReferenceIDOrderByValidToDesc.get(0);
-                accessPassNotifierService.pushApprovalNotifs(accessPass);
-            }
-
-        } else if (AccessPassStatus.DECLINED.toString().equals(status)) {
-            updatedRapidPass = decline(referenceId);
-            // push DENIED notifications
-            // TODO DENIED NOTIFICATIONS!
-        } else {
-            throw new IllegalArgumentException("Request Status unknown");
-        }
-
-        return updatedRapidPass;
-    }
-
-
     /**
      * Returns a list of rapid passes that were requested for granting or approval.
      *
-     * @param approvedRapidPasses  Iterable<RapidPass> of Approved passes application
+     * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
-    public List<RapidPass> batchUpload(List <RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<RapidPass> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
-        List <RapidPass> passes = new ArrayList<RapidPass>();
+        List<RapidPass> passes = new ArrayList<RapidPass>();
         RapidPass pass;
-        for ( RapidPassCSVdata rapidPassRequest: approvedRapidPasses) {
+        for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
             pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
 
-            if ( pass != null ){
+            if (pass != null) {
                 pass = this.grant(rapidPassRequest.getMobileNumber());
                 passes.add(pass);
             }
         }
         return passes;
+    }
+
+    public static class ControlCodeGenerator {
+        /**
+         * Generates a control code.
+         *
+         * @param originalInput This is a unique pass phrase which can be configured using @value. See
+         *                      {@link RegistryService}.
+         * @param id            The id of the access pass being generated. This should be unique, so make sure you create the
+         *                      {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
+         *                      code of the AccessPass.
+         * @return A control code in string format.
+         */
+        public static String generate(String originalInput, int id) {
+            byte[] encryptionKey = DatatypeConverter.parseBase64Binary(originalInput);
+            long obfuscatedId = Skip32.encrypt(id, encryptionKey);
+            int checkdigit = Damm32.compute(obfuscatedId);
+            return CrockfordBase32.encode(obfuscatedId, 7) + CrockfordBase32.encode(checkdigit);
+        }
     }
 
 

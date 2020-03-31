@@ -44,7 +44,7 @@ public class RegistryRestController {
         if (queryParameter.isPresent()) {
             QueryFilter queryFilter = queryParameter.get();
             if (null != queryFilter.getPageNo()) {
-                int pageSize = (null != queryFilter.getPageSize())  ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
+                int pageSize = (null != queryFilter.getPageSize()) ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
                 pageView = PageRequest.of(queryFilter.getPageNo(), pageSize);
             }
         } else {
