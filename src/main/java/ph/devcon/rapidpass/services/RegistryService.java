@@ -14,6 +14,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.models.MobileDevice;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -153,17 +154,17 @@ public class RegistryService {
          * Generates a control code.
          *
          * @param originalInput This is a unique pass phrase which can be configured using @value. See
-         * {@link RegistryService}.
-         * @param id The id of the access pass being generated. This should be unique, so make sure you create the
-         * {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
-         *           code of the AccessPass.
+         *                      {@link RegistryService}.
+         * @param id            The id of the access pass being generated. This should be unique, so make sure you create the
+         *                      {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
+         *                      code of the AccessPass.
          * @return A control code in string format.
          */
         public static String generate(String originalInput, int id) {
             byte[] encryptionKey = DatatypeConverter.parseBase64Binary(originalInput);
             long obfuscatedId = Skip32.encrypt(id, encryptionKey);
             int checkdigit = Damm32.compute(obfuscatedId);
-            return CrockfordBase32.encode(obfuscatedId,7) + CrockfordBase32.encode(checkdigit);
+            return CrockfordBase32.encode(obfuscatedId, 7) + CrockfordBase32.encode(checkdigit);
         }
     }
 
@@ -216,29 +217,6 @@ public class RegistryService {
         }
 
         return accessPasses.get(0);
-    }
-
-    public List<RapidPass> findAllRapidPasses(Optional<Pageable> pageView) {
-        return this.findAllAccessPasses(pageView)
-                .stream()
-                .map(RapidPass::buildFrom)
-                .collect(Collectors.toList());
-    }
-
-    public Iterable<ControlCode> getControlCodes() {
-        return accessPassRepository
-                .findAll()
-                .stream()
-                .map(ControlCode::buildFrom)
-                .collect(Collectors.toList());
-    }
-
-    public List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
-        if (pageView.isPresent()) {
-            return accessPassRepository.findAll(pageView.get()).toList();
-        } else {
-            return accessPassRepository.findAll();
-        }
     }
 
     /**
@@ -455,25 +433,6 @@ public class RegistryService {
             }
         }
         return passes;
-    }
-
-    public static class ControlCodeGenerator {
-        /**
-         * Generates a control code.
-         *
-         * @param originalInput This is a unique pass phrase which can be configured using @value. See
-         *                      {@link RegistryService}.
-         * @param id            The id of the access pass being generated. This should be unique, so make sure you create the
-         *                      {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
-         *                      code of the AccessPass.
-         * @return A control code in string format.
-         */
-        public static String generate(String originalInput, int id) {
-            byte[] encryptionKey = DatatypeConverter.parseBase64Binary(originalInput);
-            long obfuscatedId = Skip32.encrypt(id, encryptionKey);
-            int checkdigit = Damm32.compute(obfuscatedId);
-            return CrockfordBase32.encode(obfuscatedId, 7) + CrockfordBase32.encode(checkdigit);
-        }
     }
 
 
