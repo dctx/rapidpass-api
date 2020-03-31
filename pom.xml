@@ -97,21 +97,6 @@
                             </configOptions>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>generate-client-side</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${swagger-definition-file}</inputSpec>
-                            <language>csharp</language>
-                            <modelPackage>IpilaMoKo.APIServices.Model</modelPackage>
-                            <addCompileSourceRoot>false</addCompileSourceRoot>
-                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
-                            <output>${project.basedir}/../csharp-client/</output>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <!-- display active profile in compile phase -->
