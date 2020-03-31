@@ -39,32 +39,32 @@ package-image-test:
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+  - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
   script:
-    - docker build -t dctx/rapidpass-api:test .
-    - docker push dctx/rapidpass-api:test
+  - docker build -t dctx/rapidpass-api:test .
+  - docker push dctx/rapidpass-api:test
   only:
-    - test
+  - test
   dependencies:
-    - build-jar
+  - build-jar
 
 package-image-prod:
   stage: package
   image: docker:19.03.1
   services:
-    - docker:19.03.1-dind
+  - docker:19.03.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+  - docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
   script:
-    - docker build -t dctx/rapidpass-api:${PROD_VERSION} .
-    - docker push dctx/rapidpass-api:${PROD_VERSION}
+  - docker build -t dctx/rapidpass-api:${PROD_VERSION} .
+  - docker push dctx/rapidpass-api:${PROD_VERSION}
   only:
-    - test
+    - master
   dependencies:
-    - build-jar
+  - build-jar
 
 
 deploy-dev:
