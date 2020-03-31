@@ -88,13 +88,15 @@ paths:
         - inspector
         - bulk
       summary: downloads a list of access passes in csv format
+      operationId: downloadAccesPasses
       parameters:
         - name: compressed
           in: query
           description: 'specifies whether to compress the csv file or not, default is false'
           required: false
           schema:
-            type: string
+            type: boolean
+            default: false
       responses:
         '200':
           description: Download initiated.
@@ -104,6 +106,11 @@ paths:
                 type: string
                 format: byte[]
                 description: csv file containing all valid access passes
+            application/zip:
+              schema:
+                type: string
+                format: byte[]
+                description: compressed csv file containing all valid access passes
     post:
       tags:
         - dashboard
