@@ -90,6 +90,14 @@ paths:
       summary: downloads a list of access passes in csv format
       operationId: downloadAccesPasses
       parameters:
+        - name: status
+          in: query
+          description: 'Set the status to be downloaded'
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, APPROVED, DECLINED]
+            default: APPROVED
         - name: compressed
           in: query
           description: 'specifies whether to compress the csv file or not, default is false'

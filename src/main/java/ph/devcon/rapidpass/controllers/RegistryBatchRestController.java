@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -109,10 +110,12 @@ public class RegistryBatchRestController
     
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.TEXT_PLAIN_VALUE})
     public ResponseEntity downloadAccesPasses(
+        @ApiParam(value = "Set the status to be downloaded",
+            allowableValues = "PENDING, APPROVED, DECLINED")
+        @Valid @RequestParam(value = "status", required = false, defaultValue = "APPROVED") String status,
         @ApiParam(value = "specifies whether to compress the csv file or not, default is false")
         @Valid @RequestParam(value = "compressed", required = false, defaultValue = "false") boolean compressed)
     {
-    
         ResponseEntity response;
         try
         {
