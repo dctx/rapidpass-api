@@ -52,7 +52,7 @@ class JwtAuthenticationFilterTest {
     public void test_NO_JWT() throws Exception {
         mockMvc.perform(get("/hello"))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @RestController
