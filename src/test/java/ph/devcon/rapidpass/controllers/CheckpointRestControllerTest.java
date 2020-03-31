@@ -34,7 +34,7 @@ public class CheckpointRestControllerTest extends BaseApiTest
 
         when(checkpointService.retrieveAccessPassByControlCode(controlCode)).thenReturn(accessPass);
 
-        String endpoint = UriComponentsBuilder.fromUriString("/checkpoint/access-pass/verify-control-code/").path("/{control-code}").buildAndExpand(controlCode).toString();
+        String endpoint = UriComponentsBuilder.fromUriString("/checkpoint/access-passes/control-codes/").path("/{control-code}").buildAndExpand(controlCode).toString();
         final MvcResult gotData = getData(endpoint);
         ObjectMapper mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
@@ -54,7 +54,7 @@ public class CheckpointRestControllerTest extends BaseApiTest
 
         when(checkpointService.retrieveAccessPassByPlateNo(plateNo)).thenReturn(accessPass);
 
-        String endpoint = UriComponentsBuilder.fromUriString("/checkpoint/access-pass/verify-plate-no/").path("/{plate-no}").buildAndExpand(plateNo).toString();
+        String endpoint = UriComponentsBuilder.fromUriString("/checkpoint/access-passes/plate-numbers/").path("/{plate-no}").buildAndExpand(plateNo).toString();
         final MvcResult gotData = getData(endpoint);
         ObjectMapper mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
