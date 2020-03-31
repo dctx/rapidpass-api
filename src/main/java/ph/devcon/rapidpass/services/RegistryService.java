@@ -4,22 +4,21 @@ import com.boivie.skip32.Skip32;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassBatchRequest;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
+import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 import javax.xml.bind.DatatypeConverter;
 import java.time.OffsetDateTime;
@@ -39,6 +38,7 @@ public class RegistryService {
     private final RegistrantRepository registrantRepository;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
+    private final ScannerDeviceRepository scannerDeviceRepository;
 
     /**
      * Secret key used for control code generation
@@ -393,7 +393,6 @@ public class RegistryService {
         return updatedRapidPass;
     }
 
-
     /**
      * Returns a list of rapid passes that were requested for granting or approval.
      *
@@ -416,13 +415,23 @@ public class RegistryService {
         return passes;
     }
 
-
     /**
      * This is thrown when updates are not allowed for the AccessPass.
      */
     public static class UpdateAccessPassException extends Exception {
         public UpdateAccessPassException(String s) {
             super(s);
+        }
+    }
+
+    /**
+     * Retrieve Scanner Devices
+     */
+    public List<ScannerDevice> getScannerDevices(Optional<Pageable> pageView) {
+        if (pageView.isPresent()) {
+            return scannerDeviceRepository.findAll(pageView.get()).toList();
+        } else {
+            return scannerDeviceRepository.findAll();
         }
     }
 }

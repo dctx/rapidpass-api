@@ -177,14 +177,15 @@
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="scanner_device_pk"/>
             </column>
-            <column name="device_type" type="INTEGER">
-                <constraints nullable="false"/>
-            </column>
+            <column name="registrar_id" type="INTEGER"/>
+            <column name="registrar_user_id" type="INTEGER"/>
             <column name="unique_device_id" type="VARCHAR">
                 <constraints nullable="false"/>
             </column>
-            <column name="registrar_id" type="INTEGER"/>
-            <column name="registrar_user_id" type="INTEGER"/>
+            <column name="brand" type="VARCHAR(20)"/>
+            <column name="model" type="VARCHAR(25)"/>
+            <column name="mobile_number" type="VARCHAR(20)"/>
+            <column name="status" type="VARCHAR(15)"/>
             <column name="date_time_last_used" type="TIMESTAMP without time zone"/>
             <column name="date_time_created" type="TIMESTAMP without time zone"/>
             <column name="date_time_updated" type="TIMESTAMP without time zone"/>
@@ -286,11 +287,18 @@
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-    <changeSet author="eric (generated)" id="1585195345769-17">
-        <addForeignKeyConstraint baseColumnNames="registrar_user_id" baseTableName="scanner_device"
-                                 constraintName="scanner_device_registrar_user_id_fk" deferrable="false"
-                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
-                                 referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>
+<!--    <changeSet author="eric (generated)" id="1585195345769-17">-->
+<!--        <addForeignKeyConstraint baseColumnNames="registrar_user_id" baseTableName="scanner_device"-->
+<!--                                 constraintName="scanner_device_registrar_user_id_fk" deferrable="false"-->
+<!--                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"-->
+<!--                                 referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>-->
+<!--    </changeSet>-->
+    <changeSet author="eric" id="unique-device-id-scanner-device">
+        <addUniqueConstraint schemaName="public"
+                             tableName="scanner_device"
+                             columnNames="unique_device_id"
+                             constraintName="unique_device_id_unique_id"
+                             validate="true"/>
     </changeSet>
     <changeSet author="eric (generated)" id="1585195345769-18">
         <addForeignKeyConstraint baseColumnNames="registrar_id" baseTableName="registrant"

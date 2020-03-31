@@ -26,18 +26,9 @@ import static ph.devcon.rapidpass.enums.AccessPassStatus.PENDING;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class RapidPassRequest {
-    /**
-     * Backend only reference number.
-     */
-    @NotNull
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    private String refNum = UUID.randomUUID().toString();
-
     // required fields reference: https://docs.google.com/spreadsheets/d/1YemwomlhoKnDcBDI3OlrA5-yMSOSfA3BHj0N6PijmT4/edit#gid=0
     @NotNull
     private PassType passType;
-
     @NotEmpty
     private String aporType;
     @NotEmpty
