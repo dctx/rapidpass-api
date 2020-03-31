@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -37,5 +38,12 @@ public class ExceptionTranslator {
                 .collect(toMap(
                         FieldError::getField,
                         DefaultMessageSourceResolvable::getDefaultMessage));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> illegalArgsError(IllegalArgumentException ex) {
+        return ImmutableMap.of("message", ex.getMessage());
     }
 }

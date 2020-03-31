@@ -61,17 +61,28 @@ public class RegistryService {
         // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
-        // check if there is an existing PENDING/APPROVED RapidPass for referenceId
-        final List<AccessPass> existingAcessPasses = accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber());
+        // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
+        final List<AccessPass> existingAccessPasses = new ArrayList<>();
+        existingAccessPasses.addAll(accessPassRepository
+                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getMobileNumber()));
+        existingAccessPasses.addAll(accessPassRepository
+                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber()));
 
         final Optional<AccessPass> existingAccessPass;
-        if (existingAcessPasses != null) {
-            existingAccessPass = existingAcessPasses
+        if (existingAccessPasses != null) {
+            existingAccessPass = existingAccessPasses
                     .stream()
                     // get all valid PENDING or APPROVED rapid pass requests for referenceid
-                    .filter(accessPass -> !AccessPassStatus.DECLINED.toString().equalsIgnoreCase(accessPass.getStatus())
-                            && accessPass.getValidTo().isAfter(OffsetDateTime.now()))
+                    .filter(accessPass -> {
+                        final AccessPassStatus status = AccessPassStatus.valueOf(accessPass.getStatus().toUpperCase());
+                        switch (status) {
+                            case PENDING:
+                            case APPROVED:
+                                return true;
+                            default:
+                                return false;
+                        }
+                    })
                     .findAny();
         } else existingAccessPass = Optional.empty();
 
