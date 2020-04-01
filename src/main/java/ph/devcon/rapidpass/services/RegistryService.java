@@ -446,17 +446,23 @@ public class RegistryService {
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
-    public List<RapidPass> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
-        List<RapidPass> passes = new ArrayList<RapidPass>();
+        List<String> passes = new ArrayList<String>();
         RapidPass pass;
+        int counter = 1;
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
-            pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
+            try {
+                pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
 
-            if (pass != null) {
-                pass = this.grant(rapidPassRequest.getMobileNumber());
-                passes.add(pass);
+                if (pass != null) {
+                    pass = this.grant(rapidPassRequest.getMobileNumber());
+                    passes.add("Record " + counter++ + ": Success. ");
+                }
+            } catch ( Exception e ) {
+                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
+                continue;
             }
         }
         return passes;

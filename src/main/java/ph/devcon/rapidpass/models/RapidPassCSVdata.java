@@ -13,6 +13,7 @@ public class RapidPassCSVdata {
     private String company;
     private String idType;
     private String identifierNumber;
+    private String plateNumber;
     private String mobileNumber;
     private String email;
     private String originName;

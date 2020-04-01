@@ -43,7 +43,7 @@ public class RegistryBatchRestController {
      *
      */
     @PostMapping("/access-passes")
-    Iterable<RapidPass> newRequestPass(@RequestParam("file") MultipartFile csvFile)
+    Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
             throws IOException, RegistryService.UpdateAccessPassException {
 
         List<RapidPassCSVdata> approvedAccessPass;
@@ -65,6 +65,7 @@ public class RegistryBatchRestController {
                         "company",
                         "idType",
                         "identifierNumber",
+                        "plateNumber",
                         "mobileNumber",
                         "email",
                         "originName",
