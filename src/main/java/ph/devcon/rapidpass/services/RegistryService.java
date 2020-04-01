@@ -387,10 +387,9 @@ public class RegistryService {
                 updatedRapidPass = grant(referenceId);
                 break;
             case DECLINED:
-                updatedRapidPass = decline(referenceId, requestResult.getRemarks());
+                updatedRapidPass = decline(referenceId, requestResult.getReason());
                 break;
             default:
-                // todo implement SUSPENDED
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
