@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secrets",
+      "type": "ph.devcon.rapidpass.config.JwtSecretsConfig.JwtGroupSecret",
+      "description": "JWT secrets for the various groups."
+    }
+  ]
+}

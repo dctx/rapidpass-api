@@ -36,3 +36,14 @@ semaphore:
 server:
   servlet:
     context-path: /api/v1
+
+qrmaster:
+  skey: rapidmasterkey
+  controlkey: controlsecretkey
+
+jwt:
+  secrets:
+    - group: checkpoint
+      secret: checkpoint-secret
+    - group: approver
+      secret: approver-secret

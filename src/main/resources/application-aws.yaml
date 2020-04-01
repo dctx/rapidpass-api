@@ -17,3 +17,7 @@ spring:
 semaphore:
   url: https://api.semaphore.co/api/v4/messages
   key: ''
+
+qrmaster:
+  skey: rapidmasterkey
+  controlkey: controlsecretkey

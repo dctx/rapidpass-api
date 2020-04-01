@@ -9,11 +9,6 @@ spring:
   h2:
     console:
       enabled: true
-  liquibase:
-    change-log: classpath:/db/changelog/db.changelog-master.xml
-    url: jdbc:postgresql://localhost:5432/rapidpass
-    user: dctx
-    password: password
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
@@ -37,3 +32,7 @@ springfox:
     swagger:
       v2:
         path: /api-docs
+
+qrmaster:
+  skey: rapidmasterkey
+  controlkey: controlsecretkey

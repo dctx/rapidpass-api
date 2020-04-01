@@ -13,4 +13,6 @@ public interface RegistrarUserRepository extends JpaRepository<RegistrarUser, In
     List<RegistrarUser> findAll();
 
     RegistrarUser findById(String id);
+
+    List<RegistrarUser> findByUsername(String username);
 }

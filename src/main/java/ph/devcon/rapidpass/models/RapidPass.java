@@ -4,9 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.utilities.DateFormatter;
 
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Data model representing an {@link AccessPass}, but is only a subset of the model's properties.
@@ -32,6 +31,7 @@ public class RapidPass {
     private String company;
     private String idType;
     private String identifierNumber;
+    private String plateNumber;
     private String destName;
     private String destStreet;
     private String destCity;
@@ -52,9 +52,10 @@ public class RapidPass {
                 .company(accessPass.getCompany())
                 .idType(accessPass.getIdType())
                 .identifierNumber(accessPass.getIdentifierNumber())
+                .plateNumber(accessPass.getPlateNumber())
                 .status(accessPass.getStatus())
-                .validFrom(accessPass.getValidFrom() == null ? "" : DateFormatter.machineFormat(new Date(accessPass.getValidFrom().toEpochSecond())))
-                .validUntil(accessPass.getValidTo() == null ? "" : DateFormatter.machineFormat(new Date(accessPass.getValidTo().toEpochSecond())))
+                .validFrom(accessPass.getValidFrom() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidFrom()))
+                .validUntil(accessPass.getValidTo() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidTo()))
                 .destName(accessPass.getDestinationName())
                 .destStreet(accessPass.getDestinationStreet())
                 .destCity(accessPass.getDestinationCity())
