@@ -213,11 +213,14 @@
         </dependency>
 
         <!-- persistence -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.liquibase</groupId>-->
-        <!--            <artifactId>liquibase-core</artifactId>-->
-        <!--            <version>3.8.8</version>-->
-        <!--        </dependency>-->
+
+        <!-- DO NOT remove this. This is used by the -Pliquibase profile as well as the deployments -->
+        <!-- The other profiles will ignore this as long as spring.liquibase is not included. -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>3.8.8</version>
+        </dependency>
 
         <dependency>
             <groupId>org.postgresql</groupId>
