@@ -26,6 +26,7 @@ import ph.devcon.rapidpass.services.RegistryService;
 import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -310,8 +311,8 @@ class RegistryRestControllerTest {
 
         RequestResult approveRequest = RequestResult.builder()
                 .referenceId(TEST_VEHICLE_PASS.getReferenceId())
-                .result("APPROVED")
-                .remarks(null)
+                .result(AccessPassStatus.APPROVED)
+                .reason(null)
                 .build();
 
         when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
@@ -336,6 +337,99 @@ class RegistryRestControllerTest {
                 .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
                 .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
                 .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
+                .andDo(print());
+    }
+
+    @Test
+    public void grantOrDenyRequest_testNothingUpdated() throws Exception {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .result(AccessPassStatus.APPROVED)
+                .reason(null)
+                .build();
+
+        // Registry will not return any data, which will case a thrown exception
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
+                .thenReturn(null);
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, TEST_VEHICLE_PASS.getReferenceId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isBadRequest())
+                // test json is expected
+                .andExpect(jsonPath("$.message").value(containsString("there was nothing updated")))
+                .andDo(print());
+    }
+
+    @Test
+    public void grantOrDenyRequest_testThrowUpdateException() throws Exception {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .result(AccessPassStatus.APPROVED)
+                .reason(null)
+                .build();
+
+        // Registry will not return any data, which will case a thrown exception
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
+                .thenThrow(new RegistryService.UpdateAccessPassException("No AccessPass found"));
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, TEST_VEHICLE_PASS.getReferenceId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isBadRequest())
+                // test json is expected
+                .andExpect(jsonPath("$.message").value(containsString("No AccessPass found")))
+                .andDo(print());
+    }
+
+    @Test
+    public void grantOrDenyRequest_missingParameters() throws Exception {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .build();
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, TEST_VEHICLE_PASS.getReferenceId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isBadRequest())
+                // test json is expected
+//                .andExpect(jsonPath("$.message").value(containsString("No AccessPass found")))
                 .andDo(print());
     }
 
