@@ -77,7 +77,7 @@ deploy-dev:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api-dev --install --namespace rapidpass-api-dev --values config/dev-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} helm/rapidpass-api
+  - helm upgrade rapidpass-api-dev --install --namespace rapidpass-api-dev --values config/dev-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.jwt.approverSecret=${APPROVER_SECRET} --set config.jwt.checkpointSecret=${CHECKPOINT_SECRET} helm/rapidpass-api
   only:
   - develop
 
@@ -91,7 +91,7 @@ deploy-test:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} helm/rapidpass-api
+  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.jwt.approverSecret=${APPROVER_SECRET} --set config.jwt.checkpointSecret=${CHECKPOINT_SECRET} helm/rapidpass-api
   only:
   - test
 
@@ -105,6 +105,6 @@ deploy-prod:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api --install --namespace rapidpass-api --values config/prod-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.postgres.username=${PROD_DB_USERNAME} --config.postgres.password=${PROD_DB_PASSWORD} --set image.tag=${PROD_VERSION} helm/rapidpass-api
+  - helm upgrade rapidpass-api --install --namespace rapidpass-api --values config/prod-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.postgres.username=${PROD_DB_USERNAME} --config.postgres.password=${PROD_DB_PASSWORD}  --set config.jwt.approverSecret=${PROD_APPROVER_SECRET} --set config.jwt.checkpointSecret=${PROD_CHECKPOINT_SECRET} --set image.tag=${PROD_VERSION} helm/rapidpass-api
   only:
   - master
