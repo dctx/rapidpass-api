@@ -3,9 +3,9 @@ package ph.devcon.rapidpass.services;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
 import ph.devcon.rapidpass.models.AgencyAuth;
@@ -33,16 +33,19 @@ import static ph.devcon.rapidpass.utilities.CryptUtils.passwordHash;
 @Slf4j
 public class AuthService {
 
-    @Value("jwt.agencySecret")
-    private String jwtSecret;
+    private static final String GROUP_NAME = "approver";
 
     private final RegistrarUserRepository registrarUserRepository;
     private final RegistrarRepository registrarRepository;
+    private final JwtSecretsConfig jwtSecretsConfig;
 
     @Autowired
-    public AuthService(final RegistrarUserRepository registrarUserRepository, final RegistrarRepository registrarRepository) {
+    public AuthService(final RegistrarUserRepository registrarUserRepository,
+                       final RegistrarRepository registrarRepository,
+                       final JwtSecretsConfig jwtSecretsConfig) {
         this.registrarUserRepository = registrarUserRepository;
         this.registrarRepository = registrarRepository;
+        this.jwtSecretsConfig = jwtSecretsConfig;
     }
 
     /**
@@ -68,10 +71,10 @@ public class AuthService {
         if (isPasswordCorrect) {
             final Map<String, Object> claims = new HashMap<>();
             claims.put("sub", username);
-            claims.put("group", "registrar");
+            claims.put("group", GROUP_NAME);
             // TODO: hardcoded expiry at 1 day
             claims.put("exp", LocalDateTime.now().plus(1, ChronoUnit.DAYS));
-            final String token = JwtGenerator.generateToken(claims, "jwtSecret");
+            final String token = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(GROUP_NAME));
             return AgencyAuth.builder().accessCode(token).build();
         }
         return null;
@@ -136,5 +139,4 @@ public class AuthService {
         registrarUser.setPassword(newHashedPassword);
         this.registrarUserRepository.save(registrarUser);
     }
-
 }
