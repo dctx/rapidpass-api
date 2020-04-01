@@ -168,14 +168,6 @@ paths:
                           type: array
                           items:
                             type: string
-                            example:
-                              - control_code
-                              - pass_type
-                              - apor
-                              - valid_from_millis
-                              - id_or_plate
-                              - status
-                              - issued_at_millis
 
     post:
       tags:
