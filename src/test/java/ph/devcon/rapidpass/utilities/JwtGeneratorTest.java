@@ -1,19 +1,16 @@
 package ph.devcon.rapidpass.utilities;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.bouncycastle.jcajce.provider.digest.SHA3;
-import org.junit.jupiter.api.Test;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.platform.commons.logging.LoggerFactory;
-import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.pbkdf2.HMac;
-import ph.devcon.dctx.rapidpass.commons.HmacSha256;
-import ph.devcon.dctx.rapidpass.commons.Signer;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.is;
 
 public class JwtGeneratorTest {
 
@@ -34,8 +31,8 @@ public class JwtGeneratorTest {
         claims.put("group", "registrant");
 
         log.info(claims.toString());
-        String token = generator.generateToken(claims, secret);
-        assertNotNull(token);
+        String token = JwtGenerator.generateToken(claims, secret);
+        Assertions.assertNotNull(token);
     }
 
     @Test
@@ -46,7 +43,21 @@ public class JwtGeneratorTest {
         claims.put("name", "Kevin Locke");
         claims.put("group", "registrant");
 
-        String token = generator.generateToken(claims, secret);
-        assertTrue(JwtGenerator.validateToken(token, claims, secret));
+        String token = JwtGenerator.generateToken(claims, secret);
+        Assertions.assertTrue(JwtGenerator.validateToken(token, claims, secret));
+    }
+
+    @Test
+    void getClaims() {
+        final Map<String, Object> claims = new HashMap<>();
+
+        claims.put("group", "registrant");
+        claims.put("sub", "test");
+
+        final String token = JwtGenerator.generateToken(claims, "not_so_secret_secret");
+        System.out.println("token = " + token);
+        final DecodedJWT decodedJWT = JwtGenerator.decodedJWT(token);
+        final String decodedGroup = decodedJWT.getClaims().get("group").asString();
+        MatcherAssert.assertThat(decodedGroup, is("registrant"));
     }
 }

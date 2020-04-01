@@ -139,10 +139,11 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
             <version>1.2.2</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-starter-security</artifactId>-->
-        <!--        </dependency>-->
+        <!-- Security and authentication-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -213,11 +214,14 @@
         </dependency>
 
         <!-- persistence -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.liquibase</groupId>-->
-        <!--            <artifactId>liquibase-core</artifactId>-->
-        <!--            <version>3.8.8</version>-->
-        <!--        </dependency>-->
+
+        <!-- DO NOT remove this. This is used by the -Pliquibase profile as well as the deployments -->
+        <!-- The other profiles will ignore this as long as spring.liquibase is not included. -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>3.8.8</version>
+        </dependency>
 
         <dependency>
             <groupId>org.postgresql</groupId>

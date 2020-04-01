@@ -61,6 +61,9 @@ public class AccessPass implements Serializable {
     @Size(max = 100)
     @Column(name = "company")
     private String company;
+    @Size(max = 20)
+    @Column(name = "plate_number")
+    private String plateNumber;
     @Size(max = 150)
     @Column(name = "remarks")
     private String remarks;

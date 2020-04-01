@@ -1,28 +1,42 @@
 package ph.devcon.rapidpass.controllers;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.DecoderException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.entities.ScannerDevice;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.models.AgencyAuth;
+import ph.devcon.rapidpass.models.AgencyUser;
+import ph.devcon.rapidpass.models.Login;
 import ph.devcon.rapidpass.models.MobileDevice;
 import ph.devcon.rapidpass.models.QueryFilter;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +52,7 @@ import java.util.Optional;
 public class RegistryRestController {
 
     private final RegistryService registryService;
+    private final AuthService authService;
     private final QrPdfService qrPdfService;
 
     @GetMapping("/access-passes")
@@ -63,7 +78,8 @@ public class RegistryRestController {
     @PostMapping("/access-passes")
     ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
-        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
+//        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
+        return ResponseEntity.status(201).body(rapidPass);
     }
 
 //    @GetMapping("/control-codes")
@@ -133,4 +149,34 @@ public class RegistryRestController {
 
         return ResponseEntity.status(201).body(ImmutableMap.of("deviceId", deviceRequest.getImei()));
     }
+
+    @PostMapping("/auth")
+    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
+        try {
+            final AgencyAuth auth = this.authService.login(login.getUsername(), login.getPassword());
+            if (auth == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            return ResponseEntity.ok().body(auth);
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
+            log.error("hashing function error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            log.error("something went wrong", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/registrar-users")
+    public ResponseEntity<?> createAgencyUser(@RequestBody AgencyUser user) {
+        try {
+            this.authService.createAgencyCredentials(user);
+            return ResponseEntity.ok().build();
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

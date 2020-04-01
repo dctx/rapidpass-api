@@ -14,6 +14,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.MobileDevice;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
@@ -48,7 +49,7 @@ public class RegistryService {
     /**
      * Secret key used for control code generation
      */
-    @Value("${rapidpass.controlCode.secretKey:***REMOVED***}")
+    @Value("${qrmaster.controlkey:***REMOVED***}")
     private String secretKey = "***REMOVED***";
 
     /**
@@ -59,14 +60,24 @@ public class RegistryService {
      */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
         // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
+
+        // conditional validation for the plate number
+        if (rapidPassRequest.getPassType().equals(PassType.VEHICLE) &&
+                (rapidPassRequest.getPlateNumber() == null || rapidPassRequest.getPlateNumber().trim().isEmpty())) {
+            throw new IllegalArgumentException("plate number must not be empty");
+        }
 
         // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
         final List<AccessPass> existingAccessPasses = new ArrayList<>();
-        existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getMobileNumber()));
-        existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber()));
+        if (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) {
+            existingAccessPasses.addAll(accessPassRepository
+                .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getMobileNumber(), now));
+        } else {
+            existingAccessPasses.addAll(accessPassRepository
+                    .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getPlateNumber().trim(), now));
+        }
 
         final Optional<AccessPass> existingAccessPass;
         if (existingAccessPasses != null) {
@@ -90,7 +101,8 @@ public class RegistryService {
             log.debug("  existing pass exists!");
             throw new IllegalArgumentException(
                     String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
-                            rapidPassRequest.getIdentifierNumber()));
+                            (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) ?
+                            rapidPassRequest.getIdentifierNumber() : rapidPassRequest.getPlateNumber()));
         }
 
         // check if registrant is already in the system
@@ -124,11 +136,15 @@ public class RegistryService {
         AccessPass accessPass = new AccessPass();
 
         accessPass.setRegistrantId(registrant);
-        accessPass.setReferenceID(registrant.getMobile());
+        accessPass.setReferenceID( rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
+                registrant.getMobile() : rapidPassRequest.getPlateNumber());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
+        if (rapidPassRequest.getPlateNumber() != null) {
+            accessPass.setPlateNumber(rapidPassRequest.getPlateNumber().trim());
+        }
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
         if (null != registrant.getSuffix() && !registrant.getSuffix().isEmpty()) {
@@ -144,7 +160,6 @@ public class RegistryService {
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
         accessPass.setDestinationProvince(rapidPassRequest.getDestProvince());
-        OffsetDateTime now = OffsetDateTime.now();
         accessPass.setValidFrom(now);
         accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
         accessPass.setDateTimeCreated(now);
@@ -381,6 +396,7 @@ public class RegistryService {
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
+        log.debug("Sending out notifs for {}", referenceId);
         // push APPROVED/DENIED notifications.
         // TODO: someday let's do this asynchronously
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
