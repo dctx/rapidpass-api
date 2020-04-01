@@ -10,10 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.MobileDevice;
@@ -43,6 +40,7 @@ public class RegistryService {
 
     private final RegistryRepository registryRepository;
     private final RegistrantRepository registrantRepository;
+    private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
     private final ScannerDeviceRepository scannerDeviceRepository;
@@ -56,11 +54,12 @@ public class RegistryService {
     /**
      * Creates a new {@link RapidPass} with PENDING status.
      *
-     * @param rapidPassRequest rapid passs request.
-     * @return new rapid pass with PENDING status
+     * @see <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64">documentation</a> on the flow.
+     * @param rapidPassRequest rapid pass request.
+     * @return A newly created Rapid Pass with PENDING status.
      */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        // see
         OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
@@ -453,10 +452,62 @@ public class RegistryService {
 
         log.info("Process Batch Approving of AccessPass");
         List<String> passes = new ArrayList<String>();
+
+        // Hold look up tables in memory to avoid hogging db resources
+        List<LookupTable> aporTypes = lookupTableService.getAporTypes();
+        List<LookupTable> individualIdTypes = lookupTableService.getIndividualIdTypes();
+        List<LookupTable> vehicleIdTypes = lookupTableService.getVehicleIdTypes();
+
         RapidPass pass;
         int counter = 1;
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
             try {
+
+                // Validate Apor type
+                String aporType = rapidPassRequest.getAporType();
+
+                boolean validAporType = aporTypes.stream()
+                        .map(LookupTable::getLookupTablePK)
+                        .map(LookupTablePK::getValue)
+                        .filter(key -> key.equals(aporType))
+                        .count() == 1L;
+
+                if (!validAporType)
+                    throw new IllegalArgumentException("Invalid APOR type: " + aporType);
+
+
+                // Validate id type
+
+                String idType = rapidPassRequest.getIdType();
+
+                // Will throw an InvalidArgumentException if the pass type is invalid.
+                PassType passType = PassType.valueOf(rapidPassRequest.getPassType());
+
+                boolean validIdType = false;
+
+                switch (passType) {
+                    case INDIVIDUAL:
+                        validIdType = individualIdTypes.stream()
+                                .map(LookupTable::getLookupTablePK)
+                                .map(LookupTablePK::getValue)
+                                .filter(key -> key.equals(idType))
+                                .count() == 1L;
+
+                        if (!validIdType)
+                            throw new IllegalArgumentException("Invalid individual idType: " + idType);
+                        break;
+                    case VEHICLE:
+                        validIdType = vehicleIdTypes.stream()
+                                .map(LookupTable::getLookupTablePK)
+                                .map(LookupTablePK::getValue)
+                                .filter(key -> key.equals(idType))
+                                .count() == 1L;
+
+                        if (!validIdType)
+                            throw new IllegalArgumentException("Invalid vehicle idType: " + idType);
+                        break;
+                }
+
                 pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
 
                 if (pass != null) {
