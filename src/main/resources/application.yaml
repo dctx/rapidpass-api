@@ -39,3 +39,6 @@ server:
 
 qrmaster:
   skey: rapidmasterkey
+
+jwt:
+  agencySecret: supersecretagent
