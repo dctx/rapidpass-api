@@ -11,4 +11,5 @@ public class QueryFilter {
     private String validUntil;
     private Integer pageNo;
     private Integer pageSize;
+    private String aporType;
 }
