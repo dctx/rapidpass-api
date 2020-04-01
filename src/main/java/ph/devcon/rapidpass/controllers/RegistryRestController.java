@@ -63,7 +63,8 @@ public class RegistryRestController {
     @PostMapping("/access-passes")
     ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
-        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
+//        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
+        return ResponseEntity.status(201).body(rapidPass);
     }
 
 //    @GetMapping("/control-codes")

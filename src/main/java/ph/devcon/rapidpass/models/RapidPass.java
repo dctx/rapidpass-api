@@ -33,6 +33,7 @@ public class RapidPass {
     private String company;
     private String idType;
     private String identifierNumber;
+    private String plateNumber;
     private String destName;
     private String destStreet;
     private String destCity;
@@ -53,6 +54,7 @@ public class RapidPass {
                 .company(accessPass.getCompany())
                 .idType(accessPass.getIdType())
                 .identifierNumber(accessPass.getIdentifierNumber())
+                .plateNumber(accessPass.getPlateNumber())
                 .status(accessPass.getStatus())
                 .validFrom(accessPass.getValidFrom() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidFrom()))
                 .validUntil(accessPass.getValidTo() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidTo()))
