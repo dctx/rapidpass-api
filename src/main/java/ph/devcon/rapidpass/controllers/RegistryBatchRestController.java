@@ -156,32 +156,6 @@ public class RegistryBatchRestController
     
     }
     
-    private byte[] convertStringToZippedBytes(String rapidPassCsv, String filePrefix) throws IOException
-    {
-        byte[] compressedCsv;
-        try(
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-            ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)
-        )
-        {
-            OffsetDateTime dateTime = OffsetDateTime.now();
-            String fileName = new StringBuilder(filePrefix)
-                .append(dateTime.getYear()).append("-")
-                .append(dateTime.getMonth()).append("-")
-                .append(dateTime.getDayOfMonth()).append("-")
-                .append(dateTime.getHour()).append("-")
-                .append(dateTime.getMinute()).append("-")
-                .append(dateTime.getSecond()).append(".csv").toString();
-            zipOutputStream.putNextEntry(new ZipEntry(fileName));
-            zipOutputStream.write(rapidPassCsv.getBytes());
-            zipOutputStream.closeEntry();
-            zipOutputStream.finish();
-            zipOutputStream.flush();
-            compressedCsv = byteArrayOutputStream.toByteArray();
-        }
-        return compressedCsv;
-    }
 }
 
 
