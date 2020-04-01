@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.services;
 
 import com.boivie.skip32.Skip32;
-import com.google.common.base.Strings;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
