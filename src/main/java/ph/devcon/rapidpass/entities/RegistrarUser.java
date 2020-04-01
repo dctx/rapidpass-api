@@ -34,6 +34,9 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "registrar_user")
 @Data
+@NamedQueries(
+        @NamedQuery(name = "RegistrarUser.findByUsername", query = "SELECT r FROM RegistrarUser r WHERE r.username = :username")
+)
 public class RegistrarUser implements Serializable {
 
     private static final long serialVersionUID = 1L;

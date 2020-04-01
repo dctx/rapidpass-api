@@ -12,4 +12,7 @@ public interface RegistrarRepository extends JpaRepository<Registrar, Integer> {
     List<Registrar> findAll();
 
     Registrar findById(String id);
+
+    Registrar findByShortName(String shortName);
+
 }
