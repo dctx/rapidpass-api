@@ -53,6 +53,8 @@ public class RegistryService {
     /**
      * Creates a new {@link RapidPass} with PENDING status.
      *
+     * @throws IllegalArgumentException If the plate number is empty and the pass type is for a vehicle
+     * @throws IllegalArgumentException Attempting to create a new access pass while an existing pending or approved pass exists
      * @param rapidPassRequest rapid passs request.
      * @return new rapid pass with PENDING status
      */
@@ -75,22 +77,21 @@ public class RegistryService {
                 .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber()));
 
         final Optional<AccessPass> existingAccessPass;
-        if (existingAccessPasses != null) {
-            existingAccessPass = existingAccessPasses
-                    .stream()
-                    // get all valid PENDING or APPROVED rapid pass requests for referenceid
-                    .filter(accessPass -> {
-                        final AccessPassStatus status = AccessPassStatus.valueOf(accessPass.getStatus().toUpperCase());
-                        switch (status) {
-                            case PENDING:
-                            case APPROVED:
-                                return true;
-                            default:
-                                return false;
-                        }
-                    })
-                    .findAny();
-        } else existingAccessPass = Optional.empty();
+
+        existingAccessPass = existingAccessPasses
+                .stream()
+                // get all valid PENDING or APPROVED rapid pass requests for referenceid
+                .filter(accessPass -> {
+                    final AccessPassStatus status = AccessPassStatus.valueOf(accessPass.getStatus().toUpperCase());
+                    switch (status) {
+                        case PENDING:
+                        case APPROVED:
+                            return true;
+                        default:
+                            return false;
+                    }
+                })
+                .findAny();
 
         if (existingAccessPass.isPresent()) {
             log.debug("  existing pass exists!");
