@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -167,6 +168,9 @@ public class AccessPass implements Serializable {
      * @param accessPass access pass to convert
      */
     public static QrCodeData toQrCodeData(AccessPass accessPass) {
+
+        long decodedControlCode = ControlCode.decode(accessPass.getControlCode());
+
         // convert access pass to qr code data
         return PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType()) ?
                 QrCodeData.individual()
@@ -174,7 +178,7 @@ public class AccessPass implements Serializable {
                         // long to int -> int = long / 1000
                         .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
-                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
                         .build() :
                 QrCodeData.vehicle()
@@ -182,7 +186,7 @@ public class AccessPass implements Serializable {
                         // long to int -> int = long / 1000
                         .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
-                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
                         .build();
     }
