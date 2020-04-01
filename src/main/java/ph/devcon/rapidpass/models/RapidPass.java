@@ -4,10 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * Data model representing an {@link AccessPass}, but is only a subset of the model's properties.

@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.services;
 
 import com.boivie.skip32.Skip32;
-import com.google.common.base.Strings;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -397,6 +396,7 @@ public class RegistryService {
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
+        log.debug("Sending out notifs for {}", referenceId);
         // push APPROVED/DENIED notifications.
         // TODO: someday let's do this asynchronously
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
