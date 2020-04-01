@@ -457,7 +457,8 @@ public class RegistryService {
                 pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
 
                 if (pass != null) {
-                    pass = this.grant(rapidPassRequest.getMobileNumber());
+                    pass.setStatus(AccessPassStatus.APPROVED.toString());
+                    updateAccessPass(pass.getReferenceId(), pass);
                     passes.add("Record " + counter++ + ": Success. ");
                 }
             } catch ( Exception e ) {
