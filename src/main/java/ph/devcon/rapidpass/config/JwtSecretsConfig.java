@@ -42,4 +42,13 @@ public class JwtSecretsConfig {
         private String group;
         private String secret;
     }
+
+    public String findGroupSecret(final String group) {
+        for (final JwtGroupSecret secret : this.secrets) {
+            if (secret.group == group) {
+                return secret.secret;
+            }
+        }
+        return null;
+    }
 }
