@@ -31,4 +31,4 @@ rapidpass.jwt.secret: ${RAPIDPASS_JWT_SECRET}
 
 qrmaster:
   skey: ${RAPIDPASS_QRMASTER_SKEY}
-
+  controlkey: ${RAPIDPASS_QRMASTER_CONTROLKEY}

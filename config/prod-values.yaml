@@ -20,6 +20,7 @@ config:
     username: ''
   qrmaster:
     skey: ''
+    controlkey: ''
 ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod

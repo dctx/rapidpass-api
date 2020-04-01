@@ -39,6 +39,7 @@ server:
 
 qrmaster:
   skey: rapidmasterkey
+  controlkey: controlsecretkey
 
 jwt:
   secrets:
