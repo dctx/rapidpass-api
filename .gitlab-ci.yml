@@ -7,7 +7,8 @@ build-jar:
   stage: build
   image: openjdk:15-jdk-alpine
   script:
-  - ./mvnw package
+  - ./mvnw test
+  - ./mvnw package -Pliquibase -Dmaven.test.skip=true
   artifacts:
     paths:
     - target/
