@@ -119,7 +119,7 @@ public class RegistryBatchRestController
         ResponseEntity response;
         try
         {
-            final List<RapidPass> allRapidPasses = registryService.findAllRapidPasses(Optional.of(Pageable.unpaged()));
+            final List<RapidPass> allRapidPasses = registryService.findAllRapidPassesByStatus(status,Optional.of(Pageable.unpaged()));
             StringWriter writer = new StringWriter();
             ICSVWriter csvWriter = new CSVWriter(writer);
             StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)

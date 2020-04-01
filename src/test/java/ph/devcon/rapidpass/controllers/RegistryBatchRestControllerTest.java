@@ -44,14 +44,14 @@ public class RegistryBatchRestControllerTest
     RegistryService mockRegistryService;
     
     @Test
-    public void downloadAccessPassCsv() throws Exception
+    public void downloadAccessApprovedPassCsv() throws Exception
     {
         RapidPass sampleRapidPass = prepareSampleData();
     
         List<RapidPass> sampleList = new ArrayList<>();
         sampleList.add(sampleRapidPass);
-        when(mockRegistryService.findAllRapidPasses(Optional.of(Pageable.unpaged()))).thenReturn(sampleList);
-        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes"))
+        when(mockRegistryService.findAllRapidPassesByStatus("APPROVED",Optional.of(Pageable.unpaged()))).thenReturn(sampleList);
+        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?status=APPROVED"))
             .andExpect(status().isOk())
             .andReturn().getResponse();
         LOGGER.log(Level.INFO, response.getContentAsString());
@@ -68,8 +68,8 @@ public class RegistryBatchRestControllerTest
     
         List<RapidPass> sampleList = new ArrayList<>();
         sampleList.add(sampleRapidPass);
-        when(mockRegistryService.findAllRapidPasses(Optional.of(Pageable.unpaged()))).thenReturn(sampleList);
-        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?compressed=true"))
+        when(mockRegistryService.findAllRapidPassesByStatus("APPROVED",Optional.of(Pageable.unpaged()))).thenReturn(sampleList);
+        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?status=APPROVED&compressed=true"))
             .andExpect(status().isOk())
             .andReturn().getResponse();
         

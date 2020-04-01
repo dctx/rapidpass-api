@@ -185,6 +185,14 @@ public class RegistryService {
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
     }
+    
+    public List<RapidPass> findAllRapidPassesByStatus(String status, Optional<Pageable> pageView)
+    {
+        return this.findAllAccessPassesByStatus(status,pageView)
+            .stream()
+            .map(RapidPass::buildFrom)
+            .collect(Collectors.toList());
+    }
 
     public Iterable<ControlCode> getControlCodes() {
         return accessPassRepository
@@ -199,6 +207,14 @@ public class RegistryService {
             return accessPassRepository.findAll(pageView.get()).toList();
         } else {
             return accessPassRepository.findAll();
+        }
+    }
+    
+    private List<AccessPass> findAllAccessPassesByStatus(String status,Optional<Pageable> pageView) {
+        if (pageView.isPresent()) {
+            return accessPassRepository.findAllByStatus(pageView.get(),status).toList();
+        } else {
+            return accessPassRepository.findAllByStatus(Pageable.unpaged(),status).toList();
         }
     }
 
