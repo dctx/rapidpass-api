@@ -27,10 +27,8 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RegistryService {
 
-    public static final int DEFAULT_VALIDITY_DAYS = 15;
+    public static final int DEFAULT_VALIDITY_DAYS = 7;
 
     private final RegistryRepository registryRepository;
     private final RegistrantRepository registrantRepository;
@@ -160,8 +158,9 @@ public class RegistryService {
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
         accessPass.setDestinationProvince(rapidPassRequest.getDestProvince());
+        // just set the validity period to today until the request is approved
         accessPass.setValidFrom(now);
-        accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
+        accessPass.setValidTo(now);
         accessPass.setDateTimeCreated(now);
         accessPass.setDateTimeUpdated(now);
         accessPass.setRemarks(rapidPassRequest.getRemarks());
@@ -322,6 +321,20 @@ public class RegistryService {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 0) {
             AccessPass accessPass = accessPasses.get(0);
+
+            // is it April 12 yet?
+            OffsetDateTime now = OffsetDateTime.now();
+            OffsetDateTime aprilTwelve = OffsetDateTime.of(2020,4,12,23,59,
+                    59,99999, ZoneOffset.ofHours(8));
+            OffsetDateTime validUntil = now;
+            if (OffsetDateTime.now().isAfter(aprilTwelve)) {
+                validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
+            } else {
+                validUntil = aprilTwelve;
+            }
+            accessPass.setValidTo(validUntil);
+            accessPass.setValidFrom(now);
+
             accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
             accessPass = accessPassRepository.saveAndFlush(accessPass);
             return RapidPass.buildFrom(accessPass);
