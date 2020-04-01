@@ -493,9 +493,16 @@ public class RegistryService {
                 pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
 
                 if (pass != null) {
-                    pass.setStatus(AccessPassStatus.APPROVED.toString());
-                    updateAccessPass(pass.getReferenceId(), pass);
-                    passes.add("Record " + counter++ + ": Successfully registered record. ");
+
+                    RequestResult request = RequestResult.builder()
+                            .reason(null)
+                            .referenceId(pass.getReferenceId())
+                            .result(AccessPassStatus.APPROVED)
+                            .build();
+
+                    updateAccessPass(pass.getReferenceId(), request);
+
+                    passes.add("Record " + counter++ + ": Success. ");
                 }
             } catch ( Exception e ) {
                 passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
