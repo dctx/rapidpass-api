@@ -250,7 +250,7 @@ public class RegistryService {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPasses.size() == 0)
-            throw new IllegalArgumentException("No AccessPass found with referenceId=" + referenceId);
+            throw new UpdateAccessPassException("No AccessPass found with referenceId=" + referenceId);
 
         AccessPass accessPass = accessPasses.get(0);
 
@@ -381,7 +381,7 @@ public class RegistryService {
      */
     public RapidPass updateAccessPass(String referenceId, RequestResult requestResult) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
-        final AccessPassStatus status = AccessPassStatus.valueOf(requestResult.getResult().toUpperCase());
+        final AccessPassStatus status = requestResult.getResult();
         switch (status) {
             case APPROVED:
                 updatedRapidPass = grant(referenceId);
