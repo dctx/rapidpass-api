@@ -118,20 +118,22 @@ paths:
         - bulk
       summary: downloads a list of access passes in csv format
       parameters:
-        - name: lastSyncDttm
+        - name: lastSyncOn
           in: query
-          description: 'indicates last sync of checkpoint device'
-          required: true
-          schema:
-            type: string
-            format: date-time
-        - name: pageSize
-          in: query
-          description: 'size of page requested'
+          description: 'indicates last sync of checkpoint device in Epoch format'
           required: true
           schema:
             type: integer
-        - name: pageNum
+            format: int64
+        - name: pageSize
+          in: query
+          description: 'size of page requested'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageNumber
           in: query
           description: 'page number requested'
           required: true
@@ -644,22 +646,19 @@ components:
         meta:
           $ref: '#/components/schemas/PageMetaData'
         csv:
-          description: Array of arrays containing dataset. 1st row is always the column header. Subsequent rows are the dataset
-          type: array
-          items:
-            type: array
-            items:
-              type: string
+          description: string containg CSV
+          type: string
     PageMetaData:
       description: Page Meta Data
       type: object
       properties:
-        pageNum:
+        pageNumber:
           type: integer
         pageSize:
           type: integer
-        pageTotal:
+        totalPages:
           type: integer
-        rowTotal:
+        totalRows:
           type: integer
+          format: int64
           description: total number of rows in whole dataset

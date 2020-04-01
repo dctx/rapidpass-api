@@ -5,7 +5,10 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
@@ -15,15 +18,13 @@ import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -173,7 +175,7 @@ public class RegistryService {
 
         return RapidPass.buildFrom(accessPass);
     }
-
+    
     public static class ControlCodeGenerator {
         /**
          * Generates a control code.
@@ -201,12 +203,30 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
     
-    public List<RapidPass> findAllRapidPassesByStatus(String status, Optional<Pageable> pageView)
+    public Page<RapidPass> findAllApprovedOrSuspendedRapidPassAfter(OffsetDateTime lastUpdatedOn, Pageable page)
     {
-        return this.findAllAccessPassesByStatus(status,pageView)
-            .stream()
+        final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
+        Function<List<AccessPass>, List<RapidPass>> collectionTransform = accessPasses -> accessPasses.stream()
             .map(RapidPass::buildFrom)
             .collect(Collectors.toList());
+    
+        return PageableExecutionUtils.getPage(
+            collectionTransform.apply(pagedAccessPasses.getContent()),
+            page,
+            pagedAccessPasses::getTotalElements);
+    }
+    
+    public Page<RapidPassCSVDownloadData> findAllApprovedOrSuspendedRapidPassCsvAfter(OffsetDateTime lastUpdatedOn, Pageable page)
+    {
+        final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
+        Function<List<AccessPass>, List<RapidPassCSVDownloadData>> collectionTransform = accessPasses -> accessPasses.stream()
+            .map(RapidPassCSVDownloadData::buildFrom)
+            .collect(Collectors.toList());
+        
+        return PageableExecutionUtils.getPage(
+            collectionTransform.apply(pagedAccessPasses.getContent()),
+            page,
+            pagedAccessPasses::getTotalElements);
     }
 
     public Iterable<ControlCode> getControlCodes() {
@@ -225,13 +245,6 @@ public class RegistryService {
         }
     }
     
-    private List<AccessPass> findAllAccessPassesByStatus(String status,Optional<Pageable> pageView) {
-        if (pageView.isPresent()) {
-            return accessPassRepository.findAllByStatus(pageView.get(),status).toList();
-        } else {
-            return accessPassRepository.findAllByStatus(Pageable.unpaged(),status).toList();
-        }
-    }
 
     /**
      * Helper function to retrieve an {@link AccessPass} by referenceId.

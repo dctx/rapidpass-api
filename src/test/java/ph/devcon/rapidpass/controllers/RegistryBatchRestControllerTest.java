@@ -1,22 +1,29 @@
 package ph.devcon.rapidpass.controllers;
 
+import org.assertj.core.data.Offset;
 import org.hamcrest.io.FileMatchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassCSVDownloadData;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +33,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -46,77 +52,40 @@ public class RegistryBatchRestControllerTest
     @Test
     public void downloadAccessApprovedPassCsv() throws Exception
     {
-        RapidPass sampleRapidPass = prepareSampleData();
-    
-        List<RapidPass> sampleList = new ArrayList<>();
-        sampleList.add(sampleRapidPass);
-        when(mockRegistryService.findAllRapidPassesByStatus("APPROVED",Optional.of(Pageable.unpaged()))).thenReturn(sampleList);
-        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?status=APPROVED"))
+        List<RapidPassCSVDownloadData> sampleList = new ArrayList<>();
+        for(int i = 0 ; i < 10;i++)
+        {
+            sampleList.add(prepareSampleCsvData());
+        }
+        OffsetDateTime now = OffsetDateTime.now();
+        
+        Pageable pageable = PageRequest.of(0,2);
+        Page<RapidPassCSVDownloadData> page = new PageImpl<RapidPassCSVDownloadData>(sampleList,pageable,sampleList.size());
+        
+        when(mockRegistryService.findAllApprovedOrSuspendedRapidPassCsvAfter(now,pageable)).thenReturn(page);
+        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?lastSyncOn={syncOn}&pageNumber{}&pageSize={}",now.toEpochSecond(),0,2))
             .andExpect(status().isOk())
             .andReturn().getResponse();
         LOGGER.log(Level.INFO, response.getContentAsString());
-        assertThat(response.getContentType(),is(MediaType.TEXT_PLAIN_VALUE));
-        assertThat(response.getContentAsString(),containsString("\"APORTYPE\",\"COMPANY\",\"CONTROLCODE\",\"DESTCITY\",\"DESTNAME\",\"DESTPROVINCE\",\"DESTSTREET\",\"IDENTIFIERNUMBER\",\"IDTYPE\",\"NAME\",\"PASSTYPE\",\"REFERENCEID\",\"REMARKS\",\"STATUS\",\"VALIDFROM\",\"VALIDUNTIL\""));
-        assertThat(response.getContentAsString(),containsString("\"MM\",\"MyCompany\",\"ControlCode\",\"Pasig\",\"MyFriend\",\"MM\",\"ADB Avenue\",\"MYIDNo\",\"PERSONAL\",\"Sample Name\",\"INDIVIDUAL\",\"myreferenceid\",\"I need this\",\"APPROVED\",\"\",\"\""));
+        assertThat(response.getContentType(),is(MediaType.APPLICATION_JSON_VALUE));
+
         
     }
     
-    @Test
-    public void downloadAccessPassCompressed() throws Exception
-    {
-        RapidPass sampleRapidPass = prepareSampleData();
     
-        List<RapidPass> sampleList = new ArrayList<>();
-        sampleList.add(sampleRapidPass);
-        when(mockRegistryService.findAllRapidPassesByStatus("APPROVED",Optional.of(Pageable.unpaged()))).thenReturn(sampleList);
-        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?status=APPROVED&compressed=true"))
-            .andExpect(status().isOk())
-            .andReturn().getResponse();
-        
-        try(ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(response.getContentAsByteArray()));)
-        {
-            ZipEntry zipEntry = zis.getNextEntry();
-            byte[] readBuffer = new byte[1024];
-            while (zipEntry != null)
-            {
-                assertThat("Zip contains csv",zipEntry.getName(),containsString(".csv"));
-                File csvFile = new File(zipEntry.getName());
-                try (FileOutputStream csvFileOs = new FileOutputStream(csvFile);)
-                {
-                    int readLength;
-                    while ((readLength = zis.read(readBuffer)) > 0)
-                    {
-                        csvFileOs.write(readBuffer, 0, readLength);
-                    }
-                    assertThat("csv file is extracted!", csvFile, is(FileMatchers.anExistingFile()));
-                }
-                finally
-                {
-                    // cleanup
-                    csvFile.delete();
-                }
-                zipEntry = zis.getNextEntry();
-            }
-        }
-        
-    }
-    
-    private RapidPass prepareSampleData()
+    private RapidPassCSVDownloadData prepareSampleCsvData()
     {
-        return RapidPass.builder()
-                .name("Sample Name")
+        OffsetDateTime now = OffsetDateTime.now();
+        return RapidPassCSVDownloadData.builder()
                 .controlCode("ControlCode")
-                .passType(PassType.INDIVIDUAL)
+                .passType(PassType.INDIVIDUAL.toString())
                 .aporType("MM")
-                .company("MyCompany")
-                .identifierNumber("MYIDNo")
+                .validFrom(now.toEpochSecond())
+                .validUntil(now.toEpochSecond())
                 .idType("PERSONAL")
-                .status("APPROVED")
-                .referenceId("myreferenceid")
-                .destCity("Pasig")
-                .destName("MyFriend")
-                .destProvince("MM")
-                .destStreet("ADB Avenue")
-                .remarks("I need this").build();
+                .identifierNumber("NP-030303-1")
+                .status(AccessPassStatus.APPROVED.toString())
+                .issuedOn(now.toEpochSecond())
+                .build();
     }
 }

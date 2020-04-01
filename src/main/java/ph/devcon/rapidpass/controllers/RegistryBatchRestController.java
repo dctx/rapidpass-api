@@ -7,19 +7,19 @@ import com.opencsv.bean.*;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -108,38 +108,43 @@ public class RegistryBatchRestController
         return this.registryService.batchUpload(approvedAccessPass);
     }
     
-    @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_OCTET_STREAM_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})
+//    ResponseEntity<PagedCSV> batchAccessPassesGet(@NotNull @ApiParam(value = "indicates last sync of checkpoint device", required = true) @Valid @RequestParam(value = "lastSyncDttm", required = true) OffsetDateTime lastSyncDttm, @NotNull @ApiParam(value = "size of page requested", required = true) @Valid @RequestParam(value = "pageSize", required = true) Integer pageSize, @NotNull @ApiParam(value = "page number requested", required = true) @Valid @RequestParam(value = "pageNum", required = true) Integer pageNum)
     public ResponseEntity downloadAccesPasses(
-        @ApiParam(value = "Set the status to be downloaded",
-            allowableValues = "PENDING, APPROVED, DECLINED")
-        @Valid @RequestParam(value = "status", required = false, defaultValue = "APPROVED") String status,
-        @ApiParam(value = "specifies whether to compress the csv file or not, default is false")
-        @Valid @RequestParam(value = "compressed", required = false, defaultValue = "false") boolean compressed)
+        @NotNull @ApiParam(value = "indicates last sync of checkpoint device", required = true)
+        @Valid @RequestParam(value = "lastSyncDttm", required = true)
+            OffsetDateTime lastSyncDttm,
+        @NotNull @ApiParam(value = "size of page requested", required = false)
+        @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
+            Integer pageSize,
+        @NotNull @ApiParam(value = "page number requested", required = false)
+        @Valid @RequestParam(value = "pageNum", required = false, defaultValue = "1")
+            Integer pageNum)
     {
         ResponseEntity response;
         try
         {
-            final List<RapidPass> allRapidPasses = registryService.findAllRapidPassesByStatus(status,Optional.of(Pageable.unpaged()));
+            Pageable pageable = PageRequest.of(pageNum,pageSize);
+            final Page<RapidPassCSVDownloadData> pagedRapidPass = registryService.findAllApprovedOrSuspendedRapidPassCsvAfter(lastSyncDttm,pageable);
             StringWriter writer = new StringWriter();
             ICSVWriter csvWriter = new CSVWriter(writer);
             StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)
                 .withSeparator(DEFAULT_SEPARATOR)
                 .build();
-            sbc.write(allRapidPasses);
-            final String rapidPassCsv = writer.getBuffer().toString();
-            HttpHeaders headers = new HttpHeaders();
-            if (compressed)
-            {
             
-                byte[] compressedCsv = convertStringToZippedBytes(rapidPassCsv, "RapidPass-");
-                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                response = new ResponseEntity(compressedCsv, headers, HttpStatus.OK);
-            }
-            else
-            {
-                headers.setContentType(MediaType.TEXT_PLAIN);
-                response = new ResponseEntity(rapidPassCsv, headers, HttpStatus.OK);
-            }
+            sbc.write(pagedRapidPass.getContent());
+            final String rapidPassCsv = writer.getBuffer().toString();
+            
+            PageMetaData pageMetaData = new PageMetaData();
+            pageMetaData.setPageNumber(pagedRapidPass.getNumber());
+            pageMetaData.setPageSize(pagedRapidPass.getSize());
+            pageMetaData.setTotalPages(pagedRapidPass.getTotalPages());
+            pageMetaData.setTotalRows(pagedRapidPass.getTotalElements());
+            PagedCSV pagedCSV = new PagedCSV();
+            pagedCSV.setCsv(rapidPassCsv);
+            pagedCSV.setMeta(pageMetaData);
+            
+            response = new ResponseEntity(pagedCSV,HttpStatus.OK);
         }
         catch (Exception e)
         {
