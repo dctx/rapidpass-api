@@ -42,3 +42,6 @@ jwt:
       secret: checkpoint-secret
     - group: approver
       secret: approver-secret
+
+qrmaster:
+  skey: rapidmasterkey
