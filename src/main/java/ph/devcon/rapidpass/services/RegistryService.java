@@ -424,6 +424,9 @@ public class RegistryService {
             case DECLINED:
                 updatedRapidPass = decline(referenceId, requestResult.getReason());
                 break;
+            case SUSPENDED:
+                updatedRapidPass = revoke(referenceId);
+                break;
             default:
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
