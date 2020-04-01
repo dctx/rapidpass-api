@@ -9,15 +9,22 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ph.devcon.dctx.rapidpass.commons.HmacSha256;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
+import ph.devcon.dctx.rapidpass.commons.Rsa;
+import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -47,6 +54,9 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      */
     @Value("${rapidpass.qr.height:500}")
     private int qrHeight = 800;
+
+    @Value("${qrmaster.skey:qrkey}")
+    private String qrSigner = "qrkey";
 
     @Override
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
@@ -86,11 +96,22 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     /**
      * Serializes a {@link QrCodeData} object using {@link QrCodeSerializer} then encodes to Base64.
      *
-     * @param payload payload to serialize
+     * @param payload payload to serialize and sign.
      * @return Base64 string
      */
     String serializePayload(QrCodeData payload) {
-        return Base64.getEncoder().encodeToString(QrCodeSerializer.serialize(payload));
+
+        try {
+            char[] chars = Hex.encodeHex(this.qrSigner.getBytes(StandardCharsets.UTF_8));
+            final byte[] keyData = Hex.decodeHex(String.valueOf(chars));
+            final Signer signer = HmacSha256.signer(keyData);
+            final byte[] bytes = QrCodeSerializer.serializeAndSign(payload, signer );
+            return Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e ){
+            log.error(e.toString());
+            return null;
+
+        }
     }
 
 

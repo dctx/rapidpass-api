@@ -70,7 +70,6 @@ class JwtAuthenticationFilterTest {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             final JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtSecretsConfig);
-            filter.setJwtSecret(CHECKPOINT_SECRET);
             filter.postConstruct();
 
             http.csrf().disable() // just to simplify things

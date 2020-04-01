@@ -33,9 +33,6 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
 
     private final JwtSecretsConfig jwtSecretsConfig;
 
-    @Value("${rapidpass.jwt.secret}")
-    private String jwtSecret;
-
     /**
      * Retrieves the Authorization string from a request header.
      *

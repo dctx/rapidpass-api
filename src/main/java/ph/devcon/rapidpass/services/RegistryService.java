@@ -4,6 +4,7 @@ import com.boivie.skip32.Skip32;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -194,8 +195,8 @@ public class RegistryService {
         }
     }
 
-    public List<RapidPass> findAllRapidPasses(Optional<Pageable> pageView) {
-        return this.findAllAccessPasses(pageView)
+    public List<RapidPass> findAllRapidPasses(String aporType, Optional<Pageable> pageView) {
+        return this.findAllAccessPasses(aporType, pageView)
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
@@ -209,11 +210,13 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
-    private List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
-        if (pageView.isPresent()) {
-            return accessPassRepository.findAll(pageView.get()).toList();
+    private List<AccessPass> findAllAccessPasses(String aporType, Optional<Pageable> pageView) {
+        Pageable pageable = pageView.orElse(Pageable.unpaged());
+
+        if (!StringUtils.isBlank(aporType)) {
+            return accessPassRepository.findAllByAporType(aporType, pageable).toList();
         } else {
-            return accessPassRepository.findAll();
+            return accessPassRepository.findAll(pageable).toList();
         }
     }
 
@@ -446,17 +449,24 @@ public class RegistryService {
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
-    public List<RapidPass> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
-        List<RapidPass> passes = new ArrayList<RapidPass>();
+        List<String> passes = new ArrayList<String>();
         RapidPass pass;
+        int counter = 1;
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
-            pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
+            try {
+                pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
 
-            if (pass != null) {
-                pass = this.grant(rapidPassRequest.getMobileNumber());
-                passes.add(pass);
+                if (pass != null) {
+                    pass.setStatus(AccessPassStatus.APPROVED.toString());
+                    updateAccessPass(pass.getReferenceId(), pass);
+                    passes.add("Record " + counter++ + ": Success. ");
+                }
+            } catch ( Exception e ) {
+                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
+                continue;
             }
         }
         return passes;
