@@ -118,21 +118,57 @@ paths:
         - bulk
       summary: downloads a list of access passes in csv format
       parameters:
-        - name: compressed
+        - name: lastSyncDttm
           in: query
-          description: 'specifies whether to compress the csv file or not, default is false'
-          required: false
+          description: 'indicates last sync of checkpoint device'
+          required: true
           schema:
             type: string
+            format: date-time
+        - name: pageSize
+          in: query
+          description: 'size of page requested'
+          required: true
+          schema:
+            type: integer
+        - name: pageNum
+          in: query
+          description: 'page number requested'
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: Download initiated.
+          description: json containing page metadata and csv data
           content:
-            text/csv:
+            application/json:
               schema:
-                type: string
-                format: byte[]
-                description: csv file containing all valid access passes
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      meta:
+                        description: paging metadata
+                        type: object
+                        properties:
+                          pageNum:
+                            type: integer
+                          pageSize:
+                            type: integer
+                          pageTotal:
+                            type: integer
+                          rowTotal:
+                            type: integer
+                            description: total number of rows in whole dataset
+                      csv:
+                        description: Array of arrays containing dataset. 1st row is always the column header. Subsequent rows are the dataset
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: string
+
     post:
       tags:
         - dashboard

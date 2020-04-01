@@ -18,6 +18,9 @@ config:
   qrmaster:
     skey: ''
     controlkey: ''
+  jwt:
+    approverSecret: ''
+    checkpointSecret: ''
 ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
