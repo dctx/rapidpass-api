@@ -36,3 +36,9 @@ semaphore:
 
 rapidpass.jwt.secret: secret
 
+jwt:
+  secrets:
+    - group: checkpoint
+      secret: checkpoint-secret
+    - group: approver
+      secret: approver-secret

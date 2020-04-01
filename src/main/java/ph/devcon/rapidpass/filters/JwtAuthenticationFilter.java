@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The {@link JwtAuthenticationFilter} verifies if we have valid signed tokens. runs after API Key filter - hence using {@link AbstractPreAuthenticatedProcessingFilter}
@@ -28,6 +30,8 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
     private static final String AUTH_HEADER_STRING = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer";
+
+    private final JwtSecretsConfig jwtSecretsConfig;
 
     @Value("${rapidpass.jwt.secret}")
     private String jwtSecret;
@@ -90,8 +94,24 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
             final Map<String, Object> claims =
                     JwtGenerator.claimsToMap(token);
 
-            // validate claims and token if authentic
-            if (!JwtGenerator.validateToken(token, claims, jwtSecret)) {
+            // determine group secret
+            String group = claims.get("group").toString();
+            if (StringUtils.isEmpty(group)) {
+                log.warn("Could not authenticate token. No group claim found.");
+                return null;
+            }
+
+            final Optional<JwtSecretsConfig.JwtGroupSecret> groupSecretOptional = jwtSecretsConfig.getSecrets().stream()
+                    .filter(grpSecret -> grpSecret.getGroup().equalsIgnoreCase(group))
+                    .findFirst();
+
+            if (!groupSecretOptional.isPresent()) {
+                log.warn(String.format("Could not authenticate token. Group %s is not valid.", group));
+                return null;
+            }
+
+            // validate claims and token if authentic using group secret
+            if (!JwtGenerator.validateToken(token, claims, groupSecretOptional.get().getSecret())) {
                 log.warn("Could not authenticate JWT with claims {}", claims);
                 return null;
             }

@@ -1,15 +1,19 @@
 package ph.devcon.rapidpass.filters;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.util.HashMap;
@@ -27,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(controllers = JwtAuthenticationFilterTest.TestSecurityConfig.class)
 class JwtAuthenticationFilterTest {
-    static final String SECRET = "secret";
+    static final String CHECKPOINT_SECRET = "checkpoint-secret";
     @Autowired
     MockMvc mockMvc;
 
@@ -37,9 +41,9 @@ class JwtAuthenticationFilterTest {
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", "12314");
         claims.put("name", "Kevin Smith");
-        claims.put("group", "registrant");
+        claims.put("group", "checkpoint");
 
-        String token = JwtGenerator.generateToken(claims, SECRET);
+        String token = JwtGenerator.generateToken(claims, CHECKPOINT_SECRET);
 
         mockMvc.perform(get("/hello")
                 .header("Authorization", "Bearer " + token))
@@ -57,11 +61,16 @@ class JwtAuthenticationFilterTest {
 
     @RestController
     @Configuration
+    @RequiredArgsConstructor
+    @EnableConfigurationProperties
+    @Import(JwtSecretsConfig.class)
     static class TestSecurityConfig extends WebSecurityConfigurerAdapter {
+        private final JwtSecretsConfig jwtSecretsConfig;
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            final JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
-            filter.setJwtSecret(SECRET);
+            final JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtSecretsConfig);
+            filter.setJwtSecret(CHECKPOINT_SECRET);
             filter.postConstruct();
 
             http.csrf().disable() // just to simplify things

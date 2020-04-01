@@ -41,4 +41,8 @@ qrmaster:
   skey: rapidmasterkey
 
 jwt:
-  agencySecret: supersecretagent
+  secrets:
+    - group: checkpoint
+      secret: checkpoint-secret
+    - group: approver
+      secret: approver-secret
