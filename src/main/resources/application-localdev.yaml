@@ -35,3 +35,4 @@ springfox:
 
 qrmaster:
   skey: rapidmasterkey
+  controlkey: controlsecretkey

@@ -20,3 +20,4 @@ semaphore:
 
 qrmaster:
   skey: rapidmasterkey
+  controlkey: controlsecretkey

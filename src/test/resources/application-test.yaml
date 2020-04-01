@@ -45,3 +45,4 @@ jwt:
 
 qrmaster:
   skey: rapidmasterkey
+  controlkey: controlsecretkey

@@ -49,7 +49,7 @@ public class RegistryService {
     /**
      * Secret key used for control code generation
      */
-    @Value("${rapidpass.controlCode.secretKey:***REMOVED***}")
+    @Value("${qrmaster.controlkey:***REMOVED***}")
     private String secretKey = "***REMOVED***";
 
     /**
