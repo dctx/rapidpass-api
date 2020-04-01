@@ -25,9 +25,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static com.opencsv.ICSVWriter.DEFAULT_SEPARATOR;
 
@@ -39,72 +36,70 @@ import static com.opencsv.ICSVWriter.DEFAULT_SEPARATOR;
 @RestController
 @RequestMapping("/batch")
 @Slf4j
-public class RegistryBatchRestController
-{
-    
+public class RegistryBatchRestController {
+
     private RegistryService registryService;
-    
+
     @Autowired
-    public RegistryBatchRestController(RegistryService registryService)
-    {
+    public RegistryBatchRestController(RegistryService registryService) {
         this.registryService = registryService;
     }
-    
+
     /**
      * Upload CSV or excel file of approved control numbers
      *
-     * @param csvFile  Receives CSV File Payload
+     * @param csvFile Receives CSV File Payload
      * @param username Registrar User name
+     *
      */
     @PostMapping("/access-passes")
-    public Iterable<RapidPass> newRequestPass(@RequestParam("file") MultipartFile csvFile)
-        throws IOException, RegistryService.UpdateAccessPassException
-    {
-    
+    Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
+            throws IOException, RegistryService.UpdateAccessPassException {
+
         List<RapidPassCSVdata> approvedAccessPass;
-    
-        if (csvFile.isEmpty())
-        {
+
+        if (csvFile.isEmpty()) {
             return null;
-        }
-        else
-        {
-        
-            try (Reader fileReader = new BufferedReader(new InputStreamReader(csvFile.getInputStream())))
-            {
+        } else {
+
+            try (Reader fileReader = new BufferedReader(new InputStreamReader(csvFile.getInputStream()))) {
                 ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
                 strategy.setType(RapidPassCSVdata.class);
                 String[] accessPassCSVColumnMapping = {
-                    "passType",
-                    "aporType",
-                    "firstName",
-                    "middleName",
-                    "lastName",
-                    "suffix",
-                    "company",
-                    "idType",
-                    "identifierNumber",
-                    "mobileNumber",
-                    "email",
-                    "originName",
-                    "originStreet",
-                    "originCity",
-                    "destName",
-                    "destStreet",
-                    "destCity",
-                    "remarks"
+                        "passType",
+                        "aporType",
+                        "firstName",
+                        "middleName",
+                        "lastName",
+                        "suffix",
+                        "company",
+                        "idType",
+                        "identifierNumber",
+                        "plateNumber",
+                        "mobileNumber",
+                        "email",
+                        "originName",
+                        "originStreet",
+                        "originCity",
+                        "destName",
+                        "destStreet",
+                        "destCity",
+                        "remarks"
                 };
-            
+
                 strategy.setColumnMapping(accessPassCSVColumnMapping);
                 CsvToBean<RapidPassCSVdata> csvToBean = new CsvToBeanBuilder(fileReader)
-                    .withMappingStrategy(strategy)
-                    .withType(RapidPassCSVdata.class)
-                    .withSkipLines(1)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
-            
+                        .withMappingStrategy(strategy)
+                        .withType(RapidPassCSVdata.class)
+                        .withSkipLines(1)
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+
                 approvedAccessPass = csvToBean.parse();
-                
+
+                fileReader.close();
+            } catch (Exception e) {
+                throw e;
             }
         }
         return this.registryService.batchUpload(approvedAccessPass);
@@ -146,17 +141,14 @@ public class RegistryBatchRestController
             pagedCSV.setCsv(rapidPassCsv);
             pagedCSV.setMeta(pageMetaData);
             
-            response = new ResponseEntity(pagedCSV,HttpStatus.OK);
+            response = new ResponseEntity(pagedCSV, HttpStatus.OK);
         }
         catch (Exception e)
         {
             response = new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
-    
+        
     }
-    
 }
-
-
 

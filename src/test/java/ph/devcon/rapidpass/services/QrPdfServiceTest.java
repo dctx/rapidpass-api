@@ -5,6 +5,7 @@ import com.google.zxing.WriterException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
@@ -34,10 +35,12 @@ class QrPdfServiceTest {
     @Test
     void generateQrPdf_INDIVIDUAL() throws IOException, WriterException, ParseException, NullPointerException {
 
+        String controlCode = ControlCode.encode(38);
+
         final byte[] bytes = instance.generateQrPdf(AccessPass.builder().
                 status("APPROVED")
                 .passType("INDIVIDUAL")
-                .controlCode("123456")
+                .controlCode(controlCode)
                 .idType("Driver's License")
                 .identifierNumber("N0124734213")
                 .name("Darren Karl A. Sapalo")
@@ -53,10 +56,12 @@ class QrPdfServiceTest {
     @Test
     void generateQrPdf_VEHICLE() throws IOException, WriterException, ParseException, NullPointerException {
 
+        String controlCode = ControlCode.encode(38);
+
         final byte[] bytes = instance.generateQrPdf(AccessPass.builder().
                 status("APPROVED")
                 .passType("VEHICLE")
-                .controlCode("123456")
+                .controlCode(controlCode)
                 .idType("Plate Number")
                 .identifierNumber("ABC 123")
                 .name("ABC 123")

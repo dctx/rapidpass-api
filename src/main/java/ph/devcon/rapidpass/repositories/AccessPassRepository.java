@@ -16,6 +16,7 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     List<AccessPass> findAll();
 
     Page<AccessPass> findAll(Pageable page);
+    Page<AccessPass> findAllByAporType(String aporType, Pageable pageable);
 
     AccessPass findByReferenceID(String referenceID);
 
