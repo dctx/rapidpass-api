@@ -547,8 +547,12 @@ components:
           example: passport
         identifierNumber:
           type: string
-          description: plate number of vehicle or ID of individual
-          example: VV1234567
+          description: Identification number of individual
+          example: 789921123QWRTY
+        plateNumber:
+          type: string
+          description: plate number of vehicle, required only for vehicle registrations
+          example: WNQ2412
     MobileDevice:
       type: object
       properties:

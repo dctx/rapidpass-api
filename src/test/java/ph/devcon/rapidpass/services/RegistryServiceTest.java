@@ -68,6 +68,7 @@ class RegistryServiceTest {
                     .firstName("Jonas")
                     .lastName("Espelita")
                     .identifierNumber("0915999999")
+                    .plateNumber("ABC4321")
                     .mobileNumber("0915999999")
                     .email("jonas.was.here@gmail.com")
                     .destCity("Somewhere in the PH")
@@ -89,6 +90,15 @@ class RegistryServiceTest {
     @Test
     void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
 
+        final Registrant sampleRegistrant = Registrant.builder()
+                .registrarId(0)
+                .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
+                .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
+                .referenceId(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .email(TEST_INDIVIDUAL_REQUEST.getEmail())
+                .mobile(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
+                .build();
+
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
@@ -97,13 +107,14 @@ class RegistryServiceTest {
                 .status(AccessPassStatus.PENDING.toString())
                 .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
                 .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .registrantId(sampleRegistrant)
                 .build();
 
         // mock registry always returns a registry
         final Registrar mockRegistrar = new Registrar();
-        mockRegistrar.setId(1);
+        mockRegistrar.setId(0);
 
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
+//        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
 
         // no existing user
         when(mockRegistrantRepository.findByReferenceId(anyString())).thenReturn(null);
@@ -135,6 +146,7 @@ class RegistryServiceTest {
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
+                .identifierNumber(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
                 .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
@@ -148,7 +160,8 @@ class RegistryServiceTest {
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
         // repository returns an access pass!
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(singletonList(samplePendingAccessPass));
+        when(mockAccessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any()))
+                .thenReturn(singletonList(samplePendingAccessPass));
 
 
         try {
