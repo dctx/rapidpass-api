@@ -1,7 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,14 +22,15 @@ import ph.devcon.rapidpass.services.RegistryService;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RegistryBatchRestController.class)
@@ -48,25 +48,29 @@ public class RegistryBatchRestControllerTest
     @Test
     public void downloadAccessApprovedPassCsv() throws Exception
     {
+        final int pageSize = 2;
+        final int totalRows = 10;
         List<RapidPassCSVDownloadData> sampleList = new ArrayList<>();
-        for(int i = 0 ; i < 10;i++)
+        
+        for(int i = 0 ; i < pageSize;i++)
         {
             sampleList.add(prepareSampleCsvData());
         }
         OffsetDateTime now = OffsetDateTime.now();
         
-        Pageable pageable = PageRequest.of(0,2);
-        Page<RapidPassCSVDownloadData> page = new PageImpl<RapidPassCSVDownloadData>(sampleList,pageable,sampleList.size());
+        Pageable pageable = PageRequest.of(0, pageSize);
+        Page<RapidPassCSVDownloadData> page = new PageImpl<RapidPassCSVDownloadData>(sampleList,pageable,totalRows);
         
         when(mockRegistryService.findAllApprovedOrSuspendedRapidPassCsvAfter(any(), any())).thenReturn(page);
         
-        final MockHttpServletResponse response = mockMvc.perform(get("/batch/access-passes?lastSyncOn={lastSyncOn}&pageNumber{pageNumber}&pageSize={pageSize}",now.toEpochSecond(),0,2))
+        mockMvc.perform(get("/batch/access-passes?lastSyncOn={lastSyncOn}&pageNumber{pageNumber}&pageSize={pageSize}",now.toEpochSecond(),0, pageSize))
             .andExpect(status().isOk())
-            .andReturn().getResponse();
-        LOGGER.log(Level.INFO, response.getContentAsString());
-        assertThat(response.getContentType(),is(MediaType.APPLICATION_JSON_VALUE));
-
-        
+            .andExpect(jsonPath("$.meta.pageNumber").value("0"))
+            .andExpect(jsonPath("$.meta.pageSize").value("2"))
+            .andExpect(jsonPath("$.meta.totalPages").value("5"))
+            .andExpect(jsonPath("$.meta.totalRows").value("10"))
+            .andExpect(jsonPath("$.csv").isString())
+            .andDo(print());
     }
     
     
