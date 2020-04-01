@@ -5,13 +5,12 @@
  */
 package ph.devcon.rapidpass.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.util.StringUtils;
+import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.enums.PassType;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -166,7 +165,13 @@ public class AccessPass implements Serializable {
      *
      * @param accessPass access pass to convert
      */
-    public static QrCodeData toQrCodeData(AccessPass accessPass) {
+    public static QrCodeData toQrCodeData(@NonNull AccessPass accessPass) {
+
+        if (StringUtils.isEmpty(accessPass.getControlCode()))
+            throw new IllegalArgumentException("The control code is invalid. [controlCode=" + accessPass.getControlCode() + "]");
+
+        long decodedControlCode = ControlCode.decode(accessPass.getControlCode());
+
         // convert access pass to qr code data
         return PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType()) ?
                 QrCodeData.individual()
@@ -174,7 +179,7 @@ public class AccessPass implements Serializable {
                         // long to int -> int = long / 1000
                         .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
-                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
                         .build() :
                 QrCodeData.vehicle()
@@ -182,7 +187,7 @@ public class AccessPass implements Serializable {
                         // long to int -> int = long / 1000
                         .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
-                        .controlCode(Long.parseLong(accessPass.getControlCode())) // todo verify with Alistair!
+                        .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
                         .build();
     }
