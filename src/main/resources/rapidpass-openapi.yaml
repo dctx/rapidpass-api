@@ -143,31 +143,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      meta:
-                        description: paging metadata
-                        type: object
-                        properties:
-                          pageNum:
-                            type: integer
-                          pageSize:
-                            type: integer
-                          pageTotal:
-                            type: integer
-                          rowTotal:
-                            type: integer
-                            description: total number of rows in whole dataset
-                      csv:
-                        description: Array of arrays containing dataset. 1st row is always the column header. Subsequent rows are the dataset
-                        type: array
-                        items:
-                          type: array
-                          items:
-                            type: string
+                $ref: '#/components/schemas/PagedCSV'
 
     post:
       tags:
@@ -661,3 +637,29 @@ components:
           type: string
           description: A JSON Web Token that will be used to authenticate with the other API requests
           example: abcd.efgh.ijkl
+    PagedCSV:
+      type: object
+      description: Paged CSV with meta data for client to know what page has been downloaded
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMetaData'
+        csv:
+          description: Array of arrays containing dataset. 1st row is always the column header. Subsequent rows are the dataset
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+    PageMetaData:
+      description: Page Meta Data
+      type: object
+      properties:
+        pageNum:
+          type: integer
+        pageSize:
+          type: integer
+        pageTotal:
+          type: integer
+        rowTotal:
+          type: integer
+          description: total number of rows in whole dataset
