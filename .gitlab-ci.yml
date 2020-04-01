@@ -78,7 +78,7 @@ deploy-dev:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api-dev --install --namespace rapidpass-api-dev --values config/dev-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.jwt.approverSecret=${APPROVER_SECRET} --set config.jwt.checkpointSecret=${CHECKPOINT_SECRET} helm/rapidpass-api
+  - helm upgrade rapidpass-api-dev --install --namespace rapidpass-api-dev --values config/dev-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.jwt.approverSecret=${APPROVER_SECRET} --set config.jwt.checkpointSecret=${CHECKPOINT_SECRET} --set config.qrmaster.skey=${QR_KEY}  helm/rapidpass-api
   only:
   - develop
 
@@ -92,7 +92,7 @@ deploy-test:
   - cp ${KUBECONFIG} ~/.kube/config
   script:
   - helm dep update helm/rapidpass-api
-  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.jwt.approverSecret=${APPROVER_SECRET} --set config.jwt.checkpointSecret=${CHECKPOINT_SECRET} helm/rapidpass-api
+  - helm upgrade rapidpass-api-test --install --namespace rapidpass-api-test --values config/test-values.yaml --set config.smtp.username=${SMTP_USERNAME} --set config.smtp.password=${SMTP_PASSWORD} --set config.semaphore.key=${SEMAPHORE_KEY} --set config.jwt.approverSecret=${APPROVER_SECRET} --set config.jwt.checkpointSecret=${CHECKPOINT_SECRET} --set config.qrmaster.skey=${QR_KEY} helm/rapidpass-api
   only:
   - test
 
