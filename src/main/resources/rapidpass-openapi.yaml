@@ -132,13 +132,15 @@ paths:
           schema:
             type: integer
             format: int32
-            default: 1
+            default: 1000
         - name: pageNumber
           in: query
           description: 'page number requested'
-          required: true
+          required: false
           schema:
             type: integer
+            format: int32
+            default: 0
       responses:
         '200':
           description: json containing page metadata and csv data

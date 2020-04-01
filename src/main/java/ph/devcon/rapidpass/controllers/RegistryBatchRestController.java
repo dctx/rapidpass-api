@@ -21,7 +21,9 @@ import ph.devcon.rapidpass.services.RegistryService;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -109,23 +111,23 @@ public class RegistryBatchRestController
     }
     
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})
-//    ResponseEntity<PagedCSV> batchAccessPassesGet(@NotNull @ApiParam(value = "indicates last sync of checkpoint device", required = true) @Valid @RequestParam(value = "lastSyncDttm", required = true) OffsetDateTime lastSyncDttm, @NotNull @ApiParam(value = "size of page requested", required = true) @Valid @RequestParam(value = "pageSize", required = true) Integer pageSize, @NotNull @ApiParam(value = "page number requested", required = true) @Valid @RequestParam(value = "pageNum", required = true) Integer pageNum)
     public ResponseEntity downloadAccesPasses(
-        @NotNull @ApiParam(value = "indicates last sync of checkpoint device", required = true)
-        @Valid @RequestParam(value = "lastSyncDttm", required = true)
-            OffsetDateTime lastSyncDttm,
-        @NotNull @ApiParam(value = "size of page requested", required = false)
-        @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
-            Integer pageSize,
-        @NotNull @ApiParam(value = "page number requested", required = false)
-        @Valid @RequestParam(value = "pageNum", required = false, defaultValue = "1")
-            Integer pageNum)
+        @NotNull @ApiParam(value = "indicates last sync of checkpoint device in Epoch format", required = true)
+        @Valid @RequestParam(value = "lastSyncOn", required = true)
+            Long lastSyncOn,
+        @NotNull @ApiParam(value = "page number requested", required = true)
+        @Valid @RequestParam(value = "pageNumber", required = false,defaultValue = "0")
+            Integer pageNumber,@ApiParam(value = "size of page requested")
+        @Valid @RequestParam(value = "pageSize", required = false,defaultValue = "1000")
+            Integer pageSize)
     {
         ResponseEntity response;
         try
         {
-            Pageable pageable = PageRequest.of(pageNum,pageSize);
-            final Page<RapidPassCSVDownloadData> pagedRapidPass = registryService.findAllApprovedOrSuspendedRapidPassCsvAfter(lastSyncDttm,pageable);
+            OffsetDateTime lastSyncDateTime =
+                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
+            Pageable pageable = PageRequest.of(pageNumber,pageSize);
+            final Page<RapidPassCSVDownloadData> pagedRapidPass = registryService.findAllApprovedOrSuspendedRapidPassCsvAfter(lastSyncDateTime,pageable);
             StringWriter writer = new StringWriter();
             ICSVWriter csvWriter = new CSVWriter(writer);
             StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)
