@@ -21,13 +21,13 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
-import java.util.Collections;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;

@@ -33,3 +33,12 @@ spring:
 semaphore:
   url: https://api.semaphore.co/api/v4/messages
   key: ''
+
+rapidpass.jwt.secret: secret
+
+jwt:
+  secrets:
+    - group: checkpoint
+      secret: checkpoint-secret
+    - group: approver
+      secret: approver-secret

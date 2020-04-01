@@ -1,28 +1,17 @@
 package ph.devcon.rapidpass.controllers;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.AgencyAuth;
-import ph.devcon.rapidpass.models.AgencyUser;
-import ph.devcon.rapidpass.models.Login;
-import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.models.QueryFilter;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.services.QrPdfService;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.AuthService;
+import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
