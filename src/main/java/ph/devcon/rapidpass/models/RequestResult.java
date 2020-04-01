@@ -3,8 +3,9 @@ package ph.devcon.rapidpass.models;
 import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -25,8 +26,8 @@ public class RequestResult {
     /**
      * Can either be "APPROVED" or "DECLINED"
      */
-    @NotEmpty
-    private String result;
+    @NotNull
+    private AccessPassStatus result;
 
     /**
      * This is the reason why their request was declined. This is null if the status is "APPROVED".
