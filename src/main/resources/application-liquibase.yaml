@@ -4,3 +4,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/rapidpass
     user: dctx
     password: password
+
+qrmaster:
+  skey: rapidmasterkey
+  controlkey: controlsecretkey

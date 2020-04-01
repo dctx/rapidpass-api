@@ -26,6 +26,9 @@ config:
   semaphore:
     url: ''
     key: ''
+  qrmaster:
+    skey: ''
+    controlkey: ''
 
 service:
   type: ClusterIP
