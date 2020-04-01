@@ -5,6 +5,7 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -51,15 +52,23 @@ public class RegistryRestController {
     @GetMapping("/access-passes")
     public ResponseEntity<List<RapidPass>> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
         Pageable pageView = null;
+        String aporType = null;
+
         if (queryParameter.isPresent()) {
             QueryFilter queryFilter = queryParameter.get();
+
             if (null != queryFilter.getPageNo()) {
                 int pageSize = (null != queryFilter.getPageSize()) ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
                 pageView = PageRequest.of(queryFilter.getPageNo(), pageSize);
             }
+
+            if (!StringUtils.isBlank(queryFilter.getAporType())) {
+                aporType = queryFilter.getAporType();
+            }
         } else {
         }
-        return ResponseEntity.ok().body(registryService.findAllRapidPasses(Optional.ofNullable(pageView)));
+
+        return ResponseEntity.ok().body(registryService.findAllRapidPasses(aporType, Optional.ofNullable(pageView)));
     }
 
     @GetMapping("/access-passes/{referenceId}")

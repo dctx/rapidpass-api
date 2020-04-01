@@ -1,10 +1,10 @@
 package ph.devcon.rapidpass.services;
 
 import com.boivie.skip32.Skip32;
-import com.google.common.base.Strings;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -195,8 +195,8 @@ public class RegistryService {
         }
     }
 
-    public List<RapidPass> findAllRapidPasses(Optional<Pageable> pageView) {
-        return this.findAllAccessPasses(pageView)
+    public List<RapidPass> findAllRapidPasses(String aporType, Optional<Pageable> pageView) {
+        return this.findAllAccessPasses(aporType, pageView)
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
@@ -210,11 +210,13 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
-    private List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
-        if (pageView.isPresent()) {
-            return accessPassRepository.findAll(pageView.get()).toList();
+    private List<AccessPass> findAllAccessPasses(String aporType, Optional<Pageable> pageView) {
+        Pageable pageable = pageView.orElse(Pageable.unpaged());
+
+        if (!StringUtils.isBlank(aporType)) {
+            return accessPassRepository.findAllByAporType(aporType, pageable).toList();
         } else {
-            return accessPassRepository.findAll();
+            return accessPassRepository.findAll(pageable).toList();
         }
     }
 
