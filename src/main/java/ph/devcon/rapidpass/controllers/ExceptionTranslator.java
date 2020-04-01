@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.Map;
 
@@ -49,4 +50,13 @@ public class ExceptionTranslator {
         log.warn("Request Error! ", ex);
         return ImmutableMap.of("message", ex.getMessage());
     }
+
+    @ExceptionHandler(RegistryService.UpdateAccessPassException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> updateAcessPassError(RegistryService.UpdateAccessPassException ex) {
+        return ImmutableMap.of("message", ex.getMessage());
+    }
+
+
 }
