@@ -83,38 +83,42 @@ class RegistryRestControllerTest {
             .remarks("This is a test for VEHICLE REQUEST").build();
     private final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-    public RapidPass TEST_INDIVIDUAL_PASS;
+    private AccessPass TEST_INDIVIDUAL_ACCESS_PASS;
+    public RapidPass TEST_INDIVIDUAL_RAPID_PASS;
 
-    public RapidPass TEST_VEHICLE_PASS;
+    private AccessPass TEST_VEHICLE_ACCESS_PASS;
+    public RapidPass TEST_VEHICLE_RAPID_PASS;
+
+
 
     @BeforeEach
     void init() {
-        AccessPass individualAccessPass = new AccessPass();
+        TEST_INDIVIDUAL_ACCESS_PASS = new AccessPass();
 
-        individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
-        individualAccessPass.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
-        individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
-        individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
-        individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
+        TEST_INDIVIDUAL_ACCESS_PASS.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
+        TEST_INDIVIDUAL_ACCESS_PASS.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
+        TEST_INDIVIDUAL_ACCESS_PASS.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
+        TEST_INDIVIDUAL_ACCESS_PASS.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
+        TEST_INDIVIDUAL_ACCESS_PASS.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
-        individualAccessPass.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
+        TEST_INDIVIDUAL_ACCESS_PASS.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
 
-        AccessPass vehicleAccessPass = new AccessPass();
+        TEST_VEHICLE_ACCESS_PASS = new AccessPass();
 
-        vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
-        vehicleAccessPass.setDestinationCity(TEST_VEHICLE_REQUEST.getDestCity());
-        vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
-        vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
-        vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
-        vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
-        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+        TEST_VEHICLE_ACCESS_PASS.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
+        TEST_VEHICLE_ACCESS_PASS.setDestinationCity(TEST_VEHICLE_REQUEST.getDestCity());
+        TEST_VEHICLE_ACCESS_PASS.setCompany(TEST_VEHICLE_REQUEST.getCompany());
+        TEST_VEHICLE_ACCESS_PASS.setAporType(TEST_VEHICLE_REQUEST.getAporType());
+        TEST_VEHICLE_ACCESS_PASS.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
+        TEST_VEHICLE_ACCESS_PASS.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
+        TEST_VEHICLE_ACCESS_PASS.setIdType(TEST_VEHICLE_REQUEST.getIdType());
 
         // Mobile number is the reference ID?
-        vehicleAccessPass.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
+        TEST_VEHICLE_ACCESS_PASS.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
 
-        TEST_INDIVIDUAL_PASS = RapidPass.buildFrom(individualAccessPass);
+        TEST_INDIVIDUAL_RAPID_PASS = RapidPass.buildFrom(TEST_INDIVIDUAL_ACCESS_PASS);
 
-        TEST_VEHICLE_PASS = RapidPass.buildFrom(vehicleAccessPass);
+        TEST_VEHICLE_RAPID_PASS = RapidPass.buildFrom(TEST_VEHICLE_ACCESS_PASS);
     }
 
     @Autowired
@@ -210,12 +214,12 @@ class RegistryRestControllerTest {
     @Test
     void getPassRequest() throws Exception {
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockRegistryService.find(eq("0915999999")))
-                .thenReturn(TEST_INDIVIDUAL_PASS);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
 
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
-        when(mockRegistryService.find(eq("ABCD 1234")))
-                .thenReturn(TEST_VEHICLE_PASS);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq("ABCD 1234")))
+                .thenReturn(TEST_VEHICLE_ACCESS_PASS);
 
         final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}";
 
@@ -290,7 +294,7 @@ class RegistryRestControllerTest {
 
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
         when(mockRegistryService.revoke(eq("0915999999")))
-                .thenReturn(TEST_INDIVIDUAL_PASS);
+                .thenReturn(TEST_INDIVIDUAL_RAPID_PASS);
 
         // mock service to return null
         mockMvc.perform(
@@ -305,17 +309,17 @@ class RegistryRestControllerTest {
     public void grantOrDenyRequest() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(TEST_VEHICLE_PASS)))
-                .thenReturn(TEST_VEHICLE_PASS);
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(TEST_VEHICLE_RAPID_PASS)))
+                .thenReturn(TEST_VEHICLE_RAPID_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_PASS);
+        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_RAPID_PASS);
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
@@ -325,10 +329,10 @@ class RegistryRestControllerTest {
         )
                 .andExpect(status().isOk())
                 // test json is expected
-                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType().name()))
-                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
-                .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
-                .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
+                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_RAPID_PASS.getPassType().name()))
+                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_RAPID_PASS.getControlCode()))
+                .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_RAPID_PASS.getIdentifierNumber()))
+                .andExpect(jsonPath("$.status").value(TEST_VEHICLE_RAPID_PASS.getStatus()))
                 .andDo(print());
     }
 
