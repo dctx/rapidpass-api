@@ -144,7 +144,7 @@ public class NewAccessPassRequestValidator implements Validator {
 
         OffsetDateTime now = OffsetDateTime.now();
 
-        final List<AccessPass> existingAccessPasses = accessPassRepository.findAllByReferenceIDAndValidToAfter(referenceId, now);
+        final List<AccessPass> existingAccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         // get all valid PENDING or APPROVED rapid pass requests for referenceId
         final Optional<AccessPass> existingAccessPass = existingAccessPasses
@@ -182,7 +182,7 @@ public class NewAccessPassRequestValidator implements Validator {
         if (!hasPlateNumberIfVehicle(accessPass.getPassType(), accessPass.getPlateNumber()))
             errors.rejectValue("plateNumber", "missing.plateNumber", "Missing plate number.");
 
-        String identifier = PassType.INDIVIDUAL.toString().equals(accessPass.getPassType()) ? accessPass.getIdentifierNumber() : accessPass.getPlateNumber();
+        String identifier = accessPass.getReferenceID();
 
         if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
             errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s", identifier));
@@ -206,7 +206,7 @@ public class NewAccessPassRequestValidator implements Validator {
         if (request.getPassType() != null && !hasPlateNumberIfVehicle(request.getPassType().toString(), request.getPlateNumber()))
             errors.rejectValue("plateNumber", "missing.plateNumber", "Missing plate number.");
 
-        String identifier = PassType.INDIVIDUAL == request.getPassType() ? request.getIdentifierNumber() : request.getPlateNumber();
+        String identifier = PassType.INDIVIDUAL == request.getPassType() ? request.getMobileNumber() : request.getPlateNumber();
 
         if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
             errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s", identifier));

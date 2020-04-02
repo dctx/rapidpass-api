@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -74,7 +73,7 @@ public class NewAccessPassRequestValidatorTest {
 
         // ---- CASE already has one existing access pass, but it is declined ----
 
-        when(accessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any())).thenReturn(
+        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         AccessPass.builder()
                                 .referenceID("DEF 456")
@@ -112,7 +111,7 @@ public class NewAccessPassRequestValidatorTest {
 
         // ---- CASE No existing access passes ----
 
-        when(accessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any())).thenReturn(
+        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                     // no results
                 ))
@@ -171,7 +170,7 @@ public class NewAccessPassRequestValidatorTest {
 
         // ---- CASE already has one existing access pass, but it is declined ----
 
-        when(accessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any())).thenReturn(
+        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         AccessPass.builder()
                                 .referenceID("DEF 456")
@@ -208,7 +207,7 @@ public class NewAccessPassRequestValidatorTest {
 
         // ---- CASE No existing access passes ----
 
-        when(accessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any())).thenReturn(
+        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         // no results
                 ))
@@ -403,7 +402,7 @@ public class NewAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(accessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any())).thenReturn(
+        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         AccessPass.builder()
                                 .referenceID("ABC 123")

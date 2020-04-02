@@ -28,7 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
@@ -216,7 +215,7 @@ class RegistryServiceTest {
                 .firstName("Jonas").build();
 
         // Attempting to find access passes that match the same reference ID, and a specified time frame
-        when(mockAccessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any()))
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString()))
                 .thenReturn(singletonList(samplePendingAccessPass));
 
         try {
