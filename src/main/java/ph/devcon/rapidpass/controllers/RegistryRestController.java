@@ -103,20 +103,20 @@ public class RegistryRestController {
      * For retrieving the image base 64 data of the QR code of an access pass, please see the method
      * {@link #downloadRapidPassQrImageDataBase64(String)}.
      *
-     * @param referenceId the reference ID that uniquely identifies the access pass
+     * @param controlCode the control code that uniquely identifies the access pass
      * @return The file data containing of PDF for this access pass
      */
-    @GetMapping("/qr-codes/{referenceId}")
-    public HttpEntity<byte[]> downloadRapidPassPdf(@PathVariable String referenceId) throws IOException, WriterException, ParseException {
-        log.debug("Processing /qr-codes/{}", referenceId);
-        byte[] responseBody = qrPdfService.generateQrPdf(referenceId);
+    @GetMapping("/qr-codes/{controlCode}")
+    public HttpEntity<byte[]> downloadRapidPassPdf(@PathVariable String controlCode) throws IOException, WriterException, ParseException {
+        log.debug("Processing /qr-codes/{}", controlCode);
+        byte[] responseBody = qrPdfService.generateQrPdf(controlCode);
 
         if (responseBody == null || responseBody.length == 0) return ResponseEntity.notFound().build();
 
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.set(HttpHeaders.CONTENT_DISPOSITION,
-                String.format("attachment; filename=%s.pdf", referenceId));
+                String.format("attachment; filename=%s.pdf", controlCode));
         headers.setContentLength(responseBody.length);
 
         return ResponseEntity.ok()

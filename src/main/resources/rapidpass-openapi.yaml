@@ -275,7 +275,7 @@ paths:
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
 
-  '/registry/qr-codes/{referenceID}':
+  '/registry/qr-codes/{controlCode}':
     get:
       operationId: getQRCode
       tags:
@@ -284,11 +284,10 @@ paths:
         - dashboard
       summary: Retrieve the base64-encouded QR code
       parameters:
-        - name: referenceID
+        - name: controlCode
           in: path
           description: >-
-            Reference ID of the access pass request, mobile number for
-            individuals and plate numbers for vehicles
+            The control code of the Access Pass
           required: true
           schema:
             type: string

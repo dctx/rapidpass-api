@@ -36,18 +36,16 @@ public class QrPdfService {
      * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already
      * converted to bytes for easy sending to HTTP.
      *
-     * @param referenceId reference id of access pass
+     * @param controlCode controlCode of access pass
      * @return bytes of PDF file containing the QR code
      * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
      * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
-    public byte[] generateQrPdf(String referenceId) throws ParseException, IOException, WriterException {
+    public byte[] generateQrPdf(String controlCode) throws ParseException, IOException, WriterException {
 
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+        AccessPass accessPass = accessPassRepository.findByControlCode(controlCode);
 
-        if (accessPasses.size() == 0) throw new IllegalArgumentException("Failed to find AccessPass with referenceId=" + referenceId);
-
-        AccessPass accessPass = accessPasses.get(0);
+        if (accessPass == null) throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);
 
         File qrImage = generateQrImageData(accessPass);
 

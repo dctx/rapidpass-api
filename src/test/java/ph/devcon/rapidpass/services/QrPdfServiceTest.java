@@ -1,21 +1,5 @@
 package ph.devcon.rapidpass.services;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.google.common.collect.ImmutableList;
-import com.google.zxing.WriterException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import ph.devcon.dctx.rapidpass.model.ControlCode;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.time.OffsetDateTime;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -23,6 +7,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.time.OffsetDateTime;
+
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.google.zxing.WriterException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import ph.devcon.dctx.rapidpass.model.ControlCode;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
 /**
  * TODO: This Qr Pdf Service should only be responsible for PDF generation.
@@ -62,10 +63,10 @@ class QrPdfServiceTest {
                 .validTo(NOW.plusDays(1))
                 .build();
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString()))
-            .thenReturn(ImmutableList.of(accessPass));
+        when(accessPassRepository.findByControlCode(anyString()))
+            .thenReturn(accessPass);
 
-        final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+        final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
 
         assertThat(bytes.length, is(greaterThan(0)));
     }
@@ -89,10 +90,10 @@ class QrPdfServiceTest {
                 .validTo(NOW.plusDays(1))
                 .build();
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                .thenReturn(ImmutableList.of(accessPass));
+        when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                .thenReturn(accessPass);
 
-        final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+        final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
 
         assertThat(bytes.length, is(greaterThan(0)));
     }
@@ -120,10 +121,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -150,10 +151,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -178,10 +179,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
 
@@ -202,10 +203,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -232,10 +233,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -261,10 +262,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -286,10 +287,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -316,10 +317,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -341,10 +342,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
     }
@@ -371,10 +372,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -396,10 +397,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -425,10 +426,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -451,10 +452,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
     }
 
@@ -480,10 +481,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -506,10 +507,10 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(eq(accessPass.getReferenceID())))
-                    .thenReturn(ImmutableList.of(accessPass));
+            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
+                    .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getReferenceID());
+            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
         });
 
     }
