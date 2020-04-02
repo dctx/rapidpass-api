@@ -36,3 +36,6 @@ springfox:
 qrmaster:
   skey: rapidmasterkey
   controlkey: controlsecretkey
+
+testMobile: 09171234567
+testEmail: test@gmail.com
