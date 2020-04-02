@@ -294,6 +294,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
         Image qrcode = generateQrCode(qrCodeFile);
+        //processes the data that will be on the pdf
 
         //writes to the document
 
