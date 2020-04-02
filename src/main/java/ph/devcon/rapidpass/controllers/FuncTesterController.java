@@ -23,10 +23,10 @@ public class FuncTesterController {
     private final EmailNotificationService emailNotificationService;
     private final SMSNotificationService smsNotificationService;
 
-    @Value("${testMobile}")
+    @Value("${testMobile:}")
     private String testMobile = "";
 
-    @Value("${testEmail}")
+    @Value("${testEmail:}")
     private String testEmail = "";
 
 
@@ -41,7 +41,7 @@ public class FuncTesterController {
 
     @PostMapping("email")
     public HttpEntity<?> testEmail() throws NotificationException {
-        smsNotificationService.send(NotificationMessage.New()
+        emailNotificationService.send(NotificationMessage.New()
                 .to(testEmail)
                 .message("Hello World From RapidPass")
                 .from("do-no-reply@.com")

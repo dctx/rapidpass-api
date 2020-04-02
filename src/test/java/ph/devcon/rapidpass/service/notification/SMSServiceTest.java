@@ -1,22 +1,28 @@
 package ph.devcon.rapidpass.service.notification;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.web.client.RestTemplate;
+import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.services.notifications.NotificationException;
+import ph.devcon.rapidpass.services.notifications.NotificationMessage;
+import ph.devcon.rapidpass.services.notifications.NotificationService;
+import ph.devcon.rapidpass.services.notifications.SMSNotificationService;
+import ph.devcon.rapidpass.services.notifications.templates.SMSNotificationTemplate;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
-import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.services.notifications.NotificationException;
-import ph.devcon.rapidpass.services.notifications.NotificationMessage;
-import ph.devcon.rapidpass.services.notifications.NotificationService;
-import ph.devcon.rapidpass.services.notifications.templates.SMSNotificationTemplate;
-
-@SpringBootTest
+@SpringBootTest(classes = {SMSNotificationService.class})
 public class SMSServiceTest {
+
+    @MockBean
+    RestTemplate template;
 
     @Autowired
     @Qualifier("sms")
@@ -26,7 +32,7 @@ public class SMSServiceTest {
     // @Test
     public void testSMS() {
         NotificationMessage msg = NotificationMessage.New().
-            to("add phone number here").
+                to("add phone number here").
             message("This is a test").
             create();
         try {
