@@ -394,19 +394,19 @@ public class RegistryService {
      * Updates a referenceId with status of rapidPass.
      *
      * @param referenceId reference id to update
-     * @param requestResult   object containing update status
+     * @param rapidPassStatus   object containing update status
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
-    public RapidPass updateAccessPass(String referenceId, RequestResult requestResult) throws UpdateAccessPassException {
+    public RapidPass updateAccessPass(String referenceId, RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
-        final AccessPassStatus status = requestResult.getResult();
+        final AccessPassStatus status = rapidPassStatus.getStatus();
         switch (status) {
             case APPROVED:
                 updatedRapidPass = grant(referenceId);
                 break;
             case DECLINED:
-                updatedRapidPass = decline(referenceId, requestResult.getReason());
+                updatedRapidPass = decline(referenceId, rapidPassStatus.getRemarks());
                 break;
             case SUSPENDED:
                 updatedRapidPass = revoke(referenceId);
@@ -477,10 +477,10 @@ public class RegistryService {
 
                 if (pass != null) {
 
-                    RequestResult request = RequestResult.builder()
-                            .reason(null)
+                    RapidPassStatus request = RapidPassStatus.builder()
+                            .remarks(null)
                             .referenceId(pass.getReferenceId())
-                            .result(AccessPassStatus.APPROVED)
+                            .status(AccessPassStatus.APPROVED)
                             .build();
 
                     updateAccessPass(pass.getReferenceId(), request);

@@ -13,7 +13,7 @@ import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.models.RequestResult;
+import ph.devcon.rapidpass.models.RapidPassStatus;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -201,10 +201,10 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
         final RapidPass approved = instance.updateAccessPass(
                 "ref-id",
-                RequestResult.builder()
-                        .result(AccessPassStatus.APPROVED)
+                RapidPassStatus.builder()
+                        .status(AccessPassStatus.APPROVED)
                         .referenceId("ref-id")
-                        .reason(null) // No need for remarks if the user is approved
+                        .remarks(null) // No need for remarks if the user is approved
                         .build()
         );
 
@@ -232,10 +232,10 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RequestResult.builder()
-                .result(AccessPassStatus.DECLINED)
+        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPassStatus.builder()
+                .status(AccessPassStatus.DECLINED)
                 .referenceId("ref-id")
-                .reason("Some reason here")
+                .remarks("Some reason here")
                 .build()
         );
 

@@ -20,19 +20,19 @@ import javax.validation.constraints.NotNull;
  */
 @Builder
 @Data
-public class RequestResult {
+public class RapidPassStatus {
     private String referenceId;
 
     /**
      * Can either be "APPROVED" or "DECLINED"
      */
     @NotNull
-    private AccessPassStatus result;
+    private AccessPassStatus status;
 
     /**
      * This is the reason why their request was declined. This is null if the status is "APPROVED".
      *
      * This data matches to the table data column `updates`.
      */
-    private String reason;
+    private String remarks;
 }

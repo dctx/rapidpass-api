@@ -18,7 +18,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.models.RequestResult;
+import ph.devcon.rapidpass.models.RapidPassStatus;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -313,10 +313,10 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RequestResult approveRequest = RequestResult.builder()
+        RapidPassStatus approveRequest = RapidPassStatus.builder()
                 .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
-                .result(AccessPassStatus.APPROVED)
-                .reason(null)
+                .status(AccessPassStatus.APPROVED)
+                .remarks(null)
                 .build();
 
         when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
@@ -350,10 +350,10 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RequestResult approveRequest = RequestResult.builder()
+        RapidPassStatus approveRequest = RapidPassStatus.builder()
                 .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
-                .result(AccessPassStatus.APPROVED)
-                .reason(null)
+                .status(AccessPassStatus.APPROVED)
+                .remarks(null)
                 .build();
 
         // Registry will not return any data, which will case a thrown exception
@@ -383,10 +383,10 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RequestResult approveRequest = RequestResult.builder()
+        RapidPassStatus approveRequest = RapidPassStatus.builder()
                 .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
-                .result(AccessPassStatus.APPROVED)
-                .reason(null)
+                .status(AccessPassStatus.APPROVED)
+                .remarks(null)
                 .build();
 
         // Registry will not return any data, which will case a thrown exception
@@ -416,7 +416,7 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RequestResult approveRequest = RequestResult.builder()
+        RapidPassStatus approveRequest = RapidPassStatus.builder()
                 .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .build();
 
