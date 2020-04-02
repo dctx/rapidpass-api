@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,6 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -374,7 +372,7 @@ public class RegistryService {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
-            throw new NullPointerException("Failed to retrieve access pass with reference ID=" + referenceId + ".");
+            throw new UpdateAccessPassException("Cannot find the access pass to update (refId=" + referenceId + ").");
         }
 
         AccessPass accessPass = accessPassesRetrieved.get(0);

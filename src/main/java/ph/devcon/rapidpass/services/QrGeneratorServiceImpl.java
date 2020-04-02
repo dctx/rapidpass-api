@@ -9,18 +9,15 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ph.devcon.dctx.rapidpass.commons.HmacSha256;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
-import ph.devcon.dctx.rapidpass.commons.Rsa;
 import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -62,19 +59,19 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
 
         if (payload.getAporCode() == null || "".equals(payload.getAporCode())) {
-            throw new NullPointerException("The QrCodeData.aporCode is needed to generate the QR.");
+            throw new IllegalArgumentException("The QrCodeData.aporCode is needed to generate the QR.");
         }
 
         if (payload.getIdOrPlate() == null || "".equals(payload.getIdOrPlate())) {
-            throw new NullPointerException("The QrCodeData.getIdOrPlate is needed to generate the QR.");
+            throw new IllegalArgumentException("The QrCodeData.getIdOrPlate is needed to generate the QR.");
         }
 
         if (payload.getValidFrom() == 0) {
-            throw new NullPointerException("The QrCodeData.validFrom date is needed to generate the QR.");
+            throw new IllegalArgumentException("The QrCodeData.validFrom date is needed to generate the QR.");
         }
 
         if (payload.getValidUntil() == 0) {
-            throw new NullPointerException("The QrCodeData.validUntil is needed to generate the QR.");
+            throw new IllegalArgumentException("The QrCodeData.validUntil is needed to generate the QR.");
         }
 
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
