@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -83,8 +82,8 @@ public class RegistryRestController {
 //    }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RequestResult requestResult) throws UpdateAccessPassException {
-        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, requestResult);
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
+        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, rapidPassStatus);
 
         if (updatedRapidPass == null)
             throw new UpdateAccessPassException("Failed to update Access Pass because there was nothing updated.");
