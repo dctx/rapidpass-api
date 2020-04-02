@@ -14,9 +14,11 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -235,7 +237,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         passType.setFixedPosition(30, 190, 170);
 
 
-        PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getFirstPage());
+        PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getPage(2));
         Rectangle rectangle = new Rectangle(30, 30, 170, 210);
         canvas.setFillColor(ColorConstants.BLACK);
         canvas.rectangle(rectangle);
@@ -266,6 +268,19 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         log.debug("generating pdf at {}", filePath);
 
         Document document = createDocument(filePath);
+
+        document.setFont(prepareFont());
+        document.setMargins(-50, -50, -50, -50);
+
+        Image instructions = new Image(prepareImage(
+                ResourceUtils.getFile("classpath:qr-instructions.png")
+                        .getAbsolutePath())).scale(0.6f, 0.6f);
+
+        instructions.setFixedPosition(50, 70);
+
+        document.add(instructions);
+
+        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
         Image qrcode = generateQrCode(qrCodeFile);
 
