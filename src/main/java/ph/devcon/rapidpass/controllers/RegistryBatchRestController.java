@@ -71,9 +71,11 @@ public class RegistryBatchRestController {
                         "originName",
                         "originStreet",
                         "originCity",
+                        "originProvince",
                         "destName",
                         "destStreet",
                         "destCity",
+                        "destProvince",
                         "remarks"
                 };
 
