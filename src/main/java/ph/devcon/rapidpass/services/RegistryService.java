@@ -387,21 +387,20 @@ public class RegistryService {
      */
     public RapidPass updateAccessPass(String referenceId, RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
-        final AccessPassStatus status = requestResult.getResult();
-
+        final AccessPassStatus status = rapidPassStatus.getStatus();
         switch (status) {
-                case APPROVED:
-                    updatedRapidPass = grant(referenceId);
-                    break;
-                case DECLINED:
-                    updatedRapidPass = decline(referenceId, requestResult.getReason());
-                    break;
-                case SUSPENDED:
-                    updatedRapidPass = revoke(referenceId);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Request Status not yet supported!");
-            }
+            case APPROVED:
+                updatedRapidPass = grant(referenceId);
+                break;
+            case DECLINED:
+                updatedRapidPass = decline(referenceId, rapidPassStatus.getRemarks());
+                break;
+            case SUSPENDED:
+                updatedRapidPass = revoke(referenceId);
+                break;
+            default:
+                throw new IllegalArgumentException("Request Status not yet supported!");
+        }
 
         log.debug("Sending out notifs for {}", referenceId);
         // push APPROVED/DENIED notifications.
