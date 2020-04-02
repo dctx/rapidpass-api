@@ -26,7 +26,7 @@ public class RapidPassStatus {
     /**
      * Can either be "APPROVED" or "DECLINED"
      */
-    @NotNull
+    @NotNull(message = "status cannot be blank")
     private AccessPassStatus status;
 
     /**

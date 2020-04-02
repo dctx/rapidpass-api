@@ -238,7 +238,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestResult'
+              $ref: '#/components/schemas/RapidPassStatus'
 
       responses:
         '200':
@@ -665,7 +665,7 @@ components:
           type: integer
           format: int64
           description: total number of rows in whole dataset
-    RequestResult:
+    RapidPassStatus:
       type: object
       description: The status of an access pass
       properties:
@@ -673,11 +673,11 @@ components:
           type: string
           description: The unique identifier for an access pass. Initially this will be mobile numbers (which isn't uniqe), but will later be implemented as unique identifiers.
           example: 09171234567
-        result:
+        status:
           type: string
           description: The status of the access pass.
           enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
-        reason:
+        remarks:
           type: string
           description: The reason why the access pass was declined.
           example: Incomplete form.
