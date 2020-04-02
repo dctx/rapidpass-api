@@ -65,7 +65,7 @@ paths:
       operationId: requestAccessPass
       description: >
         Called from the registration or web site registration page to register a user.
-        All new access passes will have a status of 'pending'.
+        All new access passes will have a status of 'PENDING'.
       requestBody:
         content:
           application/json:
@@ -238,7 +238,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RapidPass'
+              $ref: '#/components/schemas/RequestResult'
+
       responses:
         '200':
           description: >-
@@ -526,7 +527,7 @@ components:
             status:
               type: string
               description: status of the access pass
-              enum: [PENDING, APPROVED, DECLINED]
+              enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
             validFrom:
               type: string
               description: start date of the access pass's validity period
@@ -664,3 +665,21 @@ components:
           type: integer
           format: int64
           description: total number of rows in whole dataset
+    RequestResult:
+      type: object
+      description: The status of an access pass
+      properties:
+        referenceId:
+          type: string
+          description: The unique identifier for an access pass. Initially this will be mobile numbers (which isn't uniqe), but will later be implemented as unique identifiers.
+          example: 09171234567
+        result:
+          type: string
+          description: The status of the access pass.
+          enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
+        reason:
+          type: string
+          description: The reason why the access pass was declined.
+          example: Incomplete form.
+
+

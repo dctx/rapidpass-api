@@ -58,7 +58,6 @@ public class RegistryRestController {
             if (!StringUtils.isBlank(queryFilter.getAporType())) {
                 aporType = queryFilter.getAporType();
             }
-        } else {
         }
 
         return ResponseEntity.ok().body(registryService.findAllRapidPasses(aporType, Optional.ofNullable(pageView)));
@@ -84,17 +83,13 @@ public class RegistryRestController {
 //    }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        if (!AccessPassStatus.isValid(rapidPass.getStatus())) {
-            return ResponseEntity.badRequest().body("Unknown status code.");
-        } else {
-            try {
-                RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
-                return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
-            } catch (UpdateAccessPassException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        }
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RequestResult requestResult) throws UpdateAccessPassException {
+        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, requestResult);
+
+        if (updatedRapidPass == null)
+            throw new UpdateAccessPassException("Failed to update Access Pass because there was nothing updated.");
+
+        return ResponseEntity.ok().body(updatedRapidPass);
     }
 
     @DeleteMapping("/access-passes/{referenceId}")
