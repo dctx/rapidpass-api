@@ -14,11 +14,14 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
@@ -27,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -90,8 +94,12 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static PdfFont prepareFont() throws IOException {
         log.debug("preparing font from {}", WORK_SANS);
 
+        ClassPathResource instructionsClassPath = new ClassPathResource("fonts/WorkSans-VariableFont_wght.ttf");
+        File file = instructionsClassPath.getFile();
+        byte[] fontBytes = Files.readAllBytes(file.toPath());
+
         // Prepare the font
-        final FontProgram fontProgram = FontProgramFactory.createFont("fonts/WorkSans-VariableFont_wght.ttf");
+        final FontProgram fontProgram = FontProgramFactory.createFont(file.toPath().toString());
 
         PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
 
@@ -266,6 +274,36 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         log.debug("generating pdf at {}", filePath);
 
         Document document = createDocument(filePath);
+
+        // Font disabled first (Darren and Jonas)
+         document.setFont(prepareFont());
+        document.setMargins(-50, -50, -50, -50);
+
+        String path = "";
+
+        ClassPathResource instructionsClassPath = null;
+
+        switch (rapidPass.getPassType()) {
+            case INDIVIDUAL:
+                instructionsClassPath = new ClassPathResource("i-instructions.png");
+                break;
+            case VEHICLE:
+                instructionsClassPath = new ClassPathResource("v-instructions.png");
+                break;
+            default:
+                throw new IllegalStateException("Failed to determine pass type.");
+        }
+
+        File resource = instructionsClassPath.getFile();
+
+
+        Image instructions = new Image(prepareImage(resource.getPath())).scale(0.9f, 0.9f);
+
+        instructions.setFixedPosition(0, 20);
+
+        document.add(instructions);
+
+        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
         Image qrcode = generateQrCode(qrCodeFile);
 
