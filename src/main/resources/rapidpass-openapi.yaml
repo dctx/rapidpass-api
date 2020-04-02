@@ -118,56 +118,36 @@ paths:
         - bulk
       summary: downloads a list of access passes in csv format
       parameters:
-        - name: lastSyncDttm
+        - name: lastSyncOn
           in: query
-          description: 'indicates last sync of checkpoint device'
+          description: 'indicates last sync of checkpoint device in Epoch format'
           required: true
           schema:
-            type: string
-            format: date-time
+            type: integer
+            format: int64
         - name: pageSize
           in: query
           description: 'size of page requested'
-          required: true
+          required: false
           schema:
             type: integer
-        - name: pageNum
+            format: int32
+            default: 1000
+        - name: pageNumber
           in: query
           description: 'page number requested'
-          required: true
+          required: false
           schema:
             type: integer
+            format: int32
+            default: 0
       responses:
         '200':
           description: json containing page metadata and csv data
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      meta:
-                        description: paging metadata
-                        type: object
-                        properties:
-                          pageNum:
-                            type: integer
-                          pageSize:
-                            type: integer
-                          pageTotal:
-                            type: integer
-                          rowTotal:
-                            type: integer
-                            description: total number of rows in whole dataset
-                      csv:
-                        description: Array of arrays containing dataset. 1st row is always the column header. Subsequent rows are the dataset
-                        type: array
-                        items:
-                          type: array
-                          items:
-                            type: string
+                $ref: '#/components/schemas/PagedCSV'
 
     post:
       tags:
@@ -373,7 +353,7 @@ paths:
       tags:
         - inspector
         - public
-      summary: Verify if the plate number is registered or not
+      summary: Verify if the controlCode is valid or not
       parameters:
         - name: controlCode
           in: path
@@ -661,3 +641,26 @@ components:
           type: string
           description: A JSON Web Token that will be used to authenticate with the other API requests
           example: abcd.efgh.ijkl
+    PagedCSV:
+      type: object
+      description: Paged CSV with meta data for client to know what page has been downloaded
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMetaData'
+        csv:
+          description: string containg CSV
+          type: string
+    PageMetaData:
+      description: Page Meta Data
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+        totalRows:
+          type: integer
+          format: int64
+          description: total number of rows in whole dataset
