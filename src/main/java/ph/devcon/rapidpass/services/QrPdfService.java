@@ -33,12 +33,13 @@ public class QrPdfService {
     private final AccessPassRepository accessPassRepository;
 
     /**
-     * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already converted to bytes for easy sending to HTTP.
+     * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already
+     * converted to bytes for easy sending to HTTP.
      *
      * @param referenceId reference id of access pass
      * @return bytes of PDF file containing the QR code
-     * @throws IOException     on error writing the PDF
-     * @throws WriterException on error writing the QR code
+     * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
+     * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
     public byte[] generateQrPdf(String referenceId) throws ParseException, IOException, WriterException {
 
@@ -48,20 +49,26 @@ public class QrPdfService {
 
         AccessPass accessPass = accessPasses.get(0);
 
-        return generateQrPdf(accessPass);
+        File qrImage = generateQrImageData(accessPass);
+
+        // generate qr pdf
+        PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
+
+        String temporaryFile = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
+
+        final File qrPdf = pdfGenerator.generatePdf(temporaryFile, qrImage, RapidPass.buildFrom(accessPass));
+
+        // send over as bytes
+        return Files.readAllBytes(qrPdf.toPath());
     }
 
     /**
-     * Generates a PDF containing the QR code pertaining to the passed in Access Pass. The PDF file is already converted to bytes for easy sending to HTTP.
-     *
-     * @param accessPass Access Pass
-     * @return bytes of PDF file containing the QR code
-     * @throws IOException     on error writing the PDF
-     * @throws WriterException on error writing the QR code
+     * @param accessPass The access pass whose QR will be generated.
+     * @return a file which points to the image data
+     * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
+     * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
-    public byte[] generateQrPdf(AccessPass accessPass) throws IOException, WriterException, ParseException {
-
-
+    public File generateQrImageData(AccessPass accessPass) throws IOException, WriterException {
         if ("".equals(accessPass.getName()) || accessPass.getName() == null) {
             throw new IllegalArgumentException("AccessPass.name is a required parameter for rendering the PDF.");
         }
@@ -94,16 +101,6 @@ public class QrPdfService {
         final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass);
 
         // generate qr image file
-        final File qrImage = qrGeneratorService.generateQr(qrCodeData);
-
-        // generate qr pdf
-        PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
-
-        String temporaryFile = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
-
-        final File qrPdf = pdfGenerator.generatePdf(temporaryFile, qrImage, RapidPass.buildFrom(accessPass));
-
-        // send over as bytes
-        return Files.readAllBytes(qrPdf.toPath());
+        return qrGeneratorService.generateQr(qrCodeData);
     }
 }
