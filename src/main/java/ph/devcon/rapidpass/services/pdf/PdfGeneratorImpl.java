@@ -23,7 +23,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
@@ -100,7 +100,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         byte[] fontBytes = Files.readAllBytes(file.toPath());
 
         // Prepare the font
-        final FontProgram fontProgram = FontProgramFactory.createFont(file.toPath().toString());
+        final FontProgram fontProgram = FontProgramFactory.createFont(fontBytes);
 
         PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
 
@@ -134,20 +134,12 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph generateTitle(RapidPass rapidPass) {
 
         Paragraph header = new Paragraph();
-        header.setFixedPosition(220, 40, 350);
+        header.setFixedPosition(220, 45, 350);
         header.setFontSize(54);
         header.setTextAlignment(TextAlignment.LEFT);
         header.setMarginTop(-50);
         header.setBold();
-
-        // checks if pass type is individual or vehicle
-        final String passType = rapidPass.getPassType().toString().toLowerCase();
-        if (passType.equals("individual")) {
-            header.add(rapidPass.getControlCode());
-
-        } else if (passType.equals("vehicle")) {
-            header.add(rapidPass.getIdentifierNumber());
-        }
+        header.add(rapidPass.getControlCode());
 
         return header;
 
@@ -161,18 +153,22 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         int defaultFontSize = 21;
 
-        nameParagraph.setFixedPosition(220, 170, 340);
-        nameParagraph.setFixedLeading(24);
-        companyParagraph.setFixedPosition(220, 115, 340);
-        companyParagraph.setFixedLeading(26);
-
-        // checks if pass type is individual or vehicle
-        final String passType = rapidPass.getPassType().toString().toLowerCase();
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
+            nameParagraph.setFixedPosition(220, 175, 340);
+            nameParagraph.setFixedLeading(24);
+            companyParagraph.setFixedPosition(220, 120, 340);
+            companyParagraph.setFixedLeading(26);
+        } else if (PassType.VEHICLE.equals(rapidPass.getPassType())) {
+            nameParagraph.setFixedPosition(220, 180, 340);
+            nameParagraph.setFixedLeading(24);
+            companyParagraph.setFixedPosition(220, 125, 340);
+            companyParagraph.setFixedLeading(26);
+        }
 
         String name = rapidPass.getName();
 
         if ("VEHICLE".equals(rapidPass.getPassType().toString())) {
-            name = "PLATE# " + name;
+            name = "PLATE# " + rapidPass.getPlateNumber();
         }
 
         String company = rapidPass.getCompany();
@@ -276,7 +272,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Document document = createDocument(filePath);
 
-         document.setFont(prepareFont());
+//        document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
         String path = "";
