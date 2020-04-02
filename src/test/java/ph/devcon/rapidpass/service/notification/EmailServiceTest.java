@@ -86,13 +86,14 @@ public class EmailServiceTest{
     public void testSmsFormatting_failIndividual() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .name("Darren")
                 .reason("Arbitrary reason here")
                 .passType(PassType.INDIVIDUAL)
                 .build();
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Your entry has been rejected due to Arbitrary reason here. Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
     }
 
     @Test
@@ -112,13 +113,14 @@ public class EmailServiceTest{
     public void testSmsFormatting_failVehicle() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
+                .name("Darren")
                 .reason("Arbitrary reason here")
                 .passType(PassType.VEHICLE)
                 .build();
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Your entry for your vehicle has been rejected due to Arbitrary reason here. Please contact RapidPass-dctx@devcon.ph} for further concerns and inquiry."));
+        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
     }
 
     @Test

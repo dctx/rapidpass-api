@@ -120,15 +120,14 @@ class AccessPassNotifierServiceTest {
 
     @Test
     void buildDeclinedEmailMessage() {
-        final NotificationMessage declinedMessage = instance.buildDeclinedEmailMessage(PassType.INDIVIDUAL, "my-email.com", "blue balls");
-        assertThat(declinedMessage.getMessage(), is("Your entry has been rejected due to blue balls." +
-                " Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+        final NotificationMessage declinedMessage = instance.buildDeclinedEmailMessage(PassType.INDIVIDUAL, "my-email.com", "Jonas", "blue balls");
+        assertThat(declinedMessage.getMessage(), is("Hi, Jonas. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
     }
 
     @Test
     void buildDeclinedSmsMessage() {
         final NotificationMessage declinedSms = instance.buildDeclinedSmsMessage(PassType.INDIVIDUAL, "091579123", "Jonas", "1234567234");
-        assertThat(declinedSms.getMessage(), is("Hi, Jonas. Your RapidPass has been rejected. Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+        assertThat(declinedSms.getMessage(), is("Hi, Jonas. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
     }
 
     @Test

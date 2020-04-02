@@ -74,7 +74,7 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
             return new Formatter().format(ACCESS_GRANTED, shortenedName(), vehiclePlateNumber, controlCode, url).toString();
         } else {
             // 129 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Hi, %s. Your RapidPass for vehicle has been rejected. Please contact %s for further concerns and inquiry.";
+            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
             return new Formatter().format(ACCESS_DECLINED, shortenedName(), RAPIDPASS_EMAIL).toString();
         }
     }
@@ -90,7 +90,7 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
             return new Formatter().format(ACCESS_GRANTED, shortenedName(), controlCode, url).toString();
         } else {
             // 115 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Hi, %s. Your RapidPass has been rejected. Please contact %s for further concerns and inquiry.";
+            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
             return new Formatter().format(ACCESS_DECLINED, shortenedName(), RAPIDPASS_EMAIL).toString();
         }
     }
