@@ -136,7 +136,6 @@ class PdfGeneratorImplTest {
 
     void generatePdf(RapidPass rapidPass, QrCodeData testPayload) throws IOException, WriterException, ParseException {
 
-
         assertThat(testPayload, not(equalTo(null)));
 
         // todo, will want to scale processing to streams instead of persisting to filespace once we get many users! in memory is always faster!
