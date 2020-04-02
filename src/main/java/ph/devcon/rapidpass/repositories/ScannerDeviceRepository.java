@@ -10,4 +10,6 @@ public interface ScannerDeviceRepository extends JpaRepository<ScannerDevice, In
     List<ScannerDevice> findAll();
 
     ScannerDevice findById(String id);
+
+    ScannerDevice findByUniqueDeviceId(String imei);
 }

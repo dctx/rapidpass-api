@@ -1,14 +1,25 @@
 package ph.devcon.rapidpass.controllers;
 
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.swagger.annotations.Api;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.models.CheckpointAuthRequest;
+import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.ICheckpointService;
+import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 
 /**
@@ -19,14 +30,21 @@ import ph.devcon.rapidpass.services.ICheckpointService;
 @Slf4j
 @Api(tags = "checkpoint")
 @RequestMapping("/checkpoint")
+@RequiredArgsConstructor
 public class CheckpointRestController
 {
-    private ICheckpointService checkpointService;
+    private static final String JWT_GROUP = "checkpoint";
 
-    @Autowired
+    private final ICheckpointService checkpointService;
+    private final JwtSecretsConfig jwtSecretsConfig;
+
+    @Value("${qrmaster.skey}")
+    private String qrSkey;
+
+    /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
         this.checkpointService = checkpointService;
-    }
+    }*/
 
     @GetMapping("/access-passes/control-codes/{control-code}")
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
@@ -71,5 +89,26 @@ public class CheckpointRestController
             response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
+    }
+
+    @PostMapping("/auth")
+    public ResponseEntity<?> authenticateDevice(@RequestBody CheckpointAuthRequest authRequest) {
+
+        final ScannerDevice scannerDevice = this.checkpointService.retrieveDeviceByImei(authRequest.getImei());
+
+        OffsetDateTime expiry = OffsetDateTime.now();
+        // TODO replace with default expiry
+        expiry.plusHours(24);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("group", JWT_GROUP);
+        claims.put("sub", scannerDevice.getUniqueDeviceId());
+        claims.put("exp", expiry.toEpochSecond());
+
+        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
+
+        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder().qrKey(qrSkey).accessCode(jwt).build();
+
+        return ResponseEntity.ok().body(authResponse);
     }
 }

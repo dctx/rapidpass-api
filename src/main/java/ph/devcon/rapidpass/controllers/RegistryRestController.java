@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -133,6 +135,13 @@ public class RegistryRestController {
         }
         List<MobileDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
         return ResponseEntity.ok().body(scannerDevices);
+    }
+
+    @PostMapping("/scanner-devices")
+    public ResponseEntity<?> registerScannerDevice(@RequestBody MobileDevice deviceRequest) {
+        ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
+
+        return ResponseEntity.status(201).body(ImmutableMap.of("deviceId", deviceRequest.getImei()));
     }
 
     @PostMapping("/auth")

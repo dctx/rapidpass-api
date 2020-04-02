@@ -509,13 +509,28 @@ public class RegistryService {
         if (pageView.isPresent()) {
             return scannerDeviceRepository.findAll(pageView.get()).toList()
                     .stream()
-                    .map(MobileDevice::buildFro)
+                    .map(MobileDevice::buildFrom)
                     .collect(Collectors.toList());
         } else {
             return scannerDeviceRepository.findAll()
                     .stream()
-                    .map(MobileDevice::buildFro)
+                    .map(MobileDevice::buildFrom)
                     .collect(Collectors.toList());
         }
+    }
+
+    public ScannerDevice registerScannerDevice(MobileDevice request) {
+        ScannerDevice device = scannerDeviceRepository.findByUniqueDeviceId(request.getImei());
+        if (device == null) {
+            device = new ScannerDevice();
+        }
+
+        device.setUniqueDeviceId(request.getImei());
+        device.setBrand(request.getBrand());
+        device.setMobileNumber(request.getMobileNumber());
+        device.setModel(request.getModel());
+        device.setStatus(request.getStatus());
+
+        return scannerDeviceRepository.saveAndFlush(device);
     }
 }
