@@ -1,8 +1,13 @@
 package ph.devcon.rapidpass.services.pdf;
 
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -21,6 +26,7 @@ import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,6 +45,10 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
      */
     private static final String DCTX_LOGO_PATH = "light-bg.png";
 
+    /**
+     * Path to Work Sans Font
+     */
+    private static final String WORK_SANS = "resources/Work_Sans/WorkSans-VariableFont_wght.ttf";
 
     public PdfGeneratorImpl() {
         // noop
@@ -50,13 +60,15 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
      * @param filepath path where pdf is saved
      * @return PDF document
      * @throws FileNotFoundException error creating file.
+     * @throws IOException
      */
-    private static Document createDocument(String filepath) throws FileNotFoundException {
+    private static Document createDocument(String filepath) throws FileNotFoundException, IOException {
 
         PdfDocument pdfdocument = new PdfDocument(new PdfWriter(filepath));
 
         pdfdocument.setDefaultPageSize(PageSize.A4);
         Document document = new Document(pdfdocument);
+        document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
         return document;
@@ -76,9 +88,26 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return ImageDataFactory.create(imagePath);
     }
 
+    /**
+     * Prepare the font
+     *
+     * @return font program
+     * @throws IOException
+     */
+    private static PdfFont prepareFont() throws IOException {
+        log.debug("preparing font from {}", WORK_SANS);
+
+        // Prepare the font
+        FontProgram fontProgram = FontProgramFactory.createFont(WORK_SANS);
+        PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
+
+        return font;
+    }
+
     private static Paragraph generateRapidPassHeader() {
+
         Paragraph header = new Paragraph();
-        header.setFontSize(54);
+        header.setFontSize(56);
         header.setTextAlignment(TextAlignment.CENTER);
         header.setBold();
         header.setFixedPosition(50, 730, 500);
@@ -102,7 +131,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph generateTitle(RapidPass rapidPass) {
 
         Paragraph header = new Paragraph();
-        header.setFixedPosition(220, 50, 350);
+        header.setFixedPosition(220, 40, 350);
         header.setFontSize(54);
         header.setTextAlignment(TextAlignment.LEFT);
         header.setMarginTop(-50);
@@ -127,10 +156,12 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Paragraph companyParagraph = new Paragraph();
         Paragraph[] results = new Paragraph[2];
 
-        int defaultFontSize = 20;
+        int defaultFontSize = 21;
 
-        nameParagraph.setFixedPosition(220, 180, 340);
-        companyParagraph.setFixedPosition(220, 120, 340);
+        nameParagraph.setFixedPosition(220, 170, 340);
+        nameParagraph.setFixedLeading(24);
+        companyParagraph.setFixedPosition(220, 115, 340);
+        companyParagraph.setFixedLeading(26);
 
         // checks if pass type is individual or vehicle
         final String passType = rapidPass.getPassType().toString().toLowerCase();
@@ -161,14 +192,16 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Instant validUntilInstant = DateFormatter.parse(rapidPass.getValidUntil());
         String validUntil = DateFormatter.readable(validUntilInstant, "MM/dd");
 
+        int defaultFontSize = 24;
+
         Paragraph details = new Paragraph();
-        details.setFontSize(20);
-        details.setFixedPosition(220, 30, 230);
+        details.setFontSize(defaultFontSize);
+        details.setFixedPosition(220, 25, 230);
         details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
         Paragraph date = new Paragraph();
-        date.setFontSize(20);
-        date.setFixedPosition(370, 30, 230);
+        date.setFontSize(defaultFontSize);
+        date.setFixedPosition(400, 25, 230);
         date.add(validUntil).setCharacterSpacing(1.3f);
         date.setBold();
 
@@ -235,7 +268,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     public File generatePdf(String filePath,
                                    File qrCodeFile,
                                    RapidPass rapidPass)
-            throws FileNotFoundException, MalformedURLException, ParseException {
+            throws FileNotFoundException, MalformedURLException, ParseException, IOException {
         log.debug("generating pdf at {}", filePath);
 
         Document document = createDocument(filePath);
@@ -278,6 +311,5 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         log.debug("saved pdf at {}", pdfFile.getAbsolutePath());
         return pdfFile;
     }
-
 
 }
