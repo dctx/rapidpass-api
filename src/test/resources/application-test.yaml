@@ -46,3 +46,6 @@ jwt:
 qrmaster:
   skey: rapidmasterkey
   controlkey: controlsecretkey
+
+testMobile: 0912345
+testEmail: spam.this.gmail.com
