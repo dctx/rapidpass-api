@@ -314,13 +314,13 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RequestResult approveRequest = RequestResult.builder()
-                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .result(AccessPassStatus.APPROVED)
                 .reason(null)
                 .build();
 
-        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
-                .thenReturn(TEST_VEHICLE_PASS);
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
+                .thenReturn(TEST_VEHICLE_RAPID_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
 
@@ -348,16 +348,16 @@ class RegistryRestControllerTest {
     public void grantOrDenyRequest_testNothingUpdated() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RequestResult approveRequest = RequestResult.builder()
-                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .result(AccessPassStatus.APPROVED)
                 .reason(null)
                 .build();
 
         // Registry will not return any data, which will case a thrown exception
-        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
                 .thenReturn(null);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
@@ -367,7 +367,7 @@ class RegistryRestControllerTest {
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
-                put(urlPath, TEST_VEHICLE_PASS.getReferenceId())
+                put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
@@ -381,16 +381,16 @@ class RegistryRestControllerTest {
     public void grantOrDenyRequest_testThrowUpdateException() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RequestResult approveRequest = RequestResult.builder()
-                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .result(AccessPassStatus.APPROVED)
                 .reason(null)
                 .build();
 
         // Registry will not return any data, which will case a thrown exception
-        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(approveRequest)))
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
                 .thenThrow(new RegistryService.UpdateAccessPassException("No AccessPass found"));
 
         final String urlPath = "/registry/access-passes/{referenceID}";
@@ -400,7 +400,7 @@ class RegistryRestControllerTest {
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
-                put(urlPath, TEST_VEHICLE_PASS.getReferenceId())
+                put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
@@ -414,10 +414,10 @@ class RegistryRestControllerTest {
     public void grantOrDenyRequest_missingParameters() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RequestResult approveRequest = RequestResult.builder()
-                .referenceId(TEST_VEHICLE_PASS.getReferenceId())
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .build();
 
         final String urlPath = "/registry/access-passes/{referenceID}";
@@ -427,7 +427,7 @@ class RegistryRestControllerTest {
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
-                put(urlPath, TEST_VEHICLE_PASS.getReferenceId())
+                put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
