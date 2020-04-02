@@ -22,6 +22,7 @@ import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
@@ -269,7 +270,8 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Document document = createDocument(filePath);
 
-        document.setFont(prepareFont());
+        // Font disabled first (Darren and Jonas)
+        // document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
         String path = "";
@@ -284,8 +286,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         }
 
         Image instructions = new Image(prepareImage(
-                ResourceUtils.getFile(path)
-                        .getAbsolutePath())).scale(0.9f, 0.9f);
+                ResourceUtils.getFile(path).getPath())).scale(0.9f, 0.9f);
 
         instructions.setFixedPosition(0, 20);
 
