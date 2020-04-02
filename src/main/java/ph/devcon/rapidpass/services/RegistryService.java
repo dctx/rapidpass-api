@@ -23,6 +23,8 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
+import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -43,6 +45,7 @@ public class RegistryService {
 
     private final RegistryRepository registryRepository;
     private final RegistrantRepository registrantRepository;
+    private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
     private final ScannerDeviceRepository scannerDeviceRepository;
@@ -56,53 +59,21 @@ public class RegistryService {
     /**
      * Creates a new {@link RapidPass} with PENDING status.
      *
+     * @see <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64">documentation</a> on the flow.
+     *
      * @throws IllegalArgumentException If the plate number is empty and the pass type is for a vehicle
      * @throws IllegalArgumentException Attempting to create a new access pass while an existing pending or approved pass exists
      * @param rapidPassRequest rapid passs request.
      * @return new rapid pass with PENDING status
      */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        // see
         OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
-        // conditional validation for the plate number
-        if (rapidPassRequest.getPassType().equals(PassType.VEHICLE) &&
-                (rapidPassRequest.getPlateNumber() == null || rapidPassRequest.getPlateNumber().trim().isEmpty())) {
-            throw new IllegalArgumentException("plate number must not be empty");
-        }
-
-        // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
-        final List<AccessPass> existingAccessPasses = new ArrayList<>();
-        existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getMobileNumber()));
-        existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDOrderByValidToDesc(rapidPassRequest.getIdentifierNumber()));
-
-        final Optional<AccessPass> existingAccessPass;
-
-        existingAccessPass = existingAccessPasses
-                .stream()
-                // get all valid PENDING or APPROVED rapid pass requests for referenceid
-                .filter(accessPass -> {
-                    final AccessPassStatus status = AccessPassStatus.valueOf(accessPass.getStatus().toUpperCase());
-                    switch (status) {
-                        case PENDING:
-                        case APPROVED:
-                            return true;
-                        default:
-                            return false;
-                    }
-                })
-                .findAny();
-
-        if (existingAccessPass.isPresent()) {
-            log.debug("  existing pass exists!");
-            throw new IllegalArgumentException(
-                    String.format("A PENDING/APPROVED RapidPass already exists for %s",
-                            (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) ?
-                            rapidPassRequest.getIdentifierNumber() : rapidPassRequest.getPlateNumber()));
-        }
+        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+        validation.validate(rapidPassRequest);
 
         // check if registrant is already in the system
         Registrant registrant = registrantRepository.findByReferenceId(rapidPassRequest.getIdentifierNumber());
@@ -469,27 +440,35 @@ public class RegistryService {
 
         log.info("Process Batch Approving of AccessPass");
         List<String> passes = new ArrayList<String>();
+
+        // Validation
+        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+
         RapidPass pass;
         int counter = 1;
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
             try {
-                pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
+                RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+                validation.validate(request);
+
+                pass = this.newRequestPass(request);
 
                 if (pass != null) {
 
-                    RequestResult request = RequestResult.builder()
+                    RequestResult requestToUpdateStatus = RequestResult.builder()
                             .reason(null)
                             .referenceId(pass.getReferenceId())
                             .result(AccessPassStatus.APPROVED)
                             .build();
 
-                    updateAccessPass(pass.getReferenceId(), request);
+                    updateAccessPass(pass.getReferenceId(), requestToUpdateStatus);
 
                     passes.add("Record " + counter++ + ": Success. ");
                 }
             } catch ( Exception e ) {
                 passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
-                continue;
             }
         }
         return passes;
