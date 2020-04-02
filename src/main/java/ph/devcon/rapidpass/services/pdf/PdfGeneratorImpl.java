@@ -48,7 +48,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     /**
      * Path to Work Sans Font
      */
-    private static final String WORK_SANS = "fonts/WorkSans-VariableFont_wght.ttf";
+    private static final String WORK_SANS = "src/main/resources/fonts/WorkSans-VariableFont_wght.ttf";
 
     public PdfGeneratorImpl() {
         // noop
@@ -68,7 +68,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         pdfdocument.setDefaultPageSize(PageSize.A4);
         Document document = new Document(pdfdocument);
-        document.setFont(prepareFont());
+//        document.setFont(prepareFont()); FIXME
         document.setMargins(-50, -50, -50, -50);
 
         return document;
@@ -95,11 +95,11 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
      * @throws IOException
      */
     private static PdfFont prepareFont() throws IOException {
-        final String fontPath = ResourceUtils.getFile("classpath:" + WORK_SANS).getAbsolutePath();
-        log.debug("preparing font from {}", fontPath);
+        log.debug("preparing font from {}", WORK_SANS);
 
         // Prepare the font
-        FontProgram fontProgram = FontProgramFactory.createFont(fontPath);
+        final FontProgram fontProgram = FontProgramFactory.createFont("fonts/WorkSans-VariableFont_wght.ttf");
+
         PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
 
         return font;
