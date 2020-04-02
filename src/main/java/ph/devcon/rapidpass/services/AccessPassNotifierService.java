@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
@@ -106,11 +107,14 @@ public class AccessPassNotifierService {
         switch (accessPassStatus) {
             case APPROVED:
                 String accessPassUrl = generateAccessPassUrl(accessPassReferenceId);
+                String controlCode = accessPass.getControlCode();
+
                 emailMessage = buildApprovedEmailMessage(
                         passType,
                         accessPassUrl,
-                        accessPassReferenceId,
+                        controlCode,
                         email);
+
                 smsMessage = buildApprovedSmsMessage(
                         passType,
                         accessPassUrl,
@@ -208,19 +212,22 @@ public class AccessPassNotifierService {
     /**
      * Builds an email message to send.
      *
-     * @param accessPassUrl link to qr code pdf download
-     * @param email         email to send message to
-     * @return built message for email service
-     * @throws IOException     on error generating qr code
-     * @throws WriterException on error generating qr code
+     * @param passType      The type of pass, whether for vehicle or individual.
+     * @param controlCode   The control code, which is needed for QR code generation, to be added to the PDF.
+     * @param accessPassUrl The generated URL that will allow a user to download their QR Code as a PDF.
+     * @param email         The recipient of the email.
+     *
+     * @return A {@link NotificationMessage} that holds necessary data for the email service.
+     * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
+     * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
     NotificationMessage buildApprovedEmailMessage(PassType passType,
                                                   String accessPassUrl,
-                                                  String accessPassReferenceId,
+                                                  String controlCode,
                                                   String email)
             throws IOException, WriterException, ParseException {
 
-        byte[] generatedQrData = qrPdfService.generateQrPdf(accessPassReferenceId);
+        byte[] generatedQrData = qrPdfService.generateQrPdf(controlCode);
 
         return NotificationMessage.New()
                 .from(mailFrom)
