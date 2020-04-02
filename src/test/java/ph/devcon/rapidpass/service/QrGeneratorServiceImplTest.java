@@ -6,7 +6,6 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
@@ -76,9 +75,9 @@ class QrGeneratorServiceImplTest {
     }
 
     @Test
-    void failToGenerateQr_idOrPlateMissing() throws IOException, WriterException, NullPointerException {
+    void failToGenerateQr_idOrPlateMissing() {
 
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
 
             // This causes the exception
             String emptyIdOrPlate = "";
@@ -98,9 +97,9 @@ class QrGeneratorServiceImplTest {
     }
 
     @Test
-    void failToGenerateQr_aporCodeMissing() throws IOException, WriterException, NullPointerException {
+    void failToGenerateQr_aporCodeMissing() {
 
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
 
             // This causes the exception
             String emptyIdOrPlate = "";

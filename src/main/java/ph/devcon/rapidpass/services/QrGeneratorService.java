@@ -20,6 +20,7 @@ public interface QrGeneratorService {
      * @return QR code file image
      * @throws IOException     on errors in json processing or saving QR to file
      * @throws WriterException on errors in generating QR code
+     * @throws IllegalArgumentException if there are missing data from the {@link QrCodeData} payload.
      */
-    File generateQr(QrCodeData payload) throws IOException, WriterException;
+    File generateQr(QrCodeData payload) throws IOException, WriterException, IllegalArgumentException;
 }
