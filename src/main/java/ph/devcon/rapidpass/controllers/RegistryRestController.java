@@ -84,8 +84,8 @@ public class RegistryRestController {
 //    }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RequestResult requestResult) throws UpdateAccessPassException {
-        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, requestResult);
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
+        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, rapidPassStatus);
 
         if (updatedRapidPass == null)
             throw new UpdateAccessPassException("Failed to update Access Pass because there was nothing updated.");

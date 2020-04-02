@@ -29,6 +29,7 @@ import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RegistryService {
 
-    public static final int DEFAULT_VALIDITY_DAYS = 15;
+    public static final int DEFAULT_VALIDITY_DAYS = 7;
 
     private final RegistryRepository registryRepository;
     private final RegistrantRepository registrantRepository;
@@ -130,8 +131,9 @@ public class RegistryService {
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
         accessPass.setDestinationProvince(rapidPassRequest.getDestProvince());
+        // just set the validity period to today until the request is approved
         accessPass.setValidFrom(now);
-        accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
+        accessPass.setValidTo(now);
         accessPass.setDateTimeCreated(now);
         accessPass.setDateTimeUpdated(now);
         accessPass.setRemarks(rapidPassRequest.getRemarks());
@@ -306,6 +308,20 @@ public class RegistryService {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 0) {
             AccessPass accessPass = accessPasses.get(0);
+
+            // is it April 12 yet?
+            OffsetDateTime now = OffsetDateTime.now();
+            OffsetDateTime aprilTwelve = OffsetDateTime.of(2020,4,12,23,59,
+                    59,99999, ZoneOffset.ofHours(8));
+            OffsetDateTime validUntil = now;
+            if (OffsetDateTime.now().isAfter(aprilTwelve)) {
+                validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
+            } else {
+                validUntil = aprilTwelve;
+            }
+            accessPass.setValidTo(validUntil);
+            accessPass.setValidFrom(now);
+
             accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
             accessPass = accessPassRepository.saveAndFlush(accessPass);
             return RapidPass.buildFrom(accessPass);
@@ -345,7 +361,7 @@ public class RegistryService {
             throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
         }
 
-        if (reason != null && status == AccessPassStatus.DECLINED) {
+        if (reason != null && (status == AccessPassStatus.DECLINED || status == AccessPassStatus.SUSPENDED)) {
             accessPass.setUpdates(reason);
         }
 
@@ -365,19 +381,19 @@ public class RegistryService {
      * Updates a referenceId with status of rapidPass.
      *
      * @param referenceId reference id to update
-     * @param requestResult   object containing update status
+     * @param rapidPassStatus   object containing update status
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
-    public RapidPass updateAccessPass(String referenceId, RequestResult requestResult) throws UpdateAccessPassException {
+    public RapidPass updateAccessPass(String referenceId, RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
-        final AccessPassStatus status = requestResult.getResult();
+        final AccessPassStatus status = rapidPassStatus.getStatus();
         switch (status) {
             case APPROVED:
                 updatedRapidPass = grant(referenceId);
                 break;
             case DECLINED:
-                updatedRapidPass = decline(referenceId, requestResult.getReason());
+                updatedRapidPass = decline(referenceId, rapidPassStatus.getRemarks());
                 break;
             case SUSPENDED:
                 updatedRapidPass = revoke(referenceId);
@@ -457,13 +473,13 @@ public class RegistryService {
 
                 if (pass != null) {
 
-                    RequestResult requestToUpdateStatus = RequestResult.builder()
-                            .reason(null)
+                    RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
+                            .remarks(null)
                             .referenceId(pass.getReferenceId())
-                            .result(AccessPassStatus.APPROVED)
+                            .status(AccessPassStatus.APPROVED)
                             .build();
 
-                    updateAccessPass(pass.getReferenceId(), requestToUpdateStatus);
+                    updateAccessPass(pass.getReferenceId(), rapidPassStatus);
 
                     passes.add("Record " + counter++ + ": Success. ");
                 }
