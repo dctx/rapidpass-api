@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,6 @@ import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -176,7 +174,7 @@ public class RegistryService {
 
         return RapidPass.buildFrom(accessPass);
     }
-    
+
     public static class ControlCodeGenerator {
         /**
          * Generates a control code.
@@ -261,7 +259,7 @@ public class RegistryService {
      * @param referenceId the reference ID, which is the user's mobile number.
      * @return An access pass
      */
-    private AccessPass findByNonUniqueReferenceId(String referenceId) {
+    public AccessPass findByNonUniqueReferenceId(String referenceId) {
         // AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
         // TODO: how to deal with 'renewals'? i.e.
 
@@ -330,21 +328,6 @@ public class RegistryService {
 
         AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
         return RapidPass.buildFrom(savedAccessPass);
-    }
-
-    /**
-     * Used when the inspector or approver wishes to view more details about the
-     *
-     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @return Data stored on the database
-     */
-    public RapidPass find(String referenceId) {
-
-        AccessPass accessPass = findByNonUniqueReferenceId(referenceId);
-
-        if (accessPass != null) return RapidPass.buildFrom(accessPass);
-
-        return null;
     }
 
     public RapidPass grant(String referenceId) throws UpdateAccessPassException {
