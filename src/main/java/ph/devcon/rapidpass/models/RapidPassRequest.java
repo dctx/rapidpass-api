@@ -82,9 +82,11 @@ public final class RapidPassRequest {
                 .originName(csvData.getOriginName())
                 .originStreet(csvData.getOriginStreet())
                 .originCity(csvData.getOriginCity())
+                .originProvince(csvData.getOriginProvince())
                 .destName(csvData.getDestName())
                 .destStreet(csvData.getDestStreet())
                 .destCity(csvData.getDestCity())
+                .destProvince(csvData.getDestProvince())
                 .remarks(csvData.getRemarks())
                 .build();
     }

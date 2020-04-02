@@ -19,8 +19,10 @@ public class RapidPassCSVdata {
     private String originName;
     private String originStreet;
     private String originCity;
+    private String originProvince;
     private String destName;
     private String destStreet;
     private String destCity;
+    private String destProvince;
     private String remarks;
 }
