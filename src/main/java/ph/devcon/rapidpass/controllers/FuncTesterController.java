@@ -44,7 +44,7 @@ public class FuncTesterController {
         emailNotificationService.send(NotificationMessage.New()
                 .to(testEmail)
                 .message("Hello World From RapidPass")
-                .from("do-no-reply@.com")
+                .from("do-no-reply@me.com")
                 .create());
         return ResponseEntity.ok("OK");
     }

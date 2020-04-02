@@ -32,6 +32,9 @@ public class SMSNotificationService implements NotificationService {
     @Value("${semaphore.url}")
     private String url;
 
+    @Value("${semaphore.sender:RAPIDPASS}")
+    private String semaphoreSender;
+
     @Override
     public void send(NotificationMessage message) throws NotificationException {
         log.debug("sending SMS msg to {}", message.getTo());
@@ -45,10 +48,7 @@ public class SMSNotificationService implements NotificationService {
         params.add("apikey", this.apiKey);
         params.add("number", message.getTo());
         params.add("message", message.getMessage());
-        String sender = message.getFrom();
-        if (sender != null && !StringUtils.isEmpty(sender)) {
-            params.add("sendername", sender);
-        }
+        params.add("sendername", semaphoreSender);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
