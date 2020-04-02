@@ -272,11 +272,22 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
-        Image instructions = new Image(prepareImage(
-                ResourceUtils.getFile("classpath:qr-instructions.png")
-                        .getAbsolutePath())).scale(0.6f, 0.6f);
+        String path = "";
 
-        instructions.setFixedPosition(50, 70);
+        switch (rapidPass.getPassType()) {
+            case INDIVIDUAL:
+                path = "classpath:i-instructions.png";
+                break;
+            case VEHICLE:
+                path = "classpath:v-instructions.png";
+                break;
+        }
+
+        Image instructions = new Image(prepareImage(
+                ResourceUtils.getFile(path)
+                        .getAbsolutePath())).scale(0.9f, 0.9f);
+
+        instructions.setFixedPosition(0, 20);
 
         document.add(instructions);
 
