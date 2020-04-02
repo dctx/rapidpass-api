@@ -40,6 +40,7 @@ public class RapidPass {
     private String validFrom;
     private String validUntil;
     private String remarks;
+    private String updates;
 
     public static RapidPass buildFrom(AccessPass accessPass) {
         // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
@@ -61,6 +62,7 @@ public class RapidPass {
                 .destCity(accessPass.getDestinationCity())
                 .destProvince(accessPass.getDestinationProvince())
                 .remarks(accessPass.getRemarks())
+                .updates(accessPass.getUpdates())
                 .build();
     }
 }
