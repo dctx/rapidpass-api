@@ -36,3 +36,6 @@ springfox:
 qrmaster:
   skey: rapidmasterkey
   controlkey: controlsecretkey
+
+testMobile: asdf
+testEmail: test@gmail.com
