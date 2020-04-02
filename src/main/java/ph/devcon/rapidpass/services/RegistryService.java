@@ -373,8 +373,7 @@ public class RegistryService {
         final RapidPass updatedRapidPass;
         final AccessPassStatus status = requestResult.getResult();
 
-        try {
-            switch (status) {
+        switch (status) {
                 case APPROVED:
                     updatedRapidPass = grant(referenceId);
                     break;
@@ -387,22 +386,20 @@ public class RegistryService {
                 default:
                     throw new IllegalArgumentException("Request Status not yet supported!");
             }
-        } finally {
-            // put notification in finally block: so even with the exception we can still send the notifications.
-            log.debug("Sending out notifs for {}", referenceId);
-            // push APPROVED/DENIED notifications.
-            // TODO: someday let's do this asynchronously
-            accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
-                    .stream()
-                    .findFirst()
-                    .ifPresent(accessPass -> {
-                        try {
-                            accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
-                        } catch (ParseException | IOException | WriterException e) {
-                            log.error("Error sending out notifications for " + accessPass, e);
-                        }
-                    });
-        }
+
+        log.debug("Sending out notifs for {}", referenceId);
+        // push APPROVED/DENIED notifications.
+        // TODO: someday let's do this asynchronously
+        accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
+                .stream()
+                .findFirst()
+                .ifPresent(accessPass -> {
+                    try {
+                        accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
+                    } catch (ParseException | IOException | WriterException e) {
+                        log.error("Error sending out notifications for " + accessPass, e);
+                    }
+                });
 
 
         return updatedRapidPass;
