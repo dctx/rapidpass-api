@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.swagger.annotations.Api;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
@@ -28,17 +30,21 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 @Slf4j
 @Api(tags = "checkpoint")
 @RequestMapping("/checkpoint")
+@RequiredArgsConstructor
 public class CheckpointRestController
 {
-    private ICheckpointService checkpointService;
+    private static final String JWT_GROUP = "checkpoint";
+
+    private final ICheckpointService checkpointService;
+    private final JwtSecretsConfig jwtSecretsConfig;
 
     @Value("${qrmaster.skey}")
     private String qrSkey;
 
-    @Autowired
+    /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
         this.checkpointService = checkpointService;
-    }
+    }*/
 
     @GetMapping("/access-passes/control-codes/{control-code}")
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
@@ -95,11 +101,11 @@ public class CheckpointRestController
         expiry.plusHours(24);
 
         Map<String, Object> claims = new HashMap<>();
+        claims.put("group", JWT_GROUP);
         claims.put("sub", scannerDevice.getUniqueDeviceId());
         claims.put("exp", expiry.toEpochSecond());
 
-        // TODO replace with secret
-        String jwt = JwtGenerator.generateToken(claims, "");
+        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
 
         CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder().qrKey(qrSkey).accessCode(jwt).build();
 
