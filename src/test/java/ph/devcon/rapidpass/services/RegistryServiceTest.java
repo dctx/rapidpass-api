@@ -257,7 +257,6 @@ class RegistryServiceTest {
                 "ref-id",
                 RapidPassStatus.builder()
                         .status(AccessPassStatus.APPROVED)
-                        .referenceId("ref-id")
                         .remarks(null) // No need for remarks if the user is approved
                         .build()
         );
@@ -288,7 +287,6 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
         final RapidPass approved = instance.updateAccessPass("ref-id", RapidPassStatus.builder()
                 .status(AccessPassStatus.DECLINED)
-                .referenceId("ref-id")
                 .remarks("Some reason here")
                 .build()
         );
