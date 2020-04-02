@@ -457,13 +457,13 @@ public class RegistryService {
 
                 if (pass != null) {
 
-                    RapidPassStatus request = RapidPassStatus.builder()
+                    RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
                             .remarks(null)
                             .referenceId(pass.getReferenceId())
                             .status(AccessPassStatus.APPROVED)
                             .build();
 
-                    updateAccessPass(pass.getReferenceId(), requestToUpdateStatus);
+                    updateAccessPass(pass.getReferenceId(), rapidPassStatus);
 
                     passes.add("Record " + counter++ + ": Success. ");
                 }
