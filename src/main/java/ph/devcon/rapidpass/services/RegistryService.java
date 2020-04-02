@@ -372,33 +372,38 @@ public class RegistryService {
     public RapidPass updateAccessPass(String referenceId, RequestResult requestResult) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
         final AccessPassStatus status = requestResult.getResult();
-        switch (status) {
-            case APPROVED:
-                updatedRapidPass = grant(referenceId);
-                break;
-            case DECLINED:
-                updatedRapidPass = decline(referenceId, requestResult.getReason());
-                break;
-            case SUSPENDED:
-                updatedRapidPass = revoke(referenceId);
-                break;
-            default:
-                throw new IllegalArgumentException("Request Status not yet supported!");
+
+        try {
+            switch (status) {
+                case APPROVED:
+                    updatedRapidPass = grant(referenceId);
+                    break;
+                case DECLINED:
+                    updatedRapidPass = decline(referenceId, requestResult.getReason());
+                    break;
+                case SUSPENDED:
+                    updatedRapidPass = revoke(referenceId);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Request Status not yet supported!");
+            }
+        } finally {
+            // put notification in finally block: so even with the exception we can still send the notifications.
+            log.debug("Sending out notifs for {}", referenceId);
+            // push APPROVED/DENIED notifications.
+            // TODO: someday let's do this asynchronously
+            accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
+                    .stream()
+                    .findFirst()
+                    .ifPresent(accessPass -> {
+                        try {
+                            accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
+                        } catch (ParseException | IOException | WriterException e) {
+                            log.error("Error sending out notifications for " + accessPass, e);
+                        }
+                    });
         }
 
-        log.debug("Sending out notifs for {}", referenceId);
-        // push APPROVED/DENIED notifications.
-        // TODO: someday let's do this asynchronously
-        accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
-                .stream()
-                .findFirst()
-                .ifPresent(accessPass -> {
-                    try {
-                        accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
-                    } catch (ParseException | IOException | WriterException e) {
-                        log.error("Error sending out notifications for " + accessPass, e);
-                    }
-                });
 
         return updatedRapidPass;
     }
