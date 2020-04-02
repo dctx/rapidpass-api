@@ -30,7 +30,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable() // just to simplify things
                 .addFilterAfter(jwtAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
                 .authorizeRequests()
-                // authenticating errything!
+                .antMatchers("/actuator/prometheus").permitAll() // allow metrics endpoint to be scraped
+                // authenticating errything else!
                 .anyRequest()
                 .authenticated();
 
