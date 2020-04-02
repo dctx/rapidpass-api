@@ -133,6 +133,54 @@ class PdfGeneratorImplTest {
         generatePdf(mockRapidPassData, testPayload);
     }
 
+    @Test
+    @Ignore
+    void generatePdfForVehicle() throws Exception {
+
+
+        // Mock data
+        Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
+        Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
+
+        String formattedStart = DateFormatter.machineFormat(MAR_23_2020_UTC);
+        String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
+
+        RapidPass mockRapidPassData = RapidPass.builder()
+                .passType(INDIVIDUAL)
+                .name("Jonas Jose Almendras Domingo")
+                .controlCode("A2C4EFV")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .plateNumber("ABC 123")
+                .aporType("NR")
+                .company("BPI")
+                .validFrom(formattedStart)
+                .validUntil(formattedEnd)
+                .build();
+
+        // Create QR cod payload
+        QrCodeData testPayload = null;
+
+        if (INDIVIDUAL.equals(mockRapidPassData.getPassType())) {
+            testPayload = QrCodeData.individual()
+                    .idOrPlate(mockRapidPassData.getIdentifierNumber())
+                    .controlCode(CC_1234_ENCRYPTED)
+                    .apor(mockRapidPassData.getAporType())
+                    .validFrom((int)(MAR_23_2020_UTC.getTime() / 1000))
+                    .validUntil((int)(MAR_27_2020_UTC.getTime() / 1000))
+                    .build();
+        } else if (VEHICLE.equals(mockRapidPassData.getPassType())) {
+            testPayload = QrCodeData.vehicle()
+                    .idOrPlate(mockRapidPassData.getIdentifierNumber())
+                    .controlCode(CC_1234_ENCRYPTED)
+                    .apor(mockRapidPassData.getAporType())
+                    .validFrom((int)(MAR_23_2020_UTC.getTime() / 1000))
+                    .validUntil((int)(MAR_23_2020_UTC.getTime() / 1000))
+                    .build();
+        }
+
+        generatePdf(mockRapidPassData, testPayload);
+    }
 
     void generatePdf(RapidPass rapidPass, QrCodeData testPayload) throws IOException, WriterException, ParseException {
 
