@@ -48,7 +48,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     /**
      * Path to Work Sans Font
      */
-    private static final String WORK_SANS = "resources/Work_Sans/WorkSans-VariableFont_wght.ttf";
+    private static final String WORK_SANS = "src/main/resources/fonts/WorkSans-VariableFont_wght.ttf";
 
     public PdfGeneratorImpl() {
         // noop
@@ -68,7 +68,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         pdfdocument.setDefaultPageSize(PageSize.A4);
         Document document = new Document(pdfdocument);
-        document.setFont(prepareFont());
+//        document.setFont(prepareFont()); FIXME
         document.setMargins(-50, -50, -50, -50);
 
         return document;
@@ -98,7 +98,8 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         log.debug("preparing font from {}", WORK_SANS);
 
         // Prepare the font
-        FontProgram fontProgram = FontProgramFactory.createFont(WORK_SANS);
+        final FontProgram fontProgram = FontProgramFactory.createFont("fonts/WorkSans-VariableFont_wght.ttf");
+
         PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
 
         return font;
@@ -256,19 +257,19 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     /**
      * Generates a pdf at designated file path.
-     *
+     * <p>
      * Note: We use RapidPass, because AccessPass doesn't directly have easy builders to build with (for testing).
      * Otherwise, we could be using AccessPass as the parameter. In any case, using RapidPass as the POJO  is sufficient.
      *
-     * @param filePath          path of file where to save pdf
-     * @param qrCodeFile        Image file of the generated QR code
-     * @param rapidPass         RapidPass model that contains the details to be printed on the PDF.
+     * @param filePath   path of file where to save pdf
+     * @param qrCodeFile Image file of the generated QR code
+     * @param rapidPass  RapidPass model that contains the details to be printed on the PDF.
      * @return file object of generated pdf
      */
     public File generatePdf(String filePath,
-                                   File qrCodeFile,
-                                   RapidPass rapidPass)
-            throws FileNotFoundException, MalformedURLException, ParseException, IOException {
+                            File qrCodeFile,
+                            RapidPass rapidPass)
+            throws ParseException, IOException {
         log.debug("generating pdf at {}", filePath);
 
         Document document = createDocument(filePath);
