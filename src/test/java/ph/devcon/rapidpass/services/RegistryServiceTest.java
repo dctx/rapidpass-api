@@ -13,6 +13,7 @@ import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RequestResult;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -25,9 +26,8 @@ import java.util.Calendar;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
@@ -140,10 +140,11 @@ class RegistryServiceTest {
     }
 
     @Test
-    void newRequestPass_EXISTING_PASS() {
+    void newRequestPass_throwErrorIfAPassAlreadyExists() {
 
         final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
+
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .identifierNumber(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
@@ -159,18 +160,16 @@ class RegistryServiceTest {
         // mock registry always returns a registry
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
-        // repository returns an access pass!
-        when(mockAccessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any()))
+
+        // This is what causes the error: there was already an existing pass
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString()))
                 .thenReturn(singletonList(samplePendingAccessPass));
 
-
-        try {
+        assertThrows(IllegalArgumentException.class, () -> {
             this.instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
-            fail("should throw exception");
-        } catch (Exception e) {
-            e.printStackTrace();
-            assertThat(e.getMessage(), containsString("A PENDING/APPROVED RapidPass already exists"));
-        }
+        });
+
+
     }
 
     @Test
@@ -200,7 +199,14 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("APPROVED").build());
+        final RapidPass approved = instance.updateAccessPass(
+                "ref-id",
+                RequestResult.builder()
+                        .result(AccessPassStatus.APPROVED)
+                        .referenceId("ref-id")
+                        .reason(null) // No need for remarks if the user is approved
+                        .build()
+        );
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("APPROVED"));
@@ -226,7 +232,12 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("DECLINED").build());
+        final RapidPass approved = instance.updateAccessPass("ref-id", RequestResult.builder()
+                .result(AccessPassStatus.DECLINED)
+                .referenceId("ref-id")
+                .reason("Some reason here")
+                .build()
+        );
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("DECLINED"));

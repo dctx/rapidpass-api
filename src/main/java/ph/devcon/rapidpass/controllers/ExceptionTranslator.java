@@ -54,7 +54,9 @@ public class ExceptionTranslator {
     @ExceptionHandler(RegistryService.UpdateAccessPassException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, String> failedToUpdateAccessPass(RegistryService.UpdateAccessPassException ex) {
+    public Map<String, String> updateAcessPassError(RegistryService.UpdateAccessPassException ex) {
         return ImmutableMap.of("message", ex.getMessage());
     }
+
+
 }
