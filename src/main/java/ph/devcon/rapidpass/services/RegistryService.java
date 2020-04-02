@@ -416,6 +416,7 @@ public class RegistryService {
                     }
                 });
 
+
         return updatedRapidPass;
     }
 

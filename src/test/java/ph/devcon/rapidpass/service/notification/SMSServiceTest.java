@@ -65,7 +65,7 @@ public class SMSServiceTest {
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your RapidPass has been rejected. Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class SMSServiceTest {
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your RapidPass for vehicle has been rejected. Please contact RapidPass-dctx@devcon.ph for further concerns and inquiry."));
+        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
     }
 
     @Test

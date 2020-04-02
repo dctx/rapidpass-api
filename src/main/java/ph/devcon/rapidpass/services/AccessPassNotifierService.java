@@ -120,7 +120,7 @@ public class AccessPassNotifierService {
                         accessPass.getIdentifierNumber());
                 break;
             case DECLINED:
-                emailMessage = buildDeclinedEmailMessage(passType, email, "TODO");
+                emailMessage = buildDeclinedEmailMessage(passType, email, accessPass.getName(), "TODO");
                 smsMessage = buildDeclinedSmsMessage(
                         passType,
                         mobile,
@@ -196,6 +196,7 @@ public class AccessPassNotifierService {
     NotificationMessage buildDeclinedSmsMessage(PassType passType, String mobile, String name, String vehiclePlateNumber) {
         return NotificationMessage.New()
                 .from(smsFrom)
+                .to(mobile)
                 .message(SMSNotificationTemplate.builder()
                         .name(name)
                         .passType(passType)
@@ -238,11 +239,12 @@ public class AccessPassNotifierService {
                 .create();
     }
 
-    NotificationMessage buildDeclinedEmailMessage(PassType passType, String email, String reason) {
+    NotificationMessage buildDeclinedEmailMessage(PassType passType, String email, String name, String reason) {
         return NotificationMessage.New()
                 .from(mailFrom)
                 .to(email)
                 .message(EmailNotificationTemplate.builder()
+                        .name(name)
                         .passType(passType)
                         .reason(reason).build().compose())
                 .create()

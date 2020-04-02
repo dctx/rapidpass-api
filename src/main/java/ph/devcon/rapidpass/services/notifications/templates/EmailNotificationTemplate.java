@@ -23,6 +23,8 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
      */
     private String reason;
 
+    private String name;
+
     /**
      * This is a required field if the access pass was granted. It should point to the Qr Code.
      */
@@ -53,8 +55,8 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
             return new Formatter().format(ACCESS_GRANTED, url).toString();
         } else {
             // 129 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Your entry for your vehicle has been rejected due to %s. Please contact %s} for further concerns and inquiry.";
-            return new Formatter().format(ACCESS_DECLINED, reason, RAPIDPASS_EMAIL).toString();
+            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
+            return new Formatter().format(ACCESS_DECLINED, name, RAPIDPASS_EMAIL).toString();
         }
     }
 
@@ -68,8 +70,8 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
             return new Formatter().format(ACCESS_GRANTED, url).toString();
         } else {
             // 115 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Your entry has been rejected due to %s. Please contact %s for further concerns and inquiry.";
-            return new Formatter().format(ACCESS_DECLINED, reason, RAPIDPASS_EMAIL).toString();
+            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
+            return new Formatter().format(ACCESS_DECLINED, name, RAPIDPASS_EMAIL).toString();
         }
     }
 }
