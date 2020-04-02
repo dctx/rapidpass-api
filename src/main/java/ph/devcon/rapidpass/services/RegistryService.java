@@ -103,7 +103,7 @@ public class RegistryService {
         if (existingAccessPass.isPresent()) {
             log.debug("  existing pass exists!");
             throw new IllegalArgumentException(
-                    String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
+                    String.format("A PENDING/APPROVED RapidPass already exists for %s",
                             (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) ?
                             rapidPassRequest.getIdentifierNumber() : rapidPassRequest.getPlateNumber()));
         }
@@ -491,7 +491,7 @@ public class RegistryService {
                 if (pass != null) {
                     pass.setStatus(AccessPassStatus.APPROVED.toString());
                     updateAccessPass(pass.getReferenceId(), pass);
-                    passes.add("Record " + counter++ + ": Success. ");
+                    passes.add("Record " + counter++ + ": Successfully registered record. ");
                 }
             } catch ( Exception e ) {
                 passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
