@@ -288,12 +288,12 @@
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="registrar" validate="true"/>
     </changeSet>
-<!--    <changeSet author="eric (generated)" id="1585195345769-17">-->
-<!--        <addForeignKeyConstraint baseColumnNames="registrar_user_id" baseTableName="scanner_device"-->
-<!--                                 constraintName="scanner_device_registrar_user_id_fk" deferrable="false"-->
-<!--                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"-->
-<!--                                 referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>-->
-<!--    </changeSet>-->
+    <!--    <changeSet author="eric (generated)" id="1585195345769-17">-->
+    <!--        <addForeignKeyConstraint baseColumnNames="registrar_user_id" baseTableName="scanner_device"-->
+    <!--                                 constraintName="scanner_device_registrar_user_id_fk" deferrable="false"-->
+    <!--                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"-->
+    <!--                                 referencedColumnNames="id" referencedTableName="registrar_user" validate="true"/>-->
+    <!--    </changeSet>-->
     <changeSet author="eric" id="unique-device-id-scanner-device">
         <addUniqueConstraint schemaName="public"
                              tableName="scanner_device"
@@ -431,9 +431,20 @@
     </changeSet>
     <changeSet author="RoyDonasco" id="addLastUsed">
         <addColumn
-                   schemaName="public"
-                   tableName="access_pass">
+                schemaName="public"
+                tableName="access_pass">
             <column name="last_used_on" type="TIMESTAMP without time zone"/>
         </addColumn>
+    </changeSet>
+    <changeSet author="PrescillaTonacao" id="seed-registrant-user">
+        <loadData encoding="UTF-8"
+                  file="registrar-user-seed.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="registrar_user"
+                  usePreparedStatements="true">
+        </loadData>
     </changeSet>
 </databaseChangeLog>

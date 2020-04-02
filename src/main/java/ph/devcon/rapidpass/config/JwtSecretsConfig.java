@@ -3,8 +3,11 @@ package ph.devcon.rapidpass.config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.util.List;
 
@@ -27,6 +30,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "jwt")
 public class JwtSecretsConfig {
 
+    private static Logger log = LoggerFactory.getLogger(JwtGenerator.class);
     /**
      * List of groups and their secrets.
      */
@@ -45,7 +49,7 @@ public class JwtSecretsConfig {
 
     public String findGroupSecret(final String group) {
         for (final JwtGroupSecret secret : this.secrets) {
-            if (secret.group == group) {
+            if (secret.group.equals(group)) {
                 return secret.secret;
             }
         }
