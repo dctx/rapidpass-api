@@ -195,7 +195,7 @@ class RegistryServiceTest {
             fail("should throw exception");
         } catch (Exception e) {
             e.printStackTrace();
-            assertThat(e.getMessage(), containsString("A PENDING/APPROVED RapidPass already exists"));
+            assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
         }
     }
 
