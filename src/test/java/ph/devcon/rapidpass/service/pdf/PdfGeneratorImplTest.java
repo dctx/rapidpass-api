@@ -156,6 +156,6 @@ class PdfGeneratorImplTest {
         assertThat("pdf file is created!", pdfFile, is(FileMatchers.aFileWithSize(greaterThan(0L))));
 
         // cleanup!
-        pdfFile.delete();
+//        pdfFile.delete();
     }
 }

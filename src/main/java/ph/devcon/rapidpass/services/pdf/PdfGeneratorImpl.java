@@ -21,6 +21,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -93,8 +95,12 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static PdfFont prepareFont() throws IOException {
         log.debug("preparing font from {}", WORK_SANS);
 
+        ClassPathResource instructionsClassPath = new ClassPathResource("fonts/WorkSans-VariableFont_wght.ttf");
+        File file = instructionsClassPath.getFile();
+        byte[] fontBytes = Files.readAllBytes(file.toPath());
+
         // Prepare the font
-        final FontProgram fontProgram = FontProgramFactory.createFont("fonts/WorkSans-VariableFont_wght.ttf");
+        final FontProgram fontProgram = FontProgramFactory.createFont(file.toPath().toString());
 
         PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
 
@@ -270,23 +276,28 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Document document = createDocument(filePath);
 
-        // Font disabled first (Darren and Jonas)
-        // document.setFont(prepareFont());
+         document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
         String path = "";
 
+        ClassPathResource instructionsClassPath = null;
+
         switch (rapidPass.getPassType()) {
             case INDIVIDUAL:
-                path = "classpath:i-instructions.png";
+                instructionsClassPath = new ClassPathResource("i-instructions.png");
                 break;
             case VEHICLE:
-                path = "classpath:v-instructions.png";
+                instructionsClassPath = new ClassPathResource("v-instructions.png");
                 break;
+            default:
+                throw new IllegalStateException("Failed to determine pass type.");
         }
 
-        Image instructions = new Image(prepareImage(
-                ResourceUtils.getFile(path).getPath())).scale(0.9f, 0.9f);
+        File resource = instructionsClassPath.getFile();
+
+
+        Image instructions = new Image(prepareImage(resource.getPath())).scale(0.9f, 0.9f);
 
         instructions.setFixedPosition(0, 20);
 
