@@ -65,7 +65,7 @@ paths:
       operationId: requestAccessPass
       description: >
         Called from the registration or web site registration page to register a user.
-        All new access passes will have a status of 'pending'.
+        All new access passes will have a status of 'PENDING'.
       requestBody:
         content:
           application/json:
@@ -118,21 +118,37 @@ paths:
         - bulk
       summary: downloads a list of access passes in csv format
       parameters:
-        - name: compressed
+        - name: lastSyncOn
           in: query
-          description: 'specifies whether to compress the csv file or not, default is false'
+          description: 'indicates last sync of checkpoint device in Epoch format'
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: pageSize
+          in: query
+          description: 'size of page requested'
           required: false
           schema:
-            type: string
+            type: integer
+            format: int32
+            default: 1000
+        - name: pageNumber
+          in: query
+          description: 'page number requested'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
       responses:
         '200':
-          description: Download initiated.
+          description: json containing page metadata and csv data
           content:
-            text/csv:
+            application/json:
               schema:
-                type: string
-                format: byte[]
-                description: csv file containing all valid access passes
+                $ref: '#/components/schemas/PagedCSV'
+
     post:
       tags:
         - dashboard
@@ -222,7 +238,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RapidPass'
+              $ref: '#/components/schemas/RequestResult'
+
       responses:
         '200':
           description: >-
@@ -337,7 +354,7 @@ paths:
       tags:
         - inspector
         - public
-      summary: Verify if the plate number is registered or not
+      summary: Verify if the controlCode is valid or not
       parameters:
         - name: controlCode
           in: path
@@ -510,7 +527,7 @@ components:
             status:
               type: string
               description: status of the access pass
-              enum: [PENDING, APPROVED, DECLINED]
+              enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
             validFrom:
               type: string
               description: start date of the access pass's validity period
@@ -625,3 +642,44 @@ components:
           type: string
           description: A JSON Web Token that will be used to authenticate with the other API requests
           example: abcd.efgh.ijkl
+    PagedCSV:
+      type: object
+      description: Paged CSV with meta data for client to know what page has been downloaded
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMetaData'
+        csv:
+          description: string containg CSV
+          type: string
+    PageMetaData:
+      description: Page Meta Data
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+        totalRows:
+          type: integer
+          format: int64
+          description: total number of rows in whole dataset
+    RequestResult:
+      type: object
+      description: The status of an access pass
+      properties:
+        referenceId:
+          type: string
+          description: The unique identifier for an access pass. Initially this will be mobile numbers (which isn't uniqe), but will later be implemented as unique identifiers.
+          example: 09171234567
+        result:
+          type: string
+          description: The status of the access pass.
+          enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
+        reason:
+          type: string
+          description: The reason why the access pass was declined.
+          example: Incomplete form.
+
+

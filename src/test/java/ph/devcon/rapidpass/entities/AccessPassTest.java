@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.entities;
 
 import org.junit.jupiter.api.Test;
+import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import java.time.OffsetDateTime;
@@ -20,7 +21,7 @@ class AccessPassTest {
     final static AccessPass INDIVIDUAL_ACCESS_PASS = AccessPass.builder().
             status("APPROVED")
             .passType("INDIVIDUAL")
-            .controlCode("123456")
+            .controlCode(ControlCode.encode(38))
             .idType("Driver's License")
             .identifierNumber("N0124734213")
             .name("Darren Karl A. Sapalo")
@@ -32,7 +33,7 @@ class AccessPassTest {
     final static AccessPass VEHICLE_ACCESS_PASS = AccessPass.builder().
             status("APPROVED")
             .passType("VEHICLE")
-            .controlCode("123456")
+            .controlCode(ControlCode.encode(38))
             .idType("Driver's License")
             .identifierNumber("ABCD 1234")
             .aporType("AB")
@@ -82,16 +83,24 @@ class AccessPassTest {
     @Test
     void toQrCodeData_INDIVIDUAL() {
         final QrCodeData qrCodeData = AccessPass.toQrCodeData(INDIVIDUAL_ACCESS_PASS);
+
+        String controlCode = INDIVIDUAL_ACCESS_PASS.getControlCode();
+
+        long decodedControlCode = ControlCode.decode(controlCode);
+
         assertThat(qrCodeData.getAporCode(), is(INDIVIDUAL_ACCESS_PASS.getAporType()));
-        assertThat(qrCodeData.getControlCode(), is(Long.parseLong(INDIVIDUAL_ACCESS_PASS.getControlCode())));
+        assertThat(qrCodeData.getControlCode(), is(decodedControlCode));
         assertThat(qrCodeData.isVehiclePass(), is(false));
     }
 
     @Test
     void toQrCodeData_VEHICLE() {
         final QrCodeData qrCodeData = AccessPass.toQrCodeData(VEHICLE_ACCESS_PASS);
+
+        long decodedControlCode = ControlCode.decode(VEHICLE_ACCESS_PASS.getControlCode());
+
         assertThat(qrCodeData.getAporCode(), is(VEHICLE_ACCESS_PASS.getAporType()));
-        assertThat(qrCodeData.getControlCode(), is(Long.parseLong(VEHICLE_ACCESS_PASS.getControlCode())));
+        assertThat(qrCodeData.getControlCode(), is(decodedControlCode));
         assertThat(qrCodeData.isVehiclePass(), is(true));
     }
 }

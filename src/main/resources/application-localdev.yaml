@@ -33,6 +33,6 @@ springfox:
       v2:
         path: /api-docs
 
-
 qrmaster:
   skey: rapidmasterkey
+  controlkey: controlsecretkey

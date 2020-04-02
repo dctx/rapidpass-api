@@ -4,10 +4,23 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.AuthService;
@@ -40,15 +53,22 @@ public class RegistryRestController {
     @GetMapping("/access-passes")
     public ResponseEntity<List<RapidPass>> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
         Pageable pageView = null;
+        String aporType = null;
+
         if (queryParameter.isPresent()) {
             QueryFilter queryFilter = queryParameter.get();
+
             if (null != queryFilter.getPageNo()) {
                 int pageSize = (null != queryFilter.getPageSize()) ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
                 pageView = PageRequest.of(queryFilter.getPageNo(), pageSize);
             }
-        } else {
+
+            if (!StringUtils.isBlank(queryFilter.getAporType())) {
+                aporType = queryFilter.getAporType();
+            }
         }
-        return ResponseEntity.ok().body(registryService.findAllRapidPasses(Optional.ofNullable(pageView)));
+
+        return ResponseEntity.ok().body(registryService.findAllRapidPasses(aporType, Optional.ofNullable(pageView)));
     }
 
     @GetMapping("/access-passes/{referenceId}")
@@ -71,17 +91,13 @@ public class RegistryRestController {
 //    }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        if (!AccessPassStatus.isValid(rapidPass.getStatus())) {
-            return ResponseEntity.badRequest().body("Unknown status code.");
-        } else {
-            try {
-                RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
-                return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
-            } catch (UpdateAccessPassException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        }
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RequestResult requestResult) throws UpdateAccessPassException {
+        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, requestResult);
+
+        if (updatedRapidPass == null)
+            throw new UpdateAccessPassException("Failed to update Access Pass because there was nothing updated.");
+
+        return ResponseEntity.ok().body(updatedRapidPass);
     }
 
     @DeleteMapping("/access-passes/{referenceId}")

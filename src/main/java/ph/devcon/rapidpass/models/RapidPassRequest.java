@@ -76,14 +76,17 @@ public final class RapidPassRequest {
                 .company(csvData.getCompany())
                 .idType(csvData.getIdType())
                 .identifierNumber(csvData.getIdentifierNumber())
+                .plateNumber(csvData.getPlateNumber())
                 .mobileNumber(csvData.getMobileNumber())
                 .email(csvData.getEmail())
                 .originName(csvData.getOriginName())
                 .originStreet(csvData.getOriginStreet())
                 .originCity(csvData.getOriginCity())
+                .originProvince(csvData.getOriginProvince())
                 .destName(csvData.getDestName())
                 .destStreet(csvData.getDestStreet())
                 .destCity(csvData.getDestCity())
+                .destProvince(csvData.getDestProvince())
                 .remarks(csvData.getRemarks())
                 .build();
     }

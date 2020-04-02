@@ -26,7 +26,11 @@ config:
   semaphore:
     url: ''
     key: ''
-
+  qrmaster:
+    skey: ''
+    controlkey: ''
+  jwt:
+    approverSecret: supersecretapprover
 service:
   type: ClusterIP
   port: 80
