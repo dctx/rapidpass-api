@@ -106,6 +106,11 @@ public class RegistryService {
         // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
 
+        // Plate numbers should be uppercased
+        if (PassType.VEHICLE.equals(rapidPassRequest.getPassType())){
+            rapidPassRequest.setPlateNumber(rapidPassRequest.getPlateNumber().toUpperCase().trim());
+        }
+
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceID( rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
                 registrant.getMobile() : rapidPassRequest.getPlateNumber());
@@ -113,8 +118,9 @@ public class RegistryService {
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
         accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
+
         if (rapidPassRequest.getPlateNumber() != null) {
-            accessPass.setPlateNumber(rapidPassRequest.getPlateNumber().trim());
+            accessPass.setPlateNumber(rapidPassRequest.getPlateNumber());
         }
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
