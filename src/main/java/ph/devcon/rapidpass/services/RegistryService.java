@@ -374,7 +374,7 @@ public class RegistryService {
             throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
         }
 
-        if (reason != null && status == AccessPassStatus.DECLINED) {
+        if (reason != null && (status == AccessPassStatus.DECLINED || status == AccessPassStatus.SUSPENDED)) {
             accessPass.setUpdates(reason);
         }
 
