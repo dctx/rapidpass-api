@@ -26,8 +26,9 @@ import java.util.Collections;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
@@ -171,6 +172,30 @@ class RegistryServiceTest {
         final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
 
+        when(lookupTableService.getAporTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("APOR", "AG")),
+                        new LookupTable(new LookupTablePK("APOR", "BP")),
+                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                ))
+        );
+
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
+                ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                ))
+        );
+
+
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .identifierNumber(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
@@ -187,15 +212,19 @@ class RegistryServiceTest {
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
 
-        // This is what causes the error: there was already an existing pass
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString()))
+        Registrant registrant = Registrant.builder().registrarId(0)
+                .firstName("Jonas").build();
+
+        // Attempting to find access passes that match the same reference ID, and a specified time frame
+        when(mockAccessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any()))
                 .thenReturn(singletonList(samplePendingAccessPass));
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        try {
             this.instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
-        });
-
-
+            fail("Expected exception did not throw");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
+        }
     }
 
     @Test
