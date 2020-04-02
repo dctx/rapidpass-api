@@ -27,11 +27,7 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -75,15 +71,13 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     /**
      * Prepare image.
      *
-     * @param imagePath path to image in resource folder
      * @return image data
-     * @throws MalformedURLException if path not an image
      */
-    private static ImageData prepareImage(String imagePath) throws MalformedURLException {
-        log.debug("preparingImage {}", imagePath);
+    private static ImageData prepareImage(byte[] data) {
+        log.debug("preparingImage");
 
         // get image from resource classpath
-        return ImageDataFactory.create(imagePath);
+        return ImageDataFactory.create(data);
     }
 
     /**
@@ -96,8 +90,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         log.debug("preparing font from {}", WORK_SANS);
 
         ClassPathResource instructionsClassPath = new ClassPathResource("fonts/WorkSans-VariableFont_wght.ttf");
-        File file = instructionsClassPath.getFile();
-        byte[] fontBytes = Files.readAllBytes(file.toPath());
+        byte[] fontBytes = toByteArray(instructionsClassPath.getInputStream());
 
         // Prepare the font
         final FontProgram fontProgram = FontProgramFactory.createFont(fontBytes);
@@ -105,6 +98,21 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.WINANSI, true);
 
         return font;
+    }
+
+    private static byte[] toByteArray(InputStream in) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+        int len;
+
+        // read bytes from the input stream and store them in buffer
+        while ((len = in.read(buffer)) != -1) {
+            // write bytes from the buffer into output stream
+            os.write(buffer, 0, len);
+        }
+
+        return os.toByteArray();
     }
 
     private static Paragraph generateRapidPassHeader() {
@@ -119,10 +127,14 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     }
 
-    private static Image generateQrCode(File file) throws MalformedURLException {
+    private static Image generateQrCode(File file) throws IOException {
+
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        byte[] qrCodeImage = toByteArray(fileInputStream);
 
         //qrcode image
-        Image qrcode = new Image(prepareImage(file.getAbsolutePath()));
+        Image qrcode = new Image(prepareImage(qrCodeImage));
 
         qrcode.setFixedPosition(0, 200);
         qrcode.setWidth(590);
@@ -272,7 +284,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Document document = createDocument(filePath);
 
-//        document.setFont(prepareFont());
+        document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
         String path = "";
@@ -290,10 +302,10 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 throw new IllegalStateException("Failed to determine pass type.");
         }
 
-        File resource = instructionsClassPath.getFile();
+        InputStream inputStream = instructionsClassPath.getInputStream();
+        byte[] imageBytes = toByteArray(inputStream);
 
-
-        Image instructions = new Image(prepareImage(resource.getPath())).scale(0.9f, 0.9f);
+        Image instructions = new Image(prepareImage(imageBytes)).scale(0.9f, 0.9f);
 
         instructions.setFixedPosition(0, 20);
 
