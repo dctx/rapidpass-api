@@ -25,6 +25,7 @@ import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -72,7 +73,8 @@ public class RegistryService {
         OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
+        NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
 
