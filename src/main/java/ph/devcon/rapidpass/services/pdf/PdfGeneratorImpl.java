@@ -20,7 +20,6 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
@@ -38,12 +37,6 @@ import java.time.Instant;
 @Slf4j
 @Service
 public class PdfGeneratorImpl implements PdfGeneratorService {
-
-
-    /**
-     * Path to the logo that will be appended to the PDF.
-     */
-    private static final String DCTX_LOGO_PATH = "light-bg.png";
 
     /**
      * Path to Work Sans Font
@@ -275,15 +268,6 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Document document = createDocument(filePath);
 
         Image qrcode = generateQrCode(qrCodeFile);
-
-        // get dctx logo from classpath resource
-        Image dctxLogo = new Image(prepareImage(
-                ResourceUtils.getFile("classpath:light-bg.png")
-                        .getAbsolutePath()));
-        dctxLogo.scaleToFit(200, 100);
-        dctxLogo.setFixedPosition(400, 0);
-
-        //processes the data that will be on the pdf
 
         //writes to the document
 
