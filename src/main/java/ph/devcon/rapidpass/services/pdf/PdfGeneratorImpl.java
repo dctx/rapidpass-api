@@ -14,12 +14,15 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
@@ -235,7 +238,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         passType.setFixedPosition(30, 190, 170);
 
 
-        PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getFirstPage());
+        PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getPage(2));
         Rectangle rectangle = new Rectangle(30, 30, 170, 210);
         canvas.setFillColor(ColorConstants.BLACK);
         canvas.rectangle(rectangle);
@@ -267,7 +270,32 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Document document = createDocument(filePath);
 
+        // Font disabled first (Darren and Jonas)
+        // document.setFont(prepareFont());
+        document.setMargins(-50, -50, -50, -50);
+
+        String path = "";
+
+        switch (rapidPass.getPassType()) {
+            case INDIVIDUAL:
+                path = "classpath:i-instructions.png";
+                break;
+            case VEHICLE:
+                path = "classpath:v-instructions.png";
+                break;
+        }
+
+        Image instructions = new Image(prepareImage(
+                ResourceUtils.getFile(path).getPath())).scale(0.9f, 0.9f);
+
+        instructions.setFixedPosition(0, 20);
+
+        document.add(instructions);
+
+        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
         Image qrcode = generateQrCode(qrCodeFile);
+        //processes the data that will be on the pdf
 
         //writes to the document
 
