@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.services;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -7,12 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.Registrar;
+import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RequestResult;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -21,11 +21,12 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Collections;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
@@ -52,11 +53,13 @@ class RegistryServiceTest {
     @Mock
     ScannerDeviceRepository mockScannerDeviceRepository;
 
+    @Mock LookupTableService lookupTableService;
+
     private OffsetDateTime now;
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, mockAccessPassRepository,
+        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
         now = OffsetDateTime.now();
     }
@@ -67,13 +70,14 @@ class RegistryServiceTest {
                     .passType(INDIVIDUAL)
                     .firstName("Jonas")
                     .lastName("Espelita")
+                    .idType("COM")
                     .identifierNumber("0915999999")
                     .plateNumber("ABC4321")
                     .mobileNumber("0915999999")
                     .email("jonas.was.here@gmail.com")
                     .destCity("Somewhere in the PH")
                     .company("DEVCON")
-                    .aporType("MO")
+                    .aporType("AG")
                     .remarks("This is a test for INDIVIDUAL REQUEST")
                     .build();
 
@@ -126,6 +130,29 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
 
+        when(lookupTableService.getAporTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("APOR", "AG")),
+                        new LookupTable(new LookupTablePK("APOR", "BP")),
+                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                ))
+        );
+
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
+                ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                ))
+        );
+
         final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
 
         assertThat(rapidPass, is(not(nullValue())));
@@ -140,10 +167,35 @@ class RegistryServiceTest {
     }
 
     @Test
-    void newRequestPass_EXISTING_PASS() {
+    void newRequestPass_throwErrorIfAPassAlreadyExists() {
 
         final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
+
+        when(lookupTableService.getAporTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("APOR", "AG")),
+                        new LookupTable(new LookupTablePK("APOR", "BP")),
+                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                ))
+        );
+
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
+                ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                ))
+        );
+
+
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .identifierNumber(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
@@ -159,16 +211,18 @@ class RegistryServiceTest {
         // mock registry always returns a registry
         final Registrar mockRegistrar = new Registrar();
         mockRegistrar.setId(1);
-        // repository returns an access pass!
+
+        Registrant registrant = Registrant.builder().registrarId(0)
+                .firstName("Jonas").build();
+
+        // Attempting to find access passes that match the same reference ID, and a specified time frame
         when(mockAccessPassRepository.findAllByReferenceIDAndValidToAfter(anyString(), any()))
                 .thenReturn(singletonList(samplePendingAccessPass));
 
-
         try {
             this.instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
-            fail("should throw exception");
-        } catch (Exception e) {
-            e.printStackTrace();
+            fail("Expected exception did not throw");
+        } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
         }
     }
@@ -200,7 +254,14 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("APPROVED").build());
+        final RapidPass approved = instance.updateAccessPass(
+                "ref-id",
+                RequestResult.builder()
+                        .result(AccessPassStatus.APPROVED)
+                        .referenceId("ref-id")
+                        .reason(null) // No need for remarks if the user is approved
+                        .build()
+        );
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("APPROVED"));
@@ -226,7 +287,12 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPass.builder().status("DECLINED").build());
+        final RapidPass approved = instance.updateAccessPass("ref-id", RequestResult.builder()
+                .result(AccessPassStatus.DECLINED)
+                .referenceId("ref-id")
+                .reason("Some reason here")
+                .build()
+        );
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("DECLINED"));

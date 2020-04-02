@@ -18,6 +18,7 @@ import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RequestResult;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -25,6 +26,7 @@ import ph.devcon.rapidpass.services.RegistryService;
 import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -83,38 +85,42 @@ class RegistryRestControllerTest {
             .remarks("This is a test for VEHICLE REQUEST").build();
     private final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-    public RapidPass TEST_INDIVIDUAL_PASS;
+    private AccessPass TEST_INDIVIDUAL_ACCESS_PASS;
+    public RapidPass TEST_INDIVIDUAL_RAPID_PASS;
 
-    public RapidPass TEST_VEHICLE_PASS;
+    private AccessPass TEST_VEHICLE_ACCESS_PASS;
+    public RapidPass TEST_VEHICLE_RAPID_PASS;
+
+
 
     @BeforeEach
     void init() {
-        AccessPass individualAccessPass = new AccessPass();
+        TEST_INDIVIDUAL_ACCESS_PASS = new AccessPass();
 
-        individualAccessPass.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
-        individualAccessPass.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
-        individualAccessPass.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
-        individualAccessPass.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
-        individualAccessPass.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
+        TEST_INDIVIDUAL_ACCESS_PASS.setPassType(TEST_INDIVIDUAL_REQUEST.getPassType().toString());
+        TEST_INDIVIDUAL_ACCESS_PASS.setDestinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity());
+        TEST_INDIVIDUAL_ACCESS_PASS.setCompany(TEST_INDIVIDUAL_REQUEST.getCompany());
+        TEST_INDIVIDUAL_ACCESS_PASS.setAporType(TEST_INDIVIDUAL_REQUEST.getAporType());
+        TEST_INDIVIDUAL_ACCESS_PASS.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
-        individualAccessPass.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
+        TEST_INDIVIDUAL_ACCESS_PASS.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
 
-        AccessPass vehicleAccessPass = new AccessPass();
+        TEST_VEHICLE_ACCESS_PASS = new AccessPass();
 
-        vehicleAccessPass.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
-        vehicleAccessPass.setDestinationCity(TEST_VEHICLE_REQUEST.getDestCity());
-        vehicleAccessPass.setCompany(TEST_VEHICLE_REQUEST.getCompany());
-        vehicleAccessPass.setAporType(TEST_VEHICLE_REQUEST.getAporType());
-        vehicleAccessPass.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
-        vehicleAccessPass.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
-        vehicleAccessPass.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+        TEST_VEHICLE_ACCESS_PASS.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
+        TEST_VEHICLE_ACCESS_PASS.setDestinationCity(TEST_VEHICLE_REQUEST.getDestCity());
+        TEST_VEHICLE_ACCESS_PASS.setCompany(TEST_VEHICLE_REQUEST.getCompany());
+        TEST_VEHICLE_ACCESS_PASS.setAporType(TEST_VEHICLE_REQUEST.getAporType());
+        TEST_VEHICLE_ACCESS_PASS.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
+        TEST_VEHICLE_ACCESS_PASS.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
+        TEST_VEHICLE_ACCESS_PASS.setIdType(TEST_VEHICLE_REQUEST.getIdType());
 
         // Mobile number is the reference ID?
-        vehicleAccessPass.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
+        TEST_VEHICLE_ACCESS_PASS.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
 
-        TEST_INDIVIDUAL_PASS = RapidPass.buildFrom(individualAccessPass);
+        TEST_INDIVIDUAL_RAPID_PASS = RapidPass.buildFrom(TEST_INDIVIDUAL_ACCESS_PASS);
 
-        TEST_VEHICLE_PASS = RapidPass.buildFrom(vehicleAccessPass);
+        TEST_VEHICLE_RAPID_PASS = RapidPass.buildFrom(TEST_VEHICLE_ACCESS_PASS);
     }
 
     @Autowired
@@ -210,12 +216,12 @@ class RegistryRestControllerTest {
     @Test
     void getPassRequest() throws Exception {
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockRegistryService.find(eq("0915999999")))
-                .thenReturn(TEST_INDIVIDUAL_PASS);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
 
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
-        when(mockRegistryService.find(eq("ABCD 1234")))
-                .thenReturn(TEST_VEHICLE_PASS);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq("ABCD 1234")))
+                .thenReturn(TEST_VEHICLE_ACCESS_PASS);
 
         final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}";
 
@@ -290,7 +296,7 @@ class RegistryRestControllerTest {
 
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
         when(mockRegistryService.revoke(eq("0915999999")))
-                .thenReturn(TEST_INDIVIDUAL_PASS);
+                .thenReturn(TEST_INDIVIDUAL_RAPID_PASS);
 
         // mock service to return null
         mockMvc.perform(
@@ -305,17 +311,23 @@ class RegistryRestControllerTest {
     public void grantOrDenyRequest() throws Exception {
         // mock service to return dummy VEHICLE pass request when vehicle is request type.
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_PASS.getReferenceId()), eq(TEST_VEHICLE_PASS)))
-                .thenReturn(TEST_VEHICLE_PASS);
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                .result(AccessPassStatus.APPROVED)
+                .reason(null)
+                .build();
+
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
+                .thenReturn(TEST_VEHICLE_RAPID_PASS);
 
         final String urlPath = "/registry/access-passes/{referenceID}";
 
-        TEST_VEHICLE_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonRequestBody = objectMapper.writeValueAsString(TEST_VEHICLE_PASS);
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
@@ -325,10 +337,103 @@ class RegistryRestControllerTest {
         )
                 .andExpect(status().isOk())
                 // test json is expected
-                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_PASS.getPassType().name()))
-                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_PASS.getControlCode()))
-                .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_PASS.getIdentifierNumber()))
-                .andExpect(jsonPath("$.status").value(TEST_VEHICLE_PASS.getStatus()))
+                .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_RAPID_PASS.getPassType().name()))
+                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_RAPID_PASS.getControlCode()))
+                .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_RAPID_PASS.getIdentifierNumber()))
+                .andExpect(jsonPath("$.status").value(TEST_VEHICLE_RAPID_PASS.getStatus()))
+                .andDo(print());
+    }
+
+    @Test
+    public void grantOrDenyRequest_testNothingUpdated() throws Exception {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                .result(AccessPassStatus.APPROVED)
+                .reason(null)
+                .build();
+
+        // Registry will not return any data, which will case a thrown exception
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
+                .thenReturn(null);
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isBadRequest())
+                // test json is expected
+                .andExpect(jsonPath("$.message").value(containsString("there was nothing updated")))
+                .andDo(print());
+    }
+
+    @Test
+    public void grantOrDenyRequest_testThrowUpdateException() throws Exception {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                .result(AccessPassStatus.APPROVED)
+                .reason(null)
+                .build();
+
+        // Registry will not return any data, which will case a thrown exception
+        when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
+                .thenThrow(new RegistryService.UpdateAccessPassException("No AccessPass found"));
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isBadRequest())
+                // test json is expected
+                .andExpect(jsonPath("$.message").value(containsString("No AccessPass found")))
+                .andDo(print());
+    }
+
+    @Test
+    public void grantOrDenyRequest_missingParameters() throws Exception {
+        // mock service to return dummy VEHICLE pass request when vehicle is request type.
+
+        TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+
+        RequestResult approveRequest = RequestResult.builder()
+                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                .build();
+
+        final String urlPath = "/registry/access-passes/{referenceID}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonRequestBody = objectMapper.writeValueAsString(approveRequest);
+
+        // perform GET requestPass with mobileNum
+        mockMvc.perform(
+                put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody)
+        )
+                .andExpect(status().isBadRequest())
+                // test json is expected
+//                .andExpect(jsonPath("$.message").value(containsString("No AccessPass found")))
                 .andDo(print());
     }
 

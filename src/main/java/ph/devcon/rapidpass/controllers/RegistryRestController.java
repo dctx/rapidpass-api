@@ -5,38 +5,23 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.entities.ScannerDevice;
-import ph.devcon.rapidpass.models.AgencyAuth;
-import ph.devcon.rapidpass.models.AgencyUser;
-import ph.devcon.rapidpass.models.Login;
-import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.models.QueryFilter;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.AuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
@@ -60,20 +45,27 @@ public class RegistryRestController {
     @GetMapping("/access-passes")
     public ResponseEntity<List<RapidPass>> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
         Pageable pageView = null;
+        String aporType = null;
+
         if (queryParameter.isPresent()) {
             QueryFilter queryFilter = queryParameter.get();
+
             if (null != queryFilter.getPageNo()) {
                 int pageSize = (null != queryFilter.getPageSize()) ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
                 pageView = PageRequest.of(queryFilter.getPageNo(), pageSize);
             }
-        } else {
+
+            if (!StringUtils.isBlank(queryFilter.getAporType())) {
+                aporType = queryFilter.getAporType();
+            }
         }
-        return ResponseEntity.ok().body(registryService.findAllRapidPasses(Optional.ofNullable(pageView)));
+
+        return ResponseEntity.ok().body(registryService.findAllRapidPasses(aporType, Optional.ofNullable(pageView)));
     }
 
     @GetMapping("/access-passes/{referenceId}")
     ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) {
-        RapidPass rapidPass = registryService.find(referenceId);
+        RapidPass rapidPass = RapidPass.buildFrom(registryService.findByNonUniqueReferenceId(referenceId));
         return (rapidPass != null) ? ResponseEntity.ok().body(rapidPass) : ResponseEntity.notFound().build();
     }
 
@@ -91,17 +83,13 @@ public class RegistryRestController {
 //    }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @RequestBody RapidPass rapidPass) {
-        if (!AccessPassStatus.isValid(rapidPass.getStatus())) {
-            return ResponseEntity.badRequest().body("Unknown status code.");
-        } else {
-            try {
-                RapidPass result = registryService.updateAccessPass(referenceId, rapidPass);
-                return (result != null) ? ResponseEntity.ok().body(result) : ResponseEntity.notFound().build();
-            } catch (UpdateAccessPassException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        }
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RequestResult requestResult) throws UpdateAccessPassException {
+        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, requestResult);
+
+        if (updatedRapidPass == null)
+            throw new UpdateAccessPassException("Failed to update Access Pass because there was nothing updated.");
+
+        return ResponseEntity.ok().body(updatedRapidPass);
     }
 
     @DeleteMapping("/access-passes/{referenceId}")
@@ -113,11 +101,14 @@ public class RegistryRestController {
     /**
      * Downloads the QR Code pdf associated with control code
      *
-     * @param referenceId control code
-     * @return PDF download
+     * For retrieving the image base 64 data of the QR code of an access pass, please see the method
+     * {@link #downloadRapidPassQrImageDataBase64(String)}.
+     *
+     * @param referenceId the reference ID that uniquely identifies the access pass
+     * @return The file data containing of PDF for this access pass
      */
     @GetMapping("/qr-codes/{referenceId}")
-    public HttpEntity<byte[]> downloadQrCode(@PathVariable String referenceId) throws IOException, WriterException, ParseException {
+    public HttpEntity<byte[]> downloadRapidPassPdf(@PathVariable String referenceId) throws IOException, WriterException, ParseException {
         log.debug("Processing /qr-codes/{}", referenceId);
         byte[] responseBody = qrPdfService.generateQrPdf(referenceId);
 
@@ -181,4 +172,33 @@ public class RegistryRestController {
         }
     }
 
+    /**
+     * This endpoint returns the base64 image data of a qr code.
+     *
+     * For retrieving the PDF data of an access pass, please see the method {@link #downloadRapidPassPdf(String)}.
+     * @param referenceId the reference ID that uniquely identifies the access pass
+     * @return The base 64 image data of the QR for this access pass
+     */
+    @GetMapping("/qr-codes/{referenceId}/qr-code")
+    public ResponseEntity<?> downloadRapidPassQrImageDataBase64(@PathVariable String referenceId) {
+        AccessPass accessPass = registryService.findByNonUniqueReferenceId(referenceId);
+        try {
+            if (accessPass == null)
+                throw new IllegalArgumentException("No Access Pass found for " + referenceId + ".");
+
+            // Image as a file
+            File imageFile = qrPdfService.generateQrImageData(accessPass);
+
+            // Image as a byte stream
+            byte[] bytes = Files.readAllBytes(imageFile.toPath());
+
+            // Image data encoded as base 64
+            byte[] base64EncodedBytes = Base64.encodeBase64(bytes);
+
+            return ResponseEntity.ok(new String(base64EncodedBytes));
+
+        } catch (IOException | WriterException e) {
+            throw new IllegalStateException("Failed to generate QR Code for " + referenceId + ". " + e.getMessage());
+        }
+    }
 }

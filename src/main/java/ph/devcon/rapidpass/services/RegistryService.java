@@ -4,8 +4,11 @@ import com.boivie.skip32.Skip32;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
@@ -15,14 +18,13 @@ import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
+import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,6 +45,7 @@ public class RegistryService {
 
     private final RegistryRepository registryRepository;
     private final RegistrantRepository registrantRepository;
+    private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
     private final ScannerDeviceRepository scannerDeviceRepository;
@@ -55,55 +59,21 @@ public class RegistryService {
     /**
      * Creates a new {@link RapidPass} with PENDING status.
      *
+     * @see <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64">documentation</a> on the flow.
+     *
+     * @throws IllegalArgumentException If the plate number is empty and the pass type is for a vehicle
+     * @throws IllegalArgumentException Attempting to create a new access pass while an existing pending or approved pass exists
      * @param rapidPassRequest rapid passs request.
      * @return new rapid pass with PENDING status
      */
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        // see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64 for documentation on the flow.
+        // see
         OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
-        // conditional validation for the plate number
-        if (rapidPassRequest.getPassType().equals(PassType.VEHICLE) &&
-                (rapidPassRequest.getPlateNumber() == null || rapidPassRequest.getPlateNumber().trim().isEmpty())) {
-            throw new IllegalArgumentException("plate number must not be empty");
-        }
-
-        // check if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or plate number
-        final List<AccessPass> existingAccessPasses = new ArrayList<>();
-        if (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) {
-            existingAccessPasses.addAll(accessPassRepository
-                .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getMobileNumber(), now));
-        } else {
-            existingAccessPasses.addAll(accessPassRepository
-                    .findAllByReferenceIDAndValidToAfter(rapidPassRequest.getPlateNumber().trim(), now));
-        }
-
-        final Optional<AccessPass> existingAccessPass;
-        if (existingAccessPasses != null) {
-            existingAccessPass = existingAccessPasses
-                    .stream()
-                    // get all valid PENDING or APPROVED rapid pass requests for referenceid
-                    .filter(accessPass -> {
-                        final AccessPassStatus status = AccessPassStatus.valueOf(accessPass.getStatus().toUpperCase());
-                        switch (status) {
-                            case PENDING:
-                            case APPROVED:
-                                return true;
-                            default:
-                                return false;
-                        }
-                    })
-                    .findAny();
-        } else existingAccessPass = Optional.empty();
-
-        if (existingAccessPass.isPresent()) {
-            log.debug("  existing pass exists!");
-            throw new IllegalArgumentException(
-                    String.format("An existing PENDING/APPROVED RapidPass already exists for %s",
-                            (rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL)) ?
-                            rapidPassRequest.getIdentifierNumber() : rapidPassRequest.getPlateNumber()));
-        }
+        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+        validation.validate(rapidPassRequest);
 
         // check if registrant is already in the system
         Registrant registrant = registrantRepository.findByReferenceId(rapidPassRequest.getIdentifierNumber());
@@ -194,11 +164,37 @@ public class RegistryService {
         }
     }
 
-    public List<RapidPass> findAllRapidPasses(Optional<Pageable> pageView) {
-        return this.findAllAccessPasses(pageView)
+    public List<RapidPass> findAllRapidPasses(String aporType, Optional<Pageable> pageView) {
+        return this.findAllAccessPasses(aporType, pageView)
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
+    }
+
+    public Page<RapidPass> findAllApprovedOrSuspendedRapidPassAfter(OffsetDateTime lastUpdatedOn, Pageable page)
+    {
+        final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
+        Function<List<AccessPass>, List<RapidPass>> collectionTransform = accessPasses -> accessPasses.stream()
+            .map(RapidPass::buildFrom)
+            .collect(Collectors.toList());
+
+        return PageableExecutionUtils.getPage(
+            collectionTransform.apply(pagedAccessPasses.getContent()),
+            page,
+            pagedAccessPasses::getTotalElements);
+    }
+
+    public Page<RapidPassCSVDownloadData> findAllApprovedOrSuspendedRapidPassCsvAfter(OffsetDateTime lastUpdatedOn, Pageable page)
+    {
+        final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
+        Function<List<AccessPass>, List<RapidPassCSVDownloadData>> collectionTransform = accessPasses -> accessPasses.stream()
+            .map(RapidPassCSVDownloadData::buildFrom)
+            .collect(Collectors.toList());
+
+        return PageableExecutionUtils.getPage(
+            collectionTransform.apply(pagedAccessPasses.getContent()),
+            page,
+            pagedAccessPasses::getTotalElements);
     }
 
     public Iterable<ControlCode> getControlCodes() {
@@ -209,13 +205,16 @@ public class RegistryService {
                 .collect(Collectors.toList());
     }
 
-    private List<AccessPass> findAllAccessPasses(Optional<Pageable> pageView) {
-        if (pageView.isPresent()) {
-            return accessPassRepository.findAll(pageView.get()).toList();
+    private List<AccessPass> findAllAccessPasses(String aporType, Optional<Pageable> pageView) {
+        Pageable pageable = pageView.orElse(Pageable.unpaged());
+
+        if (!StringUtils.isBlank(aporType)) {
+            return accessPassRepository.findAllByAporType(aporType, pageable).toList();
         } else {
-            return accessPassRepository.findAll();
+            return accessPassRepository.findAll(pageable).toList();
         }
     }
+
 
     /**
      * Helper function to retrieve an {@link AccessPass} by referenceId.
@@ -229,7 +228,7 @@ public class RegistryService {
      * @param referenceId the reference ID, which is the user's mobile number.
      * @return An access pass
      */
-    private AccessPass findByNonUniqueReferenceId(String referenceId) {
+    public AccessPass findByNonUniqueReferenceId(String referenceId) {
         // AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
         // TODO: how to deal with 'renewals'? i.e.
 
@@ -256,7 +255,7 @@ public class RegistryService {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPasses.size() == 0)
-            throw new IllegalArgumentException("No AccessPass found with referenceId=" + referenceId);
+            throw new UpdateAccessPassException("No AccessPass found with referenceId=" + referenceId);
 
         AccessPass accessPass = accessPasses.get(0);
 
@@ -300,24 +299,9 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    /**
-     * Used when the inspector or approver wishes to view more details about the
-     *
-     * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
-     * @return Data stored on the database
-     */
-    public RapidPass find(String referenceId) {
-
-        AccessPass accessPass = findByNonUniqueReferenceId(referenceId);
-
-        if (accessPass != null) return RapidPass.buildFrom(accessPass);
-
-        return null;
-    }
-
     public RapidPass grant(String referenceId) throws UpdateAccessPassException {
         log.debug("APPROVING refId {}", referenceId);
-        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED);
+        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
         if (accessPasses.size() > 0) {
@@ -340,11 +324,11 @@ public class RegistryService {
      * @param status      The status to apply
      * @return Data stored on the database
      */
-    private RapidPass updateStatus(String referenceId, AccessPassStatus status) throws RegistryService.UpdateAccessPassException {
+    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws RegistryService.UpdateAccessPassException {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
-            throw new NullPointerException("Failed to retrieve access pass with reference ID=" + referenceId + ".");
+            throw new UpdateAccessPassException("Cannot find the access pass to update (refId=" + referenceId + ").");
         }
 
         AccessPass accessPass = accessPassesRetrieved.get(0);
@@ -359,6 +343,10 @@ public class RegistryService {
 
         if (!isPending) {
             throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+        }
+
+        if (reason != null && status == AccessPassStatus.DECLINED) {
+            accessPass.setUpdates(reason);
         }
 
         accessPass.setStatus(status.toString());
@@ -377,22 +365,24 @@ public class RegistryService {
      * Updates a referenceId with status of rapidPass.
      *
      * @param referenceId reference id to update
-     * @param rapidPass   object containing update status
+     * @param requestResult   object containing update status
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
-    public RapidPass updateAccessPass(String referenceId, RapidPass rapidPass) throws UpdateAccessPassException {
+    public RapidPass updateAccessPass(String referenceId, RequestResult requestResult) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
-        final AccessPassStatus status = AccessPassStatus.valueOf(rapidPass.getStatus().toUpperCase());
+        final AccessPassStatus status = requestResult.getResult();
         switch (status) {
             case APPROVED:
                 updatedRapidPass = grant(referenceId);
                 break;
             case DECLINED:
-                updatedRapidPass = decline(referenceId);
+                updatedRapidPass = decline(referenceId, requestResult.getReason());
+                break;
+            case SUSPENDED:
+                updatedRapidPass = revoke(referenceId);
                 break;
             default:
-                // todo implement SUSPENDED
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
@@ -413,8 +403,8 @@ public class RegistryService {
         return updatedRapidPass;
     }
 
-    public RapidPass decline(String referenceId) throws RegistryService.UpdateAccessPassException {
-        return this.updateStatus(referenceId, AccessPassStatus.DECLINED);
+    public RapidPass decline(String referenceId, String reason) throws RegistryService.UpdateAccessPassException {
+        return this.updateStatus(referenceId, AccessPassStatus.DECLINED, reason);
     }
 
     /**
@@ -446,17 +436,39 @@ public class RegistryService {
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
-    public List<RapidPass> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
-        List<RapidPass> passes = new ArrayList<RapidPass>();
-        RapidPass pass;
-        for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
-            pass = this.newRequestPass(RapidPassRequest.buildFrom(rapidPassRequest));
+        List<String> passes = new ArrayList<String>();
 
-            if (pass != null) {
-                pass = this.grant(rapidPassRequest.getMobileNumber());
-                passes.add(pass);
+        // Validation
+        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+
+        RapidPass pass;
+        int counter = 1;
+        for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
+            try {
+                RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+                validation.validate(request);
+
+                pass = this.newRequestPass(request);
+
+                if (pass != null) {
+
+                    RequestResult requestToUpdateStatus = RequestResult.builder()
+                            .reason(null)
+                            .referenceId(pass.getReferenceId())
+                            .result(AccessPassStatus.APPROVED)
+                            .build();
+
+                    updateAccessPass(pass.getReferenceId(), requestToUpdateStatus);
+
+                    passes.add("Record " + counter++ + ": Success. ");
+                }
+            } catch ( Exception e ) {
+                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
             }
         }
         return passes;
