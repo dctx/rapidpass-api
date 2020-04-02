@@ -20,10 +20,10 @@ public class LookupTableService {
     }
 
     public List<LookupTable> getIndividualIdTypes() {
-        return lookupTableRepository.getAllByLookupTablePKKey("IDTYPE-IND");
+        return lookupTableRepository.getAllByLookupTablePKKey("IDTYPE-I");
     }
 
     public List<LookupTable> getVehicleIdTypes() {
-        return lookupTableRepository.getAllByLookupTablePKKey("IDTYPE-VHC");
+        return lookupTableRepository.getAllByLookupTablePKKey("IDTYPE-V");
     }
 }
