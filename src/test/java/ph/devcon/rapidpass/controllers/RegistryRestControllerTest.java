@@ -243,6 +243,23 @@ class RegistryRestControllerTest {
                 .andDo(print());
     }
 
+
+    @Test
+    public void getPassRequest_notExists() throws Exception {
+
+        when(mockRegistryService.findByNonUniqueReferenceId("I DO NOT EXIST"))
+                .thenReturn(null);
+
+        // mock service to return null
+        mockMvc.perform(
+                get("/registry/access-passes/{referenceID}", "I DO NOT EXIST"))
+                .andExpect(status().isNotFound()
+                );
+
+        verify(mockRegistryService, only()).findByNonUniqueReferenceId(eq(("I DO NOT EXIST")));
+    }
+
+
     /**
      * This tests GETting `requestPass` with either mobileNum or plateNum.
      *
@@ -279,15 +296,6 @@ class RegistryRestControllerTest {
                 .andExpect(jsonPath("$[0].passType").value("INDIVIDUAL"))
                 .andExpect(jsonPath("$[0].referenceId").value("ABCDE"))
                 .andDo(print());
-    }
-
-
-    @Test
-    public void getPassRequest_NULL() throws Exception {
-        // mock service to return null
-        mockMvc.perform(
-                get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
-                .andExpect(status().isNotFound());
     }
 
 
@@ -444,5 +452,7 @@ class RegistryRestControllerTest {
         assertThat(response.getContentType(), is(MediaType.APPLICATION_PDF.toString()));
         assertThat(response.getContentAsByteArray(), is(samplePdf));
     }
+
+
 
 }
