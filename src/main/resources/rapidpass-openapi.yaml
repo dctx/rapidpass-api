@@ -24,6 +24,8 @@ tags:
     description: Publicly accessible endpoint (future)
   - name: bulk
     description: bulk/batch operations
+security:
+  - ApiKeyAuth: []
 paths:
   /registry/auth:
     post:
@@ -488,6 +490,11 @@ paths:
           description: device not found
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: RP-API-KEY
   schemas:
     RapidPassRequest:
       type: object

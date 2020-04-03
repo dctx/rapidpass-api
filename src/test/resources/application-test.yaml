@@ -43,6 +43,12 @@ jwt:
     - group: approver
       secret: approver-secret
 
+rapidpass:
+  auth:
+    apiKey:
+      enabled: true
+      key: dctx
+
 qrmaster:
   skey: rapidmasterkey
   controlkey: controlsecretkey
