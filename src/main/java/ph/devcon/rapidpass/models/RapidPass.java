@@ -3,32 +3,66 @@ package ph.devcon.rapidpass.models;
 import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.APORType;
+import ph.devcon.rapidpass.enums.PassType;
 
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 
+/**
+ * Data model representing an {@link AccessPass}, but is only a subset of the model's properties.
+ *
+ * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
+ *
+ * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
+ *
+ * This is JSON format returned to the user when they request for a GET on the AccessPass Resource.
+ */
 @Data
 @Builder
 public class RapidPass {
+
+    private PassType passType;
+    /**
+     * Authorized Personnel Outside Residence
+     */
+    private String aporType;
     private String referenceId;
     private String controlCode;
-    private String passType;
-    private APORType aporType;
-    private String plateOrId;
+    private String name;
+    private String company;
+    private String idType;
+    private String identifierNumber;
+    private String plateNumber;
+    private String destName;
+    private String destStreet;
+    private String destCity;
+    private String destProvince;
     private String status;
-    private Date validFrom;
-    private Date validUntil;
+    private String validFrom;
+    private String validUntil;
+    private String remarks;
+    private String updates;
 
     public static RapidPass buildFrom(AccessPass accessPass) {
+        // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
         return RapidPass.builder()
-                .referenceId(accessPass.getReferenceId())
-                .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode().toString())
-                .passType(accessPass.getPassType())
+                .referenceId(accessPass.getReferenceID())
+                .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode())
+                .passType(PassType.valueOf(accessPass.getPassType()))
                 .aporType(accessPass.getAporType())
-                .plateOrId(accessPass.getPlateOrId())
+                .name(accessPass.getName())
+                .company(accessPass.getCompany())
+                .idType(accessPass.getIdType())
+                .identifierNumber(accessPass.getIdentifierNumber())
+                .plateNumber(accessPass.getPlateNumber())
                 .status(accessPass.getStatus())
-                .validFrom(accessPass.getValidFrom())
-                .validUntil(accessPass.getValidTo())
+                .validFrom(accessPass.getValidFrom() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidFrom()))
+                .validUntil(accessPass.getValidTo() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidTo()))
+                .destName(accessPass.getDestinationName())
+                .destStreet(accessPass.getDestinationStreet())
+                .destCity(accessPass.getDestinationCity())
+                .destProvince(accessPass.getDestinationProvince())
+                .remarks(accessPass.getRemarks())
+                .updates(accessPass.getUpdates())
                 .build();
     }
 }

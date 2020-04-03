@@ -5,31 +5,19 @@
  */
 package ph.devcon.rapidpass.entities;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
+import lombok.Data;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.Collection;
 
 /**
  *
  * @author eric
  */
+@Data
 @Entity
 @Table(name = "registrar")
 @NamedQueries({
@@ -150,11 +138,11 @@ public class Registrar implements Serializable {
     @Column(name = "updates")
     private String updates;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "parentRegistrarId")
     private Collection<Registrar> registrarCollection;
     @JoinColumn(name = "parent_registrar_id", referencedColumnName = "id")
@@ -162,280 +150,12 @@ public class Registrar implements Serializable {
     private Registrar parentRegistrarId;
     @OneToMany(mappedBy = "registrarId")
     private Collection<RegistrarUser> registrarUserCollection;
-    @OneToMany(mappedBy = "registrarId")
-    private Collection<ScannerDevice> scannerDeviceCollection;
-    @OneToMany(mappedBy = "registrarId")
-    private Collection<Registrant> registrantCollection;
+//    @OneToMany(mappedBy = "registrarId")
+//    private Collection<ScannerDevice> scannerDeviceCollection;
+//    @OneToMany(mappedBy = "registrarId")
+//    private Collection<Registrant> registrantCollection;
 
     public Registrar() {
-    }
-
-    public Registrar(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getShardKey() {
-        return shardKey;
-    }
-
-    public void setShardKey(String shardKey) {
-        this.shardKey = shardKey;
-    }
-
-    public String getInstitutionType() {
-        return institutionType;
-    }
-
-    public void setInstitutionType(String institutionType) {
-        this.institutionType = institutionType;
-    }
-
-    public String getInstitutionClassification() {
-        return institutionClassification;
-    }
-
-    public void setInstitutionClassification(String institutionClassification) {
-        this.institutionClassification = institutionClassification;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getRepresentative() {
-        return representative;
-    }
-
-    public void setRepresentative(String representative) {
-        this.representative = representative;
-    }
-
-    public String getRepDesignation() {
-        return repDesignation;
-    }
-
-    public void setRepDesignation(String repDesignation) {
-        this.repDesignation = repDesignation;
-    }
-
-    public String getRepPhone() {
-        return repPhone;
-    }
-
-    public void setRepPhone(String repPhone) {
-        this.repPhone = repPhone;
-    }
-
-    public String getRepMobile() {
-        return repMobile;
-    }
-
-    public void setRepMobile(String repMobile) {
-        this.repMobile = repMobile;
-    }
-
-    public String getRepEmail() {
-        return repEmail;
-    }
-
-    public void setRepEmail(String repEmail) {
-        this.repEmail = repEmail;
-    }
-
-    public String getWebsite() {
-        return website;
-    }
-
-    public void setWebsite(String website) {
-        this.website = website;
-    }
-
-    public String getReference1() {
-        return reference1;
-    }
-
-    public void setReference1(String reference1) {
-        this.reference1 = reference1;
-    }
-
-    public String getReference2() {
-        return reference2;
-    }
-
-    public void setReference2(String reference2) {
-        this.reference2 = reference2;
-    }
-
-    public String getUpdates() {
-        return updates;
-    }
-
-    public void setUpdates(String updates) {
-        this.updates = updates;
-    }
-
-    public Date getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(Date dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public Date getDateTimeUpdated() {
-        return dateTimeUpdated;
-    }
-
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
-        this.dateTimeUpdated = dateTimeUpdated;
-    }
-
-    public Collection<Registrar> getRegistrarCollection() {
-        return registrarCollection;
-    }
-
-    public void setRegistrarCollection(Collection<Registrar> registrarCollection) {
-        this.registrarCollection = registrarCollection;
-    }
-
-    public Registrar getParentRegistrarId() {
-        return parentRegistrarId;
-    }
-
-    public void setParentRegistrarId(Registrar parentRegistrarId) {
-        this.parentRegistrarId = parentRegistrarId;
-    }
-
-    public Collection<RegistrarUser> getRegistrarUserCollection() {
-        return registrarUserCollection;
-    }
-
-    public void setRegistrarUserCollection(Collection<RegistrarUser> registrarUserCollection) {
-        this.registrarUserCollection = registrarUserCollection;
-    }
-
-    public Collection<ScannerDevice> getScannerDeviceCollection() {
-        return scannerDeviceCollection;
-    }
-
-    public void setScannerDeviceCollection(Collection<ScannerDevice> scannerDeviceCollection) {
-        this.scannerDeviceCollection = scannerDeviceCollection;
-    }
-
-    public Collection<Registrant> getRegistrantCollection() {
-        return registrantCollection;
-    }
-
-    public void setRegistrantCollection(Collection<Registrant> registrantCollection) {
-        this.registrantCollection = registrantCollection;
     }
 
     @Override
@@ -452,10 +172,7 @@ public class Registrar implements Serializable {
             return false;
         }
         Registrar other = (Registrar) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

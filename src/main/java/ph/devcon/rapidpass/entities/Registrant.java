@@ -1,28 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ph.devcon.rapidpass.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Collection;
 
 /**
  *
@@ -31,6 +18,8 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "registrant")
 @Data
+@Builder
+@AllArgsConstructor
 public class Registrant implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -74,8 +63,7 @@ public class Registrant implements Serializable {
     @Column(name = "suffix")
     private String suffix;
     @Column(name = "birth_date")
-    @Temporal(TemporalType.DATE)
-    private Date birthDate;
+    private LocalDate birthDate;
     @Size(max = 150)
     @Column(name = "address")
     private String address;
@@ -120,26 +108,18 @@ public class Registrant implements Serializable {
     @Column(name = "status")
     private String status;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "registrantId")
     private Collection<AccessPass> accessPassCollection;
-    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
-    @ManyToOne
-    private Registrar registrarId;
+//    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
+//    @ManyToOne
+//    private Registrar registrarId;
+    @Column(name = "registrar_id")
+    private Integer registrarId;
 
     public Registrant() {
-    }
-
-    public Registrar getRegistrarId() {
-        return registrarId;
-    }
-
-    public void setRegistrarId(Registrar registrarId) {
-        this.registrarId = registrarId;
     }
 
     @Override
@@ -156,15 +136,13 @@ public class Registrant implements Serializable {
             return false;
         }
         Registrant other = (Registrant) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.entities.Registrant[ id=" + id + " ]";
+        return String.format("firstName: %s, middleName: %s, lastName: %s, referenceId: %s, idType: %s, mobileNumber: %s",
+                firstName, middleName, lastName, referenceId, referenceIdType, mobile);
     }
     
 }

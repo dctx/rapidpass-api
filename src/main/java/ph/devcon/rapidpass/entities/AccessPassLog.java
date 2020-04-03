@@ -5,9 +5,12 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,100 +66,16 @@ public class AccessPassLog implements Serializable {
     @Column(name = "scanner_device_id")
     private Integer scannerDeviceId;
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    
+    private OffsetDateTime dateTimeCreated;
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    
+    private OffsetDateTime dateTimeUpdated;
     @JoinColumn(name = "access_pass_id", referencedColumnName = "id")
     @ManyToOne
     private AccessPass accessPassId;
 
     public AccessPassLog() {
-    }
-
-    public AccessPassLog(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public void setEvent(String event) {
-        this.event = event;
-    }
-
-    public BigInteger getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigInteger latitude) {
-        this.latitude = latitude;
-    }
-
-    public BigInteger getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigInteger longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public Integer getCheckpointId() {
-        return checkpointId;
-    }
-
-    public void setCheckpointId(Integer checkpointId) {
-        this.checkpointId = checkpointId;
-    }
-
-    public Integer getScannerDeviceId() {
-        return scannerDeviceId;
-    }
-
-    public void setScannerDeviceId(Integer scannerDeviceId) {
-        this.scannerDeviceId = scannerDeviceId;
-    }
-
-    public Date getDateTimeCreated() {
-        return dateTimeCreated;
-    }
-
-    public void setDateTimeCreated(Date dateTimeCreated) {
-        this.dateTimeCreated = dateTimeCreated;
-    }
-
-    public Date getDateTimeUpdated() {
-        return dateTimeUpdated;
-    }
-
-    public void setDateTimeUpdated(Date dateTimeUpdated) {
-        this.dateTimeUpdated = dateTimeUpdated;
-    }
-
-    public AccessPass getAccessPassId() {
-        return accessPassId;
-    }
-
-    public void setAccessPassId(AccessPass accessPassId) {
-        this.accessPassId = accessPassId;
     }
 
     @Override

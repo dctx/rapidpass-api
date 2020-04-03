@@ -3,19 +3,11 @@ spring:
     url: jdbc:postgresql://${RAPIDPASS_PG_HOST}:${RAPIDPASS_PG_PORT}/${RAPIDPASS_PG_DATABASE}
     username: ${RAPIDPASS_PG_USERNAME}
     password: ${RAPIDPASS_PG_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: none
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     url: jdbc:postgresql://${RAPIDPASS_PG_HOST}:${RAPIDPASS_PG_PORT}/${RAPIDPASS_PG_DATABASE}
     user: ${RAPIDPASS_PG_USERNAME}
     password: ${RAPIDPASS_PG_PASSWORD}
-  jackson:
-    serialization:
-      WRITE_DATES_AS_TIMESTAMPS: false
-    date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
-#    default-property-inclusion: non_empty
   mail:
     host: ${RAPIDPASS_SMTP_HOST}
     port: ${RAPIDPASS_SMTP_PORT}
@@ -27,11 +19,21 @@ spring:
           auth: ${RAPIDPASS_SMTP_AUTH_ENABLED}
           starttls:
             enable: ${RAPIDPASS_SMTP_TLS_ENABLED}
-
 semaphore:
   url: ${RAPIDPASS_SEMAPHORE_URL}
   key: ${RAPIDPASS_SEMAPHORE_KEY}
 
-server:
-  servlet:
-    context-path: /api/v1
+management:
+  endpoint.prometheus.enabled: true
+  endpoints.web.exposure.include: info,health,prometheus
+
+qrmaster:
+  skey: ${RAPIDPASS_QRMASTER_SKEY}
+  controlkey: ${RAPIDPASS_QRMASTER_CONTROLKEY}
+
+jwt:
+  secrets:
+    - group: checkpoint
+      secret: ${RAPIDPASS_JWT_CHECKPOINT_SECRET}
+    - group: approver
+      secret: ${RAPIDPASS_JWT_APPROVER_SECRET}

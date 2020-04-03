@@ -1,5 +1,9 @@
 package ph.devcon.rapidpass.services.notifications;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -12,10 +16,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Qualifier("sms")
 @Slf4j
@@ -23,21 +23,21 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class SMSNotificationService implements NotificationService {
 
-    private RestTemplate restTemplate;
+    @NonNull
+    private final RestTemplate restTemplate;
 
     @Value("${semaphore.key}")
     private String apiKey;
 
     @Value("${semaphore.url}")
     private String url;
-    
-    public SMSNotificationService(RestTemplate restTemplate)
-    {
-        this.restTemplate = restTemplate;
-    }
-    
+
+    @Value("${semaphore.sender:RAPIDPASS}")
+    private String semaphoreSender;
+
     @Override
     public void send(NotificationMessage message) throws NotificationException {
+        log.debug("sending SMS msg to {}", message.getTo());
         if (StringUtils.isEmpty(this.apiKey)) throw new NotificationException("api key is not provided");
         if (StringUtils.isEmpty(this.url)) throw new NotificationException("url is not provided");
 
@@ -48,10 +48,7 @@ public class SMSNotificationService implements NotificationService {
         params.add("apikey", this.apiKey);
         params.add("number", message.getTo());
         params.add("message", message.getMessage());
-        String sender = message.getFrom();
-        if (sender != null && !StringUtils.isEmpty(sender)) {
-            params.add("sendername", sender);
-        }
+        params.add("sendername", semaphoreSender);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
@@ -65,5 +62,9 @@ public class SMSNotificationService implements NotificationService {
         log.info("response: {}", response.getBody());
 
         // todo: more checks on semaphore response...
+
+
+        log.debug("  SMS msg sent! {}", message.getTo());
+
     }
 }
