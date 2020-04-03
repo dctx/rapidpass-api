@@ -15,7 +15,10 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class ApiKeyFilter implements Filter {
+public class ApiKeyFilter implements Filter {  // jje - prefer a security filter but good enough for now
+
+    @Value("${security.enabled:false}")
+    private boolean securityEnabled = false;
 
     @Value("${rapidpass.auth.apiKey.enabled:secret}")
     private boolean rapidPassApiKeyEnabled;
@@ -35,16 +38,24 @@ public class ApiKeyFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        log.info("Running API Code Filter");
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
+        if (!securityEnabled) {
+            log.debug("Skipping API Code Filter due to security.enabled:false");
+            chain.doFilter(req, res);
+            return;
+        }
+
+        log.debug("Running API Code Filter");
+
         final String requestURI = req.getRequestURI();
-        log.info("uri: {}", requestURI);
+        log.debug("uri: {}", requestURI);
         boolean isExcluded = CollectionUtils.contains(exclusions.iterator(), requestURI);
 
         if (!isExcluded) {
-            log.info("uri not in exclusion list, checking api code");
+            log.debug("uri not in exclusion list, checking api code");
 
             String rapidPassKey = req.getHeader(apiKeyHeader);
             if (this.rapidPassApiKeyEnabled && (null == rapidPassKey || !StringUtils.equals(this.rapidPassApiKey, rapidPassKey))) {
