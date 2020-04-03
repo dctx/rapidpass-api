@@ -21,8 +21,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 @Data
 public class RapidPassStatus {
-    private String referenceId;
-
     /**
      * Can either be "APPROVED" or "DECLINED"
      */

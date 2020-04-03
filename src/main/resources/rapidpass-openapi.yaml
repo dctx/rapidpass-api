@@ -31,7 +31,7 @@ paths:
         - dashboard
       summary: >-
         Authentication for Dashboard users. This allows access to the APIs for
-        approvals
+        approvals.
       operationId: loginAgency
       description: >-
         Called from the dashboard. When successful, an Auth Token will be returned
@@ -59,9 +59,8 @@ paths:
       tags:
         - registration
         - dashboard
-      summary: >-
-        Creates a request for a new RapidPass, can be for INDIVIDUAL or VEHICLE
-        depending on pass type
+      summary:
+        Create a request for a new access pass.
       operationId: requestAccessPass
       description: >
         Called from the registration or web site registration page to register a user.
@@ -116,7 +115,8 @@ paths:
         - dashboard
         - inspector
         - bulk
-      summary: downloads a list of access passes in csv format
+      summary:
+        Download a list of access passes in CSV format.
       parameters:
         - name: lastSyncOn
           in: query
@@ -171,7 +171,7 @@ paths:
       tags:
         - dashboard
         - bulk
-      summary: downloads a list of mobile devices in csv format
+      summary: Downloads a list of mobile devices in CSV format.
       responses:
         '200':
           description: Download initiated.
@@ -185,7 +185,7 @@ paths:
       tags:
         - dashboard
         - bulk
-      summary: upload CSV file mobile devices for registration
+      summary: Upload CSV file mobile devices for registration.
       requestBody:
         content:
           multipart/form-data:
@@ -205,12 +205,13 @@ paths:
         - inspector
         - registration
         - dashboard
-      summary: Get information about an access pass
+      summary:
+        Get more information about an existing access pass.
       parameters:
         - name: referenceID
           in: path
           description: >-
-            Reference Number of Access Pass request.
+            Reference Number of access pass request.
           required: true
           schema:
             type: string
@@ -224,7 +225,7 @@ paths:
     put:
       tags:
         - dashboard
-      summary: Approves or Declines a Rapid Pass request
+      summary: Approve or decline a request for an access pass.
       parameters:
         - name: referenceID
           in: path
@@ -258,7 +259,7 @@ paths:
     delete:
       tags:
         - dashboard
-      summary: Suspends an active access pass
+      summary: Suspends (revokes) an existing active access pass.
       parameters:
         - name: referenceID
           in: path
@@ -277,17 +278,53 @@ paths:
 
   '/registry/qr-codes/{controlCode}':
     get:
-      operationId: getQRCode
+      operationId: downloadRapidPassPdf
       tags:
         - inspector
         - registration
         - dashboard
-      summary: Retrieve the base64-encouded QR code
+      summary:
+        Download the access pass PDF, which includes instructions and the QR data.
+      description:
+        This endpoint will only work if the access pass is APPROVED.
       parameters:
         - name: controlCode
           in: path
-          description: >-
-            The control code of the Access Pass
+          description:
+            The control code of the access pass (which is usually 8 characters).
+          example:
+            3A5B15V
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Base64-encoded string of the QR Code
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: reference number not found
+  '/registry/qr-codes/{referenceId}/qr-code':
+    get:
+      operationId: downloadRapidPassQrImageDataBase64
+      tags:
+        - inspector
+        - registration
+        - dashboard
+      summary:
+        Retrieve the base 64 image data of the QR data of the specified access pass.
+      description:
+        Note that this endpoint will only work if the access pass is APPROVED.
+      parameters:
+        - name: referenceId
+          in: path
+          description:
+            The reference ID of the access pass. For individual access passes, this is their mobile number. For
+            vehicle passes, this is their plate number.
+          example:
+            3A5B15V
           required: true
           schema:
             type: string
@@ -328,7 +365,7 @@ paths:
       tags:
         - inspector
         - public
-      summary: Verify if the plate number is registered or not
+      summary: Verify if the plate number is registered or not.
       parameters:
         - name: plateNo
           in: path
@@ -353,7 +390,7 @@ paths:
       tags:
         - inspector
         - public
-      summary: Verify if the controlCode is valid or not
+      summary: Verify if the control code is valid or not.
       parameters:
         - name: controlCode
           in: path
@@ -376,7 +413,8 @@ paths:
       tags:
         - inspector
         - dashboard
-      summary: registers a new mobile device for use in checkpoints
+      summary: Registers a new mobile device for use in checkpoints.
+      description: These mobile devices are used by the inspectors at the checkpoint.
       operationId: registerScannerDevice
       requestBody:
         content:
@@ -404,7 +442,7 @@ paths:
     get:
       tags:
         - dashboard
-      summary: gets a list of registered mobile devices
+      summary: Gets a list of registered mobile devices.
       operationId: getScannerDevices
       parameters:
         - name: status
@@ -422,13 +460,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MobileDevice'
-      description: Retrieves a set of registered mobile devices based on the optional query parameters.
+      description:
+        These mobile devices are used by the inspectors at the checkpoint. This endpoint retrieves a set of registered
+        mobile devices based on the optional query parameters.
   '/registry/scanner-devices/{deviceId}':
     get:
       tags:
         - dashboard
         - inspector
-      summary: get details of a registered mobile devices
+      summary: Get more information of a registered mobile device.
       operationId: getScannerDeviceDetails
       parameters:
         - name: deviceId
@@ -525,20 +565,22 @@ components:
               description: used for searching the access pass, either the plate number or ID of the individual
             status:
               type: string
-              description: status of the access pass
+              description:
+                The status of the access pass. Note that EXPIRED is not a valid status. To determine whether an access
+                pass is expired, compute this using the current timestamp against the `validUntil` property of a `RapidPass`.
               enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
             validFrom:
               type: string
               description: start date of the access pass's validity period
-              example: Sun Mar 29 10:28:57 GMT 2020
+              example: 2020-04-02T18:49:31.129435Z
             validUntil:
               type: string
               description: expiration date of the access pass
-              example: Web Apr 29 10:28:57 GMT 2020
+              example: 2020-04-02T18:49:31.129435Z
             lastUsed:
               type: string
               description: date and time the QR code was used in a checkpoint
-              example: Mon Mar 30 14:15:00 GMT 2020
+              example: 2020-04-02T18:49:31.129435Z
     CommonRapidPassFields:
       type: object
       properties:
@@ -549,25 +591,27 @@ components:
           example: "AG"
         passType:
           type: string
-          description: type of pass, either VEHICLE or INDIVIDUAL
+          description: The type of the pass either VEHICLE or INDIVIDUAL.
           enum:
             - INDIVIDUAL
             - VEHICLE
           example: INDIVIDUAL
         idType:
           type: string
-          description: >-
-            for vehicles this could be plate number or conduction sticker, for
-            individuals this will be the type of ID, e.g. company ID, driver's
-            license, etc.
-          example: passport
+          description:
+            For vehicles, this could be `PLT` (plate number) or `CND` (conduction sticker). For individuals, this will
+            be the type of ID. For example, `COM` (company ID), `LTO` (driver's license), etc. For a complete list of
+            supported `idType`s, please see RapidPass backend slack channel.
+          example: PLT
         identifierNumber:
           type: string
-          description: Identification number of individual
+          description: Identification number of the individual.
           example: 789921123QWRTY
         plateNumber:
           type: string
-          description: plate number of vehicle, required only for vehicle registrations
+          description:
+            This field is used only for VEHICLE access passes. This is either the plate number or the conduction
+            sticker ID of the vehicle.
           example: WNQ2412
     MobileDevice:
       type: object
@@ -668,19 +712,21 @@ components:
           description: total number of rows in whole dataset
     RapidPassStatus:
       type: object
-      description: The status of an access pass
+      description: Modifies the status of an existing access pass with PENDING status.
       properties:
-        referenceId:
-          type: string
-          description: The unique identifier for an access pass. Initially this will be mobile numbers (which isn't uniqe), but will later be implemented as unique identifiers.
-          example: 09171234567
         status:
           type: string
-          description: The status of the access pass.
+          description:
+            The status of the access pass that you wish to apply. Note that EXPIRED is not a valid status. To determine
+            whether an access pass is expired, compute this using the current timestamp against the `validUntil`
+            property of a `RapidPass`.
           enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
         remarks:
           type: string
-          description: The reason why the access pass was declined.
-          example: Incomplete form.
+          description:
+            The reason why the access pass was declined. Note that the `remarks` property of a `RapidPass` schema denotes
+            the reason why they are requesting for a rapid pass, while the `updates` property of a `RapidPass` schema
+            denotes the reason why their access pass was granted, declined, or revoked.
+          example: Declining this request because the user did not complete the form.
 
 

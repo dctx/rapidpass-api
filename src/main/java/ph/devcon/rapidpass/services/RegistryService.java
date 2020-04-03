@@ -484,7 +484,6 @@ public class RegistryService {
 
                     RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
                             .remarks(null)
-                            .referenceId(pass.getReferenceId())
                             .status(AccessPassStatus.APPROVED)
                             .build();
 
