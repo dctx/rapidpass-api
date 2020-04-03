@@ -16,7 +16,8 @@ import java.util.Map.Entry;
 @Service
 @Qualifier("email")
 @Slf4j
-public class EmailNotificationService implements NotificationService {
+public class
+EmailNotificationService implements NotificationService {
 
     @Autowired
     public JavaMailSender emailSender;
@@ -32,9 +33,13 @@ public class EmailNotificationService implements NotificationService {
             helper.setTo(message.getTo());
             helper.setSubject(message.getTitle());
             helper.setText(message.getMessage());
-            for (Entry<String, DataSource> attachment : message.getAttachments().entrySet()) {
-                helper.addAttachment(attachment.getKey(), attachment.getValue());
+
+            if (message.getMessage() != null) {
+                for (Entry<String, DataSource> attachment : message.getAttachments().entrySet()) {
+                    helper.addAttachment(attachment.getKey(), attachment.getValue());
+                }
             }
+
             emailSender.send(msg);
             log.debug("  EMAIL sent! {}", message.getTo());
         } catch (MessagingException | MailException e) {
