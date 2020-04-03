@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.services;
 
-import com.boivie.skip32.Skip32;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
-import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
-import ph.devcon.dctx.rapidpass.commons.Damm32;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
@@ -23,6 +20,7 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
@@ -32,7 +30,6 @@ import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -162,26 +159,6 @@ public class RegistryService {
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
-    }
-
-    public static class ControlCodeGenerator {
-        /**
-         * Generates a control code.
-         *
-         * @param originalInput This is a unique pass phrase which can be configured using @value. See
-         *                      {@link RegistryService}.
-         * @param id            The id of the access pass being generated. This should be unique, so make sure you create the
-         *                      {@link AccessPass} first, then retrieve its ID, then use that as a parameter for generating the control
-         *                      code of the AccessPass.
-         * @return A control code in string format.
-         */
-        public static String generate(String originalInput, int id) {
-            String encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-            byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
-            long obfuscatedId = Skip32.encrypt(id, decodedBytes);
-            int checkdigit = Damm32.compute(obfuscatedId);
-            return CrockfordBase32.encode(obfuscatedId, 7) + CrockfordBase32.encode(checkdigit);
-        }
     }
 
     public List<RapidPass> findAllRapidPasses(String aporType, Optional<Pageable> pageView) {
