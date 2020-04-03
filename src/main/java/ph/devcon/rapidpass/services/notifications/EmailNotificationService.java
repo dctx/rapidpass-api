@@ -34,7 +34,7 @@ EmailNotificationService implements NotificationService {
             helper.setSubject(message.getTitle());
             helper.setText(message.getMessage());
 
-            if (message.getMessage() != null) {
+            if (message.getAttachments() != null) {
                 for (Entry<String, DataSource> attachment : message.getAttachments().entrySet()) {
                     helper.addAttachment(attachment.getKey(), attachment.getValue());
                 }

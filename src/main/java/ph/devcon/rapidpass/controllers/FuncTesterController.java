@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import ph.devcon.rapidpass.services.notifications.SMSNotificationService;
 @RestController
 @RequestMapping("/tester")
 @RequiredArgsConstructor
+@Slf4j
 public class FuncTesterController {
 
     private final EmailNotificationService emailNotificationService;
@@ -32,6 +34,7 @@ public class FuncTesterController {
 
     @PostMapping("/sms")
     public HttpEntity<?> testSms() throws NotificationException {
+        log.info("testSms {}", testMobile);
         smsNotificationService.send(NotificationMessage.New()
                 .message("Hello World from Rapidpass!")
                 .to(testMobile)
@@ -41,6 +44,7 @@ public class FuncTesterController {
 
     @PostMapping("email")
     public HttpEntity<?> testEmail() throws NotificationException {
+        log.info("testEmail {}", testEmail);
         emailNotificationService.send(NotificationMessage.New()
                 .to(testEmail)
                 .title("RapidPass test Email")
