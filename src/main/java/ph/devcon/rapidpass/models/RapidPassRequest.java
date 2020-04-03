@@ -91,5 +91,9 @@ public final class RapidPassRequest {
                 .build();
     }
 
-
+    @Override
+    public String toString() {
+        return String.format("firstName: %s, middleName: %s, lastName: %s, referenceId: %s, idType: %s, mobileNumber: %s",
+                firstName, middleName, lastName, identifierNumber, identifierNumber, mobileNumber);
+    }
 }

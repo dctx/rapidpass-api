@@ -79,8 +79,18 @@ public class RegistryService {
         validation.validate(rapidPassRequest);
 
         // check if registrant is already in the system
-        Registrant registrant = registrantRepository.findByReferenceId(rapidPassRequest.getIdentifierNumber());
-        if (registrant == null) registrant = new Registrant();
+        Registrant registrant = registrantRepository.findByMobile(rapidPassRequest.getMobileNumber());
+        if (registrant == null) {
+            registrant = new Registrant();
+        } else {
+            // check for consistency
+            if (!registrant.getFirstName().equals(rapidPassRequest.getFirstName()) ||
+            !registrant.getLastName().equals(rapidPassRequest.getLastName())) {
+                // we will allow name change for now, just log the change
+                log.warn("Review registrant name change:.\n- previous: {}.\n- new: {}",
+                        registrant.toString(), rapidPassRequest.toString());
+            }
+        }
 
         registrant.setRegistrantType(1);
         registrant.setRegistrantName(rapidPassRequest.getName());

@@ -13,4 +13,6 @@ public interface RegistrantRepository extends JpaRepository<Registrant, Integer>
     Registrant findById(String id);
 
     Registrant findByReferenceId(String referenceId);
+
+    Registrant findByMobile(String mobileNumber);
 }
