@@ -164,8 +164,7 @@ public class AccessPassNotifierService {
      * @return generated URL
      */
     String generateAccessPassUrl(String accessPassReferenceId) {
-        return String.format("%s%s%s",
-                rapidPassUrl, qrCodeEndpoint, accessPassReferenceId);
+        return rapidPassUrl + qrCodeEndpoint + accessPassReferenceId;
     }
 
     /**
