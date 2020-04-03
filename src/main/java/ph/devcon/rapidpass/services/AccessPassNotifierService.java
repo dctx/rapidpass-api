@@ -87,9 +87,9 @@ public class AccessPassNotifierService {
      * @param accessPass an access pass
      */
     public void pushApprovalDeniedNotifs(@Valid @NotNull AccessPass accessPass) throws ParseException, IOException, WriterException {
-        final String accessPassReferenceId = accessPass.getReferenceID();
+        final String accessPassControlCode = accessPass.getControlCode();
 
-        log.debug("pushing approval notifications for {}", accessPassReferenceId);
+        log.debug("pushing approval notifications for {}", accessPassControlCode);
 
         // pre checks
 
@@ -106,7 +106,7 @@ public class AccessPassNotifierService {
         final NotificationMessage smsMessage;
         switch (accessPassStatus) {
             case APPROVED:
-                String accessPassUrl = generateAccessPassUrl(accessPassReferenceId);
+                String accessPassUrl = generateAccessPassUrl(accessPassControlCode);
                 String controlCode = accessPass.getControlCode();
 
                 emailMessage = buildApprovedEmailMessage(
@@ -157,7 +157,7 @@ public class AccessPassNotifierService {
                 log.error("Error sending SMS message to " + mobile, e);
             }
         }
-        log.debug("pushed approval notifications for {}", accessPassReferenceId);
+        log.debug("pushed approval notifications for {}", accessPassControlCode);
     }
 
     /**
