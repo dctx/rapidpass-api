@@ -314,7 +314,6 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .status(AccessPassStatus.APPROVED)
                 .remarks(null)
                 .build();
@@ -351,7 +350,6 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .status(AccessPassStatus.APPROVED)
                 .remarks(null)
                 .build();
@@ -384,7 +382,6 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .status(AccessPassStatus.APPROVED)
                 .remarks(null)
                 .build();
@@ -417,7 +414,6 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
         RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .referenceId(TEST_VEHICLE_RAPID_PASS.getReferenceId())
                 .build();
 
         final String urlPath = "/registry/access-passes/{referenceID}";
