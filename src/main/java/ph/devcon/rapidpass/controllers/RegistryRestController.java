@@ -66,8 +66,16 @@ public class RegistryRestController {
 
     @GetMapping("/access-passes/{referenceId}")
     ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) {
-        RapidPass rapidPass = RapidPass.buildFrom(registryService.findByNonUniqueReferenceId(referenceId));
-        return (rapidPass != null) ? ResponseEntity.ok().body(rapidPass) : ResponseEntity.notFound().build();
+
+        AccessPass accessPass = registryService.findByNonUniqueReferenceId(referenceId);
+
+        if (accessPass == null) return ResponseEntity.notFound().build();
+
+        RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+
+        if (rapidPass == null) ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok().body(rapidPass);
     }
 
     @PostMapping("/access-passes")
