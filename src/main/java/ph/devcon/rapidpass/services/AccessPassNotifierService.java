@@ -149,12 +149,13 @@ public class AccessPassNotifierService {
         if (!StringUtils.isEmpty(mobile)) {
             try {
                 smsService.send(smsMessage);
-                log.debug("pushed approval notifications for {}", accessPass.getControlCode());
             } catch (Exception e) {
                 // we want to continue despite any error in smsService
                 log.error("Error sending SMS message to " + mobile, e);
             }
         }
+
+        log.debug("pushed approval notifications for {}", accessPass.getControlCode());
     }
 
     /**
