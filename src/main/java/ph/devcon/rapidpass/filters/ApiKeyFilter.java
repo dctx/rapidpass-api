@@ -17,11 +17,14 @@ import java.util.List;
 @Slf4j
 public class ApiKeyFilter implements Filter {
 
-    @Value("${rapidpass.auth.apiKey.enabled}")
+    @Value("${rapidpass.auth.apiKey.enabled:secret}")
     private boolean rapidPassApiKeyEnabled;
 
-    @Value("${rapidpass.auth.apiKey.key}")
+    @Value("${rapidpass.auth.apiKey.key:secret}")
     private String rapidPassApiKey;
+
+    @Value("${rapidpass.auth.apiKey.header:RP-API-KEY}")
+    private String apiKeyHeader;
 
     private static final List<String> exclusions = new ArrayList<>();
 
@@ -38,11 +41,12 @@ public class ApiKeyFilter implements Filter {
 
         final String requestURI = req.getRequestURI();
         log.info("uri: {}", requestURI);
-        boolean isExcluded = CollectionUtils.contains(this.exclusions.iterator(), requestURI);
+        boolean isExcluded = CollectionUtils.contains(exclusions.iterator(), requestURI);
 
         if (!isExcluded) {
             log.info("uri not in exclusion list, checking api code");
-            String rapidPassKey = req.getHeader("RP-API-KEY");
+
+            String rapidPassKey = req.getHeader(apiKeyHeader);
             if (this.rapidPassApiKeyEnabled && (null == rapidPassKey || !StringUtils.equals(this.rapidPassApiKey, rapidPassKey))) {
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "API Key is missing or invalid!");
                 return;

@@ -257,7 +257,8 @@ class RegistryRestControllerTest {
 
         // mock service to return null
         mockMvc.perform(
-                get("/registry/access-passes/{referenceID}", "I DO NOT EXIST"))
+                get("/registry/access-passes/{referenceID}", "I DO NOT EXIST")
+                        .header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isNotFound()
                 );
 
@@ -460,7 +461,6 @@ class RegistryRestControllerTest {
         assertThat(response.getContentType(), is(MediaType.APPLICATION_PDF.toString()));
         assertThat(response.getContentAsByteArray(), is(samplePdf));
     }
-
 
 
 }
