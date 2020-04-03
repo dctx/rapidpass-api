@@ -2,7 +2,6 @@ package ph.devcon.rapidpass.services;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -307,15 +306,6 @@ class RegistryServiceTest {
         // save and flush access pass
         verify(mockAccessPassRepository, times(1))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
-    }
-
-    @Test
-    @Disabled
-    void generateControlCode() {
-        // Currently ignoring this test, because Alistair still hasn't updated the commons to 0.2.0
-
-        String controlCode = RegistryService.ControlCodeGenerator.generate("***REMOVED***", 14);
-        assertThat("Generated control code matches", controlCode.equals("06SV72CA"));
     }
 
     @Test
