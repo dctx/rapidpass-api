@@ -87,10 +87,6 @@ public class AccessPassNotifierService {
      * @param accessPass an access pass
      */
     public void pushApprovalDeniedNotifs(@Valid @NotNull AccessPass accessPass) throws ParseException, IOException, WriterException {
-        final String accessPassReferenceId = accessPass.getReferenceID();
-
-        log.debug("pushing approval notifications for {}", accessPassReferenceId);
-
         // pre checks
 
         // check pass exists
@@ -106,8 +102,9 @@ public class AccessPassNotifierService {
         final NotificationMessage smsMessage;
         switch (accessPassStatus) {
             case APPROVED:
-                String accessPassUrl = generateAccessPassUrl(accessPassReferenceId);
                 String controlCode = accessPass.getControlCode();
+                String accessPassUrl = generateAccessPassUrl(controlCode);
+                log.debug("pushing approval notifications for {}", controlCode);
 
                 emailMessage = buildApprovedEmailMessage(
                         passType,
@@ -124,7 +121,7 @@ public class AccessPassNotifierService {
                         accessPass.getIdentifierNumber());
                 break;
             case DECLINED:
-                emailMessage = buildDeclinedEmailMessage(passType, email, accessPass.getName(), "TODO");
+                emailMessage = buildDeclinedEmailMessage(passType, email, accessPass.getName(), accessPass.getUpdates());
                 smsMessage = buildDeclinedSmsMessage(
                         passType,
                         mobile,
@@ -157,7 +154,8 @@ public class AccessPassNotifierService {
                 log.error("Error sending SMS message to " + mobile, e);
             }
         }
-        log.debug("pushed approval notifications for {}", accessPassReferenceId);
+
+        log.debug("pushed approval notifications for {}", accessPass.getControlCode());
     }
 
     /**
@@ -167,8 +165,7 @@ public class AccessPassNotifierService {
      * @return generated URL
      */
     String generateAccessPassUrl(String accessPassReferenceId) {
-        return String.format("%s%s%s",
-                rapidPassUrl, qrCodeEndpoint, accessPassReferenceId);
+        return rapidPassUrl + qrCodeEndpoint + accessPassReferenceId;
     }
 
     /**
