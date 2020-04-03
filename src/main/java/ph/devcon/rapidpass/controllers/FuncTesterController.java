@@ -43,6 +43,7 @@ public class FuncTesterController {
     public HttpEntity<?> testEmail() throws NotificationException {
         emailNotificationService.send(NotificationMessage.New()
                 .to(testEmail)
+                .title("RapidPass test Email")
                 .message("Hello World From RapidPass")
                 .from("do-no-reply@me.com")
                 .create());
