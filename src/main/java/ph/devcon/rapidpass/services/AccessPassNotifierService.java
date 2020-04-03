@@ -87,10 +87,6 @@ public class AccessPassNotifierService {
      * @param accessPass an access pass
      */
     public void pushApprovalDeniedNotifs(@Valid @NotNull AccessPass accessPass) throws ParseException, IOException, WriterException {
-        final String accessPassControlCode = accessPass.getControlCode();
-
-        log.debug("pushing approval notifications for {}", accessPassControlCode);
-
         // pre checks
 
         // check pass exists
@@ -106,8 +102,9 @@ public class AccessPassNotifierService {
         final NotificationMessage smsMessage;
         switch (accessPassStatus) {
             case APPROVED:
-                String accessPassUrl = generateAccessPassUrl(accessPassControlCode);
                 String controlCode = accessPass.getControlCode();
+                String accessPassUrl = generateAccessPassUrl(controlCode);
+                log.debug("pushing approval notifications for {}", controlCode);
 
                 emailMessage = buildApprovedEmailMessage(
                         passType,
@@ -124,7 +121,7 @@ public class AccessPassNotifierService {
                         accessPass.getIdentifierNumber());
                 break;
             case DECLINED:
-                emailMessage = buildDeclinedEmailMessage(passType, email, accessPass.getName(), "TODO");
+                emailMessage = buildDeclinedEmailMessage(passType, email, accessPass.getName(), accessPass.getUpdates());
                 smsMessage = buildDeclinedSmsMessage(
                         passType,
                         mobile,
@@ -152,12 +149,12 @@ public class AccessPassNotifierService {
         if (!StringUtils.isEmpty(mobile)) {
             try {
                 smsService.send(smsMessage);
+                log.debug("pushed approval notifications for {}", accessPass.getControlCode());
             } catch (Exception e) {
                 // we want to continue despite any error in smsService
                 log.error("Error sending SMS message to " + mobile, e);
             }
         }
-        log.debug("pushed approval notifications for {}", accessPassControlCode);
     }
 
     /**
