@@ -141,7 +141,8 @@ public class Registrant implements Serializable {
 
     @Override
     public String toString() {
-        return "ph.devcon.rapidpass.entities.Registrant[ id=" + id + " ]";
+        return String.format("firstName: %s, middleName: %s, lastName: %s, referenceId: %s, idType: %s, mobileNumber: %s",
+                firstName, middleName, lastName, referenceId, referenceIdType, mobile);
     }
     
 }

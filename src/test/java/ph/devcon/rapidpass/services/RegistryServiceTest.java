@@ -120,7 +120,7 @@ class RegistryServiceTest {
 //        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
 
         // no existing user
-        when(mockRegistrantRepository.findByReferenceId(anyString())).thenReturn(null);
+        when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
 
         // mock save and flush
         when(mockRegistrantRepository.save(ArgumentMatchers.any()))
@@ -264,7 +264,7 @@ class RegistryServiceTest {
 //        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
 
         // no existing user
-        when(mockRegistrantRepository.findByReferenceId(anyString())).thenReturn(null);
+        when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
 
         // mock save and flush
         when(mockRegistrantRepository.save(ArgumentMatchers.any()))
