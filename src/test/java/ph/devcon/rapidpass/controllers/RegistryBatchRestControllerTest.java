@@ -38,6 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(JwtSecretsConfig.class)
 public class RegistryBatchRestControllerTest
 {
+
+    private static final String API_KEY_HEADER = "RP-API-KEY";
+    private static final String API_KEY_VALUE = "dctx";
+
     private static Logger LOGGER = Logger.getLogger(RegistryBatchRestControllerTest.class.getName());
     @Autowired
     MockMvc mockMvc;
@@ -63,7 +67,8 @@ public class RegistryBatchRestControllerTest
         
         when(mockRegistryService.findAllApprovedOrSuspendedRapidPassCsvAfter(any(), any())).thenReturn(page);
         
-        mockMvc.perform(get("/batch/access-passes?lastSyncOn={lastSyncOn}&pageNumber{pageNumber}&pageSize={pageSize}",now.toEpochSecond(),0, pageSize))
+        mockMvc.perform(get("/batch/access-passes?lastSyncOn={lastSyncOn}&pageNumber{pageNumber}&pageSize={pageSize}",now.toEpochSecond(),0, pageSize)
+            .header(API_KEY_HEADER, API_KEY_VALUE))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.meta.pageNumber").value("0"))
             .andExpect(jsonPath("$.meta.pageSize").value("2"))

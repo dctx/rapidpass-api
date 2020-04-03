@@ -91,6 +91,8 @@ class RegistryRestControllerTest {
     private AccessPass TEST_VEHICLE_ACCESS_PASS;
     public RapidPass TEST_VEHICLE_RAPID_PASS;
 
+    private static final String API_KEY_HEADER = "RP-API-KEY";
+    private static final String API_KEY_VALUE = "dctx";
 
 
     @BeforeEach
@@ -153,6 +155,7 @@ class RegistryRestControllerTest {
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody))
                 .andExpect(status().isCreated())
@@ -173,6 +176,7 @@ class RegistryRestControllerTest {
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody))
                 .andDo(print())
@@ -197,6 +201,7 @@ class RegistryRestControllerTest {
         // perform post request with json payload to mock server
         mockMvc.perform(
                 post("/registry/access-passes")
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody))
                 .andReturn();
@@ -227,7 +232,7 @@ class RegistryRestControllerTest {
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
-                get(getAccessPathUrlTemplate, "0915999999"))
+                get(getAccessPathUrlTemplate, "0915999999").header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("INDIVIDUAL"))
@@ -235,7 +240,7 @@ class RegistryRestControllerTest {
 
         // perform GET requestPass with plateNum
         mockMvc.perform(
-                get(getAccessPathUrlTemplate, "ABCD 1234"))
+                get(getAccessPathUrlTemplate, "ABCD 1234").header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value("VEHICLE"))
@@ -270,7 +275,7 @@ class RegistryRestControllerTest {
 
         // perform GET requestPass with mobileNum
         mockMvc.perform(
-                get(getAccessPathUrlTemplate))
+                get(getAccessPathUrlTemplate).header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$").isArray())
@@ -286,7 +291,7 @@ class RegistryRestControllerTest {
     public void getPassRequest_NULL() throws Exception {
         // mock service to return null
         mockMvc.perform(
-                get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST"))
+                get("/api/v1/registry/accessPasses/{referenceID}", "I DO NOT EXIST").header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isNotFound());
     }
 
@@ -300,7 +305,7 @@ class RegistryRestControllerTest {
 
         // mock service to return null
         mockMvc.perform(
-                delete("/registry/access-passes/{referenceID}", "0915999999"))
+                delete("/registry/access-passes/{referenceID}", "0915999999").header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isOk());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
@@ -331,6 +336,7 @@ class RegistryRestControllerTest {
         // perform GET requestPass with mobileNum
         mockMvc.perform(
                 put(urlPath, "0915999999")
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
@@ -366,6 +372,7 @@ class RegistryRestControllerTest {
         // perform GET requestPass with mobileNum
         mockMvc.perform(
                 put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
@@ -398,6 +405,7 @@ class RegistryRestControllerTest {
         // perform GET requestPass with mobileNum
         mockMvc.perform(
                 put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
@@ -424,6 +432,7 @@ class RegistryRestControllerTest {
         // perform GET requestPass with mobileNum
         mockMvc.perform(
                 put(urlPath, TEST_VEHICLE_RAPID_PASS.getReferenceId())
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
         )
@@ -437,7 +446,7 @@ class RegistryRestControllerTest {
     public void downloadQrCode() throws Exception {
         final byte[] samplePdf = {1, 0, 1, 0, 1, 0};
         when(mockQrPdfService.generateQrPdf(eq("1234556"))).thenReturn(samplePdf);
-        final MockHttpServletResponse response = mockMvc.perform(get("/registry/qr-codes/{referenceId}", "1234556"))
+        final MockHttpServletResponse response = mockMvc.perform(get("/registry/qr-codes/{referenceId}", "1234556").header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
