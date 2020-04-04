@@ -58,6 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/webjars/**").permitAll() // temp access to swagger
                 .mvcMatchers("/api-docs/**").permitAll() // temp access to swagger
                 .mvcMatchers("/swagger-resources/**").permitAll() // temp access to swagger
+                .mvcMatchers("/spec").permitAll() // temp access to swagger
                 .mvcMatchers("/").permitAll() // temp access to swagger
 
                 // authenticating errything else!
