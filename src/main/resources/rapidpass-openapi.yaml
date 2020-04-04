@@ -27,6 +27,33 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
+  /lookup:
+    get:
+      tags:
+        - dashboard
+        - registration
+      summary: >-
+        Returns lookup data for APOR, ID Types, etc
+      operationId: lookup
+      parameters:
+        - name: type
+          in: query
+          description: >-
+            the type of lookup data to retrieve
+          required: true
+          schema:
+            $ref: '#/components/schemas/LookupOption'
+      responses:
+        200:
+          description: Lookup data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupMap'
+        400:
+          description: lookup type does not exist
+        500:
+          description: Unable to retrieve lookup data from database
   /registry/auth:
     post:
       tags:
@@ -735,5 +762,25 @@ components:
             the reason why they are requesting for a rapid pass, while the `updates` property of a `RapidPass` schema
             denotes the reason why their access pass was granted, declined, or revoked.
           example: Declining this request because the user did not complete the form.
-
-
+    LookupMap:
+      type: object
+      description: A map of lookup data
+      additionalProperties:
+        type: object
+        description: A lookup data
+        properties:
+          value:
+            type: string
+            description: The value of a lookup data
+            example: AG
+          description:
+            type: string
+            description: The description of a lookup data
+            example: Agribusiness & Agricultural Workers
+    LookupOption:
+      type: string
+      description: The valid lookup options
+      enum:
+        - APOR
+        - ID_TYPE_INDIVIDUAL
+        - ID_TYPE_VEHICLE
