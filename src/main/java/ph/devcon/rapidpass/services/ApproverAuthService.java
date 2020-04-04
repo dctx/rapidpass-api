@@ -9,12 +9,15 @@ import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.enums.RegistrarUserStatus;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 import ph.devcon.rapidpass.utilities.CryptUtils;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
+import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
+import ph.devcon.rapidpass.validators.entities.agency_user.NewAgencyUserValidator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -90,25 +93,33 @@ public class ApproverAuthService {
      * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
      */
     public final void createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
-        final String registrarShortName = user.getRegistrar();
-        final Registrar registrar = registrarRepository.findByShortName(registrarShortName);
-        if (registrar == null) {
-            log.error("the registrar provided does not exist");
-            throw new IllegalArgumentException("unable to find registrar for user");
-        }
 
-        final List<RegistrarUser> users = this.registrarUserRepository.findByUsername(user.getUsername());
-        if (!CollectionUtils.isEmpty(users)) {
-            log.error("user already exists");
-            throw new IllegalArgumentException("user already exists");
-        }
+        // Reworked validation
+        NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
+        StandardDataBindingValidation dataValidator = new StandardDataBindingValidation(validator);
+        dataValidator.validate(user);
+
+        Registrar registrar = this.registrarRepository.findByShortName(user.getRegistrar());
 
         final RegistrarUser registrarUser = new RegistrarUser();
+
         registrarUser.setRegistrarId(registrar);
         registrarUser.setUsername(user.getUsername());
-        final String hashedPassword = passwordHash(user.getPassword());
-        registrarUser.setPassword(hashedPassword);
-        registrarUser.setStatus("active");
+
+
+        if (user.isBatchUpload()) {
+            registrarUser.setFirstName(user.getFirstName());
+            registrarUser.setLastName(user.getLastName());
+            registrar.setEmail(user.getEmail());
+            registrarUser.setStatus(RegistrarUserStatus.INACTIVE.toString());
+
+            // TODO: Send email to approver
+
+        } else if (user.isIndividualRegistration()) {
+            final String hashedPassword = passwordHash(user.getPassword());
+            registrarUser.setPassword(hashedPassword);
+            registrarUser.setStatus(RegistrarUserStatus.ACTIVE.toString());
+        }
 
         registrarUserRepository.save(registrarUser);
     }
