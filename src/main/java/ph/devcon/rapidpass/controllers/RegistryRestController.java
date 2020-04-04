@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.services.AuthService;
+import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
@@ -40,7 +40,7 @@ import java.util.Optional;
 public class RegistryRestController {
 
     private final RegistryService registryService;
-    private final AuthService authService;
+    private final ApproverAuthService approverAuthService;
     private final QrPdfService qrPdfService;
 
     @GetMapping("/access-passes")
@@ -155,7 +155,7 @@ public class RegistryRestController {
     @PostMapping("/auth")
     public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
         try {
-            final AgencyAuth auth = this.authService.login(login.getUsername(), login.getPassword());
+            final AgencyAuth auth = this.approverAuthService.login(login.getUsername(), login.getPassword());
             if (auth == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
@@ -172,7 +172,7 @@ public class RegistryRestController {
     @PostMapping("/registrar-users")
     public ResponseEntity<?> createAgencyUser(@RequestBody AgencyUser user) {
         try {
-            this.authService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(user);
             return ResponseEntity.ok().build();
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
