@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.LookupTable;
+import ph.devcon.rapidpass.entities.LookupTablePK;
 import ph.devcon.rapidpass.enums.LookupType;
 import ph.devcon.rapidpass.services.LookupTableService;
 
@@ -43,10 +44,11 @@ public class LookupControllerTest {
     @Test
     void testOkLookup() {
 
-        when(this.mockLookupService.getByType(LookupType.APOR)).thenReturn(Arrays.asList(
-           new LookupTable("AG", "Agribusiness & Agricultural Workers"),
-           new LookupTable("BA", "Banks")
-        ));
+        final LookupTable ag = new LookupTable("AG", "Agribusiness & Agricultural Workers");
+        ag.setLookupTablePK(new LookupTablePK("APOR", "AG"));
+        final LookupTable ba = new LookupTable("BA", "Banks");
+        ba.setLookupTablePK(new LookupTablePK("APOR", "BA"));
+        when(this.mockLookupService.getByType(LookupType.APOR)).thenReturn(Arrays.asList(ag, ba));
 
         try {
             mockMvc.perform(req.queryParam("type", "APOR"))
