@@ -91,10 +91,6 @@ public class NewAccessPassRequestValidator implements Validator {
         RapidPassRequest rapidPassRequest = object instanceof RapidPassRequest ? ((RapidPassRequest) object) : null;
         if (rapidPassRequest != null)
             validateRapidPassRequest(rapidPassRequest, errors);
-
-        AccessPass accessPass = object instanceof AccessPass ? ((AccessPass) object) : null;
-        if (accessPass != null)
-            validateAccessPass(accessPass, errors);
     }
 
     private boolean isValidAporType(String aporType) {
@@ -134,7 +130,7 @@ public class NewAccessPassRequestValidator implements Validator {
     
     
     private static boolean isValidMobileNumber(String mobileNumber){
-    	final String MOBILE_NUMBER_REGEX = "^(09|\\+639)\\d{9}$";
+    	final String MOBILE_NUMBER_REGEX = "^09\\d{9}$";
     	Pattern p = Pattern.compile(MOBILE_NUMBER_REGEX);
     	Matcher m = p.matcher(mobileNumber);
         return m.matches();
@@ -174,31 +170,6 @@ public class NewAccessPassRequestValidator implements Validator {
         return !existingAccessPass.isPresent();
     }
 
-    private void validateAccessPass(AccessPass accessPass, Errors errors) {
-
-        if (!isValidAporType(accessPass.getAporType()))
-            errors.rejectValue("aporType", "invalid.aporType", "Invalid APOR Type.");
-
-        ValidationUtils.rejectIfEmpty(errors, "passType", "missing.passType", "Missing Pass Type.");
-
-        if (accessPass.getPassType() == null || !isValidPassType(accessPass.getPassType()))
-            errors.rejectValue("passType", "invalid.passType", "Invalid Pass Type.");
-
-        if (!isValidIdType(accessPass.getPassType(), accessPass.getIdType()))
-            errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
-
-        ValidationUtils.rejectIfEmpty(errors, "identifierNumber", "missing.identifierNumber", "Missing identifier number.");
-
-        if (!hasPlateNumberIfVehicle(accessPass.getPassType(), accessPass.getPlateNumber()))
-            errors.rejectValue("plateNumber", "missing.plateNumber", "Missing plate number.");
-
-        String identifier = accessPass.getReferenceID();
-
-        if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
-            errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s", identifier));
-        }
-    }
-
     private void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
         if (!isValidAporType(request.getAporType()))
             errors.rejectValue("aporType", "invalid.aporType", "Invalid APOR Type.");
@@ -208,7 +179,7 @@ public class NewAccessPassRequestValidator implements Validator {
         if (request.getPassType() == null || !isValidPassType(request.getPassType().toString()))
             errors.rejectValue("passType", "invalid.passType", "Invalid Pass Type.");
 
-        if (!isValidIdType(request.getPassType().toString(), request.getIdType()))
+        if (request.getPassType() == null || !isValidIdType(request.getPassType().toString(), request.getIdType()))
             errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
 
         ValidationUtils.rejectIfEmpty(errors, "identifierNumber", "missing.identifierNumber", "Missing identifier number.");
@@ -222,7 +193,7 @@ public class NewAccessPassRequestValidator implements Validator {
             errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s", identifier));
         }
         
-        if(!isValidMobileNumber(request.getMobileNumber())){
+        if(StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())){
         	errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format");
         }
     }
