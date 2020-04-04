@@ -129,6 +129,7 @@ public class RegistryBatchRestController {
             ICSVWriter csvWriter = new CSVWriter(writer);
             StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)
                 .withSeparator(DEFAULT_SEPARATOR)
+                .withApplyQuotesToAll(false)
                 .build();
             
             sbc.write(pagedRapidPass.getContent());
