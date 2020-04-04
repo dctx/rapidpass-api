@@ -92,28 +92,36 @@ public class ApproverAuthService {
      * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
      */
     public final RegistrarUser createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
-        final String registrarShortName = user.getRegistrar();
-        final Registrar registrar = registrarRepository.findByShortName(registrarShortName);
-        if (registrar == null) {
-            log.error("the registrar provided does not exist");
-            throw new IllegalArgumentException("unable to find registrar for user");
+
+        // Reworked validation
+        NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
+        StandardDataBindingValidation dataValidator = new StandardDataBindingValidation(validator);
+        dataValidator.validate(user);
+
+        Registrar registrar = this.registrarRepository.findByShortName(user.getRegistrar());
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+
+        registrarUser.setRegistrarId(registrar);
+        registrarUser.setUsername(user.getUsername());
+
+
+        if (user.isBatchUpload()) {
+            registrarUser.setFirstName(user.getFirstName());
+            registrarUser.setLastName(user.getLastName());
+            registrar.setEmail(user.getEmail());
+            registrarUser.setStatus(RegistrarUserStatus.INACTIVE.toString());
+
+            // TODO: Send email to approver
+
+        } else if (user.isIndividualRegistration()) {
+            final String hashedPassword = passwordHash(user.getPassword());
+            registrarUser.setPassword(hashedPassword);
+            registrarUser.setStatus(RegistrarUserStatus.ACTIVE.toString());
         }
 
-        final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(user.getUsername());
-        if (registrarUser != null) {
-            log.error("user already exists");
-            throw new IllegalArgumentException("user already exists");
-        }
-
-        final RegistrarUser newRegistrarUser = new RegistrarUser();
-        newRegistrarUser.setRegistrarId(registrar);
-        newRegistrarUser.setUsername(user.getUsername());
-        final String hashedPassword = passwordHash(user.getPassword());
-        newRegistrarUser.setPassword(hashedPassword);
-        newRegistrarUser.setStatus("active");
-
-        registrarUserRepository.saveAndFlush(newRegistrarUser);
-        return newRegistrarUser;
+        registrarUserRepository.saveAndFlush(registrarUser);
+        return registrarUser;
     }
 
     /**
