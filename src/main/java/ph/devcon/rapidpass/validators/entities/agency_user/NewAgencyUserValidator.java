@@ -11,7 +11,6 @@ import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public class NewAgencyUserValidator implements Validator {
 
