@@ -11,7 +11,6 @@ import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public class NewAgencyUserValidator implements Validator {
 
@@ -24,13 +23,14 @@ public class NewAgencyUserValidator implements Validator {
     public NewAgencyUserValidator(RegistrarUserRepository registrarUserRepository, RegistrarRepository registrarRepository) {
         this.registrarUserRepository = registrarUserRepository;
         this.registrarRepository = registrarRepository;
-
-        registrars = registrarRepository.findAll();
     }
 
 
-    private Stream<String> getRegistrarsShortName() {
-        return registrars.stream().map(Registrar::getShortName);
+    private boolean registrarWithShortNameExists(String shortName) {
+        if (StringUtils.isEmpty(shortName))
+            return false;
+
+        return registrarRepository.findByShortName(shortName) != null;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class NewAgencyUserValidator implements Validator {
     }
 
     private boolean hasValidRegistrar(AgencyUser agencyUser) {
-        return getRegistrarsShortName().anyMatch(r -> r.equals(agencyUser.getRegistrar()));
+        return registrarWithShortNameExists(agencyUser.getRegistrar());
     }
 
     private boolean usernameAlreadyExists(AgencyUser agencyUser) {
