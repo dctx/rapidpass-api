@@ -3,7 +3,8 @@ package ph.devcon.rapidpass.controllers;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVWriter;
-import com.opencsv.bean.*;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.PageMetaData;
+import ph.devcon.rapidpass.models.PagedCSV;
+import ph.devcon.rapidpass.models.RapidPassCSVDownloadData;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.services.RegistryService;
+import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -49,61 +55,15 @@ public class RegistryBatchRestController {
      * Upload CSV or excel file of approved control numbers
      *
      * @param csvFile Receives CSV File Payload
-     * @param username Registrar User name
      *
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
             throws IOException, RegistryService.UpdateAccessPassException {
 
-        List<RapidPassCSVdata> approvedAccessPass;
+        SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
+        List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
 
-        if (csvFile.isEmpty()) {
-            return null;
-        } else {
-
-            try (Reader fileReader = new BufferedReader(new InputStreamReader(csvFile.getInputStream()))) {
-                ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
-                strategy.setType(RapidPassCSVdata.class);
-                String[] accessPassCSVColumnMapping = {
-                        "passType",
-                        "aporType",
-                        "firstName",
-                        "middleName",
-                        "lastName",
-                        "suffix",
-                        "company",
-                        "idType",
-                        "identifierNumber",
-                        "plateNumber",
-                        "mobileNumber",
-                        "email",
-                        "originName",
-                        "originStreet",
-                        "originCity",
-                        "originProvince",
-                        "destName",
-                        "destStreet",
-                        "destCity",
-                        "destProvince",
-                        "remarks"
-                };
-
-                strategy.setColumnMapping(accessPassCSVColumnMapping);
-                CsvToBean<RapidPassCSVdata> csvToBean = new CsvToBeanBuilder(fileReader)
-                        .withMappingStrategy(strategy)
-                        .withType(RapidPassCSVdata.class)
-                        .withSkipLines(1)
-                        .withIgnoreLeadingWhiteSpace(true)
-                        .build();
-
-                approvedAccessPass = csvToBean.parse();
-
-                fileReader.close();
-            } catch (Exception e) {
-                throw e;
-            }
-        }
         return this.registryService.batchUpload(approvedAccessPass);
     }
     
@@ -152,5 +112,11 @@ public class RegistryBatchRestController {
         return response;
         
     }
+
+    @PostMapping("approvers")
+    public void batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) {
+
+    }
+
 }
 
