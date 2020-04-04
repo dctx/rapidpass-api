@@ -447,4 +447,5 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
+    <include relativeToChangelogFile="true" file="db.changelog-changes.xml"/>
 </databaseChangeLog>
