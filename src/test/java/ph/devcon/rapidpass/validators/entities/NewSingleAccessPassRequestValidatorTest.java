@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class NewAccessPassRequestValidatorTest {
+public class NewSingleAccessPassRequestValidatorTest {
 
     @Mock
     LookupTableService lookupTableService;
@@ -55,21 +55,6 @@ public class NewAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
 
         // ---- CASE already has one existing access pass, but it is declined ----
 
@@ -88,7 +73,6 @@ public class NewAccessPassRequestValidatorTest {
 
         accessPass = AccessPass.builder()
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE.toString())
@@ -121,7 +105,6 @@ public class NewAccessPassRequestValidatorTest {
 
         accessPass = AccessPass.builder()
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE.toString())
@@ -153,21 +136,6 @@ public class NewAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
         // ---- CASE already has one existing access pass, but it is declined ----
 
         when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
@@ -185,7 +153,6 @@ public class NewAccessPassRequestValidatorTest {
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
@@ -217,7 +184,6 @@ public class NewAccessPassRequestValidatorTest {
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
@@ -284,52 +250,6 @@ public class NewAccessPassRequestValidatorTest {
     }
 
     @Test
-    public void failIfMissingIdType() {
-
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
-
-        // ---- CASE APOR invalid type ----
-        accessPass = AccessPass.builder()
-                .idType("SOME INVALID ID TYPE")
-                .build();
-
-        binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, hasItem("Invalid ID Type."));
-
-
-        // ---- CASE APOR is null  ----
-
-        accessPass = AccessPass.builder()
-                .idType(null)
-                .build();
-
-        binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, hasItem("Invalid ID Type."));
-
-        System.out.println(bindingResult);
-    }
-
-    @Test
     public void failIfMissingPlateNumberIfVehicle() {
 
         NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
@@ -387,21 +307,6 @@ public class NewAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
         when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         AccessPass.builder()
@@ -418,7 +323,6 @@ public class NewAccessPassRequestValidatorTest {
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
@@ -448,7 +352,6 @@ public class NewAccessPassRequestValidatorTest {
         rapidPassRequest = RapidPassRequest.builder()
                 .mobileNumber("a09662006888")
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
@@ -472,7 +375,6 @@ public class NewAccessPassRequestValidatorTest {
         rapidPassRequest = RapidPassRequest.builder()
                 .mobileNumber("639662006888")
                 .aporType("AG")
-                .idType("PLT")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)

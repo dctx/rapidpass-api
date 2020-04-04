@@ -1,9 +1,17 @@
 package ph.devcon.rapidpass.validators.entities;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.entities.LookupTablePK;
@@ -12,11 +20,6 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Subset of {@link NewAccessPassRequestValidator}, that doesn't do id type checking.
@@ -112,6 +115,14 @@ public class NewSingleAccessPassRequestValidator implements Validator {
 
         return StringUtils.hasLength(plateNumber);
     }
+    
+    
+    private static boolean isValidMobileNumber(String mobileNumber){
+    	final String MOBILE_NUMBER_REGEX = "^(09|\\+639)\\d{9}$";
+    	Pattern p = Pattern.compile(MOBILE_NUMBER_REGEX);
+    	Matcher m = p.matcher(mobileNumber);
+        return m.matches();
+    }
 
     /**
      * Checks if there is an existing PENDING/APPROVED RapidPass for referenceId which can be mobile number or
@@ -193,6 +204,10 @@ public class NewSingleAccessPassRequestValidator implements Validator {
 
         if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
             errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s", identifier));
+        }
+        
+        if(!isValidMobileNumber(request.getMobileNumber())){
+        	errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format");
         }
     }
 }
