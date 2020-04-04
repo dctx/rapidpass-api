@@ -9,12 +9,15 @@ import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.enums.RegistrarUserStatus;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 import ph.devcon.rapidpass.utilities.CryptUtils;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
+import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
+import ph.devcon.rapidpass.validators.entities.agency_user.NewAgencyUserValidator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
