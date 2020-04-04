@@ -181,6 +181,19 @@ public class RegistryRestController {
         }
     }
 
+    @PostMapping("/registrar-users/{username}/password")
+    public ResponseEntity<?> createAgencyUser(@PathVariable String username, @RequestBody AgencyChangePasswordRequest cpRequest) {
+        try {
+            this.approverAuthService.changePassword(username, cpRequest.getOldPassword(), cpRequest.getNewPassword());
+            return ResponseEntity.ok().build();
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     /**
      * This endpoint returns the base64 image data of a qr code.
      *

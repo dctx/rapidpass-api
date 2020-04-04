@@ -13,11 +13,13 @@ import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
+import ph.devcon.rapidpass.utilities.CryptUtils;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -218,5 +220,71 @@ class ApproverAuthServiceTest {
             fail(e);
         }
     }
+
+    @Test
+    void testChangePasswordOk() {
+        final String oldPassword = "password";
+        String oldPasswordHash = "'";
+        try {
+            oldPasswordHash = CryptUtils.passwordHash(oldPassword);
+        } catch (NoSuchAlgorithmException e) {
+            fail(e);
+        } catch (InvalidKeySpecException e) {
+            fail(e);
+        }
+
+        final String username = "username";
+        final String password = "password";
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(oldPasswordHash);
+        registrarUser.setStatus("active");
+
+        // has no user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+
+        try {
+            this.approverAuthService.changePassword(username, oldPassword, password);
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void testChangePasswordNotOk() {
+        final String oldPassword = "password";
+        String oldPasswordHash = "'";
+        try {
+            oldPasswordHash = CryptUtils.passwordHash(oldPassword);
+        } catch (NoSuchAlgorithmException e) {
+            fail(e);
+        } catch (InvalidKeySpecException e) {
+            fail(e);
+        }
+
+        final String username = "username";
+        final String password = "password";
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(oldPasswordHash);
+        registrarUser.setStatus("active");
+
+        // has no user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+
+        boolean exceptionThrown = false;
+        try {
+            this.approverAuthService.changePassword(username, "not the old password", password);
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+            fail(e);
+        } catch (IllegalArgumentException e) {
+            exceptionThrown = true;
+        }
+
+        assertTrue(exceptionThrown);
+    }
+
 
 }
