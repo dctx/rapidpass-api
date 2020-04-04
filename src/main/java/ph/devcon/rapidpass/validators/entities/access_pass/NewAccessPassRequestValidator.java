@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.validators.entities;
+package ph.devcon.rapidpass.validators.entities.access_pass;
 
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;

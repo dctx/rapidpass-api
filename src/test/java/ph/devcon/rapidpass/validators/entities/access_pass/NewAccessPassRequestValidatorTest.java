@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.validators.entities;
+package ph.devcon.rapidpass.validators.entities.access_pass;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
