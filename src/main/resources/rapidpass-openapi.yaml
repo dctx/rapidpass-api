@@ -111,6 +111,28 @@ paths:
                 items:
                   $ref: '#/components/schemas/RapidPass'
       description: Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
+  /batch/approvers:
+    post:
+      operationId: batchRegisterApprovers
+      tags:
+        - bulk
+      summary: Upload a CSV of new approvers to register.
+      requestBody:
+        content:
+          description:
+            example:
+              Some example value here
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Upload successful
+
   /batch/access-passes:
     get:
       tags:
