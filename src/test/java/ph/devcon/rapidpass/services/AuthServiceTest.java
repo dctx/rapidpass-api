@@ -18,14 +18,11 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,20 +46,24 @@ class AuthServiceTest {
 
     @Test
     void testCreateNewUser() {
-        final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
+
         final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
+                .registrar("DOH")
                 .username(username)
                 .password(password)
                 .build();
 
         // has registrar
-        final Registrar registrarId = new Registrar();
-        when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrarId);
+        final Registrar registrar = Registrar.builder()
+                .shortName("DOH")
+                .id(1)
+                .build();
+
+        when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrar);
         // no existing user
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(Collections.emptyList());
 
         try {
             this.authService.createAgencyCredentials(user);
@@ -75,68 +76,10 @@ class AuthServiceTest {
 
         final RegistrarUser capturedEntity = argCaptor.getValue();
         assertEquals(capturedEntity.getUsername(), username);
-        assertEquals(capturedEntity.getRegistrarId(), registrarId);
+        assertEquals(capturedEntity.getRegistrarId(), registrar);
         assertNotNull(capturedEntity.getPassword(), password);
         assertNotEquals(capturedEntity.getPassword(), "");
         assertNotEquals(capturedEntity.getPassword(), password);
-    }
-
-    @Test
-    void testCreateExistingUser() {
-        final String registrar = "DOH";
-        final String username = "username";
-        final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
-
-        // has registrar
-        final Registrar registrarId = new Registrar();
-        when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrarId);
-        // has existing user
-        final RegistrarUser existingUser = new RegistrarUser();
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(users);
-
-        boolean captured = false;
-        try {
-            this.authService.createAgencyCredentials(user);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            fail(e);
-        } catch (IllegalArgumentException e) {
-            captured = true;
-        }
-
-        assertTrue(captured, "should throw illegalargument");
-    }
-
-    @Test
-    void testCreateUserWithWrongRegistrar() {
-        final String registrar = "DOH";
-        final String username = "username";
-        final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
-
-        // has no registrar
-        when(this.registrarRepository.findByShortName(anyString())).thenReturn(null);
-
-        boolean captured = false;
-        try {
-            this.authService.createAgencyCredentials(user);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            fail(e);
-        } catch (IllegalArgumentException e) {
-            captured = true;
-        }
-
-        assertTrue(captured, "should throw illegalargument");
     }
 
     @Test
