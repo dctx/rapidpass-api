@@ -5,8 +5,11 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
@@ -17,8 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
+
 /**
- * The {@link JwtAuthenticationFilter} verifies if we have valid signed tokens. runs after API Key filter - hence using {@link AbstractPreAuthenticatedProcessingFilter}
+ * {@link JwtAuthenticationFilter} verifies if we have valid signed tokens. runs after API Key filter - hence using {@link AbstractPreAuthenticatedProcessingFilter}
  * It does NOT authorize requestor groups as this should be done in a separate filter.
  *
  * @author jonasespelita@gmail.com
@@ -55,15 +60,30 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
         return token.replace(TOKEN_PREFIX, "").trim();
     }
 
+    /**
+     * This Authentication manager grants authorities by reading the JWT "group" claim.
+     */
+    final public static AuthenticationManager JWT_AUTHENTICATION_MANAGER = authentication -> {
+        // preauthenticated by API, already verified by JwtGenerator.validateToken,
+        // we are authenticated!
+        authentication.setAuthenticated(true);
+
+        // add group as authority
+        //noinspection unchecked
+        final Map<String, Object> principal = (Map<String, Object>) authentication.getPrincipal();
+        final GrantedAuthority group = new SimpleGrantedAuthority((String) principal.get("group"));
+
+        // create auth token with granted auth from group claim
+        return new PreAuthenticatedAuthenticationToken(authentication.getPrincipal(),
+                authentication.getCredentials(),
+                singletonList(group));
+    };
+
     @PostConstruct
     void postConstruct() {
+        log.info("JwtAuthenticationFilter initialized!");
         // set up a simple authentication manager
-        setAuthenticationManager(
-                authentication -> {
-                    // preauthenticated by API, trust it until we verify tokens, authorize with another filter
-                    authentication.setAuthenticated(true);
-                    return authentication;
-                });
+        setAuthenticationManager(JWT_AUTHENTICATION_MANAGER);
     }
 
     /**
@@ -76,16 +96,16 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 
-        log.debug("Getting identity from request.");
+
         String token = getHeaderString(request);
         if (StringUtils.isEmpty(token)) {
-            log.debug("Could not authenticate request header. No Token.");
+            log.debug("Could not authenticate request header. No Token in request header.");
             return null;
         }
 
         // remove Bearer
         token = cleanToken(token);
-
+        log.debug("Got JWT token from request. {}", token);
         try {
             // get the claims
             final Map<String, Object> claims =

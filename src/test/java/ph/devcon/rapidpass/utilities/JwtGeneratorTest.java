@@ -24,14 +24,15 @@ public class JwtGeneratorTest {
 
     @Test
     void generateToken() throws Exception {
-        String secret = "rapidpass";
+        String secret = "checkpoint-secret";
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", "12314");
         claims.put("name", "Kevin Smith");
-        claims.put("group", "registrant");
+        claims.put("group", "checkpoint");
 
         log.info(claims.toString());
         String token = JwtGenerator.generateToken(claims, secret);
+        log.info(token);
         Assertions.assertNotNull(token);
     }
 
