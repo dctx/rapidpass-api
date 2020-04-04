@@ -22,8 +22,8 @@ import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
-import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.access_pass.NewAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
 
 import java.io.IOException;
 import java.text.ParseException;
