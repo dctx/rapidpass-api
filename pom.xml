@@ -171,7 +171,7 @@
             <version>0.9.1</version>
         </dependency>
 
-        <!--  For JWT Decoding  and Signature Handling  -->
+        <!--  For JWT Decoding and Signature Handling  -->
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
@@ -320,6 +320,13 @@
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
+        </dependency>
+
+        <!-- formatting -->
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>8.12.1</version>
         </dependency>
     </dependencies>
 
