@@ -61,6 +61,9 @@ rbac:
         - endpoint: /registry/**
           verbs:
             - ALL
+        - endpoint: /checkpoint/**
+          verbs:
+            - ALL
     - role: ADMIN
       resources:
         - endpoint: /**
