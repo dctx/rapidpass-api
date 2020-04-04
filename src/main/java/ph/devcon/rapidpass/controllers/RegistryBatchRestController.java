@@ -1,9 +1,5 @@
 package ph.devcon.rapidpass.controllers;
 
-
-import com.opencsv.bean.ColumnPositionMappingStrategy;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 import ph.devcon.rapidpass.models.RapidPassBulkData;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.services.RegistryService;
+import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -54,59 +48,14 @@ public class RegistryBatchRestController {
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
             throws IOException, RegistryService.UpdateAccessPassException {
 
-        List<RapidPassCSVdata> approvedAccessPass;
+        SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
+        List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
 
-        if (csvFile.isEmpty()) {
-            return null;
-        } else {
-
-            try (Reader fileReader = new BufferedReader(new InputStreamReader(csvFile.getInputStream()))) {
-                ColumnPositionMappingStrategy strategy = new ColumnPositionMappingStrategy();
-                strategy.setType(RapidPassCSVdata.class);
-                String[] accessPassCSVColumnMapping = {
-                        "passType",
-                        "aporType",
-                        "firstName",
-                        "middleName",
-                        "lastName",
-                        "suffix",
-                        "company",
-                        "idType",
-                        "identifierNumber",
-                        "plateNumber",
-                        "mobileNumber",
-                        "email",
-                        "originName",
-                        "originStreet",
-                        "originCity",
-                        "originProvince",
-                        "destName",
-                        "destStreet",
-                        "destCity",
-                        "destProvince",
-                        "remarks"
-                };
-
-                strategy.setColumnMapping(accessPassCSVColumnMapping);
-                CsvToBean<RapidPassCSVdata> csvToBean = new CsvToBeanBuilder(fileReader)
-                        .withMappingStrategy(strategy)
-                        .withType(RapidPassCSVdata.class)
-                        .withSkipLines(1)
-                        .withIgnoreLeadingWhiteSpace(true)
-                        .build();
-
-                approvedAccessPass = csvToBean.parse();
-
-                fileReader.close();
-            } catch (Exception e) {
-                throw e;
-            }
-        }
         return this.registryService.batchUpload(approvedAccessPass);
     }
 
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<RapidPassBulkData> downloadAccesPasses(
+    public ResponseEntity<RapidPassBulkData> downloadAccessPasses(
             @NotNull @ApiParam(value = "indicates last sync of checkpoint device in Epoch format", required = true)
             @Valid @RequestParam(value = "lastSyncOn", required = true)
                     Long lastSyncOn,
@@ -122,5 +71,11 @@ public class RegistryBatchRestController {
 
         return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
     }
+
+    @PostMapping("approvers")
+    public void batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) {
+
+    }
+
 }
 
