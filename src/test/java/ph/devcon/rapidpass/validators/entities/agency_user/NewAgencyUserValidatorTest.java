@@ -9,6 +9,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import ph.devcon.rapidpass.entities.Registrar;
+import ph.devcon.rapidpass.entities.RegistrarUser;
 import ph.devcon.rapidpass.enums.RegistrarUserSource;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,19 +42,17 @@ public class NewAgencyUserValidatorTest {
     @BeforeEach
     public void init() {
 
-        when(registrarRepository.findAll()).thenReturn(
-                Collections.singletonList(
-                        Registrar.builder()
-                                .shortName("DOH")
-                                .id(1)
-                                .build()
-                )
-        );
     }
 
     @Test
     public void newAccessPass_INDIVIDUAL() {
 
+        when(registrarRepository.findByShortName(anyString())).thenReturn(
+                Registrar.builder()
+                        .shortName("DOH")
+                        .id(1)
+                        .build()
+        );
         NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
 
         AgencyUser agencyUser = AgencyUser.builder()
@@ -79,6 +79,12 @@ public class NewAgencyUserValidatorTest {
     @Test
     public void newAccessPass_BATCH() {
 
+        when(registrarRepository.findByShortName(anyString())).thenReturn(
+                Registrar.builder()
+                        .shortName("DOH")
+                        .id(1)
+                        .build()
+        );
         NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
 
         AgencyUser agencyUser = AgencyUser.builder()
@@ -105,7 +111,48 @@ public class NewAgencyUserValidatorTest {
     }
 
     @Test
+    public void failsIfUsernameAlreadyInUse() {
+        when(registrarUserRepository.findByUsername("darrensapalo")).thenReturn(
+                Collections.singletonList(
+                        RegistrarUser.builder()
+                                .username("darrensapalo")
+                                .id(1)
+                                .build()
+                )
+        );
+
+        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+
+        AgencyUser agencyUser = AgencyUser.builder()
+                .username("darrensapalo")
+                .password("mypassword")
+                .email("myemail@gmail.com")
+                .registrar("DOH")
+                .build();
+
+        binder = new DataBinder(agencyUser);
+        binder.setValidator(newAccessPassRequestValidator);
+
+        binder.validate();
+
+        bindingResult = binder.getBindingResult();
+
+        errors = bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+
+        assertThat(errors, hasItems(containsString("Username already exists")));
+    }
+
+    @Test
     public void batchUploadDoesNotRequirePassword() {
+
+        when(registrarRepository.findByShortName(anyString())).thenReturn(
+                Registrar.builder()
+                        .shortName("DOH")
+                        .id(1)
+                        .build()
+        );
 
         NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
 
