@@ -16,6 +16,21 @@ import static java.util.stream.Collectors.toList;
  * The {@link SimpleRbacConfig} configuration class defines a simplified model for rbac security.
  * Currently supports role to endpoint access control configuration with verb bindings.
  *
+ * <pre>
+ * rbac:
+ *   roles:
+ *     - role: approver
+ *       resources:
+ *         - endpoint: /approver/**
+ *           verbs:
+ *             - ALL
+ *     - role: checkpoint
+ *       resources:
+ *         - endpoint: /checkpoint/**
+ *           verbs:
+ *             - ALL
+ * </pre>
+ *
  * @author jonasespelita@gmail.com
  */
 @Configuration

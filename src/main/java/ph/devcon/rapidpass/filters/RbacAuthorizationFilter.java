@@ -20,6 +20,22 @@ import java.util.List;
 /**
  * The {@link RbacAuthorizationFilter} class processes an authenticated request and checks granted authorities against
  * rbac properties extracted by {@link SimpleRbacConfig} to do rbac authorization.
+ * <p>
+ * RBAC properties are configured by the following properties:
+ * <pre>
+ * rbac:
+ *   roles:
+ *     - role: approver
+ *       resources:
+ *         - endpoint: /approver/**
+ *           verbs:
+ *             - ALL
+ *     - role: checkpoint
+ *       resources:
+ *         - endpoint: /checkpoint/**
+ *           verbs:
+ *             - ALL
+ * </pre>
  *
  * @author jonasespelita@gmail.com
  */
