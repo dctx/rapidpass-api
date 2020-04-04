@@ -189,6 +189,7 @@ public class NewAccessPassRequestValidatorTest {
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -221,6 +222,7 @@ public class NewAccessPassRequestValidatorTest {
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -422,6 +424,7 @@ public class NewAccessPassRequestValidatorTest {
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);

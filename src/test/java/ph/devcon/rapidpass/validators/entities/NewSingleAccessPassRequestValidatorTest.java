@@ -69,7 +69,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         accessPass = AccessPass.builder()
                 .aporType("AG")
@@ -80,7 +80,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -101,7 +101,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         accessPass = AccessPass.builder()
                 .aporType("AG")
@@ -112,7 +112,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -149,17 +149,18 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -180,17 +181,18 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -206,7 +208,7 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfMissingPassType() {
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE pass type is invalid type ----
         accessPass = AccessPass.builder()
@@ -214,7 +216,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -234,7 +236,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -252,7 +254,7 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfMissingPlateNumberIfVehicle() {
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE pass type is vehicle, and plate number is missing ----
         accessPass = AccessPass.builder()
@@ -261,7 +263,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -281,7 +283,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(accessPass);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -318,7 +320,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
@@ -326,10 +328,11 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -345,8 +348,7 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfIncorrectMobileNumberFormat() {
    
-        
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()
@@ -358,7 +360,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
@@ -381,7 +383,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(newSingleAccessPassRequestValidator);
 
         binder.validate();
 
