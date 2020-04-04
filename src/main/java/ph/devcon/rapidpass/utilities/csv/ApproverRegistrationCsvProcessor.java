@@ -12,7 +12,11 @@ import ph.devcon.rapidpass.models.RapidPassCSVdata;
 public class ApproverRegistrationCsvProcessor extends GenericCsvProcessor<RapidPassCSVdata> {
 
     private static final String[] CSV_COLUMN_MAPPING = {
-            "UNKOWN COLUMNS HERE"
+            "registrar",
+            "username",
+            "firstName",
+            "lastName",
+            "email"
     };
 
     public ApproverRegistrationCsvProcessor() {
