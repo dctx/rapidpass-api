@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: ${RAPIDPASS_MAX_FILESIZE}
+      max-request-size: ${RAPIDPASS_MAX_TOTALUPLOADSIZE}
   datasource:
     url: jdbc:postgresql://${RAPIDPASS_PG_HOST}:${RAPIDPASS_PG_PORT}/${RAPIDPASS_PG_DATABASE}
     username: ${RAPIDPASS_PG_USERNAME}
