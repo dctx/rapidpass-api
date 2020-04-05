@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.services;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,11 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.models.RapidPassStatus;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
@@ -27,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
@@ -368,5 +370,34 @@ class RegistryServiceTest {
         assertThat(approved.getStatus(), is("DECLINED"));
 
         verify(mockAccessPassRepository).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
+    }
+
+    @Test
+    void ensureThatFindAllByQueryFilterIsExecuted() {
+
+        ImmutableList<AccessPass> collections = ImmutableList.of(
+                AccessPass.builder()
+                .referenceID("REF-1")
+                .passType(INDIVIDUAL.toString())
+                .name("AJ")
+                .build()
+        );
+
+        QueryFilter queryFilter = QueryFilter.builder()
+                .search("AJ")
+                .pageNo(1)
+                .maxPageRows(5)
+                .passType(INDIVIDUAL.toString())
+                .build();
+
+        when(mockAccessPassRepository.findAllByQueryFilter(any(), (Pageable) any())).thenReturn(
+                new PageImpl(collections)
+        );
+
+        RapidPassPageView rapidPass = instance.findRapidPass(queryFilter);
+
+        assertThat(rapidPass.getRapidPassList(), hasItem((hasProperty("name", equalTo("AJ")))));
+
+        verify(mockAccessPassRepository, only()).findAllByQueryFilter(any(), (Pageable) any());
     }
 }
