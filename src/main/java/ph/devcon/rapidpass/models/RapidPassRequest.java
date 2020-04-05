@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class RapidPassRequest {
     // required fields reference: https://docs.google.com/spreadsheets/d/1YemwomlhoKnDcBDI3OlrA5-yMSOSfA3BHj0N6PijmT4/edit#gid=0
