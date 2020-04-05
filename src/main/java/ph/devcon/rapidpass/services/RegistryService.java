@@ -122,10 +122,10 @@ public class RegistryService {
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
-        accessPass.setIdentifierNumber(StringFormatter.normalize(rapidPassRequest.getIdentifierNumber()));
+        accessPass.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
 
         if (rapidPassRequest.getPlateNumber() != null) {
-            accessPass.setPlateNumber(StringFormatter.normalize(rapidPassRequest.getPlateNumber()));
+            accessPass.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
         }
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
