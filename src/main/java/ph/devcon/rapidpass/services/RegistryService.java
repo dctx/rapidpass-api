@@ -69,8 +69,6 @@ public class RegistryService {
     private final ScannerDeviceRepository scannerDeviceRepository;
     private final RegistrarUserRepository registrarUserRepository;
 
-
-
     /**
      * Creates a new {@link RapidPass} with PENDING status.
      *
