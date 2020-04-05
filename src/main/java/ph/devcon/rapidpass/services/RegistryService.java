@@ -180,7 +180,8 @@ public class RegistryService {
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
-        Page<AccessPass> accessPassPages = accessPassRepository.findAll(example, pageView);
+        Page<AccessPass> accessPassPages = accessPassRepository.findAllByQueryFilter(q, pageView);
+
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
                 .map(RapidPass::buildFrom)
