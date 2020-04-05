@@ -12,12 +12,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
-import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.RapidPassStatus;
+import ph.devcon.rapidpass.repositories.*;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -39,23 +37,23 @@ class RegistryServiceTest {
 
     RegistryService instance;
 
-    @Mock
-    RegistryRepository mockRegistryRepository;
+    @Mock AuthService mockAuthService;
 
-    @Mock
-    ControlCodeService controlCodeService;
+    @Mock RegistrarRepository mockRegistrarRepository;
 
-    @Mock
-    RegistrantRepository mockRegistrantRepository;
+    @Mock ControlCodeService controlCodeService;
 
-    @Mock
-    AccessPassRepository mockAccessPassRepository;
+    @MockRegistrantRepository mockRegistrantRepository;
 
-    @Mock
-    AccessPassNotifierService mockAccessPassNotifierService;
+    @Mock RegistrarUserRepository mockRegistrarUserRepository;
 
-    @Mock
-    ScannerDeviceRepository mockScannerDeviceRepository;
+    @Mock RegistrantRepository mockRegistrantRepository;
+
+    @Mock AccessPassRepository mockAccessPassRepository;
+
+    @Mock AccessPassNotifierService mockAccessPassNotifierService;
+
+    @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
     @Mock LookupTableService lookupTableService;
 
@@ -63,8 +61,17 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
-                mockAccessPassNotifierService, mockScannerDeviceRepository);
+        instance = new RegistryService(
+                mockAuthService,
+                lookupTableService,
+                mockAccessPassNotifierService,
+                mockRegistryRepository,
+                mockRegistrarRepository,
+                mockRegistrantRepository,
+                mockAccessPassRepository,
+                mockScannerDeviceRepository,
+                mockRegistrarUserRepository
+                );
         now = OffsetDateTime.now();
     }
 
