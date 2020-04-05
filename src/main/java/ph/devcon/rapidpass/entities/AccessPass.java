@@ -176,6 +176,8 @@ public class AccessPass implements Serializable {
                 .aporType(q.getAporType())
                 .referenceID(q.getReferenceId())
                 .status(q.getStatus())
+                .name(q.getName())
+                .company(q.getCompany())
                 .plateNumber(q.getPlateNumber())
                 .source(sourceName)
                 .build();
