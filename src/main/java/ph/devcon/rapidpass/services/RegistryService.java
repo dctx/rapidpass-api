@@ -181,17 +181,30 @@ public class RegistryService {
             pagedAccessPasses::getTotalElements);
     }
 
-    public Page<RapidPassCSVDownloadData> findAllApprovedOrSuspendedRapidPassCsvAfter(OffsetDateTime lastUpdatedOn, Pageable page)
+    public RapidPassBulkData findAllApprovedSince(OffsetDateTime lastUpdatedOn, Pageable page)
     {
-        final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
-        Function<List<AccessPass>, List<RapidPassCSVDownloadData>> collectionTransform = accessPasses -> accessPasses.stream()
-            .map(RapidPassCSVDownloadData::buildFrom)
-            .collect(Collectors.toList());
+        Page<AccessPass> dataPage = accessPassRepository
+                .findAllByStatusAndDateTimeUpdatedIsAfter(AccessPassStatus.APPROVED.name(), lastUpdatedOn, page);
 
-        return PageableExecutionUtils.getPage(
-            collectionTransform.apply(pagedAccessPasses.getContent()),
-            page,
-            pagedAccessPasses::getTotalElements);
+        List<?> columnNames = RapidPassBulkData.getColumnNames();
+
+        List<Object> columnValues =  dataPage.stream()
+                .map(RapidPassBulkData::values)
+                .collect(Collectors.toList());
+
+        List<Object> dataRecords = new ArrayList<>();
+        dataRecords.add(columnNames);
+        dataRecords.addAll(columnValues);
+
+        RapidPassBulkData rapidPassBulkData = RapidPassBulkData.builder()
+                .currentPage(dataPage.getNumber())
+                .currentPageRows(dataPage.getNumberOfElements())
+                .totalPages(dataPage.getTotalPages())
+                .totalRows(dataPage.getTotalElements())
+                .data(dataRecords)
+                .build();
+
+        return  rapidPassBulkData;
     }
 
     public Iterable<ControlCode> getControlCodes() {
