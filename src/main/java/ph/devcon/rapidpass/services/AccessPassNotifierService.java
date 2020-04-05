@@ -118,7 +118,7 @@ public class AccessPassNotifierService {
                         mobile,
                         accessPass.getName(),
                         accessPass.getControlCode(),
-                        accessPass.getIdentifierNumber());
+                        accessPass.getPlateNumber());
                 break;
             case DECLINED:
                 emailMessage = buildDeclinedEmailMessage(passType, email, accessPass.getName(), accessPass.getUpdates());
