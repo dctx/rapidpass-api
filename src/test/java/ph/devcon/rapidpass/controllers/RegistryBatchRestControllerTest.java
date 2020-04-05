@@ -13,8 +13,6 @@ import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.logging.Logger;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -22,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(RegistryBatchRestController.class)
 @EnableConfigurationProperties
-@Import(JwtSecretsConfig.class)
+@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
 public class RegistryBatchRestControllerTest
 {
 

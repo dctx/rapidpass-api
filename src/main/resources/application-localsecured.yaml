@@ -1,17 +1,19 @@
 spring:
-  servlet:
   datasource:
     url: jdbc:postgresql://localhost:5432/rapidpass
     username: dctx
     password: password
-  jpa:
-    hibernate:
-      ddl-auto: none
+  #  jpa:
+  #    hibernate:
+  #      ddl-auto: update
+  h2:
+    console:
+      enabled: true
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
     date-format: ph.devcon.rapidpass.utilities.RFC3339DateFormat
-  #    default-property-inclusion: non_empty
+
   mail:
     host: smtp.mailgun.org
     port: 587
@@ -23,29 +25,22 @@ spring:
           auth: true
           starttls:
             enable: true
+
+
 springfox:
   documentation:
     swagger:
       v2:
         path: /api-docs
 
-semaphore:
-  url: https://api.semaphore.co/api/v4/messages
-  key: ''
-
-server:
-  servlet:
-    context-path: /api/v1
-
-rapidpass:
-  auth:
-    apiKey:
-      enabled: true
-      key: dctx
-
 qrmaster:
   skey: rapidmasterkey
   controlkey: controlsecretkey
+
+testMobile: 09171234567
+testEmail: test@gmail.com
+
+security.enabled: true
 
 jwt:
   secrets:
@@ -54,6 +49,25 @@ jwt:
     - group: approver
       secret: approver-secret
 
-# configure rbac roles here
 rbac:
   roles:
+    - role: approver
+      resources:
+        - endpoint: /approver/**
+          verbs:
+            - ALL
+    - role: checkpoint
+      resources:
+        - endpoint: /registry/**
+          verbs:
+            - ALL
+        - endpoint: /checkpoint/**
+          verbs:
+            - ALL
+    - role: ADMIN
+      resources:
+        - endpoint: /**
+          verbs:
+            - ALL
+logging.level:
+  ph.devcon: debug

@@ -27,6 +27,33 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
+  /lookup:
+    get:
+      tags:
+        - dashboard
+        - registration
+      summary: >-
+        Returns lookup data for APOR, ID Types, etc
+      operationId: lookup
+      parameters:
+        - name: type
+          in: query
+          description: >-
+            the type of lookup data to retrieve
+          required: true
+          schema:
+            $ref: '#/components/schemas/LookupOption'
+      responses:
+        200:
+          description: Lookup data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LookupMap'
+        400:
+          description: lookup type does not exist
+        500:
+          description: Unable to retrieve lookup data from database
   /registry/auth:
     post:
       tags:
@@ -56,6 +83,60 @@ paths:
           description: Bad Request
         '500':
           description: Internal Server Error
+  /registry/registrar-users:
+    post:
+      tags:
+        - dashboard
+      summary: >-
+        Create a new Registrar User (Agency User). This will fail if an existing
+        username is already in the database
+      operationId: createAgencyUser
+      description: >-
+        Called from the dashboard to add new Agency user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrarUser'
+      responses:
+        200:
+          description: User created successfuly
+        400:
+          description: Bad request, some all fields are required
+        401:
+          description: Unauthorized
+        500:
+          description: Internal Error
+  /registry/registrar-users/{username}/password:
+    post:
+      tags:
+        - dashboard
+      summary: >-
+        Update an existing user's password. This will fail if the user does not
+        exist or if the old password does not match the records
+      operationId: changeAgencyUserPassword
+      description: >-
+        Called from the dashboard to change an existing user's password
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegsitrarUserChangePasswordRequest'
+      responses:
+        200:
+          description: password changed successfully
+        400:
+          description: Bad request, old password does not match
+        401:
+          description: Unauthorized
+        500:
+          description: Internal Error
   /registry/access-passes:
     post:
       tags:
@@ -694,6 +775,34 @@ components:
           type: string
           description: A JSON Web Token that will be used to authenticate with the other API requests
           example: abcd.efgh.ijkl
+    RegistrarUser:
+      type: object
+      description: A registrar (agency) user definition (just a subset)
+      properties:
+        registrar:
+          type: string
+          description: The name of the regstrar this user belongs to
+          example: "DOH"
+        username:
+          type: string
+          description: The username for this user
+          example: doh-user
+        password:
+          type: string
+          description: The password for this user
+          example: doh-password
+    RegsitrarUserChangePasswordRequest:
+      type: object
+      description: A change password request
+      properties:
+        oldPassword:
+          type: string
+          description: The old password
+          example: doh-password
+        newPassword:
+          type: string
+          description: The new password
+          example: doh-password0
     PagedCSV:
       type: object
       description: Paged CSV with meta data for client to know what page has been downloaded
@@ -735,5 +844,25 @@ components:
             the reason why they are requesting for a rapid pass, while the `updates` property of a `RapidPass` schema
             denotes the reason why their access pass was granted, declined, or revoked.
           example: Declining this request because the user did not complete the form.
-
-
+    LookupMap:
+      type: object
+      description: A map of lookup data
+      additionalProperties:
+        type: object
+        description: A lookup data
+        properties:
+          value:
+            type: string
+            description: The value of a lookup data
+            example: AG
+          description:
+            type: string
+            description: The description of a lookup data
+            example: Agribusiness & Agricultural Workers
+    LookupOption:
+      type: string
+      description: The valid lookup options
+      enum:
+        - APOR
+        - ID_TYPE_INDIVIDUAL
+        - ID_TYPE_VEHICLE

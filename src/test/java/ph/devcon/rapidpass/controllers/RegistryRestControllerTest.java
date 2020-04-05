@@ -13,13 +13,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
+import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.models.RapidPassStatus;
-import ph.devcon.rapidpass.services.AuthService;
+import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
@@ -41,7 +42,7 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
  */
 @WebMvcTest(RegistryRestController.class)
 @EnableConfigurationProperties
-@Import(JwtSecretsConfig.class)
+@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
 class RegistryRestControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
@@ -135,7 +136,7 @@ class RegistryRestControllerTest {
     QrPdfService mockQrPdfService;
 
     @MockBean
-    AuthService mockAuthService;
+    ApproverAuthService mockApproverAuthService;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.
