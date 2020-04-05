@@ -44,6 +44,9 @@ public class CheckpointRestController
     @Value("${qrmaster.encryptionKey}")
     private String encryptionKey;
 
+    @Value("${qrmaster.masterKey}")
+    private String masterKey;
+
     /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
         this.checkpointService = checkpointService;
@@ -96,6 +99,11 @@ public class CheckpointRestController
 
     @PostMapping("/auth")
     public ResponseEntity<?> authenticateDevice(@RequestBody CheckpointAuthRequest authRequest) {
+
+        // check master key first
+        if (!this.masterKey.equals(authRequest.getMasterKey())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         final ScannerDevice scannerDevice = this.checkpointService.retrieveDeviceByImei(authRequest.getImei());
 

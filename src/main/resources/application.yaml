@@ -50,6 +50,7 @@ qrmaster:
   skey: ***REMOVED***
   controlkey: controlsecretkey
   encryptionKey: ***REMOVED***
+  masterKey: ***REMOVED***
 
 
 jwt:
