@@ -72,7 +72,7 @@ class AuthServiceTest {
         }
 
         final ArgumentCaptor<RegistrarUser> argCaptor = ArgumentCaptor.forClass(RegistrarUser.class);
-        verify(this.registrarUserRepository).save(argCaptor.capture());
+        verify(this.registrarUserRepository).saveAndFlush(argCaptor.capture());
 
         final RegistrarUser capturedEntity = argCaptor.getValue();
         assertEquals(capturedEntity.getUsername(), username);

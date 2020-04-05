@@ -91,7 +91,7 @@ public class AuthService {
      * @throws InvalidKeySpecException this is returned when the hashing algorithm fails. This is an illegal state
      * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
      */
-    public final void createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
+    public final RegistrarUser createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
 
         // Reworked validation
         NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
@@ -120,7 +120,8 @@ public class AuthService {
             registrarUser.setStatus(RegistrarUserStatus.ACTIVE.toString());
         }
 
-        registrarUserRepository.save(registrarUser);
+        registrarUserRepository.saveAndFlush(registrarUser);
+        return registrarUser;
     }
 
     /**
