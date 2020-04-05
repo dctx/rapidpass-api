@@ -71,7 +71,7 @@ class RegistryServiceTest {
                     .idType("COM")
                     .identifierNumber("0915999999")
                     .plateNumber("ABC4321")
-                    .mobileNumber("0915999999")
+                    .mobileNumber("09662016319")
                     .email("jonas.was.here@gmail.com")
                     .destCity("Somewhere in the PH")
                     .company("DEVCON")
