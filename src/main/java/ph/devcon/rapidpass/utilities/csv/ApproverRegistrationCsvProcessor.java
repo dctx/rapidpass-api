@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.utilities.csv;
 
+import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 
 /**
@@ -9,7 +10,7 @@ import ph.devcon.rapidpass.models.RapidPassCSVdata;
  *
  * The actual implementation of the parsing is found in {@link GenericCsvProcessor}.
  */
-public class ApproverRegistrationCsvProcessor extends GenericCsvProcessor<RapidPassCSVdata> {
+public class ApproverRegistrationCsvProcessor extends GenericCsvProcessor<AgencyUser> {
 
     private static final String[] CSV_COLUMN_MAPPING = {
             "registrar",
