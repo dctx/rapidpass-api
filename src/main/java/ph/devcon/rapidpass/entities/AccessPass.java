@@ -198,16 +198,16 @@ public class AccessPass implements Serializable {
                 QrCodeData.individual()
                         .apor(accessPass.getAporType())
                         // long to int -> int = long / 1000
-                        .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
-                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
+                        .validUntil((int) (accessPass.getValidTo().toEpochSecond()))
+                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond()))
                         .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
                         .build() :
                 QrCodeData.vehicle()
                         .apor(accessPass.getAporType())
                         // long to int -> int = long / 1000
-                        .validUntil((int) (accessPass.getValidTo().toEpochSecond() / 1000))
-                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond() / 1000))
+                        .validUntil((int) (accessPass.getValidTo().toEpochSecond()))
+                        .validFrom((int) (accessPass.getValidFrom().toEpochSecond()))
                         .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
                         .build();
