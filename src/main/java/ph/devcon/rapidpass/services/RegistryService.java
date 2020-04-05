@@ -154,8 +154,8 @@ public class RegistryService {
         accessPass.setDateTimeCreated(now);
         accessPass.setDateTimeUpdated(now);
         accessPass.setRemarks(rapidPassRequest.getRemarks());
+        accessPass.setSource(rapidPassRequest.getSource());
         accessPass.setStatus("PENDING");
-        accessPass.setRemarks(rapidPassRequest.getRemarks());
 
         log.debug("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
