@@ -38,4 +38,6 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     @Query("select ap from AccessPass ap where (ap.status = 'APPROVED' or ap.status = 'SUSPENDED') " +
         "and (ap.dateTimeCreated > :since or ap.dateTimeUpdated > :since)")
     Page<AccessPass> findAllApprovedAndSuspendedSince(@Param("since") OffsetDateTime since, Pageable page);
+
+    Page<AccessPass> findAllByStatusAndDateTimeUpdatedIsAfter(String status, OffsetDateTime lastUpdatedOn, Pageable page);
 }

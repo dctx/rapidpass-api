@@ -1,16 +1,12 @@
 package ph.devcon.rapidpass.controllers;
 
 
-import com.opencsv.CSVWriter;
-import com.opencsv.ICSVWriter;
 import com.opencsv.bean.*;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +21,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-
-import static com.opencsv.ICSVWriter.DEFAULT_SEPARATOR;
 
 
 /**
@@ -48,9 +42,7 @@ public class RegistryBatchRestController {
     /**
      * Upload CSV or excel file of approved control numbers
      *
-     * @param csvFile Receives CSV File Payload
-     * @param username Registrar User name
-     *
+     * @param csvFile  Receives CSV File Payload
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
@@ -106,51 +98,28 @@ public class RegistryBatchRestController {
         }
         return this.registryService.batchUpload(approvedAccessPass);
     }
-    
+
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity downloadAccesPasses(
-        @NotNull @ApiParam(value = "indicates last sync of checkpoint device in Epoch format", required = true)
-        @Valid @RequestParam(value = "lastSyncOn", required = true)
-            Long lastSyncOn,
-        @NotNull @ApiParam(value = "page number requested", required = true)
-        @Valid @RequestParam(value = "pageNumber", required = false,defaultValue = "0")
-            Integer pageNumber,@ApiParam(value = "size of page requested")
-        @Valid @RequestParam(value = "pageSize", required = false,defaultValue = "1000")
-            Integer pageSize)
-    {
-        ResponseEntity response;
-        try
-        {
-            OffsetDateTime lastSyncDateTime =
-                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-            Pageable pageable = PageRequest.of(pageNumber,pageSize);
-            final Page<RapidPassCSVDownloadData> pagedRapidPass = registryService.findAllApprovedOrSuspendedRapidPassCsvAfter(lastSyncDateTime,pageable);
-            StringWriter writer = new StringWriter();
-            ICSVWriter csvWriter = new CSVWriter(writer);
-            StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(csvWriter)
-                .withSeparator(DEFAULT_SEPARATOR)
-                .build();
-            
-            sbc.write(pagedRapidPass.getContent());
-            final String rapidPassCsv = writer.getBuffer().toString();
-            
-            PageMetaData pageMetaData = new PageMetaData();
-            pageMetaData.setPageNumber(pagedRapidPass.getNumber());
-            pageMetaData.setPageSize(pagedRapidPass.getSize());
-            pageMetaData.setTotalPages(pagedRapidPass.getTotalPages());
-            pageMetaData.setTotalRows(pagedRapidPass.getTotalElements());
-            PagedCSV pagedCSV = new PagedCSV();
-            pagedCSV.setCsv(rapidPassCsv);
-            pagedCSV.setMeta(pageMetaData);
-            
-            response = new ResponseEntity(pagedCSV, HttpStatus.OK);
+    public ResponseEntity<RapidPassBulkData> downloadAccesPasses(
+            @NotNull @ApiParam(value = "indicates last sync of checkpoint device in Epoch format", required = true)
+            @Valid @RequestParam(value = "lastSyncOn", required = true)
+                    Long lastSyncOn,
+            @NotNull @ApiParam(value = "page number requested", required = true)
+            @Valid @RequestParam(value = "pageNumber", required = false, defaultValue = "0")
+                    Integer pageNumber, @ApiParam(value = "size of page requested")
+            @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
+                    Integer pageSize) {
+
+        OffsetDateTime lastSyncDateTime = null;
+        if (lastSyncOn == 0) {
+            lastSyncDateTime = OffsetDateTime.now().minusDays(1);
+        } else {
+            lastSyncDateTime =
+                    OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
         }
-        catch (Exception e)
-        {
-            response = new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
-        
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
     }
 }
 
