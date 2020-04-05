@@ -487,7 +487,7 @@ public class RegistryService {
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
             try {
                 RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
-                request.setSource(RecordSource.BULK_UPLOAD.toString());
+                request.setSource(RecordSource.BULK.toString());
 
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(request);
