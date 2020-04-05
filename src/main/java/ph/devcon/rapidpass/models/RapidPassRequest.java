@@ -3,7 +3,7 @@ package ph.devcon.rapidpass.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
+import lombok.NoArgsConstructor;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
@@ -21,6 +21,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class RapidPassRequest {
     // required fields reference: https://docs.google.com/spreadsheets/d/1YemwomlhoKnDcBDI3OlrA5-yMSOSfA3BHj0N6PijmT4/edit#gid=0
