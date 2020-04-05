@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ph.devcon.rapidpass.services.RegistryService;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
