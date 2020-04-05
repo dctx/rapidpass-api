@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ph.devcon.rapidpass.services.RegistryService;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -55,6 +56,13 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Map<String, String> updateAcessPassError(RegistryService.UpdateAccessPassException ex) {
+        return ImmutableMap.of("message", ex.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> ioException(IOException ex) {
         return ImmutableMap.of("message", ex.getMessage());
     }
 
