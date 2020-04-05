@@ -299,7 +299,7 @@ public class NewAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem(String.format("An existing PENDING/APPROVED RapidPass already exists for %s", rapidPassRequest.getPlateNumber())));
+        assertThat(errors, hasItem(containsString("An existing PENDING/APPROVED RapidPass already exists")));
     }
     
     @Test
@@ -324,7 +324,7 @@ public class NewAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Incorrect mobile number format"));
+        assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
         
         
         // ---- CASE Mobile number has more than 11 characters but doesnt start with 09XXXXXXXXX----
@@ -343,6 +343,6 @@ public class NewAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Incorrect mobile number format"));
+        assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
     }
 }
