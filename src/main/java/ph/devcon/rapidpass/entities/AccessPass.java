@@ -11,6 +11,7 @@ import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.models.QueryFilter;
 
 import javax.persistence.*;
@@ -165,13 +166,18 @@ public class AccessPass implements Serializable {
     }
 
     public static AccessPass fromQueryFilter(QueryFilter q) {
+
+        RecordSource source = q.getSource();
+
+        String sourceName = source != null ? source.name() : null;
+
         return AccessPass.builder()
                 .passType(q.getPassType())
                 .aporType(q.getAporType())
                 .referenceID(q.getReferenceId())
                 .status(q.getStatus())
                 .plateNumber(q.getPlateNumber())
-                .source(q.getSource().name())
+                .source(sourceName)
                 .build();
     }
 
