@@ -47,8 +47,8 @@ public class RapidPassBulkData {
         valueList.add(accessPass.getIdType());
         valueList.add(accessPass.getIdentifierNumber());
         valueList.add(accessPass.getPlateNumber());
-        valueList.add(accessPass.getValidFrom());
-        valueList.add(accessPass.getValidTo());
+        valueList.add(accessPass.getValidFrom().toEpochSecond());
+        valueList.add(accessPass.getValidTo().toEpochSecond());
         valueList.add(accessPass.getIssuedBy());
         return valueList;
     }
