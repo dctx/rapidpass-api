@@ -39,7 +39,10 @@ public class CheckpointRestController
     private final JwtSecretsConfig jwtSecretsConfig;
 
     @Value("${qrmaster.skey}")
-    private String qrSkey;
+    private String signingKey;
+
+    @Value("${qrmaster.encryptionKey}")
+    private String encryptionKey;
 
     /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
@@ -107,7 +110,11 @@ public class CheckpointRestController
 
         String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
 
-        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder().qrKey(qrSkey).accessCode(jwt).build();
+        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
+                .signingKey(this.signingKey)
+                .encryptionKey(this.encryptionKey)
+                .accessCode(jwt)
+                .build();
 
         return ResponseEntity.ok().body(authResponse);
     }

@@ -1,5 +1,23 @@
 package ph.devcon.rapidpass.services;
 
+import com.google.zxing.WriterException;
+import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ph.devcon.dctx.rapidpass.commons.HmacSha256;
+import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
+import ph.devcon.dctx.rapidpass.commons.Signer;
+import ph.devcon.dctx.rapidpass.model.ControlCode;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.time.OffsetDateTime;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -7,23 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.time.OffsetDateTime;
-
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.google.zxing.WriterException;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import ph.devcon.dctx.rapidpass.model.ControlCode;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
 /**
  * TODO: This Qr Pdf Service should only be responsible for PDF generation.
@@ -38,9 +39,19 @@ class QrPdfServiceTest {
     @Mock
     AccessPassRepository accessPassRepository;
 
+
+    private String encryptionKey = "***REMOVED***";
+    private String signingKey = "***REMOVED***";
+
     @BeforeEach
     void setUp() {
-        instance = new QrPdfService(new QrGeneratorServiceImpl(new JsonMapper()), accessPassRepository);
+        final byte[] encryptionKeyBytes = Hex.decode(this.encryptionKey);
+        final byte[] signingKeyBytes = Hex.decode(this.signingKey);
+        final QrCodeSerializer qrCodeSerializer = new QrCodeSerializer(encryptionKeyBytes);
+        final Signer signer = HmacSha256.signer(signingKeyBytes);
+
+        final QrGeneratorServiceImpl qrGenService = new QrGeneratorServiceImpl(qrCodeSerializer, signer);
+        instance = new QrPdfService(qrGenService, accessPassRepository);
 
     }
 

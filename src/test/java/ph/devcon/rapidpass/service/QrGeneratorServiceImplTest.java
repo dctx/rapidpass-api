@@ -1,13 +1,16 @@
 package ph.devcon.rapidpass.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
-import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64;
+import ph.devcon.dctx.rapidpass.commons.HmacSha256;
 import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
+import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
+import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
@@ -22,8 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class QrGeneratorServiceImplTest {
 
-    public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     QrGeneratorServiceImpl instance;
+    QrCodeDeserializer qrDeserializer;
+
+    private String encryptionKey = "***REMOVED***";
+    private String signingKey = "***REMOVED***";
+
 
     private static String decodeQRCode(File qrCodeimage) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(qrCodeimage);
@@ -41,7 +48,13 @@ class QrGeneratorServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        instance = new QrGeneratorServiceImpl(JSON_MAPPER);
+        final byte[] encryptionKeyBytes = Hex.decode(this.encryptionKey);
+        final byte[] signingKeyBytes = Hex.decode(this.signingKey);
+        final QrCodeSerializer qrCodeSerializer = new QrCodeSerializer(encryptionKeyBytes);
+        final Signer signer = HmacSha256.signer(signingKeyBytes);
+
+        instance = new QrGeneratorServiceImpl(qrCodeSerializer, signer);
+        qrDeserializer = new QrCodeDeserializer(encryptionKeyBytes);
     }
 
     private static final long CC_1234_ENCRYPTED = 2491777155L;
@@ -70,7 +83,8 @@ class QrGeneratorServiceImplTest {
         System.out.println("decodedString = " + decodedQrPayloadStr);
         assertThat("we can decode QR Code file", decodedQrPayloadStr, is(not(emptyString())));
 
-        final QrCodeData decodedQrData = QrCodeDeserializer.decode(Base64.decodeBase64(decodedQrPayloadStr.getBytes()));
+        final byte[] qrBytes = Base64.decode(decodedQrPayloadStr);
+        final QrCodeData decodedQrData = this.qrDeserializer.decode(qrBytes);
         assertThat("decoded data is same as payload", decodedQrData, is(testPayload));
     }
 

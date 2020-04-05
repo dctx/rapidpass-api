@@ -747,10 +747,14 @@ components:
       type: object
       description: The response of valid checkpoint device authentication.
       properties:
-        qrKey:
+        signingKey:
           type: string
-          description: the secret needed to decode the QR Code
-          example: supersecretkey
+          description: the secret used to sign the QRs
+          example: 0123456789ABCDEF
+        encryptionKey:
+          type: string
+          description: the secret used to encrypt the QRs
+          example: 0123456789ABCDEF
         accessCode:
           type: string
           description: the JSON Web Token required for the device to access the APIs
