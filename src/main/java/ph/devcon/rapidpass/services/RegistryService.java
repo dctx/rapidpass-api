@@ -167,19 +167,11 @@ public class RegistryService {
 
     public RapidPassPageView findRapidPass(QueryFilter q) {
 
-        AccessPass accessPassExample = AccessPass.fromQueryFilter(q);
-
-        Example<AccessPass> example = Example.of(accessPassExample,
-                ExampleMatcher.matching()
+        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q),
+                ExampleMatcher.matchingAll()
                         .withIgnoreCase()
                         .withMatcher("name", contains())
                         .withMatcher("company", contains())
-                        .withMatcher("passType", exact())
-                        .withMatcher("aporType", exact())
-                        .withMatcher("referenceID", exact())
-                        .withMatcher("plateNumber", exact())
-                        .withMatcher("source", exact())
-                        .withMatcher("status", exact())
         );
 
         Pageable pageView = null;
@@ -188,8 +180,7 @@ public class RegistryService {
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
-        Page<AccessPass> accessPassPages = accessPassRepository.findAllByQueryFilter(q, pageView);
-
+        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
                 .map(RapidPass::buildFrom)
