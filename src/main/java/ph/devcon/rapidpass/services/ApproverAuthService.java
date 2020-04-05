@@ -177,4 +177,15 @@ public class ApproverAuthService {
         registrarUser.setStatus("active");
         this.registrarUserRepository.save(registrarUser);
     }
+
+    public final boolean isActive(final String username) {
+        if (StringUtils.isEmpty(username)) {
+            throw new IllegalArgumentException("username must not be empty");
+        }
+        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
+        if (CollectionUtils.isEmpty(registrarUsers)) {
+            return false;
+        }
+        return "active".equals(registrarUsers.get(0).getStatus());
+    }
 }

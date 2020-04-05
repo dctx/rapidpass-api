@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -405,5 +406,33 @@ class ApproverAuthServiceTest {
 
         assertTrue(caught);
     }
+
+    @Test
+    void testExistingUserActive() {
+        final String username = "user@user.com";
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setStatus("active");
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        assertTrue(this.approverAuthService.isActive(username));
+    }
+
+    @Test
+    void testExistingUserNotActive() {
+        final String username = "user@user.com";
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setStatus("pending");
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        assertFalse(this.approverAuthService.isActive(username));
+    }
+
+    @Test
+    void testNotExistingUserNotActive() {
+        final String username = "user@user.com";
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList());
+        assertFalse(this.approverAuthService.isActive(username));
+    }
+
 
 }

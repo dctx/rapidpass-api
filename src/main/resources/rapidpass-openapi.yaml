@@ -56,12 +56,42 @@ paths:
           description: Unable to retrieve lookup data from database
   /registry/auth:
     post:
+      deprecated: true
+      tags:
+        - dashboard
+      summary: >-
+        Authentication for Dashboard users. This allows access to the APIs for
+        approvals. [DEPRECATED]
+      operationId: loginAgency
+      description: >-
+        Called from the dashboard. When successful, an Auth Token will be returned
+        which can be used for the approvals API.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardAuthRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardAuthResponse'
+        '401':
+          description: Incorrect username or password
+        '403':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+  /users/auth:
+    post:
       tags:
         - dashboard
       summary: >-
         Authentication for Dashboard users. This allows access to the APIs for
         approvals.
-      operationId: loginAgency
+      operationId: loginUser
       description: >-
         Called from the dashboard. When successful, an Auth Token will be returned
         which can be used for the approvals API.
@@ -110,6 +140,38 @@ paths:
       responses:
         200:
           description: User activated
+        400:
+          description: Bad request, fields are required
+        401:
+          description: Unauthorized
+        403:
+          description: The user or the activation code does not match
+        500:
+          description: Internal Error
+  /users/{username}/active:
+    get:
+      tags:
+        - dashboard
+      summary: >-
+        Returns true if the user is active
+      operationId: isUserActive
+      description: >-
+        This is called by the dashboard to check if user is already activated
+      parameters:
+        - name: username
+          description: The username of the user to check
+          in: path
+          required: true
+          schema:
+            type: string
+            example: doh@doh.gov
+      responses:
+        200:
+          description: User is active or not
+          content:
+            application/json:
+              schema:
+                type: boolean
         400:
           description: Bad request, fields are required
         401:
