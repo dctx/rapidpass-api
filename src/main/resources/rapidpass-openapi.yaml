@@ -83,58 +83,39 @@ paths:
           description: Bad Request
         '500':
           description: Internal Server Error
-  /registry/registrar-users:
+  /users/{username}/activate:
     post:
       tags:
         - dashboard
       summary: >-
-        Create a new Registrar User (Agency User). This will fail if an existing
-        username is already in the database
-      operationId: createAgencyUser
+        This activates a new user and sets the password for the user to be able
+        to authorize and perform transactions
+      operationId: activateUser
       description: >-
-        Called from the dashboard to add new Agency user.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegistrarUser'
-      responses:
-        200:
-          description: User created successfuly
-        400:
-          description: Bad request, some all fields are required
-        401:
-          description: Unauthorized
-        500:
-          description: Internal Error
-  /registry/registrar-users/{username}/password:
-    post:
-      tags:
-        - dashboard
-      summary: >-
-        Update an existing user's password. This will fail if the user does not
-        exist or if the old password does not match the records
-      operationId: changeAgencyUserPassword
-      description: >-
-        Called from the dashboard to change an existing user's password
+        This is called from the activation page which received the activation code
+        from the user.
       parameters:
         - name: username
+          description: The username of the user to activate
           in: path
           required: true
           schema:
             type: string
+            example: doh@doh.gov
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegsitrarUserChangePasswordRequest'
+              $ref: '#/components/schemas/UserActivationRequest'
       responses:
         200:
-          description: password changed successfully
+          description: User activated
         400:
-          description: Bad request, old password does not match
+          description: Bad request, fields are required
         401:
           description: Unauthorized
+        403:
+          description: The user or the activation code does not match
         500:
           description: Internal Error
   /registry/access-passes:
@@ -779,34 +760,18 @@ components:
           type: string
           description: A JSON Web Token that will be used to authenticate with the other API requests
           example: abcd.efgh.ijkl
-    RegistrarUser:
+    UserActivationRequest:
       type: object
-      description: A registrar (agency) user definition (just a subset)
+      description: An activation request for user
       properties:
-        registrar:
+        activationCode:
           type: string
-          description: The name of the regstrar this user belongs to
-          example: "DOH"
-        username:
-          type: string
-          description: The username for this user
-          example: doh-user
+          description: The activation code for the user
+          example: AbCdEfG
         password:
           type: string
-          description: The password for this user
-          example: doh-password
-    RegsitrarUserChangePasswordRequest:
-      type: object
-      description: A change password request
-      properties:
-        oldPassword:
-          type: string
-          description: The old password
-          example: doh-password
-        newPassword:
-          type: string
-          description: The new password
-          example: doh-password0
+          description: The password for the user
+          example: secure-password
     PagedCSV:
       type: object
       description: Paged CSV with meta data for client to know what page has been downloaded
