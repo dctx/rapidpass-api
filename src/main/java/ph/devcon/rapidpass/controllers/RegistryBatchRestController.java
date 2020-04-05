@@ -9,9 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ph.devcon.rapidpass.models.RapidPassBulkData;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.RegistryService;
+import ph.devcon.rapidpass.utilities.csv.ApproverRegistrationCsvProcessor;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
 
 import javax.validation.Valid;
@@ -52,7 +52,7 @@ public class RegistryBatchRestController {
         SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
         List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
 
-        return this.registryService.batchUpload(approvedAccessPass);
+        return this.registryService.batchUploadRapidPassRequest(approvedAccessPass);
     }
 
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -79,8 +79,12 @@ public class RegistryBatchRestController {
     }
 
     @PostMapping("approvers")
-    public void batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) {
+    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException {
+        ApproverRegistrationCsvProcessor processor = new ApproverRegistrationCsvProcessor();
 
+        List<AgencyUser> agencyUsers = processor.process(csvFile);
+
+        return this.registryService.batchUploadApprovers(agencyUsers);
     }
 
 }
