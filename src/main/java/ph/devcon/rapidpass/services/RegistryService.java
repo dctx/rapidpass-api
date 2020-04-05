@@ -16,6 +16,7 @@ import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -486,6 +487,7 @@ public class RegistryService {
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
             try {
                 RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+                request.setSource(RecordSource.BULK.toString());
 
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(request);
