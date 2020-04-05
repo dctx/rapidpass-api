@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.models;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ph.devcon.rapidpass.api.models.CommonRapidPassFields;
@@ -10,6 +11,7 @@ import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueryFilter {
@@ -65,6 +67,11 @@ public class QueryFilter {
      * For possible values, see {@link RecordSource}.
      */
     private RecordSource source;
+
+    /**
+     * Searching
+     */
+    private String search;
 
     /**
      * Allows a user to paginate the results. This specifies which page will be shown.
