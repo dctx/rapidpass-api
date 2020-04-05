@@ -9,14 +9,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
+import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.logging.Logger;
-
-import static org.mockito.Mockito.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(RegistryBatchRestController.class)
 @EnableConfigurationProperties
