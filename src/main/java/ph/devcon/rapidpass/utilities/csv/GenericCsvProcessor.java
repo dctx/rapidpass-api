@@ -77,6 +77,8 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
             CsvToBean<E> csvParser = generateCsvToBeanParser(strategy, type, fileReader);
 
             result = csvParser.parse();
+        } catch (IOException e) {
+            throw new IOException("Failed to read CSV file.", e);
         }
 
         return result;
