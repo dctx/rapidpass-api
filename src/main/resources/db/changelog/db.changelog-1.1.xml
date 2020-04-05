@@ -13,4 +13,9 @@
             <column name="source" type="varchar(50)"/>
         </addColumn>
     </changeSet>
+    <changeSet author="eric" id="20200405-2">
+        <modifyDataType tableName="access_pass"
+                        columnName="remarks"
+                        newDataType="VARCHAR(250)"/>
+    </changeSet>
 </databaseChangeLog>
