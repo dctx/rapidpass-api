@@ -12,10 +12,7 @@ import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.models.RapidPassStatus;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -36,20 +33,21 @@ class RegistryServiceTest {
 
     RegistryService instance;
 
-    @Mock
-    RegistryRepository mockRegistryRepository;
+    @Mock AuthService mockAuthService;
 
-    @Mock
-    RegistrantRepository mockRegistrantRepository;
+    @Mock RegistrarRepository mockRegistrarRepository;
 
-    @Mock
-    AccessPassRepository mockAccessPassRepository;
+    @Mock RegistryRepository mockRegistryRepository;
 
-    @Mock
-    AccessPassNotifierService mockAccessPassNotifierService;
+    @Mock RegistrarUserRepository mockRegistrarUserRepository;
 
-    @Mock
-    ScannerDeviceRepository mockScannerDeviceRepository;
+    @Mock RegistrantRepository mockRegistrantRepository;
+
+    @Mock AccessPassRepository mockAccessPassRepository;
+
+    @Mock AccessPassNotifierService mockAccessPassNotifierService;
+
+    @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
     @Mock LookupTableService lookupTableService;
 
@@ -57,8 +55,17 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
-                mockAccessPassNotifierService, mockScannerDeviceRepository);
+        instance = new RegistryService(
+                mockAuthService,
+                lookupTableService,
+                mockAccessPassNotifierService,
+                mockRegistryRepository,
+                mockRegistrarRepository,
+                mockRegistrantRepository,
+                mockAccessPassRepository,
+                mockScannerDeviceRepository,
+                mockRegistrarUserRepository
+                );
         now = OffsetDateTime.now();
     }
 
