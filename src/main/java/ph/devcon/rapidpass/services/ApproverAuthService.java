@@ -5,6 +5,7 @@ import org.apache.commons.codec.DecoderException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
@@ -115,7 +116,7 @@ public class ApproverAuthService {
     /**
      * This changes the password of an approver.
      *
-     * FIXME: Not yet used and not yet tested.
+     * FIXME: will not be used.
      *
      * @param username the username
      * @param oldPassword the old password
@@ -138,5 +139,53 @@ public class ApproverAuthService {
         final String newHashedPassword = CryptUtils.passwordHash(newPassword);
         registrarUser.setPassword(newHashedPassword);
         this.registrarUserRepository.save(registrarUser);
+    }
+
+    /**
+     * Activate an existing user that is of status=pending.
+     *
+     * @param username the username of the user to activate
+     * @param password the password to set for the user
+     * @param activationKey the activationKey to activate the user.
+     * @throws InvalidKeySpecException this is returned when the hashing algorithm fails. This is an illegal state
+     * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
+     */
+    public final void activateUser(final String username, final String password, final String activationKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        if (StringUtils.isEmpty(username)) {
+            throw new IllegalArgumentException("username must not be empty");
+        }
+        if (StringUtils.isEmpty(password)) {
+            throw new IllegalArgumentException("password must not be empty");
+        }
+        if (StringUtils.isEmpty(activationKey)) {
+            throw new IllegalArgumentException("activationKey must not be empty");
+        }
+        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
+        if (CollectionUtils.isEmpty(registrarUsers)) {
+            throw new IllegalStateException("cannot activate a non existent user");
+        }
+        final RegistrarUser registrarUser = registrarUsers.get(0);
+        if (!"pending".equals(registrarUser.getStatus())) {
+            throw new IllegalStateException("cannot activate if user is not pending");
+        }
+        if (!activationKey.equals(registrarUser.getAccessKey())) {
+            throw new IllegalStateException("activation code is not correct");
+        }
+        final String hashedPassword = passwordHash(password);
+        registrarUser.setPassword(hashedPassword);
+        registrarUser.setAccessKey(null);
+        registrarUser.setStatus("active");
+        this.registrarUserRepository.save(registrarUser);
+    }
+
+    public final boolean isActive(final String username) {
+        if (StringUtils.isEmpty(username)) {
+            throw new IllegalArgumentException("username must not be empty");
+        }
+        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
+        if (CollectionUtils.isEmpty(registrarUsers)) {
+            return false;
+        }
+        return "active".equals(registrarUsers.get(0).getStatus());
     }
 }

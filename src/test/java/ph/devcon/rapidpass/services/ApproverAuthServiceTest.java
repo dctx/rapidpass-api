@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -284,6 +286,152 @@ class ApproverAuthServiceTest {
         }
 
         assertTrue(exceptionThrown);
+    }
+
+    @Test
+    void testActivationSuccess() {
+        final String username = "user@user.com";
+        final String password = "password";
+        final String activationCode = "activationCode";
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setStatus("pending");
+        registrarUser.setAccessKey(activationCode);
+
+        String hashedPassword = "";
+        try {
+            hashedPassword = passwordHash(password);
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            fail(e);
+        }
+
+        // has pending user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+
+        try {
+            this.approverAuthService.activateUser(username, password, activationCode);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        final ArgumentCaptor<RegistrarUser> argCaptor = ArgumentCaptor.forClass(RegistrarUser.class);
+        verify(this.registrarUserRepository).save(argCaptor.capture());
+
+        final RegistrarUser capturedEntity = argCaptor.getValue();
+        assertEquals(capturedEntity.getUsername(), username);
+        assertNotNull(capturedEntity.getPassword(), password);
+        assertNull(capturedEntity.getAccessKey());
+        assertNotEquals(capturedEntity.getPassword(), hashedPassword);
+    }
+
+    @Test
+    void testActivationFailNoUsername() {
+        final String username = "";
+        final String password = "password";
+        final String activationCode = "activationCode";
+
+        boolean caught = false;
+        try {
+            this.approverAuthService.activateUser(username, password, activationCode);
+        } catch (IllegalArgumentException e) {
+            caught = true;
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        assertTrue(caught);
+   }
+
+    @Test
+    void testActivationFailNoPassword() {
+        final String username = "username";
+        final String password = "";
+        final String activationCode = "activationCode";
+
+        boolean caught = false;
+        try {
+            this.approverAuthService.activateUser(username, password, activationCode);
+        } catch (IllegalArgumentException e) {
+            caught = true;
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        assertTrue(caught);
+    }
+
+    @Test
+    void testActivationWrongActivationKey() {
+        final String username = "user@user.com";
+        final String password = "password";
+        final String activationCode = "activationCode";
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setStatus("pending");
+        registrarUser.setAccessKey(activationCode);
+
+        boolean caught = false;
+        // has pending user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+
+        try {
+            this.approverAuthService.activateUser(username, password, "wrong activation key");
+        } catch (IllegalStateException e) {
+            caught = true;
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        assertTrue(caught);
+
+    }
+
+    @Test
+    void testActivationUserDoesNotExists() {
+        final String username = "user@user.com";
+
+        boolean caught = false;
+        // has pending user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList());
+
+        try {
+            this.approverAuthService.activateUser(username, "any", "any");
+        } catch (IllegalStateException e) {
+            caught = true;
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        assertTrue(caught);
+    }
+
+    @Test
+    void testExistingUserActive() {
+        final String username = "user@user.com";
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setStatus("active");
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        assertTrue(this.approverAuthService.isActive(username));
+    }
+
+    @Test
+    void testExistingUserNotActive() {
+        final String username = "user@user.com";
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setStatus("pending");
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        assertFalse(this.approverAuthService.isActive(username));
+    }
+
+    @Test
+    void testNotExistingUserNotActive() {
+        final String username = "user@user.com";
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList());
+        assertFalse(this.approverAuthService.isActive(username));
     }
 
 
