@@ -11,6 +11,7 @@ import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.models.QueryFilter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -110,6 +111,9 @@ public class AccessPass implements Serializable {
     @Size(max = 20)
     @Column(name = "status")
     private String status;
+    @Size(max = 50)
+    @Column(name = "source")
+    private String source;
     @Column(name = "date_time_created")
 
     private OffsetDateTime dateTimeCreated;
@@ -158,6 +162,17 @@ public class AccessPass implements Serializable {
         }
         AccessPass other = (AccessPass) object;
         return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
+    }
+
+    public static AccessPass fromQueryFilter(QueryFilter q) {
+        return AccessPass.builder()
+                .passType(q.getPassType())
+                .aporType(q.getAporType())
+                .referenceID(q.getReferenceId())
+                .status(q.getStatus())
+                .plateNumber(q.getPlateNumber())
+                .source(q.getSource().name())
+                .build();
     }
 
     /**

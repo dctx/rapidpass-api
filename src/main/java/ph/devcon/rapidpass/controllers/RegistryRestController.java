@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
@@ -44,24 +43,11 @@ public class RegistryRestController {
     private final QrPdfService qrPdfService;
 
     @GetMapping("/access-passes")
-    public ResponseEntity<List<RapidPass>> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
-        Pageable pageView = null;
-        String aporType = null;
+    public ResponseEntity<RapidPassPageView> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
 
-        if (queryParameter.isPresent()) {
-            QueryFilter queryFilter = queryParameter.get();
+        QueryFilter q = queryParameter.orElse(new QueryFilter());
 
-            if (null != queryFilter.getPageNo()) {
-                int pageSize = (null != queryFilter.getPageSize()) ? queryFilter.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
-                pageView = PageRequest.of(queryFilter.getPageNo(), pageSize);
-            }
-
-            if (!StringUtils.isBlank(queryFilter.getAporType())) {
-                aporType = queryFilter.getAporType();
-            }
-        }
-
-        return ResponseEntity.ok().body(registryService.findAllRapidPasses(aporType, Optional.ofNullable(pageView)));
+        return ResponseEntity.ok().body(registryService.findRapidPass(q));
     }
 
     @GetMapping("/access-passes/{referenceId}")
@@ -109,7 +95,7 @@ public class RegistryRestController {
 
     /**
      * Downloads the QR Code pdf associated with control code
-     *
+     * <p>
      * For retrieving the image base 64 data of the QR code of an access pass, please see the method
      * {@link #downloadRapidPassQrImageDataBase64(String)}.
      *
@@ -138,7 +124,7 @@ public class RegistryRestController {
     public ResponseEntity<List<MobileDevice>> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
         Pageable pageView = null;
         if (queryFilter.isPresent() && queryFilter.get().getPageNo() != null) {
-            int pageSize = (null != queryFilter.get().getPageSize()) ? queryFilter.get().getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
+            int pageSize = (null != queryFilter.get().getMaxPageRows()) ? queryFilter.get().getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
             pageView = PageRequest.of(queryFilter.get().getPageNo(), pageSize);
         }
         List<MobileDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
@@ -183,8 +169,9 @@ public class RegistryRestController {
 
     /**
      * This endpoint returns the base64 image data of a qr code.
-     *
+     * <p>
      * For retrieving the PDF data of an access pass, please see the method {@link #downloadRapidPassPdf(String)}.
+     *
      * @param referenceId the reference ID that uniquely identifies the access pass
      * @return The base 64 image data of the QR for this access pass
      */

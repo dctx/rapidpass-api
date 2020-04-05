@@ -3,9 +3,10 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -161,11 +162,33 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
-    public List<RapidPass> findAllRapidPasses(String aporType, Optional<Pageable> pageView) {
-        return this.findAllAccessPasses(aporType, pageView)
+    public RapidPassPageView findRapidPass(QueryFilter q) {
+
+        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q));
+
+        Pageable pageView = null;
+        if (null != q.getPageNo()) {
+            int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
+            pageView = PageRequest.of(q.getPageNo(), pageSize);
+        }
+
+        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
+        List<RapidPass> rapidPassList = accessPassPages
                 .stream()
                 .map(RapidPass::buildFrom)
                 .collect(Collectors.toList());
+
+        return RapidPassPageView.builder()
+                .currentPage(q.getPageNo())
+                .currentPageRows(accessPassPages.getNumberOfElements())
+                .totalPages(accessPassPages.getTotalPages())
+                .totalRows(accessPassPages.getTotalElements())
+                .isFirstPage(accessPassPages.isFirst())
+                .isLastPage(accessPassPages.isLast())
+                .hasNext(accessPassPages.hasNext())
+                .hasPrevious(accessPassPages.hasPrevious())
+                .rapidPassList(rapidPassList)
+                .build();
     }
 
     public Page<RapidPass> findAllApprovedOrSuspendedRapidPassAfter(OffsetDateTime lastUpdatedOn, Pageable page)
@@ -201,17 +224,6 @@ public class RegistryService {
                 .map(ControlCode::buildFrom)
                 .collect(Collectors.toList());
     }
-
-    private List<AccessPass> findAllAccessPasses(String aporType, Optional<Pageable> pageView) {
-        Pageable pageable = pageView.orElse(Pageable.unpaged());
-
-        if (!StringUtils.isBlank(aporType)) {
-            return accessPassRepository.findAllByAporType(aporType, pageable).toList();
-        } else {
-            return accessPassRepository.findAll(pageable).toList();
-        }
-    }
-
 
     /**
      * Helper function to retrieve an {@link AccessPass} by referenceId.
