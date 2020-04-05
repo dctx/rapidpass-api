@@ -1,11 +1,14 @@
 package ph.devcon.rapidpass.service.pdf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.WriterException;
+import org.bouncycastle.util.encoders.Hex;
 import org.hamcrest.io.FileMatchers;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ph.devcon.dctx.rapidpass.commons.HmacSha256;
+import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
+import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
@@ -18,7 +21,10 @@ import java.text.ParseException;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
@@ -26,10 +32,17 @@ class PdfGeneratorImplTest {
 
     QrGeneratorServiceImpl qrGeneratorService;
 
+    private String encryptionKey = "***REMOVED***";
+    private String signingKey = "***REMOVED***";
 
     @BeforeEach
     void setUp() {
-        qrGeneratorService = new QrGeneratorServiceImpl(new ObjectMapper());
+        final byte[] encryptionKeyBytes = Hex.decode(this.encryptionKey);
+        final byte[] signingKeyBytes = Hex.decode(this.signingKey);
+        final QrCodeSerializer qrCodeSerializer = new QrCodeSerializer(encryptionKeyBytes);
+        final Signer signer = HmacSha256.signer(signingKeyBytes);
+
+        qrGeneratorService = new QrGeneratorServiceImpl(qrCodeSerializer, signer);
     }
 
     private static final long CC_1234_ENCRYPTED = 2491777155L;

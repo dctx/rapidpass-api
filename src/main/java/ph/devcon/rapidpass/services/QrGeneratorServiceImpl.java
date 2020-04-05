@@ -1,18 +1,16 @@
 package ph.devcon.rapidpass.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
+import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ph.devcon.dctx.rapidpass.commons.HmacSha256;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
 import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
@@ -21,8 +19,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * The {@link QrGeneratorServiceImpl} implements{@link QrGeneratorService} using the excellent Zebra Crossing barcode library.
@@ -36,12 +32,6 @@ import java.util.Base64;
 public class QrGeneratorServiceImpl implements QrGeneratorService {
 
     /**
-     * Spring Jackson JSON serializer.
-     */
-    @NonNull
-    private final ObjectMapper jsonMapper;
-
-    /**
      * QR code width in pixels. Default to 500px. Configurable via {@code rapidpass.qr.width} property.
      */
     @Value("${rapidpass.qr.width:500}")
@@ -52,8 +42,11 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     @Value("${rapidpass.qr.height:500}")
     private int qrHeight = 800;
 
-    @Value("${qrmaster.skey:qrkey}")
-    private String qrSigner = "qrkey";
+    @Autowired
+    private final QrCodeSerializer qrCodeSerializer;
+
+    @Autowired
+    private final Signer signer;
 
     @Override
     public File generateQr(QrCodeData payload) throws IOException, WriterException {
@@ -97,18 +90,8 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
      * @return Base64 string
      */
     String serializePayload(QrCodeData payload) {
-
-        try {
-            char[] chars = Hex.encodeHex(this.qrSigner.getBytes(StandardCharsets.UTF_8));
-            final byte[] keyData = Hex.decodeHex(String.valueOf(chars));
-            final Signer signer = HmacSha256.signer(keyData);
-            final byte[] bytes = QrCodeSerializer.serializeAndSign(payload, signer );
-            return Base64.getEncoder().encodeToString(bytes);
-        } catch (Exception e ){
-            log.error(e.toString());
-            return null;
-
-        }
+        final byte[] qrBytes = this.qrCodeSerializer.serializeAndSign(payload, this.signer);
+        return Base64.toBase64String(qrBytes);
     }
 
 
