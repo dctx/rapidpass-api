@@ -9,21 +9,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.access_pass.NewAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.agency_user.NewAgencyUserValidator;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -42,18 +37,24 @@ public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 7;
 
-    private final RegistryRepository registryRepository;
-    private final RegistrantRepository registrantRepository;
+    private final AuthService authService;
     private final LookupTableService lookupTableService;
-    private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
+
+    private final RegistryRepository registryRepository;
+    private final RegistrarRepository registrarRepository;
+    private final RegistrantRepository registrantRepository;
+    private final AccessPassRepository accessPassRepository;
     private final ScannerDeviceRepository scannerDeviceRepository;
+    private final RegistrarUserRepository registrarUserRepository;
 
     /**
      * Secret key used for control code generation
      */
     @Value("${qrmaster.controlkey:***REMOVED***}")
     private String secretKey = "***REMOVED***";
+
+
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -448,7 +449,7 @@ public class RegistryService {
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
-    public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<String> batchUploadRapidPassRequest(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
         List<String> passes = new ArrayList<String>();
@@ -483,6 +484,31 @@ public class RegistryService {
             }
         }
         return passes;
+    }
+
+    public List<String> batchUploadApprovers(List<AgencyUser> agencyUsers) {
+        log.info("Processing batch registration of approvers.");
+        List<String> result = new ArrayList<String>();
+
+        // Validation
+        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
+
+        RegistrarUser registrarUser;
+        int counter = 1;
+        for (AgencyUser agencyUser : agencyUsers) {
+            try {
+
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+                validation.validate(agencyUser);
+
+                this.authService.createAgencyCredentials(agencyUser);
+
+                result.add("Record " + counter++ + ": Success. ");
+            } catch ( Exception e ) {
+                result.add("Record " + counter++ + ": Failed. " + e.getMessage());
+            }
+        }
+        return result;
     }
 
 
