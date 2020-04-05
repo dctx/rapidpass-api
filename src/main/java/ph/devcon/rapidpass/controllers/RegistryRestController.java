@@ -44,7 +44,7 @@ public class RegistryRestController {
     private final QrPdfService qrPdfService;
 
     @GetMapping("/access-passes")
-    public ResponseEntity<RapidPassPageView> getAccessPasses(@RequestBody Optional<QueryFilter> queryParameter) {
+    public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
 
         QueryFilter q = queryParameter.orElse(new QueryFilter());
 
