@@ -7,6 +7,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -59,11 +61,45 @@ class JwtAuthenticationFilterTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    public void test_JWT_INVALID_ROLE() throws Exception {
+        // generate a jwt with jwt
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", "12314");
+        claims.put("name", "Kevin Smith");
+        claims.put("group", "checkpoint");
+
+        String token = JwtGenerator.generateToken(claims, CHECKPOINT_SECRET);
+
+        mockMvc.perform(get("/approver")
+                .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void test_JWT_VALID_ROLE() throws Exception {
+        // generate a jwt with jwt
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", "12314");
+        claims.put("name", "Kevin Smith");
+        claims.put("group", "approver");
+
+        String token = JwtGenerator.generateToken(claims, CHECKPOINT_SECRET);
+
+        mockMvc.perform(get("/approver")
+                .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+
     @RestController
     @Configuration
     @RequiredArgsConstructor
     @EnableConfigurationProperties
     @Import(JwtSecretsConfig.class)
+    @EnableGlobalMethodSecurity(securedEnabled = true)
     static class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         private final JwtSecretsConfig jwtSecretsConfig;
 
@@ -83,6 +119,13 @@ class JwtAuthenticationFilterTest {
         @GetMapping("/hello")
         public String hello() {
             return "hello";
+        }
+
+        @Secured({"approver"})
+        // testing with secured annotation but we will be using RbacAuthorizationFilter to determin
+        @GetMapping("/approver")
+        public String approverOnly() {
+            return "authorized approver!";
         }
     }
 

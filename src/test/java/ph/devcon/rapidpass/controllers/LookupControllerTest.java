@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
+import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.entities.LookupTablePK;
 import ph.devcon.rapidpass.enums.LookupType;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(LookupController.class)
 @EnableConfigurationProperties
-@Import(JwtSecretsConfig.class)
+@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
 public class LookupControllerTest {
 
     @Autowired
@@ -52,9 +53,9 @@ public class LookupControllerTest {
 
         try {
             mockMvc.perform(req.queryParam("type", "APOR"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.APOR").isArray())
-                .andExpect(jsonPath("$.APOR").isNotEmpty());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.APOR").isArray())
+                    .andExpect(jsonPath("$.APOR").isNotEmpty());
         } catch (Exception e) {
             fail(e);
         }

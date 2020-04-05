@@ -2,7 +2,7 @@ logging:
   level:
     ph.devcon: debug
 
-# using inmemory DB for unit testing
+  # using inmemory DB for unit testing
   h2:
     console:
       settings:
@@ -55,3 +55,17 @@ qrmaster:
 
 testMobile: 0912345
 testEmail: spam.this.gmail.com
+
+# rbac settings to use in unit tests
+rbac:
+  roles:
+    - role: approver
+      resources:
+        - endpoint: /approver/**
+          verbs:
+            - ALL
+    - role: checkpoint
+      resources:
+        - endpoint: /checkpoint/**
+          verbs:
+            - ALL

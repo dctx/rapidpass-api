@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
+import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -41,7 +42,7 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
  */
 @WebMvcTest(RegistryRestController.class)
 @EnableConfigurationProperties
-@Import(JwtSecretsConfig.class)
+@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
 class RegistryRestControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
