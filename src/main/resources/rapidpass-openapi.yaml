@@ -217,24 +217,78 @@ paths:
     get:
       tags:
         - dashboard
-      summary: Gets a list of access passes
+      summary: Gets a list of access passes.
+      description:
+        Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
       parameters:
-        - name: queryFilter
+        - name: passType
           in: query
           required: false
-          description: query parameters for the records that will be returned by the server
           schema:
-            $ref: '#/components/schemas/QueryFilter'
+            type: string
+          description: Filters retrieved access passes by Pass type. Can be "INDIVIDUAL" or "VEHICLE".
+          example: INDIVIDUAL
+        - name: aporType
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes by Apor type. For possible values, trust the database
+            definitions first-and-foremost. Note that {@link CommonRapidPassFields.AporTypeEnum} may
+            potentially be outdated, as it is based on the OpenAPI Spec. Again, trust the db first and foremost.
+          example: GOV
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes by Status. Possible values are [PENDING, APPROVED, DECLINED,
+            SUSPENDED].
+          example: PENDING
+        - name: plateNumber
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes by Plate number.
+        - name: company
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes by Company.
+          example: DevCon.ph
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes by the name of owner of this rapid pass.
+          example: Jose Rizal
+        - name: source
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes by the data source, whether registered one-at-a-time, or
+            through the bulk registration process. Possible values are [ONLINE, BULK].
+          example: ONLINE
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filters retrieved access passes based on the provided search query. This filter allows you to
+                search access passes where the name (of the rapidpass owner) matches OR the company name matches the query.
+                Matching is performed as a `startsWith` matching, not a `contains` matching.
+          example: Jose
       responses:
         '200':
           description: Status of the request pass
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RapidPass'
-      description: Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
+                $ref: '#/components/schemas/PagedRapidPass'
   /batch/access-passes:
     get:
       tags:
@@ -759,22 +813,104 @@ components:
           type: string
         status:
           type: string
-    QueryFilter:
+    PagedRapidPass:
       type: object
-      description: optional filters for the records that will be returned by the operations
+      description: The response of a search query on the RapidPass endpoint.
       properties:
+        currentPage:
+          type: number
+          description: The current page you are viewing. Note that this is 0-based counting.
+          example: 0
+        currentPageRows:
+          type: number
+          description: The number of rows available on this page. Note that this can potentially be less than the max
+            number of rows in a page.
+          example: 25
+        totalPages:
+          type: number
+          description: The total number of pages available to be viewed.
+          example: 1
+        totalRows:
+          type: number
+          description: The max number of rows in a page.
+          example: 25
+        hasNext:
+          type: boolean
+          description: True, if and only if there is a next page of data.
+          example: true
+        hasPrevious:
+          type: boolean
+          description: True, if and only if there is a previous page of data.
+          example: false
+        lastPage:
+          type: boolean
+          description: True, if and only if this is the last page.
+        firstPage:
+          type: boolean
+          description: True, if and only if this is the first page.
+        rapidPassList:
+          type: array
+          items:
+            $ref: '#/components/schemas/RapidPass'
+
+
+    AccessPassQueryFilter:
+      type: object
+      description: Filters the retrieved access passes, using an AND logical operation on all the used filters. Note
+        that the `search` parameter has an inner logical operation of OR between the company and the name of the owner
+        of the access pass.
+      allOf:
+        - $ref: '#/components/schemas/QueryFilter'
+      properties:
+        passType:
+          type: string
+          description: Filters retrieved access passes by Pass type.
+          enum: [INDIVIDUAL, VEHICLE]
+          example: INDIVIDUAL
+        aporType:
+            type: string
+            description: Filters retrieved access passes by Apor type. For possible values, trust the database
+              definitions first-and-foremost. Note that {@link CommonRapidPassFields.AporTypeEnum} may
+              potentially be outdated, as it is based on the OpenAPI Spec. Again, trust the db first and foremost.
+            example: GOV
         status:
           type: string
-          description: not implemented yet
-        validUntil:
+          description: Filters retrieved access passes by Status. For possible values, see `RapidPassStatus`.
+          enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
+          example: PENDING
+        plateNumber:
           type: string
-          description: not implemented yet
+          description: Filters retrieved access passes by Plate number.
+        company:
+          type: string
+          description: Filters retrieved access passes by Company.
+          example: DevCon.ph
+        name:
+          type: string
+          description: Filters retrieved access passes by the name of owner of this rapid pass.
+          example: Jose Rizal
+        source:
+          type: string
+          description: Filters retrieved access passes by the data source, whether registered one-at-a-time, or
+            through the bulk registration process.
+          enum: [ONLINE, BULK]
+          example: ONLINE
+        search:
+          type: string
+          description: Filters retrieved access passes based on the provided search query. This filter allows you to
+            search access passes where the name (of the rapidpass owner) matches OR the company name matches the query.
+            Matching is performed as a `startsWith` matching, not a `contains` matching.
+          example: Jose
+    QueryFilter:
+      type: object
+      description: These are generic query parameters used to filter records returned by the endpoints.
+      properties:
         pageNo:
           type: integer
-          description: page number, starts with zero
+          description: The page number you wish to query. Page numbers begin with 0.
         pageSize:
           type: integer
-          description: number of records that will be returned, default of 25
+          description: The total number of records that you request to be returned per page. Defaults to 25.
     CheckpointAuthRequest:
       type: object
       description: The checkpoint authentication request
