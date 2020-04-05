@@ -23,33 +23,27 @@ public class RapidPassBulkData {
 
     public static List<?> getColumnNames() {
         List<Object> columnList = new ArrayList<>();
+        columnList.add("controlCode");
+        columnList.add("referenceID");
         columnList.add("passType");
         columnList.add("aporType");
-        columnList.add("controlCode");
-        columnList.add("name");
-        columnList.add("status");
-        columnList.add("idType");
-        columnList.add("identifierNumber");
-        columnList.add("plateNumber");
-        columnList.add("validFrom");
         columnList.add("validTo");
-        columnList.add("issuedBy");
+        columnList.add("name");
+        columnList.add("plateNumber");
+        columnList.add("status");
         return columnList;
     }
 
     public static List<?> values(AccessPass accessPass) {
         List<Object> valueList = new ArrayList<>();
+        valueList.add(accessPass.getControlCode());
+        valueList.add(accessPass.getReferenceID());
         valueList.add(accessPass.getPassType());
         valueList.add(accessPass.getAporType());
-        valueList.add(accessPass.getControlCode());
-        valueList.add(accessPass.getName());
-        valueList.add(accessPass.getStatus());
-        valueList.add(accessPass.getIdType());
-        valueList.add(accessPass.getIdentifierNumber());
-        valueList.add(accessPass.getPlateNumber());
-        valueList.add(accessPass.getValidFrom().toEpochSecond());
         valueList.add(accessPass.getValidTo().toEpochSecond());
-        valueList.add(accessPass.getIssuedBy());
+        valueList.add(accessPass.getName());
+        valueList.add(accessPass.getPlateNumber());
+        valueList.add(accessPass.getStatus());
         return valueList;
     }
 }
