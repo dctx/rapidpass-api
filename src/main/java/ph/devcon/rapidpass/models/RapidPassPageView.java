@@ -17,8 +17,13 @@ import java.util.List;
 public class RapidPassPageView {
 
     private int currentPage;
+    private int currentPageRows;
     private int totalPages;
-    private int totalElements;
+    private long totalRows;
+    private boolean isFirstPage;
+    private boolean isLastPage;
+    private boolean hasNext;
+    private boolean hasPrevious;
     private List<RapidPass> rapidPassList;
 
 }

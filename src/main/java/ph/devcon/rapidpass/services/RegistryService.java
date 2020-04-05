@@ -168,7 +168,7 @@ public class RegistryService {
 
         Pageable pageView = null;
         if (null != q.getPageNo()) {
-            int pageSize = (null != q.getPageSize()) ? q.getPageSize() : QueryFilter.DEFAULT_PAGE_SIZE;
+            int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
@@ -180,8 +180,13 @@ public class RegistryService {
 
         return RapidPassPageView.builder()
                 .currentPage(q.getPageNo())
+                .currentPageRows(accessPassPages.getNumberOfElements())
                 .totalPages(accessPassPages.getTotalPages())
-                .totalElements(accessPassPages.getNumberOfElements())
+                .totalRows(accessPassPages.getTotalElements())
+                .isFirstPage(accessPassPages.isFirst())
+                .isLastPage(accessPassPages.isLast())
+                .hasNext(accessPassPages.hasNext())
+                .hasPrevious(accessPassPages.hasPrevious())
                 .rapidPassList(rapidPassList)
                 .build();
     }

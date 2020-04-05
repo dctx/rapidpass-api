@@ -21,7 +21,7 @@ class QueryFilterTest {
 
     @Test
     void testDefaultPageSize() {
-        assertNotNull(queryFilter.getPageSize());
-        assertEquals(QueryFilter.DEFAULT_PAGE_SIZE, queryFilter.getPageSize());
+        assertNotNull(queryFilter.getMaxPageRows());
+        assertEquals(QueryFilter.DEFAULT_PAGE_SIZE, queryFilter.getMaxPageRows());
     }
 }

@@ -8,4 +8,9 @@
                         columnName="organization_name"
                         newDataType="VARCHAR(100)"/>
     </changeSet>
+    <changeSet author="eric" id="20200405-1">
+        <addColumn tableName="access_pass">
+            <column name="source" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -111,6 +111,9 @@ public class AccessPass implements Serializable {
     @Size(max = 20)
     @Column(name = "status")
     private String status;
+    @Size(max = 50)
+    @Column(name = "source")
+    private String source;
     @Column(name = "date_time_created")
 
     private OffsetDateTime dateTimeCreated;
@@ -165,9 +168,10 @@ public class AccessPass implements Serializable {
         return AccessPass.builder()
                 .passType(q.getPassType())
                 .aporType(q.getAporType())
+                .referenceID(q.getReferenceId())
                 .status(q.getStatus())
                 .plateNumber(q.getPlateNumber())
-                .referenceID(q.getReferenceId())
+                .source(q.getSource().name())
                 .build();
     }
 
