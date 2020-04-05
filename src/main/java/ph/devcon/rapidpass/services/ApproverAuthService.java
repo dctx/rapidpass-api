@@ -91,7 +91,7 @@ public class ApproverAuthService {
      * @throws InvalidKeySpecException this is returned when the hashing algorithm fails. This is an illegal state
      * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
      */
-    public final void createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
+    public final RegistrarUser createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
         final String registrarShortName = user.getRegistrar();
         final Registrar registrar = registrarRepository.findByShortName(registrarShortName);
         if (registrar == null) {
@@ -112,7 +112,8 @@ public class ApproverAuthService {
         newRegistrarUser.setPassword(hashedPassword);
         newRegistrarUser.setStatus("active");
 
-        registrarUserRepository.save(newRegistrarUser);
+        registrarUserRepository.saveAndFlush(newRegistrarUser);
+        return newRegistrarUser;
     }
 
     /**
