@@ -1,11 +1,13 @@
 package ph.devcon.rapidpass.models;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ph.devcon.rapidpass.enums.RecordSource;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueryFilter {
