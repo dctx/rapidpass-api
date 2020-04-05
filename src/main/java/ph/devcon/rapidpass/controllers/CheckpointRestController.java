@@ -44,9 +44,6 @@ public class CheckpointRestController
     @Value("${qrmaster.encryptionKey}")
     private String encryptionKey;
 
-    @Value("${qrmaster.initializationVector}")
-    private String initializationVector;
-
     /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
         this.checkpointService = checkpointService;
@@ -116,7 +113,6 @@ public class CheckpointRestController
         CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
                 .signingKey(this.signingKey)
                 .encryptionKey(this.encryptionKey)
-                .initializationVector(this.initializationVector)
                 .accessCode(jwt)
                 .build();
 

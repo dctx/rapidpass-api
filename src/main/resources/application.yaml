@@ -47,7 +47,7 @@ qrmaster:
   skey: ***REMOVED***
   controlkey: controlsecretkey
   encryptionKey: ***REMOVED***
-  initializationVector: 234174739FE036255B9A352CFD5CB5AB
+
 
 jwt:
   secrets:

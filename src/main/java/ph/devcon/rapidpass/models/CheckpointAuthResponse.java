@@ -8,6 +8,5 @@ import lombok.Data;
 public class CheckpointAuthResponse {
     private String signingKey;
     private String encryptionKey;
-    private String initializationVector;
     private String accessCode;
 }

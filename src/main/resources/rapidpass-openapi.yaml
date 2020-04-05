@@ -755,10 +755,6 @@ components:
           type: string
           description: the secret used to encrypt the QRs
           example: 0123456789ABCDEF
-        initializationVector:
-          type: string
-          description: the IV used to encrypt the QRs
-          example: 0123456789ABCDEF
         accessCode:
           type: string
           description: the JSON Web Token required for the device to access the APIs
