@@ -25,8 +25,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-
 springfox:
   documentation:
     swagger:

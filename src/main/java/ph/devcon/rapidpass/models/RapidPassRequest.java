@@ -59,7 +59,10 @@ public final class RapidPassRequest {
     private String destCity;
     @NotEmpty
     private String destProvince;
+
     private String remarks;
+
+    private String source;
 
     public String getName() {
         return String.format("%s %s", getFirstName(), getLastName());

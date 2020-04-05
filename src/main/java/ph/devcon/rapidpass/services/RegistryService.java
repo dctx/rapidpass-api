@@ -16,12 +16,14 @@ import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
+import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
@@ -116,21 +118,16 @@ public class RegistryService {
         // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
 
-        // Plate numbers should be uppercased
-        if (PassType.VEHICLE.equals(rapidPassRequest.getPassType())){
-            rapidPassRequest.setPlateNumber(rapidPassRequest.getPlateNumber().toUpperCase().trim());
-        }
-
         accessPass.setRegistrantId(registrant);
         accessPass.setReferenceID( rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
                 registrant.getMobile() : rapidPassRequest.getPlateNumber());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
-        accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
+        accessPass.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
 
         if (rapidPassRequest.getPlateNumber() != null) {
-            accessPass.setPlateNumber(rapidPassRequest.getPlateNumber());
+            accessPass.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
         }
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
@@ -486,6 +483,7 @@ public class RegistryService {
         for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
             try {
                 RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+                request.setSource(RecordSource.BULK.toString());
 
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(request);

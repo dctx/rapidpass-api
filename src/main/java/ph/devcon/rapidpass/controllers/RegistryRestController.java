@@ -12,6 +12,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -66,6 +67,7 @@ public class RegistryRestController {
 
     @PostMapping("/access-passes")
     ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
+        rapidPassRequest.setSource(RecordSource.ONLINE.toString());
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
 //        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
         return ResponseEntity.status(201).body(rapidPass);
