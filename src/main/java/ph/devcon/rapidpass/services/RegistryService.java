@@ -4,10 +4,7 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +35,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
 @Component
 @Slf4j
@@ -167,7 +167,20 @@ public class RegistryService {
 
     public RapidPassPageView findRapidPass(QueryFilter q) {
 
-        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q));
+        AccessPass accessPassExample = AccessPass.fromQueryFilter(q);
+
+        Example<AccessPass> example = Example.of(accessPassExample,
+                ExampleMatcher.matching()
+                    .withIgnoreCase()
+                    .withMatcher("name", contains())
+                    .withMatcher("company", contains())
+                    .withMatcher("passType", exact())
+                    .withMatcher("aporType", exact())
+                    .withMatcher("referenceID", exact())
+                    .withMatcher("plateNumber", exact())
+                    .withMatcher("source", exact())
+                    .withMatcher("status", exact())
+        );
 
         Pageable pageView = null;
         if (null != q.getPageNo()) {
@@ -175,7 +188,7 @@ public class RegistryService {
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
-        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
+        Page<AccessPass> accessPassPages = accessPassRepository.findAll(example, pageView);
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
                 .map(RapidPass::buildFrom)
