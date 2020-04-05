@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.utilities.csv.ApproverRegistrationCsvProcessor;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
