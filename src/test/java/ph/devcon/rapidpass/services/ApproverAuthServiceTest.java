@@ -13,11 +13,13 @@ import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
+import ph.devcon.rapidpass.utilities.CryptUtils;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -31,20 +33,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ph.devcon.rapidpass.utilities.CryptUtils.passwordHash;
 
-class AuthServiceTest {
+class ApproverAuthServiceTest {
 
     private RegistrarRepository registrarRepository;
     private RegistrarUserRepository registrarUserRepository;
     private JwtSecretsConfig jwtSecretsConfig;
 
-    private AuthService authService;
+    private ApproverAuthService approverAuthService;
 
     @BeforeEach
     void before() {
         this.registrarUserRepository = Mockito.mock(RegistrarUserRepository.class);
         this.registrarRepository = Mockito.mock(RegistrarRepository.class);
         this.jwtSecretsConfig = Mockito.mock(JwtSecretsConfig.class);
-        this.authService = new AuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
+        this.approverAuthService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
     }
 
     @Test
@@ -65,7 +67,7 @@ class AuthServiceTest {
         when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
 
         try {
-            this.authService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(user);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         }
@@ -103,7 +105,7 @@ class AuthServiceTest {
 
         boolean captured = false;
         try {
-            this.authService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(user);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         } catch (IllegalArgumentException e) {
@@ -129,7 +131,7 @@ class AuthServiceTest {
 
         boolean captured = false;
         try {
-            this.authService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(user);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         } catch (IllegalArgumentException e) {
@@ -162,7 +164,7 @@ class AuthServiceTest {
         when(this.jwtSecretsConfig.findGroupSecret(anyString())).thenReturn(jwtSecret);
 
         try {
-            final AgencyAuth login = this.authService.login(username, password);
+            final AgencyAuth login = this.approverAuthService.login(username, password);
             assertNotNull(login);
             final String accessCode = login.getAccessCode();
             assertNotNull(accessCode);
@@ -196,7 +198,7 @@ class AuthServiceTest {
         when(this.registrarUserRepository.findByUsername(username)).thenReturn(users);
 
         try {
-            final AgencyAuth login = this.authService.login(username, "a different password");
+            final AgencyAuth login = this.approverAuthService.login(username, "a different password");
             Assertions.assertNull(login);
         } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
             fail(e);
@@ -212,11 +214,77 @@ class AuthServiceTest {
         when(this.registrarUserRepository.findByUsername(username)).thenReturn(null);
 
         try {
-            final AgencyAuth login = this.authService.login(username, password);
+            final AgencyAuth login = this.approverAuthService.login(username, password);
             Assertions.assertNull(login);
         } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
             fail(e);
         }
     }
+
+    @Test
+    void testChangePasswordOk() {
+        final String oldPassword = "password";
+        String oldPasswordHash = "'";
+        try {
+            oldPasswordHash = CryptUtils.passwordHash(oldPassword);
+        } catch (NoSuchAlgorithmException e) {
+            fail(e);
+        } catch (InvalidKeySpecException e) {
+            fail(e);
+        }
+
+        final String username = "username";
+        final String password = "password";
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(oldPasswordHash);
+        registrarUser.setStatus("active");
+
+        // has no user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+
+        try {
+            this.approverAuthService.changePassword(username, oldPassword, password);
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void testChangePasswordNotOk() {
+        final String oldPassword = "password";
+        String oldPasswordHash = "'";
+        try {
+            oldPasswordHash = CryptUtils.passwordHash(oldPassword);
+        } catch (NoSuchAlgorithmException e) {
+            fail(e);
+        } catch (InvalidKeySpecException e) {
+            fail(e);
+        }
+
+        final String username = "username";
+        final String password = "password";
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(oldPasswordHash);
+        registrarUser.setStatus("active");
+
+        // has no user
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+
+        boolean exceptionThrown = false;
+        try {
+            this.approverAuthService.changePassword(username, "not the old password", password);
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+            fail(e);
+        } catch (IllegalArgumentException e) {
+            exceptionThrown = true;
+        }
+
+        assertTrue(exceptionThrown);
+    }
+
 
 }

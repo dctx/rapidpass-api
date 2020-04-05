@@ -20,7 +20,7 @@ import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.models.RapidPassStatus;
-import ph.devcon.rapidpass.services.AuthService;
+import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
@@ -136,7 +136,7 @@ class RegistryRestControllerTest {
     QrPdfService mockQrPdfService;
 
     @MockBean
-    AuthService mockAuthService;
+    ApproverAuthService mockApproverAuthService;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.

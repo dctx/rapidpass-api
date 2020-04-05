@@ -27,11 +27,11 @@ import static ph.devcon.rapidpass.utilities.CryptUtils.passwordCompare;
 import static ph.devcon.rapidpass.utilities.CryptUtils.passwordHash;
 
 /**
- * AuthService handles authentications for approvers
+ * ApproverAuthService handles authentications for approvers
  */
 @Service
 @Slf4j
-public class AuthService {
+public class ApproverAuthService {
 
     private static final String GROUP_NAME = "approver";
 
@@ -40,9 +40,9 @@ public class AuthService {
     private final JwtSecretsConfig jwtSecretsConfig;
 
     @Autowired
-    public AuthService(final RegistrarUserRepository registrarUserRepository,
-                       final RegistrarRepository registrarRepository,
-                       final JwtSecretsConfig jwtSecretsConfig) {
+    public ApproverAuthService(final RegistrarUserRepository registrarUserRepository,
+                               final RegistrarRepository registrarRepository,
+                               final JwtSecretsConfig jwtSecretsConfig) {
         this.registrarUserRepository = registrarUserRepository;
         this.registrarRepository = registrarRepository;
         this.jwtSecretsConfig = jwtSecretsConfig;
