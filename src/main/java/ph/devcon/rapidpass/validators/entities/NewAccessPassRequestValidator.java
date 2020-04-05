@@ -190,11 +190,11 @@ public class NewAccessPassRequestValidator implements Validator {
         String identifier = PassType.INDIVIDUAL == request.getPassType() ? request.getMobileNumber() : request.getPlateNumber();
 
         if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
-            errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s", identifier));
+            errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s.", identifier));
         }
         
         if(StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())){
-        	errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format");
+        	errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format.");
         }
     }
 }
