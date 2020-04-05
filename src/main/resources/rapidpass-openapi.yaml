@@ -603,8 +603,8 @@ components:
           description: company of access pass holder
         mobileNumber:
           type: string
-          description: mobile number of access pass holder
-          example: '+639991230000'
+          description: mobile number of access pass holder. The mobile number should be in 09XXXXXXXXX format.
+          example: '09662016319'
         email:
           type: string
           description: email address of access pass holder
