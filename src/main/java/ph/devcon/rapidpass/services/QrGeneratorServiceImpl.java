@@ -17,7 +17,7 @@ import ph.devcon.dctx.rapidpass.model.QrCodeData;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -49,8 +49,7 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
     private final Signer signer;
 
     @Override
-    public File generateQr(QrCodeData payload) throws IOException, WriterException {
-
+    public byte[] generateQr(QrCodeData payload) throws IOException, WriterException {
         if (payload.getAporCode() == null || "".equals(payload.getAporCode())) {
             throw new IllegalArgumentException("The QrCodeData.aporCode is needed to generate the QR.");
         }
@@ -73,14 +72,10 @@ public class QrGeneratorServiceImpl implements QrGeneratorService {
                 BarcodeFormat.QR_CODE, qrWidth, qrHeight);
         BufferedImage image = MatrixToImageWriter.toBufferedImage(matrix);
 
-        File qr = File.createTempFile("qr-", ".png");
-        ImageIO.write(image, "PNG", qr);
-        // todo write to streams instead of files for better performance, no write to disk na!
-
-        // TODO: overlay rapid pass logo?
-
-        // log.debug("Saved QR image to {}", qr.getAbsolutePath());
-        return qr;
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ImageIO.write(image, "PNG", output);
+        log.debug("generated qr for {}", payload);
+        return output.toByteArray();
     }
 
     /**

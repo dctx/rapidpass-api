@@ -19,6 +19,7 @@ import ph.devcon.rapidpass.services.notifications.templates.SMSNotificationTempl
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -213,9 +214,8 @@ public class AccessPassNotifierService {
      * @param controlCode   The control code, which is needed for QR code generation, to be added to the PDF.
      * @param accessPassUrl The generated URL that will allow a user to download their QR Code as a PDF.
      * @param email         The recipient of the email.
-     *
      * @return A {@link NotificationMessage} that holds necessary data for the email service.
-     * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
+     * @throws IOException     see {@link QrGeneratorService#generateQr(QrCodeData)}
      * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
     NotificationMessage buildApprovedEmailMessage(PassType passType,
@@ -224,7 +224,8 @@ public class AccessPassNotifierService {
                                                   String email)
             throws IOException, WriterException, ParseException {
 
-        byte[] generatedQrData = qrPdfService.generateQrPdf(controlCode);
+        final ByteArrayOutputStream outputStream = (ByteArrayOutputStream) qrPdfService.generateQrPdf(controlCode);
+        byte[] generatedQrData = outputStream.toByteArray();
 
         return NotificationMessage.New()
                 .from(mailFrom)

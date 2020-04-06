@@ -12,9 +12,8 @@ import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.OutputStream;
 import java.text.ParseException;
-import java.util.List;
 
 /**
  * This service combines PDF generator and QR generator to create PDF's of generated QR codes.
@@ -38,35 +37,33 @@ public class QrPdfService {
      *
      * @param controlCode controlCode of access pass
      * @return bytes of PDF file containing the QR code
-     * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
+     * @throws IOException     see {@link QrGeneratorService#generateQr(QrCodeData)}
      * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
-    public byte[] generateQrPdf(String controlCode) throws ParseException, IOException, WriterException {
+    public OutputStream generateQrPdf(String controlCode) throws ParseException, IOException, WriterException {
 
         AccessPass accessPass = accessPassRepository.findByControlCode(controlCode);
 
-        if (accessPass == null) throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);
+        if (accessPass == null)
+            throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);
 
-        File qrImage = generateQrImageData(accessPass);
+        byte[] qrImage = generateQrImageData(accessPass);
 
         // generate qr pdf
         PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
 
         String temporaryFile = File.createTempFile("qrPdf", ".pdf").getAbsolutePath();
 
-        final File qrPdf = pdfGenerator.generatePdf(temporaryFile, qrImage, RapidPass.buildFrom(accessPass));
-
-        // send over as bytes
-        return Files.readAllBytes(qrPdf.toPath());
+        return pdfGenerator.generatePdf(qrImage, RapidPass.buildFrom(accessPass));
     }
 
     /**
      * @param accessPass The access pass whose QR will be generated.
      * @return a file which points to the image data
-     * @throws IOException see {@link QrGeneratorService#generateQr(QrCodeData)}
+     * @throws IOException     see {@link QrGeneratorService#generateQr(QrCodeData)}
      * @throws WriterException see {@link QrGeneratorService#generateQr(QrCodeData)}
      */
-    public File generateQrImageData(AccessPass accessPass) throws IOException, WriterException {
+    public byte[] generateQrImageData(AccessPass accessPass) throws IOException, WriterException {
         if ("".equals(accessPass.getName()) || accessPass.getName() == null) {
             throw new IllegalArgumentException("AccessPass.name is a required parameter for rendering the PDF.");
         }

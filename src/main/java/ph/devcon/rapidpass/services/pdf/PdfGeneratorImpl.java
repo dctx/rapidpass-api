@@ -51,14 +51,14 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     /**
      * Creates the pdf document and set its properties.
      *
-     * @param filepath path where pdf is saved
+     * @param os output stream to use in creating document
      * @return PDF document
      * @throws FileNotFoundException error creating file.
      * @throws IOException
      */
-    private static Document createDocument(String filepath) throws FileNotFoundException, IOException {
+    private static Document createDocument(OutputStream os) throws FileNotFoundException, IOException {
 
-        PdfDocument pdfdocument = new PdfDocument(new PdfWriter(filepath));
+        PdfDocument pdfdocument = new PdfDocument(new PdfWriter(os));
 
         pdfdocument.setDefaultPageSize(PageSize.A4);
         Document document = new Document(pdfdocument);
@@ -127,12 +127,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     }
 
-    private static Image generateQrCode(File file) throws IOException {
-
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-        byte[] qrCodeImage = toByteArray(fileInputStream);
-
+    private static Image generateQrCode(byte[] qrCodeImage) throws IOException {
         //qrcode image
         Image qrcode = new Image(prepareImage(qrCodeImage));
 
@@ -271,25 +266,21 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
      * Note: We use RapidPass, because AccessPass doesn't directly have easy builders to build with (for testing).
      * Otherwise, we could be using AccessPass as the parameter. In any case, using RapidPass as the POJO  is sufficient.
      *
-     * @param filePath   path of file where to save pdf
      * @param qrCodeFile Image file of the generated QR code
      * @param rapidPass  RapidPass model that contains the details to be printed on the PDF.
      * @return file object of generated pdf
      */
-    public File generatePdf(String filePath,
-                            File qrCodeFile,
-                            RapidPass rapidPass)
+    public OutputStream generatePdf(byte[] qrCodeFile,
+                                    RapidPass rapidPass)
             throws ParseException, IOException {
-        log.debug("generating pdf at {}", filePath);
 
-        Document document = createDocument(filePath);
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Document document = createDocument(os);
 
         document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
-        String path = "";
-
-        ClassPathResource instructionsClassPath = null;
+        ClassPathResource instructionsClassPath;
 
         switch (rapidPass.getPassType()) {
             case INDIVIDUAL:
@@ -335,13 +326,9 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         document.add(iBlockElements[0]);
         document.add(iBlockElements[1]);
         document.add(iBlockElements[2]);
-//        document.add(dctxLogo);
 
         document.close();
-
-        final File pdfFile = new File(filePath);
-        log.debug("saved pdf at {}", pdfFile.getAbsolutePath());
-        return pdfFile;
+        return os;
     }
 
 }

@@ -1,6 +1,8 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,9 @@ import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -22,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -31,6 +37,7 @@ import static org.mockito.Mockito.when;
  * TODO: Move Access Pass validation to a separate Validator class and do testing for validation there, not here.
  */
 @ExtendWith(MockitoExtension.class)
+@Slf4j
 class QrPdfServiceTest {
     static final OffsetDateTime NOW = OffsetDateTime.now();
 
@@ -55,6 +62,15 @@ class QrPdfServiceTest {
 
     }
 
+    private static void writeBytesForVisualInspection(byte[] bytes) throws IOException {
+        assertThat(bytes.length, is(greaterThan(0)));
+
+        final File test = File.createTempFile("test", ".pdf");
+        final FileOutputStream fileOutputStream = new FileOutputStream(test);
+        IOUtils.write(bytes, fileOutputStream);
+        log.debug("wrote pdf at {}", test.getAbsolutePath());
+    }
+
     @Test
     void generateQrPdf_INDIVIDUAL() throws IOException, WriterException, ParseException, NullPointerException {
 
@@ -75,11 +91,15 @@ class QrPdfServiceTest {
                 .build();
 
         when(accessPassRepository.findByControlCode(anyString()))
-            .thenReturn(accessPass);
+                .thenReturn(accessPass);
 
-        final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
+
 
         assertThat(bytes.length, is(greaterThan(0)));
+
+        // save bytes to file for visual inspection
+        writeBytesForVisualInspection(bytes);
     }
 
     @Test
@@ -94,6 +114,7 @@ class QrPdfServiceTest {
                 .controlCode(controlCode)
                 .idType("Plate Number")
                 .identifierNumber("ABC 123")
+                .plateNumber("ABC 123")
                 .name("ABC 123")
                 .aporType("AB")
                 .company("DevCon.ph")
@@ -104,7 +125,8 @@ class QrPdfServiceTest {
         when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                 .thenReturn(accessPass);
 
-        final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
+        writeBytesForVisualInspection(bytes);
 
         assertThat(bytes.length, is(greaterThan(0)));
     }
@@ -135,7 +157,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -165,7 +188,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -193,7 +217,7 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
         });
 
 
@@ -217,7 +241,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -247,7 +272,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -276,7 +302,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -301,7 +328,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -331,7 +359,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -356,7 +385,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
     }
@@ -386,7 +416,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -411,7 +442,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -440,7 +472,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -466,7 +499,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
     }
 
@@ -495,7 +529,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -521,7 +556,8 @@ class QrPdfServiceTest {
             when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
                     .thenReturn(accessPass);
 
-            final byte[] bytes = instance.generateQrPdf(accessPass.getControlCode());
+            instance.generateQrPdf(accessPass.getControlCode());
+            fail("should throw exception");
         });
 
     }
