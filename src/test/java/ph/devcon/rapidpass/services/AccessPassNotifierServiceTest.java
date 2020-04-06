@@ -77,6 +77,9 @@ class AccessPassNotifierServiceTest {
     @Test
     void pushNotifications_SUCCESS() throws NotificationException, ParseException, IOException, WriterException {
 
+        final ByteArrayOutputStream value = new ByteArrayOutputStream();
+        value.write(new byte[]{1, 0, 1, 0, 1});
+        when(mockQrPdfService.generateQrPdf(anyString())).thenReturn(value);
         // mock send notifs to access pass
         instance.pushApprovalDeniedNotifs(INDIVIDUAL_ACCESSPASS);
 
