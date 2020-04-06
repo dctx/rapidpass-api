@@ -32,6 +32,10 @@ public class RapidPass {
     private String idType;
     private String identifierNumber;
     private String plateNumber;
+    private String originName;
+    private String originStreet;
+    private String originCity;
+    private String originProvince;
     private String destName;
     private String destStreet;
     private String destCity;
@@ -57,6 +61,10 @@ public class RapidPass {
                 .status(accessPass.getStatus())
                 .validFrom(accessPass.getValidFrom() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidFrom()))
                 .validUntil(accessPass.getValidTo() == null ? "" : DateTimeFormatter.ISO_INSTANT.format(accessPass.getValidTo()))
+                .originName(accessPass.getOriginName())
+                .originStreet(accessPass.getOriginStreet())
+                .originCity(accessPass.getOriginCity())
+                .originProvince(accessPass.getOriginProvince())
                 .destName(accessPass.getDestinationName())
                 .destStreet(accessPass.getDestinationStreet())
                 .destCity(accessPass.getDestinationCity())
