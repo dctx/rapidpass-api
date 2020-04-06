@@ -24,6 +24,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Tests for {@link ExceptionTranslator}.
+ *
+ * @author jonasespelita@gmail.com
+ */
 @WebMvcTest({ExceptionTranslatorTest.TestController.class})
 @Import({ExceptionTranslator.class, JwtSecretsConfig.class, SimpleRbacConfig.class})
 @WithMockUser("test")
