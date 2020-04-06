@@ -3,9 +3,11 @@ package ph.devcon.rapidpass.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.utilities.StringFormatter;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -68,29 +70,46 @@ public final class RapidPassRequest {
         return String.format("%s %s", getFirstName(), getLastName());
     }
 
+    /**
+     * <p>Builds a {@link RapidPassRequest} from a {@link RapidPassCSVdata} row.</p>
+     *
+     * <p>Note that this method does not throw any {@link NullPointerException} errors if there are null property
+     * values. It simply assigns `null` to the value.</p>
+     *
+     * @param csvData The row of data to be parsed into a {@link RapidPassRequest}.
+     * @return A new {@link RapidPassRequest}, or `null` if the csvData is null.
+     */
     public static RapidPassRequest buildFrom(RapidPassCSVdata csvData) {
+
+        if (csvData == null)
+            return null;
+
+        PassType passType = csvData.getPassType() != null ? PassType.valueOf(csvData.getPassType()) : null;
+
+        String plateNumber = csvData.getPlateNumber() != null ? StringFormatter.normalizeAlphanumeric(csvData.getPlateNumber()) : null;
+
         return RapidPassRequest.builder()
-                .passType(PassType.valueOf(csvData.getPassType()))
-                .aporType(csvData.getAporType())
-                .firstName(csvData.getFirstName())
-                .middleName(csvData.getMiddleName())
-                .lastName(csvData.getLastName())
-                .suffix(csvData.getSuffix())
-                .company(csvData.getCompany())
-                .idType(csvData.getIdType())
-                .identifierNumber(csvData.getIdentifierNumber())
-                .plateNumber(csvData.getPlateNumber())
-                .mobileNumber(csvData.getMobileNumber())
-                .email(csvData.getEmail())
-                .originName(csvData.getOriginName())
-                .originStreet(csvData.getOriginStreet())
-                .originCity(csvData.getOriginCity())
-                .originProvince(csvData.getOriginProvince())
-                .destName(csvData.getDestName())
-                .destStreet(csvData.getDestStreet())
-                .destCity(csvData.getDestCity())
-                .destProvince(csvData.getDestProvince())
-                .remarks(csvData.getRemarks())
+                .passType(passType)
+                .aporType(StringUtils.trim(csvData.getAporType()))
+                .firstName(StringUtils.trim(csvData.getFirstName()))
+                .middleName(StringUtils.trim(csvData.getMiddleName()))
+                .lastName(StringUtils.trim(csvData.getLastName()))
+                .suffix(StringUtils.trim(csvData.getSuffix()))
+                .company(StringUtils.trim(csvData.getCompany()))
+                .idType(StringUtils.trim(csvData.getIdType()))
+                .identifierNumber(StringUtils.trim(csvData.getIdentifierNumber()))
+                .plateNumber(plateNumber)
+                .mobileNumber(StringUtils.trim(csvData.getMobileNumber()))
+                .email(StringUtils.trim(csvData.getEmail()))
+                .originName(StringUtils.trim(csvData.getOriginName()))
+                .originStreet(StringUtils.trim(csvData.getOriginStreet()))
+                .originCity(StringUtils.trim(csvData.getOriginCity()))
+                .originProvince(StringUtils.trim(csvData.getOriginProvince()))
+                .destName(StringUtils.trim(csvData.getDestName()))
+                .destStreet(StringUtils.trim(csvData.getDestStreet()))
+                .destCity(StringUtils.trim(csvData.getDestCity()))
+                .destProvince(StringUtils.trim(csvData.getDestProvince()))
+                .remarks(StringUtils.trim(csvData.getRemarks()))
                 .build();
     }
 
