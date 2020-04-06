@@ -10,8 +10,7 @@ import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.AreaBreak;
@@ -31,6 +30,8 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Utility class for generating Pdf using File qrcode file from QRCode Generator.
@@ -218,6 +219,23 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return results;
     }
 
+    /**
+     * Enables rendering on a specific area of the document.
+     * @param page
+     * @param rectangle
+     * @param operation
+     * @return
+     */
+    private static PdfCanvas renderOnCanvas(PdfPage page, Rectangle rectangle, Function<PdfCanvas, Consumer<Rectangle>> operation) {
+
+        PdfCanvas canvas = new PdfCanvas(page);
+
+        Consumer<Rectangle> rectangleConsumer = operation.apply(canvas);
+        rectangleConsumer.accept(rectangle);
+
+        return canvas;
+    }
+
     private static IBlockElement[] generateAporCode(RapidPass rapidPass, Document document) {
 
         IBlockElement[] elements = new IBlockElement[3];
@@ -246,12 +264,13 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         passType.setTextAlignment(TextAlignment.CENTER);
         passType.setFixedPosition(30, 190, 170);
 
+        PdfCanvas canvas1 = renderOnCanvas(document.getPdfDocument().getPage(2), new Rectangle(30, 30, 170, 210), (canvas) -> rectangle -> {
+            canvas.setFillColor(ColorConstants.BLACK);
+            canvas.rectangle(rectangle);
+            canvas.fillStroke();
+        });
 
-        PdfCanvas canvas = new PdfCanvas(document.getPdfDocument().getPage(2));
-        Rectangle rectangle = new Rectangle(30, 30, 170, 210);
-        canvas.setFillColor(ColorConstants.BLACK);
-        canvas.rectangle(rectangle);
-        canvas.fillStroke();
+        document.getPdfDocument().getPage(2).put(PdfName.UserUnit, new PdfNumber(2.5f));
 
         elements[0] = aporValue;
         elements[1] = aporLabel;
@@ -308,6 +327,8 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         //processes the data that will be on the pdf
 
         //writes to the document
+
+//        Canvas canvas = new Canvas(document.getPdfDocument().getPage(1), );
 
         document.add(qrcode);
         document.add(generateRapidPassHeader());
