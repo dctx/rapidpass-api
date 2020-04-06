@@ -14,6 +14,8 @@ import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
@@ -145,7 +147,6 @@ class PdfGeneratorImplTest {
     @Ignore
     void generatePdfForVehicle() throws Exception {
 
-
         // Mock data
         Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
         Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
@@ -202,6 +203,14 @@ class PdfGeneratorImplTest {
         // do pdf generation
         PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
         final ByteArrayOutputStream outputStream = (ByteArrayOutputStream) pdfGenerator.generatePdf(qrCodeBytes, rapidPass);
+
+        FileOutputStream fileOutputStream = new FileOutputStream("test.pdf");
+
+        byte[] bytes = outputStream.toByteArray();
+        fileOutputStream.write(bytes);
+
+        fileOutputStream.flush();
+        fileOutputStream.close();
 
         assertThat("pdf is being streamed", outputStream.toByteArray().length, is(greaterThan(0)));
     }
