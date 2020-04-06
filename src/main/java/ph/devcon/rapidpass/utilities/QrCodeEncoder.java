@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.utilities;
 
 
+import lombok.Setter;
 import org.bouncycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
 import ph.devcon.dctx.rapidpass.commons.Signer;
 
 @Configuration
+@Setter
 public class QrCodeEncoder {
 
     @Value("${qrmaster.encryptionKey}")

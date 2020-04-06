@@ -43,7 +43,7 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
  */
 @WebMvcTest(RegistryRestController.class)
 @EnableConfigurationProperties
-@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
+@Import({ExceptionTranslator.class, JwtSecretsConfig.class, SimpleRbacConfig.class})
 class RegistryRestControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
