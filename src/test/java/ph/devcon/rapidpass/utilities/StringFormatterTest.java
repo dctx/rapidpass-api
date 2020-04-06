@@ -41,4 +41,14 @@ public class StringFormatterTest {
         assertThat(result, equalTo("ABC234"));
     }
 
+    @Test
+    void testAgainstHomographAttacks() {
+        // The first letter is a cyrillic A
+        // See https://www.wikiwand.com/en/IDN_homograph_attack
+        String result = StringFormatter.normalizeAlphanumeric("аabcd");
+
+        // The formatter must remove non alpha-numeric characters, which include cyrillic letters.
+        assertThat(result, equalTo("ABCD"));
+    }
+
 }
