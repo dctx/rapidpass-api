@@ -12,3 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Requesting for a rapid pass now shows the `origin` related address fields. 
 - Normalization of fields (plate number, mobile number, identifier number) before they are validated, for creating new rapid pass.
+
+### Changed
+- Access pass `remarks` column is now increased from 150 to 250 characters. 
