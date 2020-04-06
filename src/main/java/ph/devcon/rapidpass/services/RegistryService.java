@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.entities.Registrant;
@@ -68,10 +69,18 @@ public class RegistryService {
      * @param rapidPassRequest rapid passs request.
      * @return new rapid pass with PENDING status
      */
+    @Transactional
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
         // see
         OffsetDateTime now = OffsetDateTime.now();
         log.debug("New RapidPass Request: {}", rapidPassRequest);
+
+        // normalize id, plate number and mobile number
+        if (rapidPassRequest.getPlateNumber() != null) {
+            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
+        }
+        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
+        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
 
         // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
         NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
@@ -124,11 +133,8 @@ public class RegistryService {
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
         accessPass.setIdType(rapidPassRequest.getIdType());
-        accessPass.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
-
-        if (rapidPassRequest.getPlateNumber() != null) {
-            accessPass.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
-        }
+        accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
+        accessPass.setPlateNumber(rapidPassRequest.getPlateNumber());
         StringBuilder name = new StringBuilder(registrant.getFirstName());
         name.append(" ").append(registrant.getLastName());
         if (null != registrant.getSuffix() && !registrant.getSuffix().isEmpty()) {
