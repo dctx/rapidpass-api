@@ -8,31 +8,12 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.RecordSource;
-import ph.devcon.rapidpass.models.AgencyAuth;
-import ph.devcon.rapidpass.models.Login;
-import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.models.QueryFilter;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassPageView;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.models.RapidPassStatus;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -161,6 +142,7 @@ public class RegistryRestController {
 
     /**
      * Depecreated. Use {@link UserRestController#login(Login)}
+     *
      * @param login
      * @return
      */

@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -43,20 +44,35 @@ public class ExceptionTranslator {
                         DefaultMessageSourceResolvable::getDefaultMessage));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    /**
+     * Converts errors related to exceptions related to user input into 400s
+     *
+     * @param ex a user input error
+     * @return response body with errors
+     */
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            InvalidFormatException.class,
+            RegistryService.UpdateAccessPassException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, String> illegalArgsError(IllegalArgumentException ex) {
+    public Map<String, String> illegalArgsError(Throwable ex) {
         log.warn("Request Error! ", ex);
         return ImmutableMap.of("message", ex.getMessage());
     }
 
-    @ExceptionHandler(RegistryService.UpdateAccessPassException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    /**
+     * Generic error catcher so that we don't print stack traces back to client.
+     *
+     * @param ex generic error
+     * @return respoinse body with errors
+     */
+    @ExceptionHandler({Throwable.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public Map<String, String> updateAcessPassError(RegistryService.UpdateAccessPassException ex) {
-        return ImmutableMap.of("message", ex.getMessage());
+    public Map<String, String> everythingElse(Throwable ex) {
+        log.warn("Server error! ", ex);
+        return ImmutableMap.of("message", "Something went wrong! Please contact application owners.");
     }
-
 
 }
