@@ -16,7 +16,7 @@ import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,8 +32,8 @@ class QrGeneratorServiceImplTest {
     private String signingKey = "***REMOVED***";
 
 
-    private static String decodeQRCode(File qrCodeimage) throws IOException {
-        BufferedImage bufferedImage = ImageIO.read(qrCodeimage);
+    private static String decodeQRCode(byte[] qrCodeimage) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(qrCodeimage));
         LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
         BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
@@ -71,10 +71,10 @@ class QrGeneratorServiceImplTest {
                 .validUntil(MAR_27_2020)
                 .build();
 
-        final File file = instance.generateQr(testPayload);
+        final byte[] file = instance.generateQr(testPayload);
         assertThat("QR code file has been created.", file, is(notNullValue()));
 
-        assertThat("QR code file has been created.", file.exists(), is(true));
+        assertThat("QR code file has been created.", file.length, is(greaterThan(0)));
 
         // can visually inspect qr code image from logs
 

@@ -15,6 +15,7 @@ import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.NotificationService;
 
 import javax.activation.DataSource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -95,8 +96,10 @@ class AccessPassNotifierServiceTest {
     @Test
     void buildEmailMessage() throws ParseException, IOException, WriterException {
 
+        final ByteArrayOutputStream value = new ByteArrayOutputStream();
+        value.write(new byte[]{1, 0, 1, 0, 1});
         when(mockQrPdfService.generateQrPdf(eq(INDIVIDUAL_ACCESSPASS.getReferenceID())))
-                .thenReturn(new byte[]{1, 0, 1, 0, 1});
+                .thenReturn(value);
         final String toAddress = "my-email@email.com";
         final String testPassLink = "a-test-url.com";
         final NotificationMessage notificationMessage =

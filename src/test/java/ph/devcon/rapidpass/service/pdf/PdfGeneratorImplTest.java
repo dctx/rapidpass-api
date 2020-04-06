@@ -2,7 +2,6 @@ package ph.devcon.rapidpass.service.pdf;
 
 import com.google.zxing.WriterException;
 import org.bouncycastle.util.encoders.Hex;
-import org.hamcrest.io.FileMatchers;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,16 +14,13 @@ import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
@@ -202,21 +198,12 @@ class PdfGeneratorImplTest {
         // todo, will want to scale processing to streams instead of persisting to filespace once we get many users! in memory is always faster!
 
         // generate QR Code to embed in PDF
-        final File qrCodeFile = qrGeneratorService.generateQr(testPayload);
-        final String pdfPath = "PdfGeneratorTest-test.pdf";
-        // delete test file to make sure its not there at the moment
-        final File tmpFile = new File(pdfPath);
-        tmpFile.delete();
-        assertThat("pdf file is created!", tmpFile, is(not(FileMatchers.anExistingFile())));
+        final byte[] qrCodeBytes = qrGeneratorService.generateQr(testPayload);
 
         // do pdf generation
         PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
-        final File pdfFile = pdfGenerator.generatePdf(pdfPath, qrCodeFile, rapidPass);
+        final ByteArrayOutputStream outputStream = (ByteArrayOutputStream) pdfGenerator.generatePdf(qrCodeBytes, rapidPass);
 
-        assertThat("pdf file is created!", pdfFile, is(FileMatchers.anExistingFile()));
-        assertThat("pdf file is created!", pdfFile, is(FileMatchers.aFileWithSize(greaterThan(0L))));
-
-        // cleanup!
-        pdfFile.delete();
+        assertThat("pdf is being streamed", outputStream.toByteArray().length, is(greaterThan(0)));
     }
 }

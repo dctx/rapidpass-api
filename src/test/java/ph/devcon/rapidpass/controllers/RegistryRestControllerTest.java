@@ -24,6 +24,7 @@ import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -454,7 +455,9 @@ class RegistryRestControllerTest {
     @Test
     public void downloadQrCode() throws Exception {
         final byte[] samplePdf = {1, 0, 1, 0, 1, 0};
-        when(mockQrPdfService.generateQrPdf(eq("1234556"))).thenReturn(samplePdf);
+        final ByteArrayOutputStream value = new ByteArrayOutputStream();
+        value.write(samplePdf);
+        when(mockQrPdfService.generateQrPdf(eq("1234556"))).thenReturn(value);
         final MockHttpServletResponse response = mockMvc.perform(get("/registry/qr-codes/{referenceId}", "1234556").header(API_KEY_HEADER, API_KEY_VALUE))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
