@@ -52,9 +52,11 @@ public class RbacAuthorizationFilter extends OncePerRequestFilter {
      * @return all configured roles that covers the request
      */
     static List<RbacRole> getEndpointRbacRoles(HttpServletRequest request, SimpleRbacConfig simpleRbacConfig) {
-        final String requestURI = request.getRequestURI();
+        final String path = request.getRequestURI().substring(request.getContextPath().length());
+        log.debug("getting roles for {}", path);
+
         final String method = request.getMethod();
-        return simpleRbacConfig.getRbacRoleMatch(requestURI, method);
+        return simpleRbacConfig.getRbacRoleMatch(path, method);
     }
 
     @PostConstruct

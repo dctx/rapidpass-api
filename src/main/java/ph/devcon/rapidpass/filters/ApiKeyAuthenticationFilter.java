@@ -28,7 +28,11 @@ public class ApiKeyAuthenticationFilter extends AbstractPreAuthenticatedProcessi
     @PostConstruct
     void postConstructor() {
         // this filter does not do final authentication. The JWT filter will do that.
-        setAuthenticationManager(authentication -> authentication);
+        setAuthenticationManager(authentication -> {
+            authentication.setAuthenticated(true);
+            return authentication;
+        });
+        setCheckForPrincipalChanges(true);
     }
 
     @Override
@@ -41,6 +45,7 @@ public class ApiKeyAuthenticationFilter extends AbstractPreAuthenticatedProcessi
             log.warn("API Key is not valid!");
             return null;
         }
+        log.warn("API Key is authenticated!");
         return requestApiKey;
     }
 

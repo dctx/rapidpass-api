@@ -48,24 +48,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable() // just to simplify things
                 .addFilterBefore(apiKeyAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
                 .addFilterAfter(jwtAuthenticationFilter, ApiKeyAuthenticationFilter.class)
-                .addFilterAfter(rbacAuthorizationFilter, JwtAuthenticationFilter.class)
-                .authorizeRequests()
-                .mvcMatchers("/actuator/**").permitAll() // allow metrics endpoint to be scraped
-
-                // TODO remove once we don't need!!!
-                .mvcMatchers("/swagger-ui.html").permitAll() // temp access to swagger
-                .mvcMatchers("/swagger-ui.html/**").permitAll() // temp access to swagger
-                .mvcMatchers("/webjars/**").permitAll() // temp access to swagger
-                .mvcMatchers("/api-docs/**").permitAll() // temp access to swagger
-                .mvcMatchers("/swagger-resources/**").permitAll() // temp access to swagger
-                .mvcMatchers("/spec").permitAll() // temp access to swagger
-                .mvcMatchers("/").permitAll() // temp access to swagger
-
-                .mvcMatchers("/users/auth").permitAll() // login endpoint
-                .mvcMatchers("/checkpoint/auth").permitAll() // login endpoint
-                // authenticating errything else!
-                .anyRequest()
-                .authenticated();
+                .addFilterAfter(rbacAuthorizationFilter, JwtAuthenticationFilter.class);
+        // rbac config will take care of authorization. endpoints not in rbac is not authenticated
     }
 
     @Override
