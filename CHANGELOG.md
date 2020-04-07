@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - String trimming CSV bulk upload data for Bulk Registration for RapidPass.
 
+### Changed
+- Updated new PDF two-page design (individual has two copies, vehicle uses full page).
+
 ## [Released]
 
 ## [1.0.1] - 2020-04-06
