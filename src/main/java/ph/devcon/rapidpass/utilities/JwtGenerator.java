@@ -11,6 +11,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
@@ -35,7 +37,7 @@ public class JwtGenerator {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 // todo jwt expiration as configurable
-                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 30)))
+                .setExpiration(LocalDateTime.now().plus(1, ChronoUnit.DAYS))
                 .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }

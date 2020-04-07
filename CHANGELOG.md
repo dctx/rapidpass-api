@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2020-04-07
+### Fixed
+- JWT token hard coded to expire in 30 seconds. Set it to 1 day.
+
 ## [1.0.2] - 2020-04-06
 
 ### Added
