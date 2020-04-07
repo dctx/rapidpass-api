@@ -23,7 +23,9 @@ import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
@@ -116,15 +118,27 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return os.toByteArray();
     }
 
-    private static Paragraph generateRapidPassHeader() {
+    private static Paragraph generateRapidPassHeader(RapidPass rapidPass) {
 
-        Paragraph header = new Paragraph();
-        header.setFontSize(36);
-        header.setTextAlignment(TextAlignment.CENTER);
-        header.setBold();
-        header.setRelativePosition(-100, 25, 0, 0);
-        header.add("RAPIDPASS.PH");
-        return header;
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
+
+            Paragraph header = new Paragraph();
+            header.setFontSize(36);
+            header.setTextAlignment(TextAlignment.CENTER);
+            header.setBold();
+            header.setRelativePosition(-100, 25, 0, 0);
+            header.add("RAPIDPASS.PH");
+            return header;
+        } else if (PassType.VEHICLE.equals(rapidPass.getPassType())) {
+            Paragraph header = new Paragraph();
+            header.setFontSize(54);
+            header.setTextAlignment(TextAlignment.CENTER);
+            header.setBold();
+            header.setRelativePosition(0, 25, 0, 0);
+            header.add("RAPIDPASS.PH");
+            return header;
+        }
+        return new Paragraph();
 
     }
 
@@ -141,14 +155,26 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     private static Paragraph generateTitle(RapidPass rapidPass) {
 
-        Paragraph header = new Paragraph();
-        header.setRelativePosition(150, 420, 0, 0);
-        header.setFontSize(36);
-        header.setTextAlignment(TextAlignment.LEFT);
-        header.setBold();
-        header.add(rapidPass.getControlCode());
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
+            Paragraph header = new Paragraph();
+            header.setRelativePosition(150, 420, 0, 0);
+            header.setFontSize(36);
+            header.setTextAlignment(TextAlignment.LEFT);
+            header.setBold();
+            header.add(rapidPass.getControlCode());
+            return header;
+        } else {
 
-        return header;
+            Paragraph header = new Paragraph();
+            header.setFixedPosition(220, 90, 350);
+            header.setFontSize(44);
+            header.setTextAlignment(TextAlignment.LEFT);
+            header.setBold();
+            header.add(rapidPass.getControlCode());
+            return header;
+        }
+
+
 
     }
 
@@ -158,29 +184,49 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Paragraph companyParagraph = new Paragraph();
         Paragraph[] results = new Paragraph[2];
 
-        int defaultFontSize = 12;
+        int defaultFontSize = 30;
 
-        nameParagraph.setMaxWidth(200);
-        companyParagraph.setMaxWidth(200);
 
-        if (rectangle.getY() != 0)
-            nameParagraph.setFixedPosition(150, 390, rectangle.getWidth());
-        else
-            nameParagraph.setFixedPosition(150, 390 - rectangle.getHeight(), rectangle.getWidth());
 
-        nameParagraph.setFixedLeading(20);
-        companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
 
-        if (rectangle.getY() != 0)
+            nameParagraph.setMaxWidth(200);
+            companyParagraph.setMaxWidth(200);
+
+            defaultFontSize = 12;
+
+            if (rectangle.getY() != 0)
+                nameParagraph.setFixedPosition(150, 390, rectangle.getWidth());
+            else
+                nameParagraph.setFixedPosition(150, 390 - rectangle.getHeight(), rectangle.getWidth());
+
+            nameParagraph.setFixedLeading(20);
             companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
-        else
-            companyParagraph.setFixedPosition(150, 350 - rectangle.getHeight(), rectangle.getWidth());
-        companyParagraph.setFixedLeading(20);
+
+            if (rectangle.getY() != 0)
+                companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
+            else
+                companyParagraph.setFixedPosition(150, 350 - rectangle.getHeight(), rectangle.getWidth());
+            companyParagraph.setFixedLeading(20);
+        } else {
+            nameParagraph.setMaxWidth(400);
+            companyParagraph.setMaxWidth(400);
+
+            nameParagraph.setFixedPosition(220, 220, 400);
+            nameParagraph.setFixedLeading(24);
+            companyParagraph.setFixedPosition(220, 160, 400);
+            companyParagraph.setFixedLeading(24);
+        }
 
         String name = rapidPass.getName();
 
         if ("VEHICLE".equals(rapidPass.getPassType().toString())) {
-            name = "PLATE# " + rapidPass.getPlateNumber();
+
+            if ("PLT".equals(rapidPass.getIdType())) {
+                name = "PLATE# " + rapidPass.getPlateNumber();
+            } else {
+                name = "CND: " + rapidPass.getPlateNumber();
+            }
         }
 
         String company = rapidPass.getCompany();
@@ -202,32 +248,55 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Instant validUntilInstant = DateFormatter.parse(rapidPass.getValidUntil());
         String validUntil = DateFormatter.readable(validUntilInstant, "MM/dd");
 
-        int defaultFontSize = 14;
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
+            int defaultFontSize = 14;
 
-        Paragraph details = new Paragraph();
-        details.setFontSize(defaultFontSize);
-        if (rectangle.getY() != 0)
-            details.setFixedPosition(150, 290, rectangle.getWidth());
-        else
-            details.setFixedPosition(150, 290 - rectangle.getHeight(), rectangle.getWidth());
+            Paragraph details = new Paragraph();
+            details.setFontSize(defaultFontSize);
+            if (rectangle.getY() != 0)
+                details.setFixedPosition(150, 290, rectangle.getWidth());
+            else
+                details.setFixedPosition(150, 290 - rectangle.getHeight(), rectangle.getWidth());
 
-        details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
+            details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
-        Paragraph date = new Paragraph();
-        date.setFontSize(defaultFontSize);
-        if (rectangle.getY() != 0)
-            date.setFixedPosition(270, 290, rectangle.getWidth());
-        else
-            date.setFixedPosition(270, 290 - rectangle.getHeight(), rectangle.getWidth());
+            Paragraph date = new Paragraph();
+            date.setFontSize(defaultFontSize);
+            if (rectangle.getY() != 0)
+                date.setFixedPosition(270, 290, rectangle.getWidth());
+            else
+                date.setFixedPosition(270, 290 - rectangle.getHeight(), rectangle.getWidth());
 
-        date.add(validUntil).setCharacterSpacing(1.3f);
-        date.setBold();
+            date.add(validUntil).setCharacterSpacing(1.3f);
+            date.setBold();
 
-        Paragraph[] results = new Paragraph[2];
-        results[0] = details;
-        results[1] = date;
+            Paragraph[] results = new Paragraph[2];
+            results[0] = details;
+            results[1] = date;
 
-        return results;
+            return results;
+        } else {
+            int defaultFontSize = 24;
+
+            Paragraph details = new Paragraph();
+            details.setFontSize(defaultFontSize);
+            details.setFixedPosition(220, 60, 400);
+
+            details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
+
+            Paragraph date = new Paragraph();
+            date.setFontSize(defaultFontSize);
+            date.setFixedPosition(400, 60, 200);
+
+            date.add(validUntil).setCharacterSpacing(1.3f);
+            date.setBold();
+
+            Paragraph[] results = new Paragraph[2];
+            results[0] = details;
+            results[1] = date;
+
+            return results;
+        }
     }
 
     /**
@@ -257,44 +326,80 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         // Reverted change- they now want INDIVIDUAL to be spelled out. o_o
         // "INDIVIDUAL".equals(rapidPass.getPassType().toString()) ? "PERSON" : rapidPass.getPassType().toString();
 
-        Paragraph aporLabel = new Paragraph();
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
 
-        passType.add(passTypeText);
-        passType.setFontSize(12);
-        passType.setFontColor(ColorConstants.WHITE);
-        passType.setTextAlignment(TextAlignment.CENTER);
-        if (rectangle.getY() != 0)
-            passType.setFixedPosition(-205, 400, rectangle.getWidth());
-        else
-            passType.setFixedPosition(-205, 400 - rectangle.getHeight(), rectangle.getWidth());
+            Paragraph aporLabel = new Paragraph();
 
-        Paragraph aporValue = new Paragraph();
-        aporValue.add(rapidPass.getAporType());
-        aporValue.setFontSize(40);
-        aporValue.setBold();
-        aporValue.setFontColor(ColorConstants.WHITE);
-        aporValue.setTextAlignment(TextAlignment.CENTER);
-        if (rectangle.getY() != 0)
-            aporValue.setFixedPosition(-205, 330, rectangle.getWidth());
-        else
-            aporValue.setFixedPosition(-205, 330 - rectangle.getHeight(), rectangle.getWidth());
+            passType.add(passTypeText);
+            passType.setFontSize(12);
+            passType.setFontColor(ColorConstants.WHITE);
+            passType.setTextAlignment(TextAlignment.CENTER);
+            if (rectangle.getY() != 0)
+                passType.setFixedPosition(-205, 400, rectangle.getWidth());
+            else
+                passType.setFixedPosition(-205, 400 - rectangle.getHeight(), rectangle.getWidth());
 
-
-        aporLabel.add("APOR");
-        aporLabel.setFontSize(24);
-        aporLabel.setFontColor(ColorConstants.WHITE);
-        aporLabel.setTextAlignment(TextAlignment.CENTER);
-        if (rectangle.getY() != 0)
-            aporLabel.setFixedPosition(-205, 300, rectangle.getWidth());
-        else
-            aporLabel.setFixedPosition(-205, 300 - rectangle.getHeight(), rectangle.getWidth());
+            Paragraph aporValue = new Paragraph();
+            aporValue.add(rapidPass.getAporType());
+            aporValue.setFontSize(40);
+            aporValue.setBold();
+            aporValue.setFontColor(ColorConstants.WHITE);
+            aporValue.setTextAlignment(TextAlignment.CENTER);
+            if (rectangle.getY() != 0)
+                aporValue.setFixedPosition(-205, 330, rectangle.getWidth());
+            else
+                aporValue.setFixedPosition(-205, 330 - rectangle.getHeight(), rectangle.getWidth());
 
 
-        elements[0] = aporValue;
-        elements[1] = aporLabel;
-        elements[2] = passType;
+            aporLabel.add("APOR");
+            aporLabel.setFontSize(24);
+            aporLabel.setFontColor(ColorConstants.WHITE);
+            aporLabel.setTextAlignment(TextAlignment.CENTER);
+            if (rectangle.getY() != 0)
+                aporLabel.setFixedPosition(-205, 300, rectangle.getWidth());
+            else
+                aporLabel.setFixedPosition(-205, 300 - rectangle.getHeight(), rectangle.getWidth());
 
-        return elements;
+
+            elements[0] = aporValue;
+            elements[1] = aporLabel;
+            elements[2] = passType;
+
+            return elements;
+
+        } else {
+
+            Paragraph aporLabel = new Paragraph();
+
+            passType.add(passTypeText);
+            passType.setFontSize(18);
+            passType.setFontColor(ColorConstants.WHITE);
+            passType.setTextAlignment(TextAlignment.CENTER);
+            passType.setFixedPosition(70, 235, 130);
+
+
+            Paragraph aporValue = new Paragraph();
+            aporValue.add(rapidPass.getAporType());
+            aporValue.setFontSize(60);
+            aporValue.setBold();
+            aporValue.setFontColor(ColorConstants.WHITE);
+            aporValue.setTextAlignment(TextAlignment.CENTER);
+            aporValue.setFixedPosition(70, 140, 130);
+
+
+            aporLabel.add("APOR");
+            aporLabel.setFontSize(32);
+            aporLabel.setFontColor(ColorConstants.WHITE);
+            aporLabel.setTextAlignment(TextAlignment.CENTER);
+            aporLabel.setFixedPosition(70, 110, 130);
+
+            elements[0] = aporValue;
+            elements[1] = aporLabel;
+            elements[2] = passType;
+
+            return elements;
+
+        }
     }
 
     /**
@@ -312,6 +417,15 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                                     RapidPass rapidPass)
             throws ParseException, IOException {
 
+        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType()))
+            return generateIndividualPDF(qrCodeByteData, rapidPass);
+        else if (PassType.VEHICLE.equals(rapidPass.getPassType()))
+            return generateVehiclePDF(qrCodeByteData, rapidPass);
+
+        throw new IllegalArgumentException("Failed to generate PDF. Invalid rapid pass type: " + rapidPass.getPassType());
+    }
+
+    private OutputStream generateVehiclePDF(byte[] qrCodeByteData, RapidPass rapidPass) throws IOException {
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         Document document = createDocument(os);
 
@@ -355,55 +469,161 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
             //noinspection TryWithIdenticalCatches
             try {
-            AffineTransform transform = new AffineTransform();
+                AffineTransform transform = new AffineTransform();
+                AffineTransform inverse = transform.createInverse();
 
-            transform.concatenate(
-                    AffineTransform.getRotateInstance(Math.PI / 2, rectangle.getX(), rectangle.getY())
-            );
-            transform.concatenate(
-                    AffineTransform.getTranslateInstance(0, -rectangle.getHeight())
-            );
+                canvas.concatMatrix(transform);
+
+                ImageData imageData = ImageDataFactory.create(qrCodeByteData);
+
+                // Show QR code
+                float qrCodeSize = a4PageWidth * 0.95f;
+                Point qrPosition = new Point(10, 240);
+                canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), false);
+
+                // Show header
+                Canvas managedCanvas = new Canvas(canvas, canvas.getDocument(), rectangle);
+                Paragraph paragraph = generateRapidPassHeader(rapidPass);
+
+                managedCanvas.add(paragraph);
+
+                managedCanvas.add(generateTitle(rapidPass));
+
+                Paragraph[] details = generateDetails(rapidPass, rectangle);
+
+                managedCanvas.add(details[0]);
+                managedCanvas.add(details[1]);
+
+//
+                IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
+
+                canvas.setFillColor(ColorConstants.BLACK);
+                canvas.rectangle(new Rectangle(70, 70, 130, 200));
+                canvas.fillStroke();
+
+                managedCanvas.add(iBlockElements[0]);
+                managedCanvas.add(iBlockElements[1]);
+                managedCanvas.add(iBlockElements[2]);
+
+                Paragraph[] paragraphs = generateValidUntil(rapidPass, rectangle);
+                managedCanvas.add(paragraphs[0]);
+                managedCanvas.add(paragraphs[1]);
+
+                canvas.concatMatrix(inverse);
+
+            } catch (NoninvertibleTransformException | ParseException e) {
+                e.printStackTrace();
+            }
+//            catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+
+        };
+
+        Rectangle fullPage = new Rectangle(0, 0, a4PageWidth, a4PageHeight);
+
+        renderOnCanvas(page2, fullPage, generatePdf);
+
+        document.close();
+        return os;
+    }
+
+    private OutputStream generateIndividualPDF(byte[] qrCodeByteData,
+                                  RapidPass rapidPass)
+            throws ParseException, IOException {
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Document document = createDocument(os);
+
+        document.setMargins(-50, -50, -50, -50);
+
+        ClassPathResource instructionsClassPath;
+
+        switch (rapidPass.getPassType()) {
+            case INDIVIDUAL:
+                instructionsClassPath = new ClassPathResource("i-instructions.png");
+                break;
+            case VEHICLE:
+                instructionsClassPath = new ClassPathResource("v-instructions.png");
+                break;
+            default:
+                throw new IllegalStateException("Failed to determine pass type.");
+        }
+
+        InputStream inputStream = instructionsClassPath.getInputStream();
+        byte[] imageBytes = toByteArray(inputStream);
+
+        Image instructions = new Image(prepareImage(imageBytes));
+
+        instructions.setFixedPosition(-30, 20);
+
+        document.getPdfDocument().setDefaultPageSize(PageSize.A4);
+        document.add(instructions);
+
+        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
+        PdfPage page2 = document.getPdfDocument().getPage(2);
+
+        // A4 constants
+        // http://itext.2136553.n4.nabble.com/java-A4-page-size-is-wrong-in-PageSize-A4-td4659791.html
+        float a4PageWidth = 595;
+        float a4PageHeight = 842;
+
+        document.getPdfDocument().setDefaultPageSize(PageSize.A4);
+
+        Function<PdfCanvas, Consumer<Rectangle>> generatePdf = canvas -> rectangle -> {
+
+            //noinspection TryWithIdenticalCatches
+            try {
+                AffineTransform transform = new AffineTransform();
+
+                transform.concatenate(
+                        AffineTransform.getRotateInstance(Math.PI / 2, rectangle.getX(), rectangle.getY())
+                );
+                transform.concatenate(
+                        AffineTransform.getTranslateInstance(0, -rectangle.getHeight())
+                );
 
                 AffineTransform inverse = transform.createInverse();
 
 
-            canvas.concatMatrix(transform);
+                canvas.concatMatrix(transform);
 
-            ImageData imageData = ImageDataFactory.create(qrCodeByteData);
+                ImageData imageData = ImageDataFactory.create(qrCodeByteData);
 
-            // Show QR code
-            float qrCodeSize = a4PageWidth * 0.65f;
-            Point qrPosition = new Point(0, rectangle.getY() - 10);
-            canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), false);
+                // Show QR code
+                float qrCodeSize = a4PageWidth * 0.65f;
 
-            // Show header
-            Canvas managedCanvas = new Canvas(canvas, canvas.getDocument(), rectangle);
-            Paragraph paragraph = generateRapidPassHeader();
-            managedCanvas.add(paragraph);
+                Point qrPosition = new Point(0, rectangle.getY() - 10);
+                canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), false);
 
-            managedCanvas.add(generateTitle(rapidPass));
+                // Show header
+                Canvas managedCanvas = new Canvas(canvas, canvas.getDocument(), rectangle);
+                Paragraph paragraph = generateRapidPassHeader(rapidPass);
+                managedCanvas.add(paragraph);
 
-            Paragraph[] details = generateDetails(rapidPass, rectangle);
+                managedCanvas.add(generateTitle(rapidPass));
 
-            managedCanvas.add(details[0]);
-            managedCanvas.add(details[1]);
+                Paragraph[] details = generateDetails(rapidPass, rectangle);
+
+                managedCanvas.add(details[0]);
+                managedCanvas.add(details[1]);
 
 //
-            IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
+                IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
 
-            canvas.setFillColor(ColorConstants.BLACK);
-            canvas.rectangle(new Rectangle(rectangle.getX() + 45, rectangle.getY() - 130, 90, 135));
-            canvas.fillStroke();
+                canvas.setFillColor(ColorConstants.BLACK);
+                canvas.rectangle(new Rectangle(rectangle.getX() + 45, rectangle.getY() - 130, 90, 135));
+                canvas.fillStroke();
 
-            managedCanvas.add(iBlockElements[0]);
-            managedCanvas.add(iBlockElements[1]);
-            managedCanvas.add(iBlockElements[2]);
+                managedCanvas.add(iBlockElements[0]);
+                managedCanvas.add(iBlockElements[1]);
+                managedCanvas.add(iBlockElements[2]);
 
-            Paragraph[] paragraphs = generateValidUntil(rapidPass, rectangle);
-            managedCanvas.add(paragraphs[0]);
-            managedCanvas.add(paragraphs[1]);
+                Paragraph[] paragraphs = generateValidUntil(rapidPass, rectangle);
+                managedCanvas.add(paragraphs[0]);
+                managedCanvas.add(paragraphs[1]);
 
-            canvas.concatMatrix(inverse);
+                canvas.concatMatrix(inverse);
 
             } catch (NoninvertibleTransformException | ParseException e) {
                 e.printStackTrace();
