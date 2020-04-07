@@ -12,7 +12,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
-public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>, AccessPassRepositoryCustom {
+public interface AccessPassRepository extends JpaRepository<AccessPass, Integer> {
     List<AccessPass> findAll();
 
     Page<AccessPass> findAll(Pageable page);
