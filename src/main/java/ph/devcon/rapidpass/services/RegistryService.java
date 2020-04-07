@@ -37,7 +37,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.exact;
 
 @Component
 @Slf4j
@@ -174,13 +173,13 @@ public class RegistryService {
                         .withMatcher("company", contains())
         );
 
-        Pageable pageView = null;
+        PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
             int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
-        Page<AccessPass> accessPassPages = accessPassRepository.findAllByQueryFilter(q, pageView);
+        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
 
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
