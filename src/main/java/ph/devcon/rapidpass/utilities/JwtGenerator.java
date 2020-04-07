@@ -37,7 +37,7 @@ public class JwtGenerator {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 // todo jwt expiration as configurable
-                .setExpiration(LocalDateTime.now().plus(1, ChronoUnit.DAYS))
+                .setExpiration(Date.from(LocalDateTime.now().plus(1, ChronoUnit.DAYS)))
                 .signWith(SignatureAlgorithm.HS256, secret.getBytes())
                 .compact();
     }
