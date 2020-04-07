@@ -61,6 +61,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/spec").permitAll() // temp access to swagger
                 .mvcMatchers("/").permitAll() // temp access to swagger
 
+                .mvcMatchers("/users/auth").permitAll() // login endpoint
+                .mvcMatchers("/checkpoint/auth").permitAll() // login endpoint
                 // authenticating errything else!
                 .anyRequest()
                 .authenticated();
