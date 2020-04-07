@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.services.pdf;
+package ph.devcon.rapidpass.service.pdf;
 
 import com.google.zxing.WriterException;
 import org.bouncycastle.util.encoders.Hex;
@@ -11,6 +11,7 @@ import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
+import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
@@ -156,9 +157,9 @@ class PdfGeneratorImplTest {
                 .passType(VEHICLE)
                 .name("Jonas Jose Almendras Domingo")
                 .controlCode("3J12K5AV")
-                .idType("CND")
-                .identifierNumber("N923421")
-                .plateNumber("N923421")
+                .idType("PLT")
+                .identifierNumber("ABC123")
+                .plateNumber("ABC123")
                 .aporType("NR")
                 .company("Bank of the Philippines")
                 .validFrom(formattedStart)
