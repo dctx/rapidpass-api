@@ -52,6 +52,9 @@ CHECKPOINT
 ### Added
 - String trimming CSV bulk upload data for Bulk Registration for RapidPass.
 
+### Changed
+- Updated new PDF two-page design (individual has two copies, vehicle uses full page).
+
 ## [Released]
 
 ## [1.0.1] - 2020-04-06
