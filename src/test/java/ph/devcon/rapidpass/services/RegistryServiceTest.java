@@ -390,7 +390,7 @@ class RegistryServiceTest {
                 .passType(INDIVIDUAL.toString())
                 .build();
 
-        when(mockAccessPassRepository.findAllByQueryFilter(any(), (Pageable) any())).thenReturn(
+        when(mockAccessPassRepository.findAll(any(), (Pageable) any())).thenReturn(
                 new PageImpl(collections)
         );
 
@@ -398,6 +398,6 @@ class RegistryServiceTest {
 
         assertThat(rapidPass.getRapidPassList(), hasItem((hasProperty("name", equalTo("AJ")))));
 
-        verify(mockAccessPassRepository, only()).findAllByQueryFilter(any(), (Pageable) any());
+        verify(mockAccessPassRepository, only()).findAll(any(), (Pageable) any());
     }
 }
