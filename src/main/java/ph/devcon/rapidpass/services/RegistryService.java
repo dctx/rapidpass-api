@@ -4,10 +4,7 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +35,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 
 @Component
 @Slf4j
@@ -167,15 +166,21 @@ public class RegistryService {
 
     public RapidPassPageView findRapidPass(QueryFilter q) {
 
-        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q));
+        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q),
+                ExampleMatcher.matchingAll()
+                        .withIgnoreCase()
+                        .withMatcher("name", contains())
+                        .withMatcher("company", contains())
+        );
 
-        Pageable pageView = null;
+        PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
             int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
         Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
+
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
                 .map(RapidPass::buildFrom)

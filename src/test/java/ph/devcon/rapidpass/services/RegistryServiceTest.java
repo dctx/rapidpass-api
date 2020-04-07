@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ph.devcon.rapidpass.entities.*;
@@ -374,37 +373,31 @@ class RegistryServiceTest {
     }
 
     @Test
-    void filtersWork() {
+    void ensureThatFindAllByQueryFilterIsExecuted() {
 
-        ImmutableList<AccessPass> totalList = ImmutableList.of(
+        ImmutableList<AccessPass> collections = ImmutableList.of(
                 AccessPass.builder()
-                        .name("John")
-                        .passType(INDIVIDUAL.toString())
-                        .build(),
-                AccessPass.builder()
-                        .name("Joanna")
-                        .passType(INDIVIDUAL.toString())
-                        .build()
+                .referenceID("REF-1")
+                .passType(INDIVIDUAL.toString())
+                .name("AJ")
+                .build()
         );
 
-        Page<AccessPass> filteredPage = new PageImpl<>(totalList);
-
-        // Mock feeding the access passes
-        when(mockAccessPassRepository.findAll(any(), (Pageable) any())).thenReturn(
-                filteredPage
-        );
-
-        // Perform filtered query
         QueryFilter queryFilter = QueryFilter.builder()
-                .passType("INDIVIDUAL")
+                .search("AJ")
                 .pageNo(1)
                 .maxPageRows(5)
+                .passType(INDIVIDUAL.toString())
                 .build();
+
+        when(mockAccessPassRepository.findAll(any(), (Pageable) any())).thenReturn(
+                new PageImpl(collections)
+        );
 
         RapidPassPageView rapidPass = instance.findRapidPass(queryFilter);
 
-        assertThat(rapidPass.getRapidPassList(), hasItem(hasProperty("name", equalTo("John"))));
-        assertThat(rapidPass.getRapidPassList(), everyItem(hasProperty("passType", equalTo(INDIVIDUAL))));
-        assertThat(rapidPass.getRapidPassList(), hasSize(2));
+        assertThat(rapidPass.getRapidPassList(), hasItem((hasProperty("name", equalTo("AJ")))));
+
+        verify(mockAccessPassRepository, only()).findAll(any(), (Pageable) any());
     }
 }
