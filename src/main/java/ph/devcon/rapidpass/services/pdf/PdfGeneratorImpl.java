@@ -8,10 +8,12 @@ import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.kernel.geom.*;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
@@ -22,13 +24,11 @@ import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -119,10 +119,10 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph generateRapidPassHeader() {
 
         Paragraph header = new Paragraph();
-        header.setFontSize(56);
+        header.setFontSize(36);
         header.setTextAlignment(TextAlignment.CENTER);
         header.setBold();
-        header.setFixedPosition(50, 730, 500);
+        header.setRelativePosition(-100, 25, 0, 0);
         header.add("RAPIDPASS.PH");
         return header;
 
@@ -142,10 +142,9 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private static Paragraph generateTitle(RapidPass rapidPass) {
 
         Paragraph header = new Paragraph();
-        header.setFixedPosition(220, 45, 350);
-        header.setFontSize(54);
+        header.setRelativePosition(150, 420, 0, 0);
+        header.setFontSize(36);
         header.setTextAlignment(TextAlignment.LEFT);
-        header.setMarginTop(-50);
         header.setBold();
         header.add(rapidPass.getControlCode());
 
@@ -153,25 +152,30 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     }
 
-    private static Paragraph[] generateDetails(RapidPass rapidPass) {
+    private static Paragraph[] generateDetails(RapidPass rapidPass, Rectangle rectangle) {
 
         Paragraph nameParagraph = new Paragraph();
         Paragraph companyParagraph = new Paragraph();
         Paragraph[] results = new Paragraph[2];
 
-        int defaultFontSize = 21;
+        int defaultFontSize = 12;
 
-        if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
-            nameParagraph.setFixedPosition(220, 175, 340);
-            nameParagraph.setFixedLeading(24);
-            companyParagraph.setFixedPosition(220, 120, 340);
-            companyParagraph.setFixedLeading(26);
-        } else if (PassType.VEHICLE.equals(rapidPass.getPassType())) {
-            nameParagraph.setFixedPosition(220, 180, 340);
-            nameParagraph.setFixedLeading(24);
-            companyParagraph.setFixedPosition(220, 125, 340);
-            companyParagraph.setFixedLeading(26);
-        }
+        nameParagraph.setMaxWidth(200);
+        companyParagraph.setMaxWidth(200);
+
+        if (rectangle.getY() != 0)
+            nameParagraph.setFixedPosition(150, 390, rectangle.getWidth());
+        else
+            nameParagraph.setFixedPosition(150, 390 - rectangle.getHeight(), rectangle.getWidth());
+
+        nameParagraph.setFixedLeading(20);
+        companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
+
+        if (rectangle.getY() != 0)
+            companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
+        else
+            companyParagraph.setFixedPosition(150, 350 - rectangle.getHeight(), rectangle.getWidth());
+        companyParagraph.setFixedLeading(20);
 
         String name = rapidPass.getName();
 
@@ -193,22 +197,29 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return results;
     }
 
-    private static Paragraph[] generateValidUntil(RapidPass rapidPass) throws ParseException {
-        SimpleDateFormat formatToPdf = new SimpleDateFormat("MM/dd");
+    private static Paragraph[] generateValidUntil(RapidPass rapidPass, Rectangle rectangle) throws ParseException {
 
         Instant validUntilInstant = DateFormatter.parse(rapidPass.getValidUntil());
         String validUntil = DateFormatter.readable(validUntilInstant, "MM/dd");
 
-        int defaultFontSize = 24;
+        int defaultFontSize = 14;
 
         Paragraph details = new Paragraph();
         details.setFontSize(defaultFontSize);
-        details.setFixedPosition(220, 25, 230);
+        if (rectangle.getY() != 0)
+            details.setFixedPosition(150, 290, rectangle.getWidth());
+        else
+            details.setFixedPosition(150, 290 - rectangle.getHeight(), rectangle.getWidth());
+
         details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
         Paragraph date = new Paragraph();
         date.setFontSize(defaultFontSize);
-        date.setFixedPosition(400, 25, 230);
+        if (rectangle.getY() != 0)
+            date.setFixedPosition(270, 290, rectangle.getWidth());
+        else
+            date.setFixedPosition(270, 290 - rectangle.getHeight(), rectangle.getWidth());
+
         date.add(validUntil).setCharacterSpacing(1.3f);
         date.setBold();
 
@@ -236,41 +247,48 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return canvas;
     }
 
-    private static IBlockElement[] generateAporCode(RapidPass rapidPass, Document document) {
+    private static IBlockElement[] generateAporCode(RapidPass rapidPass, Rectangle rectangle) {
 
         IBlockElement[] elements = new IBlockElement[3];
 
+        Paragraph passType = new Paragraph();
+
+        String passTypeText = rapidPass.getPassType().toString();
+        // Reverted change- they now want INDIVIDUAL to be spelled out. o_o
+        // "INDIVIDUAL".equals(rapidPass.getPassType().toString()) ? "PERSON" : rapidPass.getPassType().toString();
+
         Paragraph aporLabel = new Paragraph();
-        aporLabel.add("APOR");
-        aporLabel.setFontSize(42);
-        aporLabel.setFontColor(ColorConstants.WHITE);
-        aporLabel.setTextAlignment(TextAlignment.CENTER);
-        aporLabel.setFixedPosition(30, 40, 170);
+
+        passType.add(passTypeText);
+        passType.setFontSize(12);
+        passType.setFontColor(ColorConstants.WHITE);
+        passType.setTextAlignment(TextAlignment.CENTER);
+        if (rectangle.getY() != 0)
+            passType.setFixedPosition(-205, 400, rectangle.getWidth());
+        else
+            passType.setFixedPosition(-205, 400 - rectangle.getHeight(), rectangle.getWidth());
 
         Paragraph aporValue = new Paragraph();
         aporValue.add(rapidPass.getAporType());
-        aporValue.setFontSize(90);
+        aporValue.setFontSize(40);
+        aporValue.setBold();
         aporValue.setFontColor(ColorConstants.WHITE);
         aporValue.setTextAlignment(TextAlignment.CENTER);
-        aporValue.setFixedPosition(30, 70, 170);
+        if (rectangle.getY() != 0)
+            aporValue.setFixedPosition(-205, 330, rectangle.getWidth());
+        else
+            aporValue.setFixedPosition(-205, 330 - rectangle.getHeight(), rectangle.getWidth());
 
-        Paragraph passType = new Paragraph();
 
-        String passTypeText = "INDIVIDUAL".equals(rapidPass.getPassType().toString()) ? "PERSON" : rapidPass.getPassType().toString();
+        aporLabel.add("APOR");
+        aporLabel.setFontSize(24);
+        aporLabel.setFontColor(ColorConstants.WHITE);
+        aporLabel.setTextAlignment(TextAlignment.CENTER);
+        if (rectangle.getY() != 0)
+            aporLabel.setFixedPosition(-205, 300, rectangle.getWidth());
+        else
+            aporLabel.setFixedPosition(-205, 300 - rectangle.getHeight(), rectangle.getWidth());
 
-        passType.add(passTypeText);
-        passType.setFontSize(26);
-        passType.setFontColor(ColorConstants.WHITE);
-        passType.setTextAlignment(TextAlignment.CENTER);
-        passType.setFixedPosition(30, 190, 170);
-
-        PdfCanvas canvas1 = renderOnCanvas(document.getPdfDocument().getPage(2), new Rectangle(30, 30, 170, 210), (canvas) -> rectangle -> {
-            canvas.setFillColor(ColorConstants.BLACK);
-            canvas.rectangle(rectangle);
-            canvas.fillStroke();
-        });
-
-        document.getPdfDocument().getPage(2).put(PdfName.UserUnit, new PdfNumber(2.5f));
 
         elements[0] = aporValue;
         elements[1] = aporLabel;
@@ -284,19 +302,19 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
      * <p>
      * Note: We use RapidPass, because AccessPass doesn't directly have easy builders to build with (for testing).
      * Otherwise, we could be using AccessPass as the parameter. In any case, using RapidPass as the POJO  is sufficient.
+     * </p>
      *
-     * @param qrCodeFile Image file of the generated QR code
+     * @param qrCodeByteData Image file of the generated QR code
      * @param rapidPass  RapidPass model that contains the details to be printed on the PDF.
      * @return file object of generated pdf
      */
-    public OutputStream generatePdf(byte[] qrCodeFile,
+    public OutputStream generatePdf(byte[] qrCodeByteData,
                                     RapidPass rapidPass)
             throws ParseException, IOException {
 
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         Document document = createDocument(os);
 
-        document.setFont(prepareFont());
         document.setMargins(-50, -50, -50, -50);
 
         ClassPathResource instructionsClassPath;
@@ -315,38 +333,92 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         InputStream inputStream = instructionsClassPath.getInputStream();
         byte[] imageBytes = toByteArray(inputStream);
 
-        Image instructions = new Image(prepareImage(imageBytes)).scale(0.9f, 0.9f);
+        Image instructions = new Image(prepareImage(imageBytes));
 
-        instructions.setFixedPosition(0, 20);
+        instructions.setFixedPosition(-30, 20);
 
+        document.getPdfDocument().setDefaultPageSize(PageSize.A4);
         document.add(instructions);
 
         document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
-        Image qrcode = generateQrCode(qrCodeFile);
-        //processes the data that will be on the pdf
+        PdfPage page2 = document.getPdfDocument().getPage(2);
 
-        //writes to the document
+        // A4 constants
+        // http://itext.2136553.n4.nabble.com/java-A4-page-size-is-wrong-in-PageSize-A4-td4659791.html
+        float a4PageWidth = 595;
+        float a4PageHeight = 842;
 
-//        Canvas canvas = new Canvas(document.getPdfDocument().getPage(1), );
+        document.getPdfDocument().setDefaultPageSize(PageSize.A4);
 
-        document.add(qrcode);
-        document.add(generateRapidPassHeader());
-        document.add(generateTitle(rapidPass));
+        Function<PdfCanvas, Consumer<Rectangle>> generatePdf = canvas -> rectangle -> {
 
-        Paragraph[] details = generateDetails(rapidPass);
+            //noinspection TryWithIdenticalCatches
+            try {
+            AffineTransform transform = new AffineTransform();
 
-        document.add(details[0]);
-        document.add(details[1]);
+            transform.concatenate(
+                    AffineTransform.getRotateInstance(Math.PI / 2, rectangle.getX(), rectangle.getY())
+            );
+            transform.concatenate(
+                    AffineTransform.getTranslateInstance(0, -rectangle.getHeight())
+            );
 
-        Paragraph[] paragraphs = generateValidUntil(rapidPass);
-        document.add(paragraphs[0]);
-        document.add(paragraphs[1]);
+                AffineTransform inverse = transform.createInverse();
 
-        IBlockElement[] iBlockElements = generateAporCode(rapidPass, document);
-        document.add(iBlockElements[0]);
-        document.add(iBlockElements[1]);
-        document.add(iBlockElements[2]);
+
+            canvas.concatMatrix(transform);
+
+            ImageData imageData = ImageDataFactory.create(qrCodeByteData);
+
+            // Show QR code
+            float qrCodeSize = a4PageWidth * 0.65f;
+            Point qrPosition = new Point(0, rectangle.getY() - 10);
+            canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), false);
+
+            // Show header
+            Canvas managedCanvas = new Canvas(canvas, canvas.getDocument(), rectangle);
+            Paragraph paragraph = generateRapidPassHeader();
+            managedCanvas.add(paragraph);
+
+            managedCanvas.add(generateTitle(rapidPass));
+
+            Paragraph[] details = generateDetails(rapidPass, rectangle);
+
+            managedCanvas.add(details[0]);
+            managedCanvas.add(details[1]);
+
+//
+            IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
+
+            canvas.setFillColor(ColorConstants.BLACK);
+            canvas.rectangle(new Rectangle(rectangle.getX() + 45, rectangle.getY() - 130, 90, 135));
+            canvas.fillStroke();
+
+            managedCanvas.add(iBlockElements[0]);
+            managedCanvas.add(iBlockElements[1]);
+            managedCanvas.add(iBlockElements[2]);
+
+            Paragraph[] paragraphs = generateValidUntil(rapidPass, rectangle);
+            managedCanvas.add(paragraphs[0]);
+            managedCanvas.add(paragraphs[1]);
+
+            canvas.concatMatrix(inverse);
+
+            } catch (NoninvertibleTransformException | ParseException e) {
+                e.printStackTrace();
+            }
+//            catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+
+        };
+
+        Rectangle leftCopy = new Rectangle(0, 0, a4PageWidth, a4PageHeight / 2);
+        Rectangle rightCopy = new Rectangle(0, a4PageHeight / 2, a4PageWidth, a4PageHeight / 2);
+
+        renderOnCanvas(page2, leftCopy, generatePdf);
+        renderOnCanvas(page2, rightCopy, generatePdf);
 
         document.close();
         return os;
