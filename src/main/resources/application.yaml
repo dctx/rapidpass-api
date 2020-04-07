@@ -63,3 +63,37 @@ jwt:
 # configure rbac roles here
 rbac:
   roles:
+    - role: approver
+      resources:
+        # authenticating activate, active but allowing login as public
+        - endpoint: /users/**/activate
+          verbs:
+            - ALL
+        - endpoint: /users/**/active
+          verbs:
+            - ALL
+        - endpoint: /batch/**
+          verbs:
+            - ALL
+        - endpoint: /registry/access-passes/**
+          verbs:
+            # GET, POST being used for registration
+            - PUT # APPROVE/DENY
+    - role: checkpoint
+      resources:
+        - endpoint: /checkpoint/**
+          verbs:
+            - ALL
+        - endpoint: /registry/scanner-devices
+          verbs:
+            - ALL
+        - endpoint: /registry/scanner-devices/**
+          verbs:
+            - ALL
+
+logging:
+  level:
+    ph.devcon: debug
+    org:
+      springframework:
+        security: debug

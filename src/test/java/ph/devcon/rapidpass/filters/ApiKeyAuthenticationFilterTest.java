@@ -30,7 +30,7 @@ class ApiKeyAuthenticationFilterTest {
     @Test
     void doApiFilter_WITH_API_KEY() throws Exception {
         mockMvc.perform(get("/test").header("TEST-API-KEY", "ABC123"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     @RestController

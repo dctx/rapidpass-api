@@ -60,10 +60,6 @@ rbac:
         - endpoint: /checkpoint/**
           verbs:
             - ALL
-    - role: ADMIN
-      resources:
-        - endpoint: /**
-          verbs:
-            - ALL
+
 logging.level:
   ph.devcon: debug
