@@ -15,7 +15,6 @@ import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
@@ -65,7 +64,7 @@ class PdfGeneratorImplTest {
                 .identifierNumber("N01-234235345")
                 .aporType("NR")
                 .company("Banco ng Pilipinas Incorporated International")
-                .controlCode("#NCR9NP")
+                .controlCode("3J12K5AV")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
                 .build();
@@ -109,13 +108,12 @@ class PdfGeneratorImplTest {
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)
-                .name("Jonas Jose Almendras Domingo Whose Name is Very Long Very Long")
-                .controlCode("12345")
+                .name("Jonas Jose Almendras Domingo Whose Name is Very Very Long")
                 .idType("Driver's License")
                 .identifierNumber("N01-234235345")
                 .aporType("NR")
-                .company("Banco ng Pilipinas Incorporated Which Could Be Very Long Very")
-                .controlCode("#NCR9NP")
+                .company("Banco ng Pilipinas Incorporated Which Could Be Very Long")
+                .controlCode("3J12K5AV")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
                 .build();
@@ -156,14 +154,14 @@ class PdfGeneratorImplTest {
         String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
 
         RapidPass mockRapidPassData = RapidPass.builder()
-                .passType(INDIVIDUAL)
+                .passType(VEHICLE)
                 .name("Jonas Jose Almendras Domingo")
-                .controlCode("A2C4EFV")
+                .controlCode("3J12K5AV")
                 .idType("PLT")
-                .identifierNumber("ABC 123")
-                .plateNumber("ABC 123")
+                .identifierNumber("ABC123")
+                .plateNumber("ABC123")
                 .aporType("NR")
-                .company("BPI")
+                .company("Bank of the Philippines")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
                 .build();
