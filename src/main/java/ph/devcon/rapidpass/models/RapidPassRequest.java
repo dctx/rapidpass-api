@@ -88,6 +88,12 @@ public final class RapidPassRequest {
 
         String plateNumber = csvData.getPlateNumber() != null ? StringFormatter.normalizeAlphanumeric(csvData.getPlateNumber()) : null;
 
+        String company = StringUtils.trim(csvData.getCompany());
+        String destName = StringUtils.trim(csvData.getDestName());
+        String destStreet = StringUtils.trim(csvData.getDestStreet());
+        String destCity = StringUtils.trim(csvData.getDestCity());
+        String destProvince = StringUtils.trim(csvData.getDestProvince());
+        String email = StringUtils.trim(csvData.getEmail());
         return RapidPassRequest.builder()
                 .passType(passType)
                 .aporType(StringUtils.trim(csvData.getAporType()))
@@ -95,20 +101,20 @@ public final class RapidPassRequest {
                 .middleName(StringUtils.trim(csvData.getMiddleName()))
                 .lastName(StringUtils.trim(csvData.getLastName()))
                 .suffix(StringUtils.trim(csvData.getSuffix()))
-                .company(StringUtils.trim(csvData.getCompany()))
+                .company(StringUtils.defaultIfBlank(company, "NA"))
                 .idType(StringUtils.trim(csvData.getIdType()))
                 .identifierNumber(StringUtils.trim(csvData.getIdentifierNumber()))
-                .plateNumber(plateNumber)
+                .plateNumber(StringUtils.defaultIfBlank(plateNumber, "NA"))
                 .mobileNumber(StringUtils.trim(csvData.getMobileNumber()))
-                .email(StringUtils.trim(csvData.getEmail()))
+                .email(StringUtils.defaultIfBlank(email, "NA"))
                 .originName(StringUtils.trim(csvData.getOriginName()))
                 .originStreet(StringUtils.trim(csvData.getOriginStreet()))
                 .originCity(StringUtils.trim(csvData.getOriginCity()))
                 .originProvince(StringUtils.trim(csvData.getOriginProvince()))
-                .destName(StringUtils.trim(csvData.getDestName()))
-                .destStreet(StringUtils.trim(csvData.getDestStreet()))
-                .destCity(StringUtils.trim(csvData.getDestCity()))
-                .destProvince(StringUtils.trim(csvData.getDestProvince()))
+                .destName(StringUtils.defaultIfBlank(destName, "NA"))
+                .destStreet(StringUtils.defaultIfBlank(destStreet, "NA"))
+                .destCity(StringUtils.defaultIfBlank(destCity, "NA"))
+                .destProvince(StringUtils.defaultIfBlank(destProvince, "NA"))
                 .remarks(StringUtils.trim(csvData.getRemarks()))
                 .build();
     }

@@ -21,11 +21,28 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * Subset of {@link BatchAccessPassRequestValidator}, that doesn't do id type checking.
+ * Tests whether a{@link RapidPassRequest} or {@link AccessPass} is valid, and ready for creation.
  *
- * The id type checking will be handled by the front end for now (so they won't cram too much work).
+ * <h2>Validation rules</h2>
+ * It ensures the following validation rules:
+ * 1. ID type is valid (as checked from the database look up tables).
+ * 2. APOR type is valid (as checked from the database look up tables).
+ * 3. Pass type is valid (INDIVIDUAL or VEHICLE, enum checking).
+ * 4. Plate number is a required field if the pass type is vehicle.
+ * 5. Create new access pass fails if there is already an existing approved or pending access pass.
+ *
+ * <h2>Errors</h2>
+ * Each error produced is written as a sentence so when combining them, don't use commas. Just use a space to
+ * combine the sentences.
+ *
+ * <h2>Benefits</h2>
+ * By generating this class, this validator could be reused with the convenience of memoizing the look up tables,
+ * rather than having to repeatedly query the look up tables.
+ *
+ * This cannot be done with the checking for the existing access passes, as it is possible that the access passes may
+ * have changed since the last query.
  */
-public class NewSingleAccessPassRequestValidator implements Validator {
+public class BatchAccessPassRequestValidator implements Validator {
 
     final LookupTableService lookupTableService;
     final AccessPassRepository accessPassRepository;
@@ -35,7 +52,7 @@ public class NewSingleAccessPassRequestValidator implements Validator {
     private List<LookupTable> vehicleIdTypes;
 
 
-    public NewSingleAccessPassRequestValidator(LookupTableService lookupTableService, AccessPassRepository accessPassRepository) {
+    public BatchAccessPassRequestValidator(LookupTableService lookupTableService, AccessPassRepository accessPassRepository) {
         this.lookupTableService = lookupTableService;
         this.accessPassRepository = accessPassRepository;
 
@@ -161,9 +178,9 @@ public class NewSingleAccessPassRequestValidator implements Validator {
 
         if (request.getPassType() == null || !isValidPassType(request.getPassType().toString()))
             errors.rejectValue("passType", "invalid.passType", "Invalid Pass Type.");
-//
-//        if (!isValidIdType(request.getPassType().toString(), request.getIdType()))
-//            errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
+
+        if (request.getPassType() == null || !isValidIdType(request.getPassType().toString(), request.getIdType()))
+            errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
 
         ValidationUtils.rejectIfEmpty(errors, "identifierNumber", "missing.identifierNumber", "Missing identifier number.");
 

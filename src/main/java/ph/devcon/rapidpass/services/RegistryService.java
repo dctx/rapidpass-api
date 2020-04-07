@@ -23,7 +23,7 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
 import java.io.IOException;
@@ -487,7 +487,7 @@ public class RegistryService {
         List<String> passes = new ArrayList<String>();
 
         // Validation
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
 
         RapidPass pass;
         int counter = 1;
@@ -496,8 +496,8 @@ public class RegistryService {
                 RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
                 request.setSource(RecordSource.BULK.toString());
 
-                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
-                validation.validate(request);
+//                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+//                validation.validate(request);
 
                 pass = this.newRequestPass(request);
 
@@ -513,7 +513,7 @@ public class RegistryService {
                     passes.add("Record " + counter++ + ": Success. ");
                 }
             } catch ( Exception e ) {
-                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
+                passes.add("Record " + counter++ + ": Failed. " + e.getMessage() + rapidPassRequest.getMobileNumber());
             }
         }
         return passes;
