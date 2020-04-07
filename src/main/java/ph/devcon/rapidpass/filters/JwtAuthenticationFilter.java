@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
@@ -84,6 +86,7 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
         log.info("JwtAuthenticationFilter initialized!");
         // set up a simple authentication manager
         setAuthenticationManager(JWT_AUTHENTICATION_MANAGER);
+        setCheckForPrincipalChanges(true);
     }
 
     /**
@@ -100,7 +103,9 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
         String token = getHeaderString(request);
         if (StringUtils.isEmpty(token)) {
             log.debug("Could not authenticate request header. No Token in request header.");
-            return null;
+            // return whatever principal is currently authenticated or null if not
+            final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return authentication == null ? null : authentication.getPrincipal();
         }
 
         // remove Bearer
