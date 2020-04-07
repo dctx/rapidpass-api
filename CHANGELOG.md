@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - String trimming CSV bulk upload data for Bulk Registration for RapidPass.
+- Search functionality for access passes.
 
 ## [Released]
 
