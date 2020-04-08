@@ -51,8 +51,8 @@ public class AccessPassNotifierService {
     /**
      * The URL value notifier will use when inserting links to access pass. Defaults to http://rapidpass.ph.
      */
-    @Value("${notifier.rapidPassUrl:http://rapidpass.ph}")
-    private String rapidPassUrl = "http://rapidpass.ph";
+    @Value("${notifier.rapidPassUrl:https://rapidpass.ph}")
+    private String rapidPassUrl = "https://rapidpass.ph";
 
     /**
      * The email address that will appear in the from field of the email sent.
@@ -63,8 +63,8 @@ public class AccessPassNotifierService {
     /**
      * The sender that will appear in the sms messages sent.
      */
-    @Value("${notifier.smsFrom:RAPIDPASS.PH}")
-    private String smsFrom = "RAPIDPASS.PH";
+    @Value("${notifier.smsFrom:RAPIDPASS}")
+    private String smsFrom = "RAPIDPASS";
 
     /**
      * The configurable endpoint to send for users to download qr codes. Defaults to /api/v1/registry/qr-codes/{referenceId}
