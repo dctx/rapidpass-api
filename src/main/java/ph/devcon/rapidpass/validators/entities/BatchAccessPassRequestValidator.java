@@ -37,34 +37,4 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
         super(lookupTableService, accessPassRepository);
     }
 
-    @Override
-    protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
-        if (!isValidAporType(request.getAporType()))
-            errors.rejectValue("aporType", "invalid.aporType", "Invalid APOR Type.");
-
-        ValidationUtils.rejectIfEmpty(errors, "passType", "missing.passType", "Missing Pass Type.");
-
-        if (request.getPassType() == null || !isValidPassType(request.getPassType().toString()))
-            errors.rejectValue("passType", "invalid.passType", "Invalid Pass Type.");
-
-        if (request.getPassType() == null || !isValidIdType(request.getPassType().toString(), request.getIdType()))
-            errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
-
-        ValidationUtils.rejectIfEmpty(errors, "identifierNumber", "missing.identifierNumber", "Missing identifier number.");
-
-        if (request.getPassType() != null && !hasPlateNumberIfVehicle(request.getPassType().toString(), request.getPlateNumber()))
-            errors.rejectValue("plateNumber", "missing.plateNumber", "Missing plate number.");
-
-        if (StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())) {
-            errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format.");
-        }
-
-        String identifier = PassType.INDIVIDUAL == request.getPassType() ?
-                "0" + org.apache.commons.lang3.StringUtils.right(request.getMobileNumber(), 10) :
-                request.getPlateNumber();
-
-        if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
-            errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s.", identifier));
-        }
-    }
 }

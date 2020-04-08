@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.validators.entities;
 
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.LookupTable;
@@ -148,6 +149,54 @@ public abstract class BaseAccessPassRequestValidator implements Validator {
             validateRapidPassRequest(rapidPassRequest, errors);
     }
 
-    protected abstract void validateRapidPassRequest(RapidPassRequest request, Errors errors);
+    protected void validateRequiredFields(RapidPassRequest request, Errors errors) {
+        ValidationUtils.rejectIfEmpty(errors, "passType", "missing.passType", "Missing Pass Type.");
+        ValidationUtils.rejectIfEmpty(errors, "aporType", "missing.aporType", "Missing APOR Type.");
+        ValidationUtils.rejectIfEmpty(errors, "idType", "missing.idType", "Missing ID Type.");
+        ValidationUtils.rejectIfEmpty(errors, "identifierNumber", "missing.identifierNumber", "Missing identifier number.");
+        ValidationUtils.rejectIfEmpty(errors, "firstName", "missing.firstName", "Missing First Name.");
+        ValidationUtils.rejectIfEmpty(errors, "lastName", "missing.lastName", "Missing Last Name.");
+        ValidationUtils.rejectIfEmpty(errors, "originStreet", "missing.originStreet", "Missing Origin Street.");
+        if (request.getPassType() != null && request.getPassType().equals(PassType.VEHICLE)) {
+            ValidationUtils.rejectIfEmpty(errors, "plateNumber", "missing.plateNumber", "Missing Plate Number.");
+        } else {
+            ValidationUtils.rejectIfEmpty(errors, "mobileNumber", "missing.mobileNumber", "Missing Mobile Number.");
+        }
+    }
+
+    protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
+
+        validateRequiredFields(request, errors);
+
+        if (errors.hasErrors())
+            return;
+
+        if (!isValidAporType(request.getAporType()))
+            errors.rejectValue("aporType", "invalid.aporType", "Invalid APOR Type.");
+
+        if (request.getPassType() == null || !isValidPassType(request.getPassType().toString()))
+            errors.rejectValue("passType", "invalid.passType", "Invalid Pass Type.");
+
+        if (request.getPassType() == null || !isValidIdType(request.getPassType().toString(), request.getIdType()))
+            errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
+
+        if (request.getPassType() != null && !hasPlateNumberIfVehicle(request.getPassType().toString(), request.getPlateNumber()))
+            errors.rejectValue("plateNumber", "missing.plateNumber", "Missing plate number.");
+
+        if (StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())) {
+            errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format.");
+        }
+
+        if (errors.hasErrors())
+            return;
+
+        String identifier = PassType.INDIVIDUAL == request.getPassType() ?
+                "0" + org.apache.commons.lang3.StringUtils.right(request.getMobileNumber(), 10) :
+                request.getPlateNumber();
+
+        if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
+            errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s.", identifier));
+        }
+    }
 }
 
