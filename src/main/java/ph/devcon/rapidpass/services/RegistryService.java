@@ -3,7 +3,6 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,7 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
-import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
@@ -46,17 +45,12 @@ public class RegistryService {
     public static final int DEFAULT_VALIDITY_DAYS = 7;
 
     private final RegistryRepository registryRepository;
+    private final ControlCodeService controlCodeService;
     private final RegistrantRepository registrantRepository;
     private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
     private final ScannerDeviceRepository scannerDeviceRepository;
-
-    /**
-     * Secret key used for control code generation
-     */
-    @Value("${qrmaster.controlkey:***REMOVED***}")
-    private String secretKey = "***REMOVED***";
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -220,6 +214,8 @@ public class RegistryService {
         List<?> columnNames = RapidPassBulkData.getColumnNames();
 
         List<Object> columnValues =  dataPage.stream()
+                // Since these are all approved, we may bind the control codes for them.
+                .map(controlCodeService::bindControlCodeForAccessPass)
                 .map(RapidPassBulkData::values)
                 .collect(Collectors.toList());
 
@@ -242,6 +238,7 @@ public class RegistryService {
         return accessPassRepository
                 .findAll()
                 .stream()
+                .map(controlCodeService::bindControlCodeForAccessPass)
                 .map(ControlCode::buildFrom)
                 .collect(Collectors.toList());
     }
@@ -271,7 +268,13 @@ public class RegistryService {
             log.warn("Multiple Access Pass found for reference ID: {}", referenceId);
         }
 
-        return accessPasses.get(0);
+        AccessPass accessPass = accessPasses.get(0);
+
+        // Only bind the QR code to the access pass IF the access pass is approved.
+        if (AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus()))
+            accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
+
+        return accessPass;
     }
 
     /**
@@ -350,7 +353,7 @@ public class RegistryService {
             accessPass.setValidTo(validUntil);
             accessPass.setValidFrom(now);
 
-            accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
+            accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
             accessPass = accessPassRepository.saveAndFlush(accessPass);
             return RapidPass.buildFrom(accessPass);
         }
@@ -437,6 +440,7 @@ public class RegistryService {
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
                 .stream()
                 .findFirst()
+                .map(controlCodeService::bindControlCodeForAccessPass)
                 .ifPresent(accessPass -> {
                     try {
                         accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);

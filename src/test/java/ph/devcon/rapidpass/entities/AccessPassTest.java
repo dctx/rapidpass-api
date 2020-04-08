@@ -82,9 +82,9 @@ class AccessPassTest {
 
     @Test
     void toQrCodeData_INDIVIDUAL() {
-        final QrCodeData qrCodeData = AccessPass.toQrCodeData(INDIVIDUAL_ACCESS_PASS);
+        String controlCode = ControlCode.encode(1);
 
-        String controlCode = INDIVIDUAL_ACCESS_PASS.getControlCode();
+        final QrCodeData qrCodeData = AccessPass.toQrCodeData(INDIVIDUAL_ACCESS_PASS, controlCode);
 
         long decodedControlCode = ControlCode.decode(controlCode);
 
@@ -95,7 +95,9 @@ class AccessPassTest {
 
     @Test
     void toQrCodeData_VEHICLE() {
-        final QrCodeData qrCodeData = AccessPass.toQrCodeData(VEHICLE_ACCESS_PASS);
+        String controlCode = VEHICLE_ACCESS_PASS.getControlCode();
+
+        final QrCodeData qrCodeData = AccessPass.toQrCodeData(VEHICLE_ACCESS_PASS, controlCode);
 
         long decodedControlCode = ControlCode.decode(VEHICLE_ACCESS_PASS.getControlCode());
 

@@ -10,11 +10,14 @@ import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest(classes = RapidpassApplication.class)
 public class CheckpointServiceTest
@@ -25,28 +28,36 @@ public class CheckpointServiceTest
 
     private ScannerDeviceRepository scannerDeviceRepository;
 
+    private ControlCodeService controlCodeService;
+
     @BeforeEach
     void initializeMocks()
     {
         accessPassRepository = Mockito.mock(AccessPassRepository.class);
         scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
+        controlCodeService = Mockito.mock(ControlCodeService.class);
     }
     
     @Test
     public void TestRetrieveAccessPassByQrCode()
     {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
+
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         String controlCode = "12345A";
         accessPassEntity.setControlCode(controlCode);
     
         // WHEN
-        Mockito.when(accessPassRepository.findByControlCode(controlCode))
-            .thenReturn(accessPassEntity);
-        
+        Mockito.when(controlCodeService.findAccessPassByControlCode(any()))
+                .thenReturn(accessPassEntity);
+        Mockito.when(controlCodeService.bindControlCodeForAccessPass(any()))
+                .thenReturn(accessPassEntity);
+
+
+
         // THEN
-        AccessPass accessPass = checkpointService.retrieveAccessPassByControlCode(controlCode);
+        AccessPass accessPass = controlCodeService.findAccessPassByControlCode(controlCode);
         assertNotNull(accessPass);
         // check the data elements needed by the UX
     
@@ -62,7 +73,7 @@ public class CheckpointServiceTest
 
     @Test
     public void TestRetrieveAccessPassByPlateNumber() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         accessPassEntity.setPassType(PassType.VEHICLE.toString());
@@ -72,6 +83,9 @@ public class CheckpointServiceTest
 
         // WHEN
         Mockito.when(accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), idNumber))
+                .thenReturn(accessPassEntity);
+
+        Mockito.when(controlCodeService.bindControlCodeForAccessPass(any()))
                 .thenReturn(accessPassEntity);
 
         // THEN

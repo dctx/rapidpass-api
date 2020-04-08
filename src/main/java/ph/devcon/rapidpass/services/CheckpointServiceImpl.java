@@ -1,34 +1,27 @@
 package ph.devcon.rapidpass.services;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.repositories.*;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 @Service
+@RequiredArgsConstructor
 public class CheckpointServiceImpl implements ICheckpointService {
-    private AccessPassRepository accessPassRepository;
-    private ScannerDeviceRepository scannerDeviceRepository;
-
-    @Autowired
-    public CheckpointServiceImpl(AccessPassRepository accessPassRepository, ScannerDeviceRepository scannerDeviceRepository)
-    {
-        this.accessPassRepository = accessPassRepository;
-        this.scannerDeviceRepository = scannerDeviceRepository;
-    }
-
-    @Override
-    public AccessPass retrieveAccessPassByControlCode(String controlCode) {
-        return this.accessPassRepository.findByControlCode(controlCode);
-    }
+    private final AccessPassRepository accessPassRepository;
+    private final ScannerDeviceRepository scannerDeviceRepository;
+    private final ControlCodeService controlCodeService;
 
     @Override
     public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
         AccessPass accessPass = this.accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), plateNo);
+        accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
         return (null != accessPass && StringUtils.equals(IdTypeVehicle.PLT.toString(), accessPass.getIdType())) ? accessPass : null;
     }
 

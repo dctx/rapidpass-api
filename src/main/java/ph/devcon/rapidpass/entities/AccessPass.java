@@ -6,7 +6,6 @@
 package ph.devcon.rapidpass.entities;
 
 import lombok.*;
-import org.springframework.util.StringUtils;
 import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -48,6 +47,16 @@ public class AccessPass implements Serializable {
     @Size(max = 10)
     @Column(name = "apor_type")
     private String aporType;
+    /**
+     * Note that the control code retrieved from the database is no longer reliable. Instead, generate it
+     * <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/327">on the fly</a>.
+     *
+     * <p>The {@link ph.devcon.rapidpass.services.QrPdfService} has the code necessary to encode and decode
+     * control codes based on the access passes' ID. Use its {@link ph.devcon.rapidpass.services.QrPdfService#bindControlCodeForAccessPass(AccessPass)}
+     * method to give the access pass its correct control code values.
+     * </p>
+     * @deprecated
+     */
     @Column(name = "control_code")
     private String controlCode;
     @Size(max = 10)
@@ -187,13 +196,15 @@ public class AccessPass implements Serializable {
      * Converts an {@link AccessPass} to {@link QrCodeData}
      *
      * @param accessPass access pass to convert
+     * @param controlCode The control code derived from the access pass' id.
      */
-    public static QrCodeData toQrCodeData(@NonNull AccessPass accessPass) {
+    public static QrCodeData toQrCodeData(@NonNull AccessPass accessPass, String controlCode) {
 
-        if (StringUtils.isEmpty(accessPass.getControlCode()))
-            throw new IllegalArgumentException("The control code is invalid. [controlCode=" + accessPass.getControlCode() + "]");
+        // Only generates QR code data if the user is approved.
+        if (!AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus()))
+            throw new IllegalArgumentException("Failed to generate QR data. This access pass is not yet approved.");
 
-        long decodedControlCode = ControlCode.decode(accessPass.getControlCode());
+        long decodedControlCode = ControlCode.decode(controlCode);
 
         // convert access pass to qr code data
         return PassType.INDIVIDUAL.toString().equalsIgnoreCase(accessPass.getPassType()) ?
