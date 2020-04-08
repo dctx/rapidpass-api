@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.services.pdf;
+package ph.devcon.rapidpass.service.pdf;
 
 import com.google.zxing.WriterException;
 import org.bouncycastle.util.encoders.Hex;
@@ -11,9 +11,11 @@ import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
+import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
@@ -62,7 +64,7 @@ class PdfGeneratorImplTest {
                 .identifierNumber("N01-234235345")
                 .aporType("NR")
                 .company("Banco ng Pilipinas Incorporated International")
-                .controlCode("#NCR9NP")
+                .controlCode("3J12K5AV")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
                 .build();
@@ -106,13 +108,12 @@ class PdfGeneratorImplTest {
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)
-                .name("Jonas Jose Almendras Domingo Whose Name is Very Long Very Long")
-                .controlCode("12345")
+                .name("Jonas Jose Almendras Domingo Whose Name is Very Very Long")
                 .idType("Driver's License")
                 .identifierNumber("N01-234235345")
                 .aporType("NR")
-                .company("Banco ng Pilipinas Incorporated Which Could Be Very Long Very")
-                .controlCode("#NCR9NP")
+                .company("Banco ng Pilipinas Incorporated Which Could Be Very Long")
+                .controlCode("3J12K5AV")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
                 .build();
@@ -145,7 +146,6 @@ class PdfGeneratorImplTest {
     @Ignore
     void generatePdfForVehicle() throws Exception {
 
-
         // Mock data
         Date MAR_23_2020_UTC = new Date((long) MAR_23_2020 * 1000);
         Date MAR_27_2020_UTC = new Date((long) MAR_27_2020 * 1000);
@@ -154,14 +154,14 @@ class PdfGeneratorImplTest {
         String formattedEnd = DateFormatter.machineFormat(MAR_27_2020_UTC);
 
         RapidPass mockRapidPassData = RapidPass.builder()
-                .passType(INDIVIDUAL)
+                .passType(VEHICLE)
                 .name("Jonas Jose Almendras Domingo")
-                .controlCode("A2C4EFV")
-                .idType("PLT")
-                .identifierNumber("ABC 123")
-                .plateNumber("ABC 123")
+                .controlCode("3J12K5AV")
+                .idType("CND")
+                .identifierNumber("N923421")
+                .plateNumber("N923421")
                 .aporType("NR")
-                .company("BPI")
+                .company("Bank of the Philippines")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
                 .build();
@@ -202,6 +202,14 @@ class PdfGeneratorImplTest {
         // do pdf generation
         PdfGeneratorImpl pdfGenerator = new PdfGeneratorImpl();
         final ByteArrayOutputStream outputStream = (ByteArrayOutputStream) pdfGenerator.generatePdf(qrCodeBytes, rapidPass);
+
+        FileOutputStream fileOutputStream = new FileOutputStream("test.pdf");
+
+        byte[] bytes = outputStream.toByteArray();
+        fileOutputStream.write(bytes);
+
+        fileOutputStream.flush();
+        fileOutputStream.close();
 
         assertThat("pdf is being streamed", outputStream.toByteArray().length, is(greaterThan(0)));
     }
