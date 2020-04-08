@@ -22,6 +22,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
@@ -157,7 +158,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
             Paragraph header = new Paragraph();
-            header.setRelativePosition(150, 420, 0, 0);
+            header.setRelativePosition(150, 400, 0, 0);
             header.setFontSize(36);
             header.setTextAlignment(TextAlignment.LEFT);
             header.setBold();
@@ -166,7 +167,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         } else {
 
             Paragraph header = new Paragraph();
-            header.setFixedPosition(220, 90, 350);
+            header.setFixedPosition(220, 120, 350);
             header.setFontSize(44);
             header.setTextAlignment(TextAlignment.LEFT);
             header.setBold();
@@ -196,25 +197,25 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             defaultFontSize = 12;
 
             if (rectangle.getY() != 0)
-                nameParagraph.setFixedPosition(150, 390, rectangle.getWidth());
+                nameParagraph.setFixedPosition(150, 410, rectangle.getWidth());
             else
-                nameParagraph.setFixedPosition(150, 390 - rectangle.getHeight(), rectangle.getWidth());
+                nameParagraph.setFixedPosition(150, 410 - rectangle.getHeight(), rectangle.getWidth());
 
             nameParagraph.setFixedLeading(20);
-            companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
+            companyParagraph.setFixedPosition(150, 370, rectangle.getWidth());
 
             if (rectangle.getY() != 0)
-                companyParagraph.setFixedPosition(150, 350, rectangle.getWidth());
+                companyParagraph.setFixedPosition(150, 370, rectangle.getWidth());
             else
-                companyParagraph.setFixedPosition(150, 350 - rectangle.getHeight(), rectangle.getWidth());
+                companyParagraph.setFixedPosition(150, 370 - rectangle.getHeight(), rectangle.getWidth());
             companyParagraph.setFixedLeading(20);
         } else {
             nameParagraph.setMaxWidth(400);
             companyParagraph.setMaxWidth(400);
 
-            nameParagraph.setFixedPosition(220, 220, 400);
+            nameParagraph.setFixedPosition(220, 250, 400);
             nameParagraph.setFixedLeading(24);
-            companyParagraph.setFixedPosition(220, 160, 400);
+            companyParagraph.setFixedPosition(220, 190, 400);
             companyParagraph.setFixedLeading(24);
         }
 
@@ -248,31 +249,51 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         Instant validUntilInstant = DateFormatter.parse(rapidPass.getValidUntil());
         String validUntil = DateFormatter.readable(validUntilInstant, "MM/dd");
 
+        String originCity = StringUtils.defaultIfBlank(rapidPass.getOriginCity(), "NA");
+        String destCity = StringUtils.defaultIfBlank(rapidPass.getDestCity(), "NA");
+
+
         if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
             int defaultFontSize = 14;
 
             Paragraph details = new Paragraph();
             details.setFontSize(defaultFontSize);
             if (rectangle.getY() != 0)
-                details.setFixedPosition(150, 290, rectangle.getWidth());
+                details.setFixedPosition(150, 310, rectangle.getWidth());
             else
-                details.setFixedPosition(150, 290 - rectangle.getHeight(), rectangle.getWidth());
+                details.setFixedPosition(150, 310 - rectangle.getHeight(), rectangle.getWidth());
 
             details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
             Paragraph date = new Paragraph();
             date.setFontSize(defaultFontSize);
             if (rectangle.getY() != 0)
-                date.setFixedPosition(270, 290, rectangle.getWidth());
+                date.setFixedPosition(270, 310, rectangle.getWidth());
             else
-                date.setFixedPosition(270, 290 - rectangle.getHeight(), rectangle.getWidth());
+                date.setFixedPosition(270, 310 - rectangle.getHeight(), rectangle.getWidth());
 
             date.add(validUntil).setCharacterSpacing(1.3f);
             date.setBold();
 
-            Paragraph[] results = new Paragraph[2];
+            // Add from - to
+
+            Paragraph originToDest = new Paragraph();
+            date.setFontSize(defaultFontSize);
+            originToDest.setMaxWidth(rectangle.getHeight());
+            originToDest.setTextAlignment(TextAlignment.LEFT);
+            originToDest.add(String.format("%s - %s", originCity, destCity));
+
+            if (rectangle.getY() != 0)
+                originToDest.setFixedPosition(150, 290, rectangle.getWidth());
+            else
+                originToDest.setFixedPosition(150, 290 - rectangle.getHeight(), rectangle.getWidth());
+
+            Paragraph[] results = new Paragraph[3];
             results[0] = details;
             results[1] = date;
+            results[2] = originToDest;
+
+
 
             return results;
         } else {
@@ -280,20 +301,29 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
             Paragraph details = new Paragraph();
             details.setFontSize(defaultFontSize);
-            details.setFixedPosition(220, 60, 400);
+            details.setFixedPosition(220, 90, 400);
 
             details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
             Paragraph date = new Paragraph();
             date.setFontSize(defaultFontSize);
-            date.setFixedPosition(400, 60, 200);
+            date.setFixedPosition(400, 90, 200);
 
             date.add(validUntil).setCharacterSpacing(1.3f);
             date.setBold();
 
-            Paragraph[] results = new Paragraph[2];
+            Paragraph originToDest = new Paragraph();
+            originToDest.setFontSize(defaultFontSize);
+            originToDest.setMaxWidth(rectangle.getHeight());
+            originToDest.setTextAlignment(TextAlignment.LEFT);
+            originToDest.add(String.format("%s - %s", originCity, destCity)).setCharacterSpacing(1.3f);
+            originToDest.setFixedPosition(220, 50, 400);
+
+
+            Paragraph[] results = new Paragraph[3];
             results[0] = details;
             results[1] = date;
+            results[2] = originToDest;
 
             return results;
         }
@@ -498,7 +528,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
 
                 canvas.setFillColor(ColorConstants.BLACK);
-                canvas.rectangle(new Rectangle(70, 70, 130, 200));
+                canvas.rectangle(new Rectangle(70, 60, 130, 220));
                 canvas.fillStroke();
 
                 managedCanvas.add(iBlockElements[0]);
@@ -508,6 +538,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 Paragraph[] paragraphs = generateValidUntil(rapidPass, rectangle);
                 managedCanvas.add(paragraphs[0]);
                 managedCanvas.add(paragraphs[1]);
+                managedCanvas.add(paragraphs[2]);
 
                 canvas.concatMatrix(inverse);
 
@@ -622,6 +653,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 Paragraph[] paragraphs = generateValidUntil(rapidPass, rectangle);
                 managedCanvas.add(paragraphs[0]);
                 managedCanvas.add(paragraphs[1]);
+                managedCanvas.add(paragraphs[2]);
 
                 canvas.concatMatrix(inverse);
 
