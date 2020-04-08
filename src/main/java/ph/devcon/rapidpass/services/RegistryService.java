@@ -27,6 +27,7 @@ import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -92,9 +93,11 @@ public class RegistryService {
         OffsetDateTime now = OffsetDateTime.now();
 
         // check if registrant is already in the system
-        Registrant registrant = registrantRepository.findByMobile(rapidPassRequest.getMobileNumber());
+        @NotEmpty String mobileNumber = "0" + StringUtils.right(rapidPassRequest.getMobileNumber(),10);
+        Registrant registrant = registrantRepository.findByMobile(mobileNumber);
         if (registrant == null) {
             registrant = new Registrant();
+            registrant.setDateTimeCreated(now);
         } else {
             // check for consistency
             if (!registrant.getFirstName().equals(rapidPassRequest.getFirstName()) ||
@@ -112,9 +115,10 @@ public class RegistryService {
         registrant.setLastName(rapidPassRequest.getLastName());
         registrant.setSuffix(rapidPassRequest.getSuffix());
         registrant.setEmail(rapidPassRequest.getEmail());
-        registrant.setMobile(rapidPassRequest.getMobileNumber());
+        registrant.setMobile(mobileNumber);
         registrant.setReferenceIdType(rapidPassRequest.getIdType());
         registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
+        registrant.setDateTimeUpdated(now);
 
         // create/update registrant
         registrant.setRegistrarId(0);
@@ -173,8 +177,7 @@ public class RegistryService {
         if (rapidPassRequest.getPlateNumber() != null) {
             rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
         }
-        String mobileNumber = StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber());
-        rapidPassRequest.setMobileNumber("0"+   StringUtils.right(mobileNumber,10));
+        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
         rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
@@ -508,9 +511,9 @@ public class RegistryService {
         for (RapidPassCSVdata csvData : approvedRapidPasses) {
             try {
                 RapidPassRequest request = RapidPassRequest.buildFrom(csvData);
-                normalizeIdMobileAndPlateNumber(request);
                 request.setSource(RecordSource.BULK.toString());
 
+                normalizeIdMobileAndPlateNumber(request);
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 

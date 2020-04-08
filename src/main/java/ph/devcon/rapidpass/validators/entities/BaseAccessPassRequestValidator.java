@@ -11,6 +11,7 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.utilities.StringFormatter;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -103,6 +104,7 @@ public abstract class BaseAccessPassRequestValidator implements Validator {
      * @return true if it is clear to create a new access pass (there is no existing approved or pending passes)
      */
     protected boolean hasNoExistingApprovedOrPendingPasses(String referenceId) {
+
         referenceId = referenceId.trim();
 
         OffsetDateTime now = OffsetDateTime.now();

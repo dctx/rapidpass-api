@@ -55,14 +55,16 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
         if (request.getPassType() != null && !hasPlateNumberIfVehicle(request.getPassType().toString(), request.getPlateNumber()))
             errors.rejectValue("plateNumber", "missing.plateNumber", "Missing plate number.");
 
-        String identifier = PassType.INDIVIDUAL == request.getPassType() ? request.getMobileNumber() : request.getPlateNumber();
+        if (StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())) {
+            errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format.");
+        }
+
+        String identifier = PassType.INDIVIDUAL == request.getPassType() ?
+                "0" + org.apache.commons.lang3.StringUtils.right(request.getMobileNumber(), 10) :
+                request.getPlateNumber();
 
         if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
             errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s.", identifier));
-        }
-
-        if (StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())) {
-            errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format.");
         }
     }
 }
