@@ -76,8 +76,9 @@ class QrPdfServiceTest {
 
         String controlCode = ControlCode.encode(38);
 
-        AccessPass accessPass = AccessPass.builder().
-                status("APPROVED")
+        AccessPass accessPass = AccessPass.builder()
+                .id(38)
+                .status("APPROVED")
                 .referenceID("09171234567")
                 .passType("INDIVIDUAL")
                 .controlCode(controlCode)
@@ -107,8 +108,9 @@ class QrPdfServiceTest {
 
         String controlCode = ControlCode.encode(38);
 
-        AccessPass accessPass = AccessPass.builder().
-                status("APPROVED")
+        AccessPass accessPass = AccessPass.builder()
+                .id(38)
+                .status("APPROVED")
                 .referenceID("09171234567")
                 .passType("VEHICLE")
                 .controlCode(controlCode)
@@ -296,10 +298,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -321,10 +319,6 @@ class QrPdfServiceTest {
                     .validFrom(NOW)
                     .validTo(NOW.plusDays(1))
                     .build();
-
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");

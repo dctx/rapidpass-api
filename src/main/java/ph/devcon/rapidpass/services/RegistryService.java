@@ -213,6 +213,8 @@ public class RegistryService {
         List<?> columnNames = RapidPassBulkData.getColumnNames();
 
         List<Object> columnValues =  dataPage.stream()
+                // Since these are all approved, we may bind the control codes for them.
+                .map(qrPdfService::bindControlCodeForAccessPass)
                 .map(RapidPassBulkData::values)
                 .collect(Collectors.toList());
 
@@ -235,6 +237,7 @@ public class RegistryService {
         return accessPassRepository
                 .findAll()
                 .stream()
+                .map(qrPdfService::bindControlCodeForAccessPass)
                 .map(ControlCode::buildFrom)
                 .collect(Collectors.toList());
     }
@@ -264,7 +267,13 @@ public class RegistryService {
             log.warn("Multiple Access Pass found for reference ID: {}", referenceId);
         }
 
-        return accessPasses.get(0);
+        AccessPass accessPass = accessPasses.get(0);
+
+        // Only bind the QR code to the access pass IF the access pass is approved.
+        if (AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus()))
+            accessPass = qrPdfService.bindControlCodeForAccessPass(accessPass);
+
+        return accessPass;
     }
 
     /**
@@ -429,6 +438,7 @@ public class RegistryService {
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
                 .stream()
                 .findFirst()
+                .map(qrPdfService::bindControlCodeForAccessPass)
                 .ifPresent(accessPass -> {
                     try {
                         accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);

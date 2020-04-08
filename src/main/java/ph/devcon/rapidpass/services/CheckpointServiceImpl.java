@@ -27,12 +27,18 @@ public class CheckpointServiceImpl implements ICheckpointService {
     @Override
     public AccessPass retrieveAccessPassByControlCode(String controlCode) {
         Integer id = qrPdfService.decode(controlCode);
-        return this.accessPassRepository.findById(id).orElse(null);
+        AccessPass accessPass = this.accessPassRepository.findById(id).orElse(null);
+
+        if (accessPass != null)
+            accessPass = qrPdfService.bindControlCodeForAccessPass(accessPass);
+
+        return accessPass;
     }
 
     @Override
     public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
         AccessPass accessPass = this.accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), plateNo);
+        accessPass = qrPdfService.bindControlCodeForAccessPass(accessPass);
         return (null != accessPass && StringUtils.equals(IdTypeVehicle.PLT.toString(), accessPass.getIdType())) ? accessPass : null;
     }
 

@@ -353,7 +353,6 @@ class RegistryRestControllerTest {
                 .andExpect(status().isOk())
                 // test json is expected
                 .andExpect(jsonPath("$.passType").value(TEST_VEHICLE_RAPID_PASS.getPassType().name()))
-                .andExpect(jsonPath("$.controlCode").value(TEST_VEHICLE_RAPID_PASS.getControlCode()))
                 .andExpect(jsonPath("$.identifierNumber").value(TEST_VEHICLE_RAPID_PASS.getIdentifierNumber()))
                 .andExpect(jsonPath("$.status").value(TEST_VEHICLE_RAPID_PASS.getStatus()))
                 .andDo(print());

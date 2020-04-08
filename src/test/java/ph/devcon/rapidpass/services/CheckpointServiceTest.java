@@ -54,7 +54,9 @@ public class CheckpointServiceTest
 
         Mockito.when(accessPassRepository.findById(any()))
             .thenReturn(Optional.of(accessPassEntity));
-        
+        Mockito.when(qrPdfService.bindControlCodeForAccessPass(any()))
+                .thenReturn(accessPassEntity);
+
         // THEN
         AccessPass accessPass = checkpointService.retrieveAccessPassByControlCode(controlCode);
         assertNotNull(accessPass);
@@ -82,6 +84,9 @@ public class CheckpointServiceTest
 
         // WHEN
         Mockito.when(accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), idNumber))
+                .thenReturn(accessPassEntity);
+
+        Mockito.when(qrPdfService.bindControlCodeForAccessPass(any()))
                 .thenReturn(accessPassEntity);
 
         // THEN
