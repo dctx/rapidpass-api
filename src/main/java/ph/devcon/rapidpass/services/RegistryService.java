@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
@@ -70,21 +71,25 @@ public class RegistryService {
      */
     @Transactional
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        // see
-        OffsetDateTime now = OffsetDateTime.now();
+
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
         // normalize id, plate number and mobile number
-        if (rapidPassRequest.getPlateNumber() != null) {
-            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
-        }
-        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
-        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
+        normalizeIdMobileAndPlateNumber(rapidPassRequest);
 
         // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
         NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
+
+        RapidPass rapidPass = persistAccessPass(rapidPassRequest);
+
+        return rapidPass;
+    }
+
+    private RapidPass persistAccessPass(RapidPassRequest rapidPassRequest) {
+
+        OffsetDateTime now = OffsetDateTime.now();
 
         // check if registrant is already in the system
         Registrant registrant = registrantRepository.findByMobile(rapidPassRequest.getMobileNumber());
@@ -162,6 +167,15 @@ public class RegistryService {
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
+    }
+
+    private void normalizeIdMobileAndPlateNumber(RapidPassRequest rapidPassRequest) {
+        if (rapidPassRequest.getPlateNumber() != null) {
+            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
+        }
+        String mobileNumber = StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber());
+        rapidPassRequest.setMobileNumber("0"+   StringUtils.right(mobileNumber,10));
+        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
     public RapidPassPageView findRapidPass(QueryFilter q) {
@@ -491,15 +505,16 @@ public class RegistryService {
 
         RapidPass pass;
         int counter = 1;
-        for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
+        for (RapidPassCSVdata csvData : approvedRapidPasses) {
             try {
-                RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+                RapidPassRequest request = RapidPassRequest.buildFrom(csvData);
+                normalizeIdMobileAndPlateNumber(request);
                 request.setSource(RecordSource.BULK.toString());
 
-//                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
-//                validation.validate(request);
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
+                validation.validate(request);
 
-                pass = this.newRequestPass(request);
+                pass = this.persistAccessPass(request);
 
                 if (pass != null) {
 
@@ -513,7 +528,7 @@ public class RegistryService {
                     passes.add("Record " + counter++ + ": Success. ");
                 }
             } catch ( Exception e ) {
-                passes.add("Record " + counter++ + ": Failed. " + e.getMessage() + rapidPassRequest.getMobileNumber());
+                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
             }
         }
         return passes;
