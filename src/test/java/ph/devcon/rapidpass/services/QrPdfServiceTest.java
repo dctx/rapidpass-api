@@ -155,10 +155,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -187,9 +183,6 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -215,9 +208,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
         });
 
@@ -237,10 +227,6 @@ class QrPdfServiceTest {
                     .validFrom(NOW)
                     .validTo(NOW.plusDays(1))
                     .build();
-
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -268,9 +254,6 @@ class QrPdfServiceTest {
                     .validFrom(NOW)
                     .validTo(NOW.plusDays(1))
                     .build();
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -348,9 +331,6 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -373,9 +353,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -404,10 +381,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -429,10 +402,6 @@ class QrPdfServiceTest {
                     .validFrom(NOW)
                     .validTo(NOW.plusDays(1))
                     .build();
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -459,9 +428,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -484,9 +450,6 @@ class QrPdfServiceTest {
                     .validFrom(NOW)
                     .validTo(NOW.plusDays(1))
                     .build();
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -514,9 +477,6 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
-
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
         });
@@ -539,9 +499,6 @@ class QrPdfServiceTest {
                     .validFrom(NOW)
                     .validTo(INVALID_ARGUMENT)
                     .build();
-
-            when(accessPassRepository.findById(any()))
-                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
