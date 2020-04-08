@@ -413,6 +413,7 @@ public class RegistryService {
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
+    @Transactional
     public RapidPass updateAccessPass(String referenceId, RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
         final RapidPass updatedRapidPass;
         final AccessPassStatus status = rapidPassStatus.getStatus();
