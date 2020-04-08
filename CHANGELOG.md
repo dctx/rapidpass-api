@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - default expiration date is now April 30, 2020
+- Control code generation now performed on-the-fly, rather than queried from the database.
 
 ## [1.1.1] - 2020-04-07
 ### Changed
