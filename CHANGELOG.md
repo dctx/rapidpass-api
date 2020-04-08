@@ -5,16 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [1.1.3] - 2020-04-08
+## [1.1.2-SNAPTSHOT] - 2020-04-08
 ### Added
 - RBAC for `DELETE` /registry/access-passes/**
-
-## [1.1.2] - 2020-04-08
-### Added
 - Mobile number formatting
 
 ### Fixed
 - DB cred security leak
+
+## Changed
+- default expiration date is now April 30, 2020
 
 ## [1.1.1] - 2020-04-07
 ### Changed
