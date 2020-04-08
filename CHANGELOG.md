@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2020-04-08
+### Changed
+- Updated batch upload validation rules, see #309 for details
+
 ## [1.1.1] - 2020-04-07
 ### Changed
 - GET requests now use query parameters (on the url) rather than using JSON Body Request.
