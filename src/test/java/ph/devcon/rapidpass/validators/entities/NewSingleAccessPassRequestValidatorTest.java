@@ -68,13 +68,32 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-I", "IATF")),
+                        new LookupTable(new LookupTablePK("IDTYPE-I", "COM"))
+                ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-V", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-V", "CND"))
+                ))
+        );
+
         NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
+                .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .email("hello@world.com")
                 .mobileNumber("09662015319")
                 .build();
 
@@ -88,6 +107,8 @@ public class NewSingleAccessPassRequestValidatorTest {
         errors = bindingResult.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
+
+        System.out.println(errors);
 
         assertThat(errors.size(), equalTo(0));
 
@@ -104,9 +125,14 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
+                .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
+                .email("hello@world.com")
                 .mobileNumber("09662015319")
                 .build();
 
@@ -131,6 +157,15 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         // ---- CASE pass type is vehicle, and plate number is missing ----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .email("hello@worldd.com")
+                .plateNumber("PLT3211")
+                .mobileNumber("09111234321")
                 .plateNumber(null)
                 .passType(PassType.VEHICLE)
                 .build();
@@ -146,7 +181,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Missing plate number."));
+        assertThat(errors, hasItem("Missing Plate Number."));
 
         // ---- CASE pass type is individual, and plate number is missing  ----
 
@@ -182,6 +217,20 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-I", "IATF")),
+                        new LookupTable(new LookupTablePK("IDTYPE-I", "COM"))
+                        ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-V", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-V", "CND"))
+                ))
+        );
+
         when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         AccessPass.builder()
@@ -198,10 +247,15 @@ public class NewSingleAccessPassRequestValidatorTest {
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
+                .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .email("hello@world.com")
                 .plateNumber("ABC 123")
+                .mobileNumber("09111234321")
                 .passType(PassType.VEHICLE)
-                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -225,6 +279,15 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .email("hello@world.com")
+                .passType(PassType.INDIVIDUAL)
                 .mobileNumber("a09662006888")
                 .build();
 
@@ -244,6 +307,15 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         // ---- CASE Mobile number can only use Philippine numbers ----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .email("hello@world.com")
                 .mobileNumber("659662006888")
                 .build();
 

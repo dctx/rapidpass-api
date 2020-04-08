@@ -88,8 +88,15 @@ public class BatchAccessPassRequestValidatorTest {
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
                 .idType("PLT")
+                .aporType("AG")
+                .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
                 .passType(PassType.VEHICLE)
                 .mobileNumber("09662015319")
                 .build();
@@ -122,6 +129,11 @@ public class BatchAccessPassRequestValidatorTest {
                 .aporType("AG")
                 .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
                 .mobileNumber("09662015319")
@@ -150,7 +162,15 @@ public class BatchAccessPassRequestValidatorTest {
         // ---- CASE APOR invalid type ----
         
         rapidPassRequest = RapidPassRequest.builder()
-        		.passType(PassType.INDIVIDUAL)
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
                 .idType("SOME INVALID ID TYPE")
                 .build();
 
@@ -171,6 +191,14 @@ public class BatchAccessPassRequestValidatorTest {
         // ---- CASE APOR is null  ----
 
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
         		.passType(PassType.INDIVIDUAL)
                 .idType(null)
                 .build();
@@ -186,7 +214,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Invalid ID Type."));
+        assertThat(errors, hasItem("Missing ID Type."));
 
         System.out.println(bindingResult);
     }
@@ -198,6 +226,14 @@ public class BatchAccessPassRequestValidatorTest {
 
         // ---- CASE pass type is vehicle, and plate number is missing ----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
                 .plateNumber(null)
                 .passType(PassType.VEHICLE)
                 .build();
@@ -214,7 +250,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Missing plate number."));
+        assertThat(errors, hasItem("Missing Plate Number."));
 
         // ---- CASE pass type is individual, and plate number is missing  ----
 
@@ -283,6 +319,9 @@ public class BatchAccessPassRequestValidatorTest {
                 .aporType("AG")
                 .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
                 .mobileNumber("+639662015319")
@@ -310,6 +349,14 @@ public class BatchAccessPassRequestValidatorTest {
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
         		.mobileNumber("a09662006888")
                 .build();
 
@@ -329,6 +376,14 @@ public class BatchAccessPassRequestValidatorTest {
         
         // ---- CASE Mobile number can only use Philippine numbers ----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
         		.mobileNumber("+659662006888")
                 .build();
 

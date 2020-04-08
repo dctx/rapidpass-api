@@ -75,6 +75,7 @@ class RegistryServiceTest {
                     .plateNumber("ABC4321")
                     .mobileNumber("09662016319")
                     .email("jonas.was.here@gmail.com")
+                    .originStreet("origin street")
                     .destCity("Somewhere in the PH")
                     .company("DEVCON")
                     .aporType("AG")
