@@ -1,5 +1,9 @@
 package ph.devcon.rapidpass.services.notifications;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -46,7 +50,7 @@ public class SMSNotificationService implements NotificationService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>(); // important!
 
         params.add("apikey", this.apiKey);
-        params.add("number", message.getTo());
+        params.add("number", formatNumber(message.getTo()));
         params.add("message", message.getMessage());
         params.add("sendername", semaphoreSender);
 
@@ -65,6 +69,18 @@ public class SMSNotificationService implements NotificationService {
 
 
         log.debug("  SMS msg sent! {}", message.getTo());
+    }
 
+    protected String formatNumber(String phone) {
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+        try {
+            PhoneNumber phoneNumber = phoneUtil.parse(phone, "PH");
+            return phoneUtil.format(phoneNumber, PhoneNumberFormat.E164);
+        } catch (NumberParseException e) {
+            log.error("Error parsing mobile " + phone, e);
+        }
+
+        // return un-parseable number as it is
+        return phone;
     }
 }

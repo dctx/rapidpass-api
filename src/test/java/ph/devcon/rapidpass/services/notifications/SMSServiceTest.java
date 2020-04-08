@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service.notification;
+package ph.devcon.rapidpass.services.notifications;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.client.RestTemplate;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.services.notifications.NotificationException;
-import ph.devcon.rapidpass.services.notifications.NotificationMessage;
-import ph.devcon.rapidpass.services.notifications.NotificationService;
-import ph.devcon.rapidpass.services.notifications.SMSNotificationService;
 import ph.devcon.rapidpass.services.notifications.templates.SMSNotificationTemplate;
 
 import static org.hamcrest.MatcherAssert.assertThat;

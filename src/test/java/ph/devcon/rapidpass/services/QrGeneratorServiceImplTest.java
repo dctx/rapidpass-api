@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service;
+package ph.devcon.rapidpass.services;
 
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
@@ -12,7 +12,6 @@ import ph.devcon.dctx.rapidpass.commons.QrCodeDeserializer;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
 import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
-import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
