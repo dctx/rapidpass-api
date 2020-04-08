@@ -79,6 +79,7 @@ rbac:
           verbs:
             # GET, POST being used for registration
             - PUT # APPROVE/DENY
+            - DELETE # APPROVE/DENY
     - role: checkpoint
       resources:
         - endpoint: /checkpoint/**

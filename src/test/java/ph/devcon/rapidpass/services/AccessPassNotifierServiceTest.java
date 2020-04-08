@@ -142,7 +142,7 @@ class AccessPassNotifierServiceTest {
         final String testMobile = "09158977011";
         final NotificationMessage smsMessage = instance.buildApprovedSmsMessage(PassType.INDIVIDUAL, testPassLink, testMobile, "JONAS", "12345", "ABCD 1234");
 
-        assertThat(smsMessage.getFrom(), is("RAPIDPASS.PH"));
+        assertThat(smsMessage.getFrom(), is("RAPIDPASS"));
         assertThat(smsMessage.getTo(), is(testMobile));
         assertThat(smsMessage.getMessage(), is("Hi, JONAS. Your RapidPass has been approved! Your RapidPass control number is 12345. " +
                 "You can also download your QR code on RapidPass.ph by following this link: a-test-url.com"));
