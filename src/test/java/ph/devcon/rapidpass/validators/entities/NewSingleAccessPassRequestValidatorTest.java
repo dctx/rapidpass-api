@@ -240,11 +240,11 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .collect(Collectors.toList());
 
         assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
-        
-        
-        // ---- CASE Mobile number has more than 11 characters but doesnt start with +639----
+
+
+        // ---- CASE Mobile number can only use Philippine numbers ----
         rapidPassRequest = RapidPassRequest.builder()
-                .mobileNumber("639662006888")
+                .mobileNumber("659662006888")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);

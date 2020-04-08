@@ -285,7 +285,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
-                .mobileNumber("09662015319")
+                .mobileNumber("+639662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -327,9 +327,9 @@ public class BatchAccessPassRequestValidatorTest {
         assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
         
         
-        // ---- CASE Mobile number has more than 11 characters but doesnt start with 09XXXXXXXXX----
+        // ---- CASE Mobile number can only use Philippine numbers ----
         rapidPassRequest = RapidPassRequest.builder()
-        		.mobileNumber("639662006888")
+        		.mobileNumber("+659662006888")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
