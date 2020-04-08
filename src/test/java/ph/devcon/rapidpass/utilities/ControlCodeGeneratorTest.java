@@ -53,6 +53,15 @@ public class ControlCodeGeneratorTest {
 
             assertThat(id, equalTo(i));
         }
+
+        for (int i = Integer.MIN_VALUE; i < Integer.MIN_VALUE + 25; i++) {
+
+            String controlCode = ControlCodeGenerator.generate(keyInBase64, i);
+
+            int id = ControlCodeGenerator.decode(keyInBase64, controlCode);
+
+            assertThat(id, equalTo(i));
+        }
     }
 
     /**
