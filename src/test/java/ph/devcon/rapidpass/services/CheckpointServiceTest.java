@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service;
+package ph.devcon.rapidpass.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +10,6 @@ import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
-import ph.devcon.rapidpass.services.ICheckpointService;
-import ph.devcon.rapidpass.services.CheckpointServiceImpl;
 
 import java.time.OffsetDateTime;
 

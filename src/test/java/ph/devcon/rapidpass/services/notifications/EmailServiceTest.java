@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service.notification;
+package ph.devcon.rapidpass.services.notifications;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,9 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.services.notifications.EmailNotificationService;
-import ph.devcon.rapidpass.services.notifications.NotificationException;
-import ph.devcon.rapidpass.services.notifications.NotificationMessage;
 import ph.devcon.rapidpass.services.notifications.templates.EmailNotificationTemplate;
 
 import javax.mail.Session;

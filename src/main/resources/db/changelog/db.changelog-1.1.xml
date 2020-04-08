@@ -1,8 +1,7 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet author="eric" id="20200404-1">
         <modifyDataType tableName="registrant"
                         columnName="organization_name"
@@ -17,5 +16,10 @@
         <modifyDataType tableName="access_pass"
                         columnName="remarks"
                         newDataType="VARCHAR(250)"/>
+    </changeSet>
+    <changeSet author="jonas" id="20200407-1">
+        <addColumn tableName="access_pass">
+            <column name="notified" type="BOOLEAN"/>
+        </addColumn>
     </changeSet>
 </databaseChangeLog>
