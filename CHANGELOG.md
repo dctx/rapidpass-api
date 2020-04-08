@@ -17,7 +17,7 @@ CHECKPOINT
   verbs: ALL
 ```
 
-Fixed
+### Fixed
 - Access Pass getting approved even though an error occurs. Enabled transactional management for updating access passes.
 
 ## [1.1.2] - 2020-04-08
