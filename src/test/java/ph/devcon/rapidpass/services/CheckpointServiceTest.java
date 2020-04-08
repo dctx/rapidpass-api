@@ -12,9 +12,11 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest(classes = RapidpassApplication.class)
 public class CheckpointServiceTest
@@ -25,25 +27,33 @@ public class CheckpointServiceTest
 
     private ScannerDeviceRepository scannerDeviceRepository;
 
+    private QrPdfService qrPdfService;
+
+    private QrGeneratorService qrGeneratorService;
+
     @BeforeEach
     void initializeMocks()
     {
         accessPassRepository = Mockito.mock(AccessPassRepository.class);
         scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
+        qrPdfService = Mockito.mock(QrPdfService.class);
+        qrGeneratorService = Mockito.mock(QrGeneratorService.class);
     }
     
     @Test
     public void TestRetrieveAccessPassByQrCode()
     {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, qrPdfService);
+
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         String controlCode = "12345A";
         accessPassEntity.setControlCode(controlCode);
     
         // WHEN
-        Mockito.when(accessPassRepository.findByControlCode(controlCode))
-            .thenReturn(accessPassEntity);
+
+        Mockito.when(accessPassRepository.findById(any()))
+            .thenReturn(Optional.of(accessPassEntity));
         
         // THEN
         AccessPass accessPass = checkpointService.retrieveAccessPassByControlCode(controlCode);
@@ -62,7 +72,7 @@ public class CheckpointServiceTest
 
     @Test
     public void TestRetrieveAccessPassByPlateNumber() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, qrPdfService);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         accessPassEntity.setPassType(PassType.VEHICLE.toString());

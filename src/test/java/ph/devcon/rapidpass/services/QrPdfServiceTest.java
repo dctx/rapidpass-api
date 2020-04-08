@@ -22,14 +22,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -90,8 +90,8 @@ class QrPdfServiceTest {
                 .validTo(NOW.plusDays(1))
                 .build();
 
-        when(accessPassRepository.findByControlCode(anyString()))
-                .thenReturn(accessPass);
+        when(accessPassRepository.findById(any()))
+                .thenReturn(Optional.of(accessPass));
 
         final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
 
@@ -122,8 +122,8 @@ class QrPdfServiceTest {
                 .validTo(NOW.plusDays(1))
                 .build();
 
-        when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                .thenReturn(accessPass);
+        when(accessPassRepository.findById(any()))
+                .thenReturn(Optional.of(accessPass));
 
         final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
         writeBytesForVisualInspection(bytes);
@@ -154,8 +154,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -185,8 +185,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -213,9 +213,8 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
         });
@@ -238,8 +237,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -268,9 +267,8 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -299,8 +297,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -325,8 +323,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -356,8 +354,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -382,8 +380,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -413,8 +411,8 @@ class QrPdfServiceTest {
                     .build();
 
 
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -438,9 +436,8 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -468,9 +465,8 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -495,9 +491,8 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -525,9 +520,8 @@ class QrPdfServiceTest {
                     .validTo(NOW.plusDays(1))
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");
@@ -552,9 +546,8 @@ class QrPdfServiceTest {
                     .validTo(INVALID_ARGUMENT)
                     .build();
 
-
-            when(accessPassRepository.findByControlCode(eq(accessPass.getControlCode())))
-                    .thenReturn(accessPass);
+            when(accessPassRepository.findById(any()))
+                    .thenReturn(Optional.of(accessPass));
 
             instance.generateQrPdf(accessPass.getControlCode());
             fail("should throw exception");

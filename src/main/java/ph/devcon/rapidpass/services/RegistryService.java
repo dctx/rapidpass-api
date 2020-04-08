@@ -3,7 +3,6 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
-import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
@@ -46,17 +44,12 @@ public class RegistryService {
     public static final int DEFAULT_VALIDITY_DAYS = 7;
 
     private final RegistryRepository registryRepository;
+    private final QrPdfService qrPdfService;
     private final RegistrantRepository registrantRepository;
     private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
     private final AccessPassNotifierService accessPassNotifierService;
     private final ScannerDeviceRepository scannerDeviceRepository;
-
-    /**
-     * Secret key used for control code generation
-     */
-    @Value("${qrmaster.controlkey:***REMOVED***}")
-    private String secretKey = "***REMOVED***";
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -350,7 +343,7 @@ public class RegistryService {
             accessPass.setValidTo(validUntil);
             accessPass.setValidFrom(now);
 
-            accessPass.setControlCode(ControlCodeGenerator.generate(this.secretKey, accessPass.getId()));
+            accessPass.setControlCode(qrPdfService.encode(accessPass.getId()));
             accessPass = accessPassRepository.saveAndFlush(accessPass);
             return RapidPass.buildFrom(accessPass);
         }

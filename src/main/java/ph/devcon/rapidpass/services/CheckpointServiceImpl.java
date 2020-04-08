@@ -7,23 +7,27 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
-import ph.devcon.rapidpass.repositories.*;
+import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 @Service
 public class CheckpointServiceImpl implements ICheckpointService {
     private AccessPassRepository accessPassRepository;
     private ScannerDeviceRepository scannerDeviceRepository;
+    private QrPdfService qrPdfService;
 
     @Autowired
-    public CheckpointServiceImpl(AccessPassRepository accessPassRepository, ScannerDeviceRepository scannerDeviceRepository)
+    public CheckpointServiceImpl(AccessPassRepository accessPassRepository, ScannerDeviceRepository scannerDeviceRepository, QrPdfService qrPdfService)
     {
         this.accessPassRepository = accessPassRepository;
         this.scannerDeviceRepository = scannerDeviceRepository;
+        this.qrPdfService = qrPdfService;
     }
 
     @Override
     public AccessPass retrieveAccessPassByControlCode(String controlCode) {
-        return this.accessPassRepository.findByControlCode(controlCode);
+        Integer id = qrPdfService.decode(controlCode);
+        return this.accessPassRepository.findById(id).orElse(null);
     }
 
     @Override

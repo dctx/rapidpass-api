@@ -42,6 +42,9 @@ class RegistryServiceTest {
     RegistryRepository mockRegistryRepository;
 
     @Mock
+    QrPdfService mockQrPdfService;
+
+    @Mock
     RegistrantRepository mockRegistrantRepository;
 
     @Mock
@@ -59,7 +62,7 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
+        instance = new RegistryService(mockRegistryRepository, mockQrPdfService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
         now = OffsetDateTime.now();
     }

@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
@@ -9,6 +10,7 @@ import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
+import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,20 @@ public class QrPdfService {
     private final AccessPassRepository accessPassRepository;
 
     /**
+     * Secret key used for control code generation
+     */
+    @Value("${qrmaster.controlkey:***REMOVED***}")
+    private String secretKey = "***REMOVED***";
+
+    public Integer decode(String controlCode) {
+        return ControlCodeGenerator.decode(secretKey, controlCode);
+    }
+
+    public String encode(Integer id) {
+        return ControlCodeGenerator.generate(secretKey, id);
+    }
+
+    /**
      * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already
      * converted to bytes for easy sending to HTTP.
      *
@@ -42,7 +58,9 @@ public class QrPdfService {
      */
     public OutputStream generateQrPdf(String controlCode) throws ParseException, IOException, WriterException {
 
-        AccessPass accessPass = accessPassRepository.findByControlCode(controlCode);
+        Integer id = decode(controlCode);
+
+        AccessPass accessPass = accessPassRepository.findById(id).orElse(null);
 
         if (accessPass == null)
             throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);

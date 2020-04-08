@@ -17,8 +17,6 @@ public class ControlCodeGeneratorTest {
      */
     @Test
     void generateControlCode() {
-        // Currently ignoring this test, because Alistair still hasn't updated the commons to 0.2.0
-
         String key = "1234567890";
 
         byte[] keyInBase64Bytes = Base64.getEncoder().encode(key.getBytes());
@@ -28,6 +26,33 @@ public class ControlCodeGeneratorTest {
         String controlCode = ControlCodeGenerator.generate(keyInBase64, 25);
 
         assertThat(controlCode, equalTo("19X42YXG"));
+    }
+
+    @Test
+    void decode() {
+        String key = "1234567890";
+
+        byte[] keyInBase64Bytes = Base64.getEncoder().encode(key.getBytes());
+
+        String keyInBase64 = new String(keyInBase64Bytes);
+
+        for (int i = Integer.MAX_VALUE - 25; i < Integer.MAX_VALUE; i++) {
+
+            String controlCode = ControlCodeGenerator.generate(keyInBase64, i);
+
+            int id = ControlCodeGenerator.decode(keyInBase64, controlCode);
+
+            assertThat(id, equalTo(i));
+        }
+
+        for (int i = 0; i < 25; i++) {
+
+            String controlCode = ControlCodeGenerator.generate(keyInBase64, i);
+
+            int id = ControlCodeGenerator.decode(keyInBase64, controlCode);
+
+            assertThat(id, equalTo(i));
+        }
     }
 
     /**
