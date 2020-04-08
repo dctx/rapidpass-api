@@ -7,7 +7,6 @@ import java.util.Map;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,7 @@ import ph.devcon.rapidpass.models.CheckpointAuthRequest;
 import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.ICheckpointService;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 
@@ -36,6 +36,7 @@ public class CheckpointRestController
     private static final String JWT_GROUP = "checkpoint";
 
     private final ICheckpointService checkpointService;
+    private final ControlCodeService controlCodeService;
     private final JwtSecretsConfig jwtSecretsConfig;
 
     @Value("${qrmaster.skey}")
@@ -56,7 +57,7 @@ public class CheckpointRestController
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
         ResponseEntity response = null;
         try {
-            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByControlCode(controlCode);
+            final AccessPass accessPass = this.controlCodeService.findAccessPassByControlCode(controlCode);
             RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
             response = new ResponseEntity(rapidPass, HttpStatus.OK);
         }

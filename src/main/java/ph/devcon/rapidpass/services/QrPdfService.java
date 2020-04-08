@@ -9,6 +9,7 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
@@ -34,42 +35,9 @@ public class QrPdfService {
     private final AccessPassRepository accessPassRepository;
 
     /**
-     * Secret key used for control code generation
+     * Handler for everything related to control code.
      */
-    @Value("${qrmaster.controlkey:***REMOVED***}")
-    private String secretKey = "***REMOVED***";
-
-    public Integer decode(String controlCode) {
-        if (controlCode == null)
-            throw new IllegalArgumentException("Control code must not be null.");
-
-        if (controlCode.length() != 8)
-            throw new IllegalArgumentException("Invalid control code length.");
-        return ControlCodeGenerator.decode(secretKey, controlCode);
-    }
-
-    public String encode(Integer id) {
-        return ControlCodeGenerator.generate(secretKey, id);
-    }
-
-    public AccessPass getAccessPassByControlCode(String controlCode) {
-        Integer id = decode(controlCode);
-
-        return accessPassRepository.findById(id).orElse(null);
-    }
-
-    /**
-     * Control codes can be bound to the access pass only if they are already approved.
-     * @param accessPass
-     * @return
-     */
-    public AccessPass bindControlCodeForAccessPass(AccessPass accessPass) {
-        if (AccessPassStatus.APPROVED.toString().equals(accessPass)) {
-            String controlCode = encode(accessPass.getId());
-            accessPass.setControlCode(controlCode);
-        }
-        return accessPass;
-    }
+    private final ControlCodeService controlCodeService;
 
     /**
      * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already
@@ -82,7 +50,7 @@ public class QrPdfService {
      */
     public OutputStream generateQrPdf(String controlCode) throws ParseException, IOException, WriterException {
 
-        AccessPass accessPass = getAccessPassByControlCode(controlCode);
+        AccessPass accessPass = controlCodeService.findAccessPassByControlCode(controlCode);
 
         if (accessPass == null)
             throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);
@@ -136,7 +104,7 @@ public class QrPdfService {
             throw new IllegalArgumentException("AccessPass.id is a required parameter for rendering the PDF.");
         }
 
-        String controlCode = encode(accessPass.getId());
+        String controlCode = controlCodeService.encode(accessPass.getId());
 
         // generate qr code data from access pass
         final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass, controlCode);

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ph.devcon.dctx.rapidpass.commons.HmacSha256;
 import ph.devcon.dctx.rapidpass.commons.QrCodeSerializer;
@@ -15,6 +16,8 @@ import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeServiceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,14 +25,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,12 +45,15 @@ class QrPdfServiceTest {
 
     QrPdfService instance;
 
-    @Mock
-    AccessPassRepository accessPassRepository;
+    @Mock private AccessPassRepository accessPassRepository;
 
+    @Mock private ControlCodeService controlCodeService;
+
+    @Mock  private QrGeneratorServiceImpl qrGenService;
 
     private String encryptionKey = "***REMOVED***";
     private String signingKey = "***REMOVED***";
+    ;
 
     @BeforeEach
     void setUp() {
@@ -57,8 +62,13 @@ class QrPdfServiceTest {
         final QrCodeSerializer qrCodeSerializer = new QrCodeSerializer(encryptionKeyBytes);
         final Signer signer = HmacSha256.signer(signingKeyBytes);
 
-        final QrGeneratorServiceImpl qrGenService = new QrGeneratorServiceImpl(qrCodeSerializer, signer);
-        instance = new QrPdfService(qrGenService, accessPassRepository);
+        qrGenService = new QrGeneratorServiceImpl(qrCodeSerializer, signer);
+
+        controlCodeService = Mockito.mock(ControlCodeService.class);
+
+        accessPassRepository = Mockito.mock(AccessPassRepository.class);
+
+        instance = new QrPdfService(qrGenService, accessPassRepository, controlCodeService);
 
     }
 
@@ -73,6 +83,7 @@ class QrPdfServiceTest {
 
     @Test
     void generateQrPdf_INDIVIDUAL() throws IOException, WriterException, ParseException, NullPointerException {
+        instance = new QrPdfService(qrGenService, accessPassRepository, controlCodeService);
 
         String controlCode = ControlCode.encode(38);
 
@@ -91,8 +102,12 @@ class QrPdfServiceTest {
                 .validTo(NOW.plusDays(1))
                 .build();
 
-        when(accessPassRepository.findById(any()))
-                .thenReturn(Optional.of(accessPass));
+        when(controlCodeService.findAccessPassByControlCode(anyString()))
+                .thenReturn(accessPass);
+
+        when(controlCodeService.encode(anyInt())).thenReturn(accessPass.getControlCode());
+
+//        when(this.qrGenService.generateQr(any())).thenReturn(new byte[]{ 0, 1, 0, 1, 0 });
 
         final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
 
@@ -124,8 +139,11 @@ class QrPdfServiceTest {
                 .validTo(NOW.plusDays(1))
                 .build();
 
-        when(accessPassRepository.findById(any()))
-                .thenReturn(Optional.of(accessPass));
+        when(controlCodeService.findAccessPassByControlCode(any()))
+                .thenReturn(accessPass);
+
+        when(controlCodeService.encode(anyInt()))
+                .thenReturn(controlCode);
 
         final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
         writeBytesForVisualInspection(bytes);

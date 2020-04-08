@@ -19,6 +19,7 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
@@ -44,7 +45,7 @@ public class RegistryService {
     public static final int DEFAULT_VALIDITY_DAYS = 7;
 
     private final RegistryRepository registryRepository;
-    private final QrPdfService qrPdfService;
+    private final ControlCodeService controlCodeService;
     private final RegistrantRepository registrantRepository;
     private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
@@ -214,7 +215,7 @@ public class RegistryService {
 
         List<Object> columnValues =  dataPage.stream()
                 // Since these are all approved, we may bind the control codes for them.
-                .map(qrPdfService::bindControlCodeForAccessPass)
+                .map(controlCodeService::bindControlCodeForAccessPass)
                 .map(RapidPassBulkData::values)
                 .collect(Collectors.toList());
 
@@ -237,7 +238,7 @@ public class RegistryService {
         return accessPassRepository
                 .findAll()
                 .stream()
-                .map(qrPdfService::bindControlCodeForAccessPass)
+                .map(controlCodeService::bindControlCodeForAccessPass)
                 .map(ControlCode::buildFrom)
                 .collect(Collectors.toList());
     }
@@ -271,7 +272,7 @@ public class RegistryService {
 
         // Only bind the QR code to the access pass IF the access pass is approved.
         if (AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus()))
-            accessPass = qrPdfService.bindControlCodeForAccessPass(accessPass);
+            accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
 
         return accessPass;
     }
@@ -352,7 +353,7 @@ public class RegistryService {
             accessPass.setValidTo(validUntil);
             accessPass.setValidFrom(now);
 
-            accessPass.setControlCode(qrPdfService.encode(accessPass.getId()));
+            accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
             accessPass = accessPassRepository.saveAndFlush(accessPass);
             return RapidPass.buildFrom(accessPass);
         }
@@ -438,7 +439,7 @@ public class RegistryService {
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
                 .stream()
                 .findFirst()
-                .map(qrPdfService::bindControlCodeForAccessPass)
+                .map(controlCodeService::bindControlCodeForAccessPass)
                 .ifPresent(accessPass -> {
                     try {
                         accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);

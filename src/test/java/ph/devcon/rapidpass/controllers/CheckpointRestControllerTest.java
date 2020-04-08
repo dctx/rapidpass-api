@@ -10,6 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.services.ICheckpointService;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
 import java.util.logging.Level;
@@ -22,6 +23,10 @@ public class CheckpointRestControllerTest extends BaseApiTest
 {
 
     private static Logger LOGGER = Logger.getLogger(CheckpointRestControllerTest.class.getName());
+
+    @MockBean
+    private ControlCodeService controlCodeService;
+
     @MockBean
     private ICheckpointService checkpointService;
 
@@ -32,7 +37,7 @@ public class CheckpointRestControllerTest extends BaseApiTest
 
         String controlCode = "12345A";
 
-        when(checkpointService.retrieveAccessPassByControlCode(controlCode)).thenReturn(accessPass);
+        when(controlCodeService.findAccessPassByControlCode(controlCode)).thenReturn(accessPass);
 
         String endpoint = UriComponentsBuilder.fromUriString("/checkpoint/access-passes/control-codes/").path("/{control-code}").buildAndExpand(controlCode).toString();
         final MvcResult gotData = getData(endpoint);
