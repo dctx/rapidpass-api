@@ -337,15 +337,15 @@ public class RegistryService {
         if (accessPasses.size() > 0) {
             AccessPass accessPass = accessPasses.get(0);
 
-            // is it April 12 yet?
+            // is it April 30 yet?
             OffsetDateTime now = OffsetDateTime.now();
-            OffsetDateTime aprilTwelve = OffsetDateTime.of(2020,4,12,23,59,
+            OffsetDateTime aprilThirty = OffsetDateTime.of(2020,4,30,23,59,
                     59,99999, ZoneOffset.ofHours(8));
             OffsetDateTime validUntil = now;
-            if (OffsetDateTime.now().isAfter(aprilTwelve)) {
+            if (OffsetDateTime.now().isAfter(aprilThirty)) {
                 validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
             } else {
-                validUntil = aprilTwelve;
+                validUntil = aprilThirty;
             }
             accessPass.setValidTo(validUntil);
             accessPass.setValidFrom(now);
