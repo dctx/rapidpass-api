@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service.notification;
+package ph.devcon.rapidpass.services.notifications;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import ph.devcon.rapidpass.services.notifications.NotificationException;
-import ph.devcon.rapidpass.services.notifications.NotificationMessage;
-import ph.devcon.rapidpass.services.notifications.SMSNotificationService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -97,6 +94,15 @@ class SMSNotificationServiceTest {
 
             smsNotificationService.send(message);
         });
+    }
+
+    @Test
+    void testFormatNumber() {
+        Assertions.assertEquals(smsNotificationService.formatNumber("09171234567"), "+639171234567");
+        Assertions.assertEquals(smsNotificationService.formatNumber("0917 1234567"), "+639171234567");
+        Assertions.assertEquals(smsNotificationService.formatNumber("00639171234567"), "+639171234567");
+        Assertions.assertEquals(smsNotificationService.formatNumber("+639171234567"), "+639171234567");
+        Assertions.assertEquals(smsNotificationService.formatNumber("+6512345678"), "+6512345678");
     }
 
     // sample test with actual rest template

@@ -71,7 +71,7 @@ public class SMSNotificationService implements NotificationService {
         log.debug("  SMS msg sent! {}", message.getTo());
     }
 
-    private String formatNumber(String phone) {
+    protected String formatNumber(String phone) {
         PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
         try {
             PhoneNumber phoneNumber = phoneUtil.parse(phone, "PH");
