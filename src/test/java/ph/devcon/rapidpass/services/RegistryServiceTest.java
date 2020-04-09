@@ -17,6 +17,7 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
 import ph.devcon.rapidpass.repositories.RegistryRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -42,6 +43,9 @@ class RegistryServiceTest {
     RegistryRepository mockRegistryRepository;
 
     @Mock
+    ControlCodeService controlCodeService;
+
+    @Mock
     RegistrantRepository mockRegistrantRepository;
 
     @Mock
@@ -59,7 +63,7 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
+        instance = new RegistryService(mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
         now = OffsetDateTime.now();
     }

@@ -80,8 +80,14 @@ rbac:
             # GET, POST being used for registration
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
+        - endpoint: /registry/access-passes
+          verbs:
+            - ALL
     - role: checkpoint
       resources:
+        - endpoint: /batch/access-passes
+          verbs:
+            - GET
         - endpoint: /checkpoint/**
           verbs:
             - ALL

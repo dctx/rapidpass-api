@@ -2,13 +2,16 @@ package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
+import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +35,11 @@ public class QrPdfService {
     private final AccessPassRepository accessPassRepository;
 
     /**
+     * Handler for everything related to control code.
+     */
+    private final ControlCodeService controlCodeService;
+
+    /**
      * Generates a PDF containing the QR code pertaining to the passed in reference ID. The PDF file is already
      * converted to bytes for easy sending to HTTP.
      *
@@ -42,7 +50,7 @@ public class QrPdfService {
      */
     public OutputStream generateQrPdf(String controlCode) throws ParseException, IOException, WriterException {
 
-        AccessPass accessPass = accessPassRepository.findByControlCode(controlCode);
+        AccessPass accessPass = controlCodeService.findAccessPassByControlCode(controlCode);
 
         if (accessPass == null)
             throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);
@@ -92,8 +100,14 @@ public class QrPdfService {
             throw new IllegalArgumentException("AccessPass.validTo is a required parameter for rendering the PDF.");
         }
 
+        if (accessPass.getId() == null) {
+            throw new IllegalArgumentException("AccessPass.id is a required parameter for rendering the PDF.");
+        }
+
+        String controlCode = controlCodeService.encode(accessPass.getId());
+
         // generate qr code data from access pass
-        final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass);
+        final QrCodeData qrCodeData = AccessPass.toQrCodeData(accessPass, controlCode);
 
         // generate qr image file
         return qrGeneratorService.generateQr(qrCodeData);
