@@ -2,7 +2,6 @@ package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.entities.AccessPass;
@@ -11,7 +10,6 @@ import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
-import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +52,8 @@ public class QrPdfService {
 
         if (accessPass == null)
             throw new IllegalArgumentException("Failed to find AccessPass with controlCode=" + controlCode);
+
+        accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
 
         byte[] qrImage = generateQrImageData(accessPass);
 
