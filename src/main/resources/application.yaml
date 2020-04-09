@@ -72,9 +72,10 @@ rbac:
         - endpoint: /users/**/active
           verbs:
             - ALL
-        - endpoint: /batch/**
-          verbs:
-            - ALL
+          # breaks checkpoint - no security integration yet >.<
+        #        - endpoint: /batch/**
+        #          verbs:
+        #            - ALL
         - endpoint: /registry/access-passes/**
           verbs:
             # GET, POST being used for registration
