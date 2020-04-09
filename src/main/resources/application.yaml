@@ -83,20 +83,20 @@ rbac:
         - endpoint: /registry/access-passes
           verbs:
             - ALL
-    - role: checkpoint
-      resources:
-        - endpoint: /batch/access-passes
-          verbs:
-            - GET
-        - endpoint: /checkpoint/**
-          verbs:
-            - ALL
-        - endpoint: /registry/scanner-devices
-          verbs:
-            - ALL
-        - endpoint: /registry/scanner-devices/**
-          verbs:
-            - ALL
+#    - role: checkpoint
+#      resources:
+#        - endpoint: /batch/access-passes
+#          verbs:
+#            - GET
+#        - endpoint: /checkpoint/**
+#          verbs:
+#            - ALL
+#        - endpoint: /registry/scanner-devices
+#          verbs:
+#            - ALL
+#        - endpoint: /registry/scanner-devices/**
+#          verbs:
+#            - ALL
 
 logging:
   level:
