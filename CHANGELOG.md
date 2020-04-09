@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.5] - 2020-04-09
 ### Changed
 - Updated APOR seed data in Lookup Table
+- Bulk upload validation has been optimized to not query database if basic validation fails
+- Bulk upload no longer rejects records if duplicate requests 
+- Bulk upload now sends message to a kafka topic called 'requests' instead of directly updating the RapidPass database 
 
 ## [1.1.4] - PDF Redesign
 ### Changed
