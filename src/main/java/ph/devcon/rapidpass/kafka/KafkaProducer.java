@@ -27,6 +27,6 @@ public class KafkaProducer {
 
     public void sendMessage(RapidPassRequest message) {
         this.kafkaTemplate.send(this.TOPIC, message.getIdentifierNumber(), message);
-        log.debug(String.format("Produced user -> %s", message));
+        log.debug(String.format("Sent request -> %s", message));
     }
 }
