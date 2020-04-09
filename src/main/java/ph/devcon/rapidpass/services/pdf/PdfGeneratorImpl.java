@@ -6,6 +6,7 @@ import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.*;
@@ -15,16 +16,13 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPass;
@@ -42,6 +40,12 @@ import java.util.function.Function;
 @Slf4j
 @Service
 public class PdfGeneratorImpl implements PdfGeneratorService {
+
+
+    // A4 constants
+    // http://itext.2136553.n4.nabble.com/java-A4-page-size-is-wrong-in-PageSize-A4-td4659791.html
+    private static final float A4_PAGE_WIDTH = 595;
+    private static final float A4_PAGE_HEIGHT = 842;
 
     /**
      * Path to Work Sans Font
@@ -119,23 +123,24 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         return os.toByteArray();
     }
 
-    private static Paragraph generateRapidPassHeader(RapidPass rapidPass) {
+    private static Paragraph generateRapidPassHeader(RapidPass rapidPass, Rectangle rectangle) {
 
         if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
 
             Paragraph header = new Paragraph();
-            header.setFontSize(36);
+            header.setFontSize(54);
             header.setTextAlignment(TextAlignment.CENTER);
             header.setBold();
-            header.setRelativePosition(-100, 25, 0, 0);
+            header.setFixedPosition(rectangle.getX(), rectangle.getHeight() + 310, A4_PAGE_WIDTH);
             header.add("RAPIDPASS.PH");
             return header;
         } else if (PassType.VEHICLE.equals(rapidPass.getPassType())) {
             Paragraph header = new Paragraph();
-            header.setFontSize(54);
+            header.setFontSize(78);
             header.setTextAlignment(TextAlignment.CENTER);
             header.setBold();
-            header.setRelativePosition(0, 25, 0, 0);
+            header.setCharacterSpacing(1.3f);
+            header.setFixedPosition(120, A4_PAGE_HEIGHT + 150, rectangle.getWidth());
             header.add("RAPIDPASS.PH");
             return header;
         }
@@ -143,22 +148,11 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
     }
 
-    private static Image generateQrCode(byte[] qrCodeImage) throws IOException {
-        //qrcode image
-        Image qrcode = new Image(prepareImage(qrCodeImage));
-
-        qrcode.setFixedPosition(0, 200);
-        qrcode.setWidth(590);
-        qrcode.setHeight(590);
-
-        return qrcode;
-    }
-
-    private static Paragraph generateTitle(RapidPass rapidPass) {
+    private static Paragraph generateTitle(RapidPass rapidPass, Rectangle rectangle) {
 
         if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
             Paragraph header = new Paragraph();
-            header.setRelativePosition(150, 400, 0, 0);
+            header.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 120, rectangle.getWidth());
             header.setFontSize(36);
             header.setTextAlignment(TextAlignment.LEFT);
             header.setBold();
@@ -167,7 +161,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
         } else {
 
             Paragraph header = new Paragraph();
-            header.setFixedPosition(220, 120, 350);
+            header.setFixedPosition(290, 150, 350);
             header.setFontSize(44);
             header.setTextAlignment(TextAlignment.LEFT);
             header.setBold();
@@ -187,35 +181,25 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         int defaultFontSize = 30;
 
-
-
         if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
 
-            nameParagraph.setMaxWidth(200);
-            companyParagraph.setMaxWidth(200);
+            nameParagraph.setMaxWidth(rectangle.getWidth());
+            companyParagraph.setMaxWidth(rectangle.getWidth());
 
-            defaultFontSize = 12;
+            defaultFontSize = 20;
 
-            if (rectangle.getY() != 0)
-                nameParagraph.setFixedPosition(150, 410, rectangle.getWidth());
-            else
-                nameParagraph.setFixedPosition(150, 410 - rectangle.getHeight(), rectangle.getWidth());
-
+            nameParagraph.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 230, A4_PAGE_WIDTH);
             nameParagraph.setFixedLeading(20);
-            companyParagraph.setFixedPosition(150, 370, rectangle.getWidth());
 
-            if (rectangle.getY() != 0)
-                companyParagraph.setFixedPosition(150, 370, rectangle.getWidth());
-            else
-                companyParagraph.setFixedPosition(150, 370 - rectangle.getHeight(), rectangle.getWidth());
+            companyParagraph.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 180, A4_PAGE_WIDTH);
             companyParagraph.setFixedLeading(20);
         } else {
             nameParagraph.setMaxWidth(400);
             companyParagraph.setMaxWidth(400);
 
-            nameParagraph.setFixedPosition(220, 250, 400);
+            nameParagraph.setFixedPosition(290, 290, 400);
             nameParagraph.setFixedLeading(24);
-            companyParagraph.setFixedPosition(220, 190, 400);
+            companyParagraph.setFixedPosition(290, 230, 400);
             companyParagraph.setFixedLeading(24);
         }
 
@@ -254,23 +238,17 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
 
         if (PassType.INDIVIDUAL.equals(rapidPass.getPassType())) {
-            int defaultFontSize = 14;
+            int defaultFontSize = 16;
 
             Paragraph details = new Paragraph();
             details.setFontSize(defaultFontSize);
-            if (rectangle.getY() != 0)
-                details.setFixedPosition(150, 310, rectangle.getWidth());
-            else
-                details.setFixedPosition(150, 310 - rectangle.getHeight(), rectangle.getWidth());
+            details.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 100, rectangle.getWidth());
 
             details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
             Paragraph date = new Paragraph();
             date.setFontSize(defaultFontSize);
-            if (rectangle.getY() != 0)
-                date.setFixedPosition(270, 310, rectangle.getWidth());
-            else
-                date.setFixedPosition(270, 310 - rectangle.getHeight(), rectangle.getWidth());
+            date.setFixedPosition(rectangle.getX() + 230 + 120, rectangle.getY() + 100, rectangle.getWidth());
 
             date.add(validUntil).setCharacterSpacing(1.3f);
             date.setBold();
@@ -278,15 +256,11 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             // Add from - to
 
             Paragraph originToDest = new Paragraph();
-            date.setFontSize(defaultFontSize);
-            originToDest.setMaxWidth(rectangle.getHeight());
+            originToDest.setFontSize(defaultFontSize);
             originToDest.setTextAlignment(TextAlignment.LEFT);
-            originToDest.add(String.format("%s - %s", originCity, destCity));
+            originToDest.add(String.format("%s - %s", originCity, destCity)).setCharacterSpacing(1.3f);
 
-            if (rectangle.getY() != 0)
-                originToDest.setFixedPosition(150, 290, rectangle.getWidth());
-            else
-                originToDest.setFixedPosition(150, 290 - rectangle.getHeight(), rectangle.getWidth());
+            originToDest.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 70, rectangle.getWidth());
 
             Paragraph[] results = new Paragraph[3];
             results[0] = details;
@@ -301,13 +275,13 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
             Paragraph details = new Paragraph();
             details.setFontSize(defaultFontSize);
-            details.setFixedPosition(220, 90, 400);
+            details.setFixedPosition(290, 120, 400);
 
             details.add("VALID UNTIL: ").setCharacterSpacing(1.3f);
 
             Paragraph date = new Paragraph();
             date.setFontSize(defaultFontSize);
-            date.setFixedPosition(400, 90, 200);
+            date.setFixedPosition(470, 120, 200);
 
             date.add(validUntil).setCharacterSpacing(1.3f);
             date.setBold();
@@ -317,7 +291,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             originToDest.setMaxWidth(rectangle.getHeight());
             originToDest.setTextAlignment(TextAlignment.LEFT);
             originToDest.add(String.format("%s - %s", originCity, destCity)).setCharacterSpacing(1.3f);
-            originToDest.setFixedPosition(220, 50, 400);
+            originToDest.setFixedPosition(290, 90, 400);
 
 
             Paragraph[] results = new Paragraph[3];
@@ -361,34 +335,25 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             Paragraph aporLabel = new Paragraph();
 
             passType.add(passTypeText);
-            passType.setFontSize(12);
+            passType.setFontSize(20);
             passType.setFontColor(ColorConstants.WHITE);
             passType.setTextAlignment(TextAlignment.CENTER);
-            if (rectangle.getY() != 0)
-                passType.setFixedPosition(-205, 400, rectangle.getWidth());
-            else
-                passType.setFixedPosition(-205, 400 - rectangle.getHeight(), rectangle.getWidth());
+            passType.setFixedPosition(rectangle.getX(), rectangle.getY() + 220 + 10, rectangle.getWidth());
 
             Paragraph aporValue = new Paragraph();
             aporValue.add(rapidPass.getAporType());
-            aporValue.setFontSize(40);
+            aporValue.setFontSize(60);
             aporValue.setBold();
             aporValue.setFontColor(ColorConstants.WHITE);
             aporValue.setTextAlignment(TextAlignment.CENTER);
-            if (rectangle.getY() != 0)
-                aporValue.setFixedPosition(-205, 330, rectangle.getWidth());
-            else
-                aporValue.setFixedPosition(-205, 330 - rectangle.getHeight(), rectangle.getWidth());
+            aporValue.setFixedPosition(rectangle.getX(), rectangle.getY() + 130 + 10, rectangle.getWidth());
 
 
             aporLabel.add("APOR");
-            aporLabel.setFontSize(24);
+            aporLabel.setFontSize(30);
             aporLabel.setFontColor(ColorConstants.WHITE);
             aporLabel.setTextAlignment(TextAlignment.CENTER);
-            if (rectangle.getY() != 0)
-                aporLabel.setFixedPosition(-205, 300, rectangle.getWidth());
-            else
-                aporLabel.setFixedPosition(-205, 300 - rectangle.getHeight(), rectangle.getWidth());
+            aporLabel.setFixedPosition(rectangle.getX(), rectangle.getY() + 100 + 10, rectangle.getWidth());
 
 
             elements[0] = aporValue;
@@ -405,23 +370,23 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             passType.setFontSize(18);
             passType.setFontColor(ColorConstants.WHITE);
             passType.setTextAlignment(TextAlignment.CENTER);
-            passType.setFixedPosition(70, 235, 130);
+            passType.setFixedPosition(110, 270, 130);
 
 
             Paragraph aporValue = new Paragraph();
             aporValue.add(rapidPass.getAporType());
-            aporValue.setFontSize(60);
+            aporValue.setFontSize(72);
             aporValue.setBold();
             aporValue.setFontColor(ColorConstants.WHITE);
             aporValue.setTextAlignment(TextAlignment.CENTER);
-            aporValue.setFixedPosition(70, 140, 130);
+            aporValue.setFixedPosition(110, 165, 130);
 
 
             aporLabel.add("APOR");
-            aporLabel.setFontSize(32);
+            aporLabel.setFontSize(40);
             aporLabel.setFontColor(ColorConstants.WHITE);
             aporLabel.setTextAlignment(TextAlignment.CENTER);
-            aporLabel.setFixedPosition(70, 110, 130);
+            aporLabel.setFixedPosition(110, 130, 130);
 
             elements[0] = aporValue;
             elements[1] = aporLabel;
@@ -479,19 +444,15 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Image instructions = new Image(prepareImage(imageBytes));
 
-        instructions.setFixedPosition(-30, 20);
+        instructions.scale(0.65f, 0.65f);
+        instructions.setFixedPosition(0, A4_PAGE_HEIGHT);
+
+        instructions.setRotationAngle(-Math. PI / 2);
 
         document.getPdfDocument().setDefaultPageSize(PageSize.A4);
         document.add(instructions);
 
-        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
-
-        PdfPage page2 = document.getPdfDocument().getPage(2);
-
-        // A4 constants
-        // http://itext.2136553.n4.nabble.com/java-A4-page-size-is-wrong-in-PageSize-A4-td4659791.html
-        float a4PageWidth = 595;
-        float a4PageHeight = 842;
+        PdfPage firstPage = document.getPdfDocument().getFirstPage();
 
         document.getPdfDocument().setDefaultPageSize(PageSize.A4);
 
@@ -500,6 +461,17 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             //noinspection TryWithIdenticalCatches
             try {
                 AffineTransform transform = new AffineTransform();
+
+                transform.concatenate(
+                        AffineTransform.getRotateInstance(-Math.PI / 2, rectangle.getX(), rectangle.getY())
+                );
+                transform.concatenate(
+                        AffineTransform.getTranslateInstance(rectangle.getX(), rectangle.getY())
+                );
+                transform.concatenate(
+                        AffineTransform.getScaleInstance(0.5f, 0.5f)
+                );
+
                 AffineTransform inverse = transform.createInverse();
 
                 canvas.concatMatrix(transform);
@@ -507,17 +479,17 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 ImageData imageData = ImageDataFactory.create(qrCodeByteData);
 
                 // Show QR code
-                float qrCodeSize = a4PageWidth * 0.95f;
-                Point qrPosition = new Point(10, 240);
-                canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), false);
+                float qrCodeSize = A4_PAGE_HEIGHT * 1f;
+                Point qrPosition = new Point(rectangle.getX(), rectangle.getY() - 170);
+                canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), true);
 
                 // Show header
                 Canvas managedCanvas = new Canvas(canvas, canvas.getDocument(), rectangle);
-                Paragraph paragraph = generateRapidPassHeader(rapidPass);
+                Paragraph paragraph = generateRapidPassHeader(rapidPass, rectangle);
 
                 managedCanvas.add(paragraph);
 
-                managedCanvas.add(generateTitle(rapidPass));
+                managedCanvas.add(generateTitle(rapidPass, rectangle));
 
                 Paragraph[] details = generateDetails(rapidPass, rectangle);
 
@@ -527,8 +499,12 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 //
                 IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
 
+                float aporWidth = rectangle.getWidth() * 0.25f;
+                float aporHeight = rectangle.getHeight() * 0.26f;
+                float aporMargin = 100;
+
                 canvas.setFillColor(ColorConstants.BLACK);
-                canvas.rectangle(new Rectangle(70, 60, 130, 220));
+                canvas.rectangle(new Rectangle(0 + aporMargin, 0 + aporMargin, aporWidth, aporHeight));
                 canvas.fillStroke();
 
                 managedCanvas.add(iBlockElements[0]);
@@ -551,9 +527,17 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         };
 
-        Rectangle fullPage = new Rectangle(0, 0, a4PageWidth, a4PageHeight);
+        Rectangle halfPage = new Rectangle(0, A4_PAGE_HEIGHT / 2, A4_PAGE_WIDTH, A4_PAGE_HEIGHT);
 
-        renderOnCanvas(page2, fullPage, generatePdf);
+        renderOnCanvas(firstPage, halfPage, generatePdf);
+
+
+        PdfCanvas pdfCanvas = new PdfCanvas(firstPage);
+        pdfCanvas.moveTo(0, A4_PAGE_HEIGHT / 2)
+                .setStrokeColor(new DeviceRgb(0.7f, 0.7f, 0.7f))
+                .setLineWidth(1)
+                .lineTo(A4_PAGE_WIDTH, A4_PAGE_HEIGHT / 2)
+                .closePathStroke();
 
         document.close();
         return os;
@@ -562,6 +546,8 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
     private OutputStream generateIndividualPDF(byte[] qrCodeByteData,
                                   RapidPass rapidPass)
             throws ParseException, IOException {
+
+
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         Document document = createDocument(os);
 
@@ -585,19 +571,17 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         Image instructions = new Image(prepareImage(imageBytes));
 
-        instructions.setFixedPosition(-30, 20);
+        instructions.scale(0.65f, 0.65f);
+        instructions.setFixedPosition(0, A4_PAGE_HEIGHT);
 
+        instructions.setRotationAngle(-Math. PI / 2);
+//
         document.getPdfDocument().setDefaultPageSize(PageSize.A4);
         document.add(instructions);
 
-        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+        PdfPage firstPage = document.getPdfDocument().getFirstPage();
 
-        PdfPage page2 = document.getPdfDocument().getPage(2);
-
-        // A4 constants
-        // http://itext.2136553.n4.nabble.com/java-A4-page-size-is-wrong-in-PageSize-A4-td4659791.html
-        float a4PageWidth = 595;
-        float a4PageHeight = 842;
+        Canvas wholeCanvas = new Canvas(firstPage, new Rectangle(0, 0, A4_PAGE_WIDTH, A4_PAGE_HEIGHT));
 
         document.getPdfDocument().setDefaultPageSize(PageSize.A4);
 
@@ -607,11 +591,14 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             try {
                 AffineTransform transform = new AffineTransform();
 
+//                transform.concatenate(
+//                        AffineTransform.getRotateInstance(Math.PI / 2, rectangle.getX(), rectangle.getY())
+//                );
                 transform.concatenate(
-                        AffineTransform.getRotateInstance(Math.PI / 2, rectangle.getX(), rectangle.getY())
+                        AffineTransform.getTranslateInstance(rectangle.getX() / 2, rectangle.getY())
                 );
                 transform.concatenate(
-                        AffineTransform.getTranslateInstance(0, -rectangle.getHeight())
+                        AffineTransform.getScaleInstance(0.5f, 0.5f)
                 );
 
                 AffineTransform inverse = transform.createInverse();
@@ -622,17 +609,17 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 ImageData imageData = ImageDataFactory.create(qrCodeByteData);
 
                 // Show QR code
-                float qrCodeSize = a4PageWidth * 0.65f;
+                float qrCodeSize = A4_PAGE_WIDTH * 0.9f;
 
-                Point qrPosition = new Point(0, rectangle.getY() - 10);
-                canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), false);
+                Point qrPosition = new Point(rectangle.getX() + 20,  rectangle.getY() + 240);
+                canvas.addImage(imageData, new Rectangle((int)qrPosition.getX(), (int) qrPosition.getY(), qrCodeSize, qrCodeSize), true);
 
                 // Show header
                 Canvas managedCanvas = new Canvas(canvas, canvas.getDocument(), rectangle);
-                Paragraph paragraph = generateRapidPassHeader(rapidPass);
+                Paragraph paragraph = generateRapidPassHeader(rapidPass, rectangle);
                 managedCanvas.add(paragraph);
 
-                managedCanvas.add(generateTitle(rapidPass));
+                managedCanvas.add(generateTitle(rapidPass, rectangle));
 
                 Paragraph[] details = generateDetails(rapidPass, rectangle);
 
@@ -642,8 +629,12 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 //
                 IBlockElement[] iBlockElements = generateAporCode(rapidPass, rectangle);
 
+                float aporWidth = rectangle.getWidth() * 0.5f;
+                float aporHeight = rectangle.getHeight() * 0.5f;
+                float aporMargin = 70;
+
                 canvas.setFillColor(ColorConstants.BLACK);
-                canvas.rectangle(new Rectangle(rectangle.getX() + 45, rectangle.getY() - 130, 90, 135));
+                canvas.rectangle(new Rectangle(rectangle.getX() + aporMargin, rectangle.getY() + aporMargin, aporWidth, aporHeight));
                 canvas.fillStroke();
 
                 managedCanvas.add(iBlockElements[0]);
@@ -666,11 +657,26 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
         };
 
-        Rectangle leftCopy = new Rectangle(0, 0, a4PageWidth, a4PageHeight / 2);
-        Rectangle rightCopy = new Rectangle(0, a4PageHeight / 2, a4PageWidth, a4PageHeight / 2);
+        Rectangle leftCopy = new Rectangle(0, 0, A4_PAGE_WIDTH / 2, A4_PAGE_HEIGHT / 2);
+        Rectangle rightCopy = new Rectangle(A4_PAGE_WIDTH / 2, 0, A4_PAGE_WIDTH / 2, A4_PAGE_HEIGHT / 2);
 
-        renderOnCanvas(page2, leftCopy, generatePdf);
-        renderOnCanvas(page2, rightCopy, generatePdf);
+        renderOnCanvas(firstPage, leftCopy, generatePdf);
+        renderOnCanvas(firstPage, rightCopy, generatePdf);
+
+
+        PdfCanvas pdfCanvas = new PdfCanvas(firstPage);
+        pdfCanvas.moveTo(0, A4_PAGE_HEIGHT / 2)
+                .setStrokeColor(new DeviceRgb(0.7f, 0.7f, 0.7f))
+                .setLineWidth(1)
+                .lineTo(A4_PAGE_WIDTH, A4_PAGE_HEIGHT / 2)
+                .closePathStroke()
+                .moveTo(A4_PAGE_WIDTH / 2, A4_PAGE_HEIGHT / 2)
+                .setStrokeColor(new DeviceRgb(0.7f, 0.7f, 0.7f))
+                .setLineWidth(1)
+                .lineTo(A4_PAGE_WIDTH / 2, 0)
+                .closePathStroke()
+        ;
+
 
         document.close();
         return os;
