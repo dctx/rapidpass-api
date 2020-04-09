@@ -25,8 +25,8 @@ public class KafkaProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage(RapidPassRequest message) {
-        this.kafkaTemplate.send(this.TOPIC, message.getIdentifierNumber(), message);
+    public void sendMessage(String key, RapidPassRequest message) {
+        this.kafkaTemplate.send(this.TOPIC, key, message);
         log.debug(String.format("Sent request -> %s", message));
     }
 }

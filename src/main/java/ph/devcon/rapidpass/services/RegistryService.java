@@ -562,7 +562,9 @@ public class RegistryService {
 //                        .build();
 
 //                log.debug("Sending message no. {}, {}", counter, message);
-                producer.sendMessage(request);
+                String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
+                        request.getPlateNumber();
+                producer.sendMessage(key, request);
 
 //                log.debug("Sent message no. {}, {}", counter, message);
                 passes.add("Record " + counter++ + ": Success. ");
