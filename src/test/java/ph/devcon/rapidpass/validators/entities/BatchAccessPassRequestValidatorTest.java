@@ -72,16 +72,16 @@ public class BatchAccessPassRequestValidatorTest {
 
         // ---- CASE already has one existing access pass, but it is declined ----
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        AccessPass.builder()
-                                .referenceID("DEF 456")
-                                .status(AccessPassStatus.DECLINED.toString())
-                                .aporType("AG")
-                                .plateNumber("DEF 456")
-                                .build()
-                ))
-        );
+//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
+//                Collections.unmodifiableList(Lists.newArrayList(
+//                        AccessPass.builder()
+//                                .referenceID("DEF 456")
+//                                .status(AccessPassStatus.DECLINED.toString())
+//                                .aporType("AG")
+//                                .plateNumber("DEF 456")
+//                                .build()
+//                ))
+//        );
 
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
@@ -117,11 +117,11 @@ public class BatchAccessPassRequestValidatorTest {
 
         // ---- CASE No existing access passes ----
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        // no results
-                ))
-        );
+//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
+//                Collections.unmodifiableList(Lists.newArrayList(
+//                        // no results
+//                ))
+//        );
 
         batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
@@ -276,7 +276,7 @@ public class BatchAccessPassRequestValidatorTest {
     }
 
     @Test
-    public void failIfExistingAccessPassAlreadyExists() {
+    public void continueIfExistingAccessPassAlreadyExists() {
 
         when(lookupTableService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
@@ -301,16 +301,16 @@ public class BatchAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        AccessPass.builder()
-                                .referenceID("ABC 123")
-                                .aporType("AG")
-                                .plateNumber("ABC 123")
-                                .status(AccessPassStatus.PENDING.toString())
-                                .build()
-                ))
-        );
+//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
+//                Collections.unmodifiableList(Lists.newArrayList(
+//                        AccessPass.builder()
+//                                .referenceID("ABC 123")
+//                                .aporType("AG")
+//                                .plateNumber("ABC 123")
+//                                .status(AccessPassStatus.PENDING.toString())
+//                                .build()
+//                ))
+//        );
 
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
@@ -338,7 +338,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem(containsString("An existing PENDING/APPROVED RapidPass already exists")));
+        assertThat(errors, is(empty()));
     }
     
     @Test
