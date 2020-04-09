@@ -517,7 +517,7 @@ public class RegistryService {
     public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
-        List<String> passes = new ArrayList<String>();
+        List<String> passes = new ArrayList<>();
 
         // Validation
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
@@ -534,45 +534,35 @@ public class RegistryService {
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 
-                RapidPassMessage message = RapidPassMessage.newBuilder()
-                        .setAporType(r.getAporType())
-                        .setCompany(r.getCompany())
-                        .setControlCode("")
-                        .setDestination(Address.newBuilder()
-                                .setStreet(r.getDestStreet())
-                                .setCity(r.getDestCity())
-                                .setProvince(r.getDestProvince())
-                                .build())
-                        .setFirstName(r.getFirstName())
-                        .setLastName(r.getLastName())
-                        .setIdNumber(r.getIdType())
-                        .setIdType(r.getIdentifierNumber())
-                        .setMobile(r.getMobileNumber())
-                        .setOrigin(Address.newBuilder()
-                                .setStreet(r.getOriginStreet())
-                                .setCity(r.getOriginCity())
-                                .setProvince(r.getOriginProvince())
-                                .build())
-                        .setPassType(r.getPassType())
-                        .setPlateNumber(r.getPlateNumber() == null ? "NA" : r.getPlateNumber())
-                        .setPreApproved(true)
-                        .setRemarks(r.getRemarks())
-                        .setSource(RecordSource.BULK.name())
-                        .setStatus("APPROVED")
-                        .build();
+//                RapidPassMessage message = RapidPassMessage.newBuilder()
+//                        .setAporType(r.getAporType())
+//                        .setCompany(r.getCompany())
+//                        .setControlCode("")
+//                        .setDestination(Address.newBuilder()
+//                                .setStreet(r.getDestStreet())
+//                                .setCity(r.getDestCity())
+//                                .setProvince(r.getDestProvince())
+//                                .build())
+//                        .setFirstName(r.getFirstName())
+//                        .setLastName(r.getLastName())
+//                        .setIdNumber(r.getIdType())
+//                        .setIdType(r.getIdentifierNumber())
+//                        .setMobile(r.getMobileNumber())
+//                        .setOrigin(Address.newBuilder()
+//                                .setStreet(r.getOriginStreet())
+//                                .setCity(r.getOriginCity())
+//                                .setProvince(r.getOriginProvince())
+//                                .build())
+//                        .setPassType(r.getPassType())
+//                        .setPlateNumber(r.getPlateNumber() == null ? "NA" : r.getPlateNumber())
+//                        .setPreApproved(true)
+//                        .setRemarks(r.getRemarks())
+//                        .setSource(RecordSource.BULK.name())
+//                        .setStatus("APPROVED")
+//                        .build();
 
 //                log.debug("Sending message no. {}, {}", counter, message);
                 producer.sendMessage(request);
-//                kafkaTemplate.send(this.Topic, r.getMobileNumber(), message);
-
-//                pass = this.newRequestPass(request);
-//                if (pass != null) {
-//
-//                    RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
-//                            .remarks(null)
-//                            .status(AccessPassStatus.APPROVED)
-//                            .build();
-//                    updateAccessPass(pass.getReferenceId(), rapidPassStatus);
 
 //                log.debug("Sent message no. {}, {}", counter, message);
                 passes.add("Record " + counter++ + ": Success. ");

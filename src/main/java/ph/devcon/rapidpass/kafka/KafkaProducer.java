@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,8 +11,8 @@ import ph.devcon.rapidpass.messaging.models.RapidPassMessage;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
 @Service
-@CommonsLog(topic = "Producer Logger")
 @AllArgsConstructor
+@Slf4j
 public class KafkaProducer {
 
     @Value("${topic.name}")
