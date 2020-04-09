@@ -70,7 +70,7 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
                 throw new IllegalArgumentException("Invalid URL: " + url);
 
             // 150 characters without bound variables
-            String ACCESS_GRANTED = "Hi, %s Your RapidPass has been approved with control number %s. Download your QR code thru this link: %s";
+            String ACCESS_GRANTED = "Hi %s! Your RapidPass has been approved with control number %s. Download your QR code thru this link: %s";
             return new Formatter().format(ACCESS_GRANTED, shortenedName(), vehiclePlateNumber, controlCode, url).toString();
         } else {
             // 129 characters failed, including rapidpass email, without bound user name
@@ -86,7 +86,7 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
                 throw new IllegalArgumentException("Invalid URL: " + url);
 
             // 150 characters without bound variables
-            String ACCESS_GRANTED = "Hi, %s Your RapidPass has been approved with control number %s. Download your QR code thru this link: %s";
+            String ACCESS_GRANTED = "Hi %s! Your RapidPass has been approved with control number %s. Download your QR code thru this link: %s";
             return new Formatter().format(ACCESS_GRANTED, shortenedName(), controlCode, url).toString();
         } else {
             // 115 characters failed, including rapidpass email, without bound user name
