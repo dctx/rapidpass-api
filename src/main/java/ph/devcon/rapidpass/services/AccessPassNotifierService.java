@@ -69,8 +69,8 @@ public class AccessPassNotifierService {
     /**
      * The configurable endpoint to send for users to download qr codes. Defaults to /api/v1/registry/qr-codes/{referenceId}
      */
-    @Value("${notifier.qrCodeEndpoint:/api/v1/registry/qr-codes/}")
-    private String qrCodeEndpoint = "/api/v1/registry/qr-codes/";
+    @Value("${notifier.qrCodeEndpoint:/qr/}")
+    private String qrCodeEndpoint = "/qr/";
 
     public AccessPassNotifierService(AccessPassRepository accessPassRepository,
                                      QrPdfService qrPdfService,
