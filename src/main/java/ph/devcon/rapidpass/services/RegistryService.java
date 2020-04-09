@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,9 @@ import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
+import ph.devcon.rapidpass.kafka.KafkaProducer;
+import ph.devcon.rapidpass.messaging.models.Address;
+import ph.devcon.rapidpass.messaging.models.RapidPassMessage;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -27,6 +31,8 @@ import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidat
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -43,6 +49,11 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 7;
+
+    @Value("${topic.name}")
+    private String Topic;
+
+    private final KafkaProducer producer;
 
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
@@ -371,7 +382,7 @@ public class RegistryService {
      * @param status      The status to apply
      * @return Data stored on the database
      */
-    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws RegistryService.UpdateAccessPassException {
+    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws UpdateAccessPassException {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
@@ -496,31 +507,64 @@ public class RegistryService {
 
         RapidPass pass;
         int counter = 1;
-        for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
+        Instant start = Instant.now();
+        for (RapidPassCSVdata r : approvedRapidPasses) {
             try {
-                RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+                RapidPassRequest request = RapidPassRequest.buildFrom(r);
                 request.setSource(RecordSource.BULK.toString());
 
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(request);
 
-                pass = this.newRequestPass(request);
+                RapidPassMessage message = RapidPassMessage.newBuilder()
+                        .setAporType(r.getAporType())
+                        .setCompany(r.getCompany())
+                        .setControlCode("")
+                        .setDestination(Address.newBuilder()
+                                .setStreet("")
+                                .setCity("")
+                                .setProvince("")
+                                .build())
+                        .setFirstName(r.getFirstName())
+                        .setLastName(r.getLastName())
+                        .setIdNumber(r.getIdType())
+                        .setIdType(r.getIdentifierNumber())
+                        .setMobile(r.getMobileNumber())
+                        .setOrigin(Address.newBuilder()
+                                .setStreet("")
+                                .setCity("")
+                                .setProvince("")
+                                .build())
+                        .setPassType(r.getPassType())
+                        .setPlateNumber(r.getPlateNumber() == null ? "NA" : r.getPlateNumber())
+                        .setPreApproved(true)
+                        .setRemarks("")
+                        .setSource(RecordSource.BULK.name())
+                        .setStatus("APPROVED")
+                        .build();
 
-                if (pass != null) {
+//                log.debug("Sending message no. {}, {}", counter, message);
+                producer.sendMessage(request);
+//                kafkaTemplate.send(this.Topic, r.getMobileNumber(), message);
 
-                    RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
-                            .remarks(null)
-                            .status(AccessPassStatus.APPROVED)
-                            .build();
+//                pass = this.newRequestPass(request);
+//                if (pass != null) {
+//
+//                    RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
+//                            .remarks(null)
+//                            .status(AccessPassStatus.APPROVED)
+//                            .build();
+//                    updateAccessPass(pass.getReferenceId(), rapidPassStatus);
 
-                    updateAccessPass(pass.getReferenceId(), rapidPassStatus);
-
-                    passes.add("Record " + counter++ + ": Success. ");
-                }
-            } catch ( Exception e ) {
+//                log.debug("Sent message no. {}, {}", counter, message);
+                passes.add("Record " + counter++ + ": Success. ");
+//                }
+            } catch (Exception e) {
+                log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
                 passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
             }
         }
+        log.info("Execution time: {} seconds", Duration.between(start, Instant.now()).toMillis()/1000);
         return passes;
     }
 

@@ -10,8 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.kafka.KafkaProducer;
+import ph.devcon.rapidpass.messaging.models.RapidPassMessage;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -59,11 +62,17 @@ class RegistryServiceTest {
 
     @Mock LookupTableService lookupTableService;
 
+    @Mock
+    KafkaTemplate<String, RapidPassMessage> mockKafkaTemplate;
+
+    @Mock
+    KafkaProducer producer;
+
     private OffsetDateTime now;
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
+        instance = new RegistryService(producer, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
         now = OffsetDateTime.now();
     }
