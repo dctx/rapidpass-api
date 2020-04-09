@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.7] - 2020-04-09
+### Changed
+- Updated new PDF single-page design (individual has two copies which is in 1/4 of A4, vehicle uses half page).
+
 ## [1.1.6] - 2020-04-09
 ### Fixed
 - QR Code generation now utilises `plateNumber` as id for vehicles (uses `identifierNumber` before).
