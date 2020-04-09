@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.5] - 2020-04-09
+### Changed
+- Updated APOR seed data in Lookup Table
+
 ## [1.1.4] - PDF Redesign
 ### Changed
 - Updated new PDF two-page design (individual has two copies, vehicle uses full page).

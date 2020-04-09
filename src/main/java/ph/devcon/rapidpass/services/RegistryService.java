@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
@@ -26,9 +27,10 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.Duration;
@@ -75,26 +77,32 @@ public class RegistryService {
      */
     @Transactional
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        // see
-        OffsetDateTime now = OffsetDateTime.now();
+
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
         // normalize id, plate number and mobile number
-        if (rapidPassRequest.getPlateNumber() != null) {
-            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
-        }
-        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
-        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
+        normalizeIdMobileAndPlateNumber(rapidPassRequest);
 
         // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
         NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
 
+        RapidPass rapidPass = persistAccessPass(rapidPassRequest);
+
+        return rapidPass;
+    }
+
+    private RapidPass persistAccessPass(RapidPassRequest rapidPassRequest) {
+
+        OffsetDateTime now = OffsetDateTime.now();
+
         // check if registrant is already in the system
-        Registrant registrant = registrantRepository.findByMobile(rapidPassRequest.getMobileNumber());
+        @NotEmpty String mobileNumber = "0" + StringUtils.right(rapidPassRequest.getMobileNumber(),10);
+        Registrant registrant = registrantRepository.findByMobile(mobileNumber);
         if (registrant == null) {
             registrant = new Registrant();
+            registrant.setDateTimeCreated(now);
         } else {
             // check for consistency
             if (!registrant.getFirstName().equals(rapidPassRequest.getFirstName()) ||
@@ -112,9 +120,10 @@ public class RegistryService {
         registrant.setLastName(rapidPassRequest.getLastName());
         registrant.setSuffix(rapidPassRequest.getSuffix());
         registrant.setEmail(rapidPassRequest.getEmail());
-        registrant.setMobile(rapidPassRequest.getMobileNumber());
+        registrant.setMobile(mobileNumber);
         registrant.setReferenceIdType(rapidPassRequest.getIdType());
         registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
+        registrant.setDateTimeUpdated(now);
 
         // create/update registrant
         registrant.setRegistrarId(0);
@@ -167,6 +176,14 @@ public class RegistryService {
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
+    }
+
+    private void normalizeIdMobileAndPlateNumber(RapidPassRequest rapidPassRequest) {
+        if (rapidPassRequest.getPlateNumber() != null) {
+            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
+        }
+        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
+        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
     public RapidPassPageView findRapidPass(QueryFilter q) {
@@ -503,7 +520,7 @@ public class RegistryService {
         List<String> passes = new ArrayList<String>();
 
         // Validation
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
 
         RapidPass pass;
         int counter = 1;
@@ -513,7 +530,8 @@ public class RegistryService {
                 RapidPassRequest request = RapidPassRequest.buildFrom(r);
                 request.setSource(RecordSource.BULK.toString());
 
-                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+                normalizeIdMobileAndPlateNumber(request);
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 
                 RapidPassMessage message = RapidPassMessage.newBuilder()
@@ -521,9 +539,9 @@ public class RegistryService {
                         .setCompany(r.getCompany())
                         .setControlCode("")
                         .setDestination(Address.newBuilder()
-                                .setStreet("")
-                                .setCity("")
-                                .setProvince("")
+                                .setStreet(r.getDestStreet())
+                                .setCity(r.getDestCity())
+                                .setProvince(r.getDestProvince())
                                 .build())
                         .setFirstName(r.getFirstName())
                         .setLastName(r.getLastName())
@@ -531,14 +549,14 @@ public class RegistryService {
                         .setIdType(r.getIdentifierNumber())
                         .setMobile(r.getMobileNumber())
                         .setOrigin(Address.newBuilder()
-                                .setStreet("")
-                                .setCity("")
-                                .setProvince("")
+                                .setStreet(r.getOriginStreet())
+                                .setCity(r.getOriginCity())
+                                .setProvince(r.getOriginProvince())
                                 .build())
                         .setPassType(r.getPassType())
                         .setPlateNumber(r.getPlateNumber() == null ? "NA" : r.getPlateNumber())
                         .setPreApproved(true)
-                        .setRemarks("")
+                        .setRemarks(r.getRemarks())
                         .setSource(RecordSource.BULK.name())
                         .setStatus("APPROVED")
                         .build();
