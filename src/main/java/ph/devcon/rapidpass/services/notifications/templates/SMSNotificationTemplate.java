@@ -21,6 +21,12 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
 
     @NotNull
     private PassType passType;
+    
+    /**
+     * Leave this blank if the {@link ph.devcon.rapidpass.entities.AccessPass} was granted.
+     * Supply this value if the {@link ph.devcon.rapidpass.entities.AccessPass} was declined.
+     */
+    private String reason;
 
     /**
      * Leave this blank if the {@link ph.devcon.rapidpass.entities.AccessPass} was declined.
@@ -51,12 +57,6 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
     }
 
 
-    private String shortenedName() {
-        String shortenedName = name;
-        return shortenedName;
-    }
-
-
     private boolean isGranted() {
         return !StringUtils.isEmpty(controlCode);
     }
@@ -69,13 +69,12 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
             if (StringUtils.isEmpty(url))
                 throw new IllegalArgumentException("Invalid URL: " + url);
 
-            // 150 characters without bound variables
-            String ACCESS_GRANTED = "Hi %s! Your RapidPass has been approved with control number %s. Download your QR code thru this link: %s";
-            return new Formatter().format(ACCESS_GRANTED, shortenedName(), vehiclePlateNumber, controlCode, url).toString();
+            String ACCESS_GRANTED = "Your RapidPass has been approved with control code %s for PLATE NO %s! Download your QR here: %s. DO NOT share your QR.";
+            return new Formatter().format(ACCESS_GRANTED, controlCode, vehiclePlateNumber, url).toString();
         } else {
-            // 129 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
-            return new Formatter().format(ACCESS_DECLINED, shortenedName(), RAPIDPASS_EMAIL).toString();
+
+        	String ACCESS_DECLINED = "Your RapidPass for the vehicle has been rejected. Please contact your approving agency for further inquiries.";
+            return ACCESS_DECLINED;
         }
     }
 
@@ -85,13 +84,12 @@ public class SMSNotificationTemplate implements NotificationTemplate<String> {
             if (StringUtils.isEmpty(url))
                 throw new IllegalArgumentException("Invalid URL: " + url);
 
-            // 150 characters without bound variables
-            String ACCESS_GRANTED = "Hi %s! Your RapidPass has been approved with control number %s. Download your QR code thru this link: %s";
-            return new Formatter().format(ACCESS_GRANTED, shortenedName(), controlCode, url).toString();
+            String ACCESS_GRANTED = "Your RapidPass has been approved with control number %s. Download your QR here: %s. DO NOT share your QR.";
+            return new Formatter().format(ACCESS_GRANTED, controlCode, url).toString();
         } else {
-            // 115 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
-            return new Formatter().format(ACCESS_DECLINED, shortenedName(), RAPIDPASS_EMAIL).toString();
+        	
+            String ACCESS_DECLINED = "Your RapidPass has been rejected. Please contact your approving agency for further inquiries.";
+            return new Formatter().format(ACCESS_DECLINED).toString();
         }
     }
 }

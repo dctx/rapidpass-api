@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.9] - 2020-04-10
+### Fixed
+- Updated SMS and EMAIL spiel.
+
 ## [1.1.8] - 2020-04-09
 ### Fixed
 - Fixed PDF missing a control code. 
