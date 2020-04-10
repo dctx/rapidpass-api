@@ -15,7 +15,7 @@ import ph.devcon.rapidpass.models.RapidPassRequest;
 @Slf4j
 public class KafkaProducer {
 
-    @Value("${topic.name}")
+    @Value("${topic.new-requests}")
     private String TOPIC;
 
     private final KafkaTemplate<String, RapidPassRequest> kafkaTemplate;

@@ -40,9 +40,10 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 topic:
-   name: requests
-   partitions-num: 3
-   replication-factor: 1
+  new-requests: requests
+  approval-notifications: approvals
+  partitions-num: 3
+  replication-factor: 1
 
 bulk-upload:
   process: inline # options: inline or kafka
