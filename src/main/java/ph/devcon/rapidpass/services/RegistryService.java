@@ -56,9 +56,6 @@ public class RegistryService {
             OffsetDateTime.of(2020, 4, 30, 23,
                     59, 59, 999, ZoneOffset.ofHours(8));
 
-    @Value("${topic.name}")
-    private String topic;
-
     @Value("${bulk-upload.process}")
     private String bulkUploadProcess;
 
