@@ -471,7 +471,7 @@ public class RegistryService {
 
         log.debug("Sending {} SMS/Email notification for {}", status, referenceId);
         // TODO: someday let's do this asynchronously
-        if (!bulkUploadProcess.equalsIgnoreCase("KAFKA")) {
+        if (!"KAFKA".equalsIgnoreCase(bulkUploadProcess)) {
             accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
                     .stream()
                     .findFirst()
@@ -544,7 +544,7 @@ public class RegistryService {
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 
-                if (bulkUploadProcess.equalsIgnoreCase("KAFKA")) {
+                if ("KAFKA".equalsIgnoreCase(bulkUploadProcess)) {
                     String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
                             request.getPlateNumber();
                     requestProducer.sendMessage(key, request);
