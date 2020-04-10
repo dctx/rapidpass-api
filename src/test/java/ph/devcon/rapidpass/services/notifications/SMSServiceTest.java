@@ -43,7 +43,6 @@ public class SMSServiceTest {
     }
 
     @Test
-    @Disabled // TODO FIXME
     public void testSmsFormatting_INDIVIDUAL() {
 
         SMSNotificationTemplate template = SMSNotificationTemplate.builder()
@@ -55,26 +54,24 @@ public class SMSServiceTest {
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your RapidPass has been approved! Your RapidPass control number is 1234. You can also download your QR code on RapidPass.ph by following this link: https://www.google.com"));
+        assertThat(message, equalTo("Your RapidPass has been approved with control number 1234. Download your QR here: https://www.google.com. DO NOT share your QR."));
     }
 
 
     @Test
-    @Disabled // TODO FIXME
     public void testSmsFormatting_failIndividual() {
 
         SMSNotificationTemplate template = SMSNotificationTemplate.builder()
-                .name("Darren")
+        		.reason("incomplete field/s")
                 .passType(PassType.INDIVIDUAL)
                 .build();
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
+        assertThat(message, equalTo("Your RapidPass has been rejected. Please contact your approving agency for further inquiries."));
     }
 
     @Test
-    @Disabled // FIXME
     public void testSmsFormatting_VEHICLE() {
 
         SMSNotificationTemplate template = SMSNotificationTemplate.builder()
@@ -87,21 +84,20 @@ public class SMSServiceTest {
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your RapidPass has been approved for PLATE NO ABC 1234! Your RapidPass control number is 1234. You can download your QR code on rapidpass.ph by following this link: https://www.google.com"));
+        assertThat(message, equalTo("Your RapidPass has been approved with control code 1234 for PLATE NO ABC 1234! Download your QR here: https://www.google.com. DO NOT share your QR."));
     }
 
     @Test
     public void testSmsFormatting_failVehicle() {
 
         SMSNotificationTemplate template = SMSNotificationTemplate.builder()
-                .name("Darren")
-                .vehiclePlateNumber("ABC 1234")
-                .passType(PassType.VEHICLE)
+        		.vehiclePlateNumber("ABC 1234")
+        		.passType(PassType.VEHICLE)
                 .build();
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
+        assertThat(message, equalTo("Your RapidPass for the vehicle has been rejected. Please contact your approving agency for further inquiries."));
     }
 
     @Test

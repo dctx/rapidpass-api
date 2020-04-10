@@ -66,7 +66,7 @@ public class EmailServiceTest{
 
 
     @Test
-    public void testSmsFormatting_INDIVIDUAL() {
+    public void testEmailFormatting_INDIVIDUAL() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
                 .passType(PassType.INDIVIDUAL)
@@ -75,26 +75,26 @@ public class EmailServiceTest{
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this link: https://www.google.com"));
+        assertThat(message, equalTo("Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this https://www.google.com. Please DO NOT share your QR code."));
     }
 
 
     @Test
-    public void testSmsFormatting_failIndividual() {
+    public void testEmailFormatting_failIndividual() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
                 .name("Darren")
-                .reason("Arbitrary reason here")
+                .reason("incomplete field/s")
                 .passType(PassType.INDIVIDUAL)
                 .build();
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
+        assertThat(message, equalTo("Your entry has been rejected due to incomplete field/s. Please contact your approving agency for further inquiries."));
     }
 
     @Test
-    public void testSmsFormatting_VEHICLE() {
+    public void testEmailFormatting_VEHICLE() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
                 .passType(PassType.VEHICLE)
@@ -103,25 +103,24 @@ public class EmailServiceTest{
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this link: https://www.google.com"));
+        assertThat(message, equalTo("Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this https://www.google.com. Please DO NOT share your QR code."));
     }
 
     @Test
-    public void testSmsFormatting_failVehicle() {
+    public void testEmailFormatting_failVehicle() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
-                .name("Darren")
-                .reason("Arbitrary reason here")
-                .passType(PassType.VEHICLE)
+        		.passType(PassType.VEHICLE)
+        		.reason("incomplete field/s")
                 .build();
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Hi, Darren. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
+        assertThat(message, equalTo("Your entry for your vehicle has been rejected due to incomplete field/s.  Please contact your approving agency for further inquiries."));
     }
 
     @Test
-    public void failSmsFormatting_missingParameterForVehicle() {
+    public void failEmailFormatting_missingParameterForVehicle() {
 
         EmailNotificationTemplate template = EmailNotificationTemplate.builder()
                 .passType(PassType.INDIVIDUAL)
