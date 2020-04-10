@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.enums.RegistrarUserStatus;
 import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
@@ -93,10 +94,17 @@ public class ApproverAuthService {
             log.warn("unregistered user attempted to login");
             return null;
         }
+        if (!registrarUser.isAccountNonLocked()) {
+            throw new AccountLockedException("Account has been locked due to too many failed login attempts");
+        }
+
         final String hashedPassword = registrarUser.getPassword();
 
         final boolean isPasswordCorrect = passwordCompare(hashedPassword, password);
+
         if (isPasswordCorrect) {
+            registrarUser.setLoginAttempts(0);
+
             final Map<String, Object> claims = new HashMap<>();
             claims.put("sub", username);
             claims.put("group", GROUP_NAME);
@@ -105,6 +113,19 @@ public class ApproverAuthService {
             final String token = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(GROUP_NAME));
             return AgencyAuth.builder().accessCode(token).build();
         }
+
+        // TODO: System setting for login attempts
+        if (registrarUser.getLoginAttempts() < 10) {
+            registrarUser.setLoginAttempts(registrarUser.getLoginAttempts() + 1);
+
+            if (registrarUser.getLoginAttempts() == 10) {
+                log.warn("Registrar User `{}` has been locked due to {} failed login attempts", registrarUser.getUsername(), 10);
+                registrarUser.setAccountNonLocked(false);
+            }
+        }
+
+        registrarUserRepository.save(registrarUser);
+
         return null;
     }
 
