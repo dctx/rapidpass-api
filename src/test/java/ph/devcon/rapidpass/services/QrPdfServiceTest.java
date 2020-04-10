@@ -17,7 +17,6 @@ import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.services.controlcode.ControlCodeServiceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -105,11 +104,15 @@ class QrPdfServiceTest {
         when(controlCodeService.findAccessPassByControlCode(anyString()))
                 .thenReturn(accessPass);
 
-        when(controlCodeService.encode(anyInt())).thenReturn(accessPass.getControlCode());
+        when(controlCodeService.encode(anyInt())).thenReturn(controlCode);
+
+        when(controlCodeService.bindControlCodeForAccessPass(any())).thenReturn(
+                accessPass
+        );
 
 //        when(this.qrGenService.generateQr(any())).thenReturn(new byte[]{ 0, 1, 0, 1, 0 });
 
-        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
+        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(controlCode)).toByteArray();
 
 
         assertThat(bytes.length, is(greaterThan(0)));
@@ -142,10 +145,14 @@ class QrPdfServiceTest {
         when(controlCodeService.findAccessPassByControlCode(any()))
                 .thenReturn(accessPass);
 
+        when(controlCodeService.bindControlCodeForAccessPass(any())).thenReturn(
+                accessPass
+        );
+
         when(controlCodeService.encode(anyInt()))
                 .thenReturn(controlCode);
 
-        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(accessPass.getControlCode())).toByteArray();
+        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(controlCode)).toByteArray();
         writeBytesForVisualInspection(bytes);
 
         assertThat(bytes.length, is(greaterThan(0)));

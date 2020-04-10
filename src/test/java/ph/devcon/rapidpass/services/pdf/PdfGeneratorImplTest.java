@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.service.pdf;
+package ph.devcon.rapidpass.services.pdf;
 
 import com.google.zxing.WriterException;
 import org.bouncycastle.util.encoders.Hex;
@@ -11,7 +11,6 @@ import ph.devcon.dctx.rapidpass.commons.Signer;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
-import ph.devcon.rapidpass.services.pdf.PdfGeneratorImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
@@ -108,11 +107,13 @@ class PdfGeneratorImplTest {
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(INDIVIDUAL)
-                .name("Jonas Jose Almendras Domingo Whose Name is Very Very Long")
+                .name("José Protasio Rizal Mercado y Alonso Realonda")
                 .idType("Driver's License")
                 .identifierNumber("N01-234235345")
                 .aporType("NR")
-                .company("Banco ng Pilipinas Incorporated Which Could Be Very Long")
+                .originCity("Marikina City")
+                .destCity("Paranaque City")
+                .company("Kataas-taasang, Kagalang-galangang Katipunan")
                 .controlCode("3J12K5AV")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)
@@ -155,12 +156,14 @@ class PdfGeneratorImplTest {
 
         RapidPass mockRapidPassData = RapidPass.builder()
                 .passType(VEHICLE)
-                .name("Jonas Jose Almendras Domingo")
+                .name("José Protasio Rizal Mercado y Alonso Realonda")
                 .controlCode("3J12K5AV")
                 .idType("CND")
                 .identifierNumber("N923421")
                 .plateNumber("N923421")
                 .aporType("NR")
+                .originCity("Marikina City")
+                .destCity("Paranaque City")
                 .company("Bank of the Philippines")
                 .validFrom(formattedStart)
                 .validUntil(formattedEnd)

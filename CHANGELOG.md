@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.8] - 2020-04-09
+### Fixed
+- Fixed PDF missing a control code. 
+
+## [1.1.7] - 2020-04-09
+### Changed
+- Updated new PDF single-page design (individual has two copies which is in 1/4 of A4, vehicle uses half page).
+
+## [1.1.6] - 2020-04-09
+### Fixed
+- QR Code generation now utilises `plateNumber` as id for vehicles (uses `identifierNumber` before).
+
 ## [1.1.5] - 2020-04-09
 ### Changed
 - Updated APOR seed data in Lookup Table
@@ -13,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bulk upload no longer rejects records if duplicate requests 
 - Bulk upload now sends message to a kafka topic called 'requests' instead of directly updating the RapidPass database 
 
-## [1.1.4] - PDF Redesign
+## [1.1.4] - 2020-04-08
 ### Changed
 - Updated new PDF two-page design (individual has two copies, vehicle uses full page).
 

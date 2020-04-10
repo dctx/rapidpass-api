@@ -222,7 +222,7 @@ public class AccessPass implements Serializable {
                         .validUntil((int) (accessPass.getValidTo().toEpochSecond()))
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond()))
                         .controlCode(decodedControlCode)
-                        .idOrPlate(accessPass.getIdentifierNumber())
+                        .idOrPlate(accessPass.getPlateNumber())
                         .build();
     }
 
