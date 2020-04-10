@@ -27,15 +27,16 @@ spring:
           starttls:
             enable: true
   kafka:
-#    bootstrap-servers: localhost:9092
-    bootstrap-servers: rapidpass-kafka.eastasia.azurecontainer.io:9092
+    bootstrap-servers: localhost:9092
+#    bootstrap-servers: rapidpass-kafka.eastasia.azurecontainer.io:9092
     consumer:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       group-id: rapidrequest_group
     producer:
-      bootstrap-servers: rapidpass-kafka.eastasia.azurecontainer.io:9092
+      bootstrap-servers: localhost:9092
+#      bootstrap-servers: rapidpass-kafka.eastasia.azurecontainer.io:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
@@ -99,14 +100,14 @@ rbac:
         #        - endpoint: /batch/**
         #          verbs:
         #            - ALL
-        - endpoint: /registry/access-passes/**
-          verbs:
+#        - endpoint: /registry/access-passes/**
+#          verbs:
             # GET, POST being used for registration
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
-        - endpoint: /registry/access-passes
-          verbs:
-            - ALL
+#        - endpoint: /registry/access-passes
+#          verbs:
+#            - ALL
 #    - role: checkpoint
 #      resources:
 #        - endpoint: /batch/access-passes
