@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0-SNAPSHOT]
+- Bulk upload validation has been optimized to not query database if basic validation fails
+- Bulk upload no longer rejects records if duplicate requests 
+- Bulk upload can now send messages to a kafka topic called 'requests' instead of directly updating the RapidPass database
+- introduced 'bulk-upload.process' parameter to switch between kafka-based bulk upload or internal processing
+- added index on access_pass to optimize queries 
+
 ## [1.1.8] - 2020-04-09
 ### Fixed
 - Fixed PDF missing a control code. 
@@ -21,9 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.5] - 2020-04-09
 ### Changed
 - Updated APOR seed data in Lookup Table
-- Bulk upload validation has been optimized to not query database if basic validation fails
-- Bulk upload no longer rejects records if duplicate requests 
-- Bulk upload now sends message to a kafka topic called 'requests' instead of directly updating the RapidPass database 
 
 ## [1.1.4] - 2020-04-08
 ### Changed
