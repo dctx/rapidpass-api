@@ -50,13 +50,12 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
         if (isGranted()) {
             if (StringUtils.isEmpty(url)) throw new IllegalArgumentException("The URL for the QR code must be provided");
 
-            // 150 characters without bound variables
-            String ACCESS_GRANTED = "Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this link: %s";
+            String ACCESS_GRANTED = "Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this %s. Please DO NOT share your QR code.";
             return new Formatter().format(ACCESS_GRANTED, url).toString();
         } else {
-            // 129 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
-            return new Formatter().format(ACCESS_DECLINED, name, RAPIDPASS_EMAIL).toString();
+        	
+            String ACCESS_DECLINED = "Your entry for your vehicle has been rejected due to %s.  Please contact your approving agency for further inquiries.";
+            return new Formatter().format(ACCESS_DECLINED, reason).toString();
         }
     }
 
@@ -65,13 +64,12 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
         if (isGranted()) {
             if (StringUtils.isEmpty(url)) throw new IllegalArgumentException("The URL for the QR code must be provided");
 
-            // 150 characters without bound variables
-            String ACCESS_GRANTED = "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this link: %s";
+            String ACCESS_GRANTED = "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this %s. Please DO NOT share your QR code.";
             return new Formatter().format(ACCESS_GRANTED, url).toString();
         } else {
-            // 115 characters failed, including rapidpass email, without bound user name
-            String ACCESS_DECLINED = "Hi, %s. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code.";
-            return new Formatter().format(ACCESS_DECLINED, name, RAPIDPASS_EMAIL).toString();
+        	
+            String ACCESS_DECLINED = "Your entry has been rejected due to %s. Please contact your approving agency for further inquiries.";
+            return new Formatter().format(ACCESS_DECLINED, reason).toString();
         }
     }
 }
