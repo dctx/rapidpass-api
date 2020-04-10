@@ -10,4 +10,27 @@
             <column name="status"/>
         </createIndex>
     </changeSet>
+    <changeSet author="eric" id="20200410-1">
+        <createTable tableName="access_pass_event">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="access_pass_event_pk"/>
+            </column>
+            <column name="reference_id" type="VARCHAR(30)"/>
+            <column name="pass_type" type="VARCHAR(10)"/>
+            <column name="apor_type" type="VARCHAR(10)"/>
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="plate_number" type="VARCHAR(20)"/>
+            <column name="status" type="VARCHAR(20)"/>
+            <column name="valid_from" type="TIMESTAMP without time zone"/>
+            <column name="valid_to" type="TIMESTAMP without time zone"/>
+            <column name="event_timestamp" type="TIMESTAMP without time zone"/>
+        </createTable>
+        <createIndex tableName="access_pass_event"
+                     indexName="access_pass_event_ref_id_idx">
+            <column name="reference_id"/>
+            <column name="event_timestamp"/>
+            <column name="id"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

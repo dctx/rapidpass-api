@@ -40,8 +40,9 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 topic:
-  new-requests: requests
-  approval-notifications: approvals
+  new-requests: rapidpass-requests
+  approval-notifications: rapidpass-approvals
+  rapidpass-events: rapidpass-events
   partitions-num: 3
   replication-factor: 1
 

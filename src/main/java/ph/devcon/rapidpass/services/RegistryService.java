@@ -16,9 +16,8 @@ import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
-import ph.devcon.rapidpass.kafka.KafkaProducer;
-import ph.devcon.rapidpass.messaging.models.Address;
-import ph.devcon.rapidpass.messaging.models.RapidPassMessage;
+import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
+import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -59,7 +58,8 @@ public class RegistryService {
     @Value("${bulk-upload.process}")
     private String bulkUploadProcess;
 
-    private final KafkaProducer producer;
+    private final RapidPassRequestProducer requestProducer;
+    private final RapidPassEventProducer eventProducer;
 
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
@@ -317,7 +317,7 @@ public class RegistryService {
      * @param rapidPassRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
-    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
+    private RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPasses.size() == 0)
@@ -365,7 +365,7 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    public RapidPass grant(String referenceId) throws UpdateAccessPassException {
+    private RapidPass grant(String referenceId) throws UpdateAccessPassException {
         log.debug("APPROVING refId {}", referenceId);
         RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
@@ -465,8 +465,10 @@ public class RegistryService {
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
-        log.debug("Sending out notifs for {}", referenceId);
-        // push APPROVED/DENIED notifications.
+        log.debug("Sending {} event for {}", status, referenceId);
+        eventProducer.sendMessage(referenceId, updatedRapidPass);
+
+        log.debug("Sending {} SMS/Email notification for {}", status, referenceId);
         // TODO: someday let's do this asynchronously
         accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
                 .stream()
@@ -540,7 +542,7 @@ public class RegistryService {
                 if (bulkUploadProcess.equalsIgnoreCase("KAFKA")) {
                     String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
                             request.getPlateNumber();
-                    producer.sendMessage(key, request);
+                    requestProducer.sendMessage(key, request);
 
                     passes.add("Record " + counter++ + ": Processed. ");
                 } else {
