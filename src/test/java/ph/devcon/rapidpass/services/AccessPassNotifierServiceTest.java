@@ -119,7 +119,7 @@ class AccessPassNotifierServiceTest {
         assertThat(notificationMessage.getMessage(), is(
                 "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a" +
                         " printable file that you can use at the checkpoint. " +
-                        "You can download your QR code on RapidPass.ph by following this link: a-test-url.com"));
+                        "You can download your QR code on RapidPass.ph by following this a-test-url.com. Please DO NOT share your QR code."));
         assertThat(notificationMessage.getTitle(), is("RapidPass is APPROVED"));
 
     }
@@ -128,13 +128,13 @@ class AccessPassNotifierServiceTest {
     @Test
     void buildDeclinedEmailMessage() {
         final NotificationMessage declinedMessage = instance.buildDeclinedEmailMessage(PassType.INDIVIDUAL, "my-email.com", "Jonas", "blue balls");
-        assertThat(declinedMessage.getMessage(), is("Hi, Jonas. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
+        assertThat(declinedMessage.getMessage(), is("Your entry has been rejected due to blue balls. Please contact your approving agency for further inquiries."));
     }
 
     @Test
     void buildDeclinedSmsMessage() {
         final NotificationMessage declinedSms = instance.buildDeclinedSmsMessage(PassType.INDIVIDUAL, "091579123", "Jonas", "1234567234");
-        assertThat(declinedSms.getMessage(), is("Hi, Jonas. Your entry has been rejected due to incomplete field/s. Please register individually via RapidPass.ph to get your QR code."));
+        assertThat(declinedSms.getMessage(), is("Your RapidPass has been rejected. Please contact your approving agency for further inquiries."));
     }
 
     @Test
