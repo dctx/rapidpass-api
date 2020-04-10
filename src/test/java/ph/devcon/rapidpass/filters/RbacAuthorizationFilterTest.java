@@ -79,11 +79,7 @@ class RbacAuthorizationFilterTest {
 
             // do test configuration
             http.addFilterAfter(rbacAuthorizationFilter, AbstractPreAuthenticatedProcessingFilter.class)
-                    .addFilterBefore(mockAuthenticationFilter, RbacAuthorizationFilter.class)
-                    .authorizeRequests()
-                    .mvcMatchers("/unsecure").permitAll() // set unsecured to unsecure
-                    .anyRequest()
-                    .authenticated();
+                    .addFilterBefore(mockAuthenticationFilter, RbacAuthorizationFilter.class);
         }
 
         @GetMapping("/unsecure")
