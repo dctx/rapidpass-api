@@ -56,7 +56,7 @@ public class RegistryService {
                     59, 59, 999, ZoneOffset.ofHours(8));
 
     @Value("${bulk-upload.process}")
-    private String bulkUploadProcess;
+    protected String bulkUploadProcess;
 
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
