@@ -33,7 +33,7 @@ class SimpleRbacConfigTest {
     @Test
     void getRbacRoleMatch_01() {
         final List<SimpleRbacConfig.RbacRole> test =
-                simpleRbacConfig.getRbacRoleMatch("/registry/access-passes/12345", "DELETE");
+                simpleRbacConfig.getRbacRoleMatch("/test/registry/access-passes/12345", "DELETE");
         assertThat(test.get(0).getRole(), is("approver"));
 
 
@@ -43,7 +43,7 @@ class SimpleRbacConfigTest {
     @Test
     void getRbacRoleMatch_02() {
         final List<SimpleRbacConfig.RbacRole> test =
-                simpleRbacConfig.getRbacRoleMatch("/registry/access-passes", "GET");
+                simpleRbacConfig.getRbacRoleMatch("/test/registry/access-passes", "GET");
         assertThat(test, is(not(empty())));
         assertThat(test.get(0).getRole(), is("approver"));
     }
@@ -51,7 +51,7 @@ class SimpleRbacConfigTest {
     @Test
     void getRbacRoleMatch_03() {
         final List<SimpleRbacConfig.RbacRole> test =
-                simpleRbacConfig.getRbacRoleMatch("/registry/access-passes/12345", "GET");
+                simpleRbacConfig.getRbacRoleMatch("/test/registry/access-passes/12345", "GET");
         assertThat("GET /registry/access-passes/12345 should be public", test, is(empty()));
 
     }
