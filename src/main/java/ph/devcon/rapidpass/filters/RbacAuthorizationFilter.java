@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.filters;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,12 @@ public class RbacAuthorizationFilter extends OncePerRequestFilter {
     private final SimpleRbacConfig simpleRbacConfig;
 
     /**
+     * Set security.enabled to true to enable secured this configuration. Defaults to false for developer convenience
+     */
+    @Value("${security.enabled:false}")
+    private boolean securityEnabled = false;
+
+    /**
      * @param request          request match roles
      * @param simpleRbacConfig rbac config used for roles
      * @return all configured roles that covers the request
@@ -76,6 +83,12 @@ public class RbacAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         log.debug("RbacAuthorizationFilter called.");
+
+        if (!securityEnabled) {
+            log.warn("Security is currently disabled! security.enabled: false");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // get all configured roles that covers the request
         final List<RbacRole> authorizedRoles = getEndpointRbacRoles(request, simpleRbacConfig);

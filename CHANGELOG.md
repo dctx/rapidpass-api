@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.9] - 2020-04-10
 ### Fixed
+- RBAC on `GET /registry/access-passes`
 - Updated SMS and EMAIL spiel.
 
 ## [1.1.8] - 2020-04-09

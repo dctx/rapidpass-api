@@ -60,8 +60,18 @@ rbac:
         - endpoint: /approver/**
           verbs:
             - ALL
+        - endpoint: /test/registry/access-passes/?**
+          verbs:
+            # GET, POST being used for registration
+            - PUT # APPROVE/DENY
+            - DELETE # APPROVE/DENY
+        - endpoint: /test/registry/access-passes
+          verbs:
+            - ALL
     - role: checkpoint
       resources:
         - endpoint: /checkpoint/**
           verbs:
             - ALL
+
+security.enabled: true
