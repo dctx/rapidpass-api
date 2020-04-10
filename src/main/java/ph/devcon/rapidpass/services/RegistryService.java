@@ -92,6 +92,7 @@ public class RegistryService {
         validation.validate(rapidPassRequest);
 
         RapidPass rapidPass = persistAccessPass(rapidPassRequest, AccessPassStatus.PENDING);
+        eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
 
         return rapidPass;
     }
