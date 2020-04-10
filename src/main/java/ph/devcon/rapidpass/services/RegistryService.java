@@ -510,7 +510,9 @@ public class RegistryService {
         accessPass.setStatus(AccessPassStatus.SUSPENDED.toString());
         accessPassRepository.saveAndFlush(accessPass);
 
-        return RapidPass.buildFrom(accessPass);
+        RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+        eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
+        return rapidPass;
     }
 
 
