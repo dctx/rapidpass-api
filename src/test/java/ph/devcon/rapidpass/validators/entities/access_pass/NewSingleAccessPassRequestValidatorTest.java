@@ -16,7 +16,7 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -154,7 +154,7 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfMissingPlateNumberIfVehicle() {
 
-    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE pass type is vehicle, and plate number is missing ----
         rapidPassRequest = RapidPassRequest.builder()
@@ -222,7 +222,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-I", "IATF")),
                         new LookupTable(new LookupTablePK("IDTYPE-I", "COM"))
-                        ))
+                ))
         );
 
         when(lookupTableService.getVehicleIdTypes()).thenReturn(
@@ -272,11 +272,11 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         assertThat(errors, hasItem(containsString("An existing PENDING/APPROVED RapidPass already exists")));
     }
-    
+
     @Test
     public void failIfIncorrectMobileNumberFormat() {
-   
-    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
+
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()

@@ -63,7 +63,7 @@ class AuthServiceTest {
 
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrar);
         // no existing user
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(Collections.emptyList());
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
 
         try {
             this.authService.createAgencyCredentials(user);

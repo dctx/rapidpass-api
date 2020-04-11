@@ -22,7 +22,8 @@ import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
-import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.BaseAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.agency_user.NewAgencyUserValidator;
 
 import javax.validation.constraints.NotEmpty;

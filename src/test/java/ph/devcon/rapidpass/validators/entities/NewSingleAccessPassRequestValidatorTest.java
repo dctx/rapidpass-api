@@ -16,7 +16,7 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
 import java.util.Collections;
 import java.util.List;
