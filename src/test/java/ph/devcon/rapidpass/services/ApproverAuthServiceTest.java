@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.services;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.DecoderException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,13 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,30 +51,37 @@ class ApproverAuthServiceTest {
         final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
 
         // has registrar
-        final Registrar registrarId = new Registrar();
-        when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrarId);
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setShortName(registrar);
+        mockRegistrar.setId(5);
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setRegistrarId(mockRegistrar);
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(password);
+
+        final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
+
+        when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
         // no existing user
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(
+                ImmutableList.of()
+        );
 
         try {
-            this.approverAuthService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(agencyUser);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         }
 
         final ArgumentCaptor<RegistrarUser> argCaptor = ArgumentCaptor.forClass(RegistrarUser.class);
-        verify(this.registrarUserRepository).save(argCaptor.capture());
+        verify(this.registrarUserRepository).saveAndFlush(argCaptor.capture());
 
         final RegistrarUser capturedEntity = argCaptor.getValue();
         assertEquals(capturedEntity.getUsername(), username);
-        assertEquals(capturedEntity.getRegistrarId(), registrarId);
+        assertEquals(capturedEntity.getRegistrarId(), mockRegistrar);
         assertNotNull(capturedEntity.getPassword(), password);
         assertNotEquals(capturedEntity.getPassword(), "");
         assertNotEquals(capturedEntity.getPassword(), password);
@@ -90,24 +92,30 @@ class ApproverAuthServiceTest {
         final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
 
         // has registrar
-        final Registrar registrarId = new Registrar();
-        when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrarId);
-        // has existing user
-        final RegistrarUser existingUser = new RegistrarUser();
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(users);
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setShortName(registrar);
+        mockRegistrar.setId(5);
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setRegistrarId(mockRegistrar);
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(password);
+
+        final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
+
+        // has registrar
+        when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
+
+        final List<RegistrarUser> existingRegistrarUsers = new ArrayList<>();
+        existingRegistrarUsers.add(registrarUser);
+
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(existingRegistrarUsers);
 
         boolean captured = false;
         try {
-            this.approverAuthService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(agencyUser);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         } catch (IllegalArgumentException e) {
@@ -115,6 +123,36 @@ class ApproverAuthServiceTest {
         }
 
         assertTrue(captured, "should throw illegalargument");
+    }
+
+    @Test
+    void testCreateUsernameAlreadyExists() {
+        final String registrar = "DOH";
+        final String username = "username";
+        final String password = "password";
+
+        // has registrar
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setShortName(registrar);
+        mockRegistrar.setId(5);
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setRegistrarId(mockRegistrar);
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(password);
+
+        final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
+
+        when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
+        // no existing user
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(
+                ImmutableList.of(registrarUser)
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            this.approverAuthService.createAgencyCredentials(agencyUser);
+        });
+
     }
 
     @Test
