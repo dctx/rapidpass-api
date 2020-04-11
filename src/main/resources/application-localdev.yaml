@@ -25,6 +25,26 @@ spring:
           auth: true
           starttls:
             enable: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: rapidrequest_group
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  topic:
+    name: requests
+    partitions-num: 3
+    replication-factor: 1
+
+kafka:
+  enabled: false # enables or disables kafka event processing
+
 springfox:
   documentation:
     swagger:

@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
+import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -59,12 +61,19 @@ class RegistryServiceTest {
 
     @Mock LookupTableService lookupTableService;
 
+    @Mock
+    RapidPassEventProducer eventProducer;
+
+    @Mock
+    RapidPassRequestProducer requestProducer;
+
     private OffsetDateTime now;
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
+        instance = new RegistryService(requestProducer, eventProducer, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
+        instance.isKafaEnabled=false;
         now = OffsetDateTime.now();
     }
 
@@ -79,6 +88,7 @@ class RegistryServiceTest {
                     .plateNumber("ABC4321")
                     .mobileNumber("09662016319")
                     .email("jonas.was.here@gmail.com")
+                    .originStreet("origin street")
                     .destCity("Somewhere in the PH")
                     .company("DEVCON")
                     .aporType("AG")

@@ -27,6 +27,12 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     List<AccessPass> findAllByReferenceIDAndStatusAndValidToAfter(String referenceId, String status,
                                                                   OffsetDateTime validTo);
 
+    List<AccessPass> findAllByReferenceIDAndPassTypeAndStatusAndValidToAfter(String referenceId, String passType,
+                                                                             String status, OffsetDateTime validTo);
+
+    List<AccessPass> findAllByReferenceIDAndPassTypeAndValidToAfterAndStatusIn(String referenceId, String passType,
+                                                                               OffsetDateTime validTo, List<String> statuses);
+
     AccessPass findByPassTypeAndIdentifierNumber(String passType, String identifierNumber);
     
     Page<AccessPass> findAllByStatus(Pageable page,String status);

@@ -26,6 +26,30 @@ spring:
           auth: true
           starttls:
             enable: true
+  kafka:
+    bootstrap-servers: localhost:9092
+#    bootstrap-servers: rapidpass-kafka.eastasia.azurecontainer.io:9092
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: rapidrequest_group
+    producer:
+      bootstrap-servers: localhost:9092
+#      bootstrap-servers: rapidpass-kafka.eastasia.azurecontainer.io:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+topic:
+  new-requests: rapidpass-requests
+  approval-notifications: rapidpass-approvals
+  rapidpass-events: rapidpass-events
+  partitions-num: 3
+  replication-factor: 1
+
+kafka:
+  enabled: true # enables or disables kafka event processing
+
 springfox:
   documentation:
     swagger:
@@ -78,7 +102,8 @@ rbac:
         #            - ALL
         - endpoint: /registry/access-passes/?**
           verbs:
-            # GET, POST being used for registration
+            - GET # used for registration
+            - POST # used for registration
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
         - endpoint: /registry/access-passes
@@ -98,6 +123,9 @@ rbac:
 #        - endpoint: /registry/scanner-devices/**
 #          verbs:
 #            - ALL
+
+security:
+  enabled: false
 
 logging:
   level:

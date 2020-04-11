@@ -3,6 +3,8 @@ package ph.devcon.rapidpass.services;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,8 @@ import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
+import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
+import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -22,11 +26,14 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.NewAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -34,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 
@@ -43,6 +51,15 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 7;
+    public static final OffsetDateTime DEFAULT_EXPIRATION_DATE =
+            OffsetDateTime.of(2020, 4, 30, 23,
+                    59, 59, 999, ZoneOffset.ofHours(8));
+
+    @Value("${kafka.enabled:false}")
+    protected boolean isKafaEnabled;
+
+    private final RapidPassRequestProducer requestProducer;
+    private final RapidPassEventProducer eventProducer;
 
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
@@ -55,39 +72,46 @@ public class RegistryService {
     /**
      * Creates a new {@link RapidPass} with PENDING status.
      *
-     * @see <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64">documentation</a> on the flow.
-     *
-     * @throws IllegalArgumentException If the plate number is empty and the pass type is for a vehicle
-     * @throws IllegalArgumentException Attempting to create a new access pass while an existing pending or approved pass exists
      * @param rapidPassRequest rapid passs request.
      * @return new rapid pass with PENDING status
+     * @throws IllegalArgumentException If the plate number is empty and the pass type is for a vehicle
+     * @throws IllegalArgumentException Attempting to create a new access pass while an existing pending or approved pass exists
+     * @see <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64">documentation</a> on the flow.
      */
     @Transactional
     public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
-        // see
-        OffsetDateTime now = OffsetDateTime.now();
+
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
         // normalize id, plate number and mobile number
-        if (rapidPassRequest.getPlateNumber() != null) {
-            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
-        }
-        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
-        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
+        normalizeIdMobileAndPlateNumber(rapidPassRequest);
 
         // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
         NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
 
+        RapidPass rapidPass = persistAccessPass(rapidPassRequest, AccessPassStatus.PENDING);
+        if (isKafaEnabled)
+            eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
+
+        return rapidPass;
+    }
+
+    private RapidPass persistAccessPass(RapidPassRequest rapidPassRequest, AccessPassStatus status) {
+
+        OffsetDateTime now = OffsetDateTime.now();
+
         // check if registrant is already in the system
-        Registrant registrant = registrantRepository.findByMobile(rapidPassRequest.getMobileNumber());
+        @NotEmpty String mobileNumber = "0" + StringUtils.right(rapidPassRequest.getMobileNumber(), 10);
+        Registrant registrant = registrantRepository.findByMobile(mobileNumber);
         if (registrant == null) {
             registrant = new Registrant();
+            registrant.setDateTimeCreated(now);
         } else {
             // check for consistency
             if (!registrant.getFirstName().equals(rapidPassRequest.getFirstName()) ||
-            !registrant.getLastName().equals(rapidPassRequest.getLastName())) {
+                    !registrant.getLastName().equals(rapidPassRequest.getLastName())) {
                 // we will allow name change for now, just log the change
                 log.warn("Review registrant name change:.\n- previous: {}.\n- new: {}",
                         registrant.toString(), rapidPassRequest.toString());
@@ -101,9 +125,10 @@ public class RegistryService {
         registrant.setLastName(rapidPassRequest.getLastName());
         registrant.setSuffix(rapidPassRequest.getSuffix());
         registrant.setEmail(rapidPassRequest.getEmail());
-        registrant.setMobile(rapidPassRequest.getMobileNumber());
+        registrant.setMobile(mobileNumber);
         registrant.setReferenceIdType(rapidPassRequest.getIdType());
         registrant.setReferenceId(rapidPassRequest.getIdentifierNumber());
+        registrant.setDateTimeUpdated(now);
 
         // create/update registrant
         registrant.setRegistrarId(0);
@@ -121,7 +146,7 @@ public class RegistryService {
         AccessPass accessPass = new AccessPass();
 
         accessPass.setRegistrantId(registrant);
-        accessPass.setReferenceID( rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
+        accessPass.setReferenceID(rapidPassRequest.getPassType().equals(PassType.INDIVIDUAL) ?
                 registrant.getMobile() : rapidPassRequest.getPlateNumber());
         accessPass.setPassType(rapidPassRequest.getPassType().toString());
         accessPass.setAporType(rapidPassRequest.getAporType());
@@ -143,19 +168,31 @@ public class RegistryService {
         accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
         accessPass.setDestinationCity(rapidPassRequest.getDestCity());
         accessPass.setDestinationProvince(rapidPassRequest.getDestProvince());
-        // just set the validity period to today until the request is approved
-        accessPass.setValidFrom(now);
-        accessPass.setValidTo(now);
         accessPass.setDateTimeCreated(now);
         accessPass.setDateTimeUpdated(now);
         accessPass.setRemarks(rapidPassRequest.getRemarks());
         accessPass.setSource(rapidPassRequest.getSource());
-        accessPass.setStatus("PENDING");
+        accessPass.setStatus(status.name());
+        accessPass.setValidFrom(now);
+        if (status == AccessPassStatus.PENDING) {
+            // just set the validity period to today until the request is approved
+            accessPass.setValidTo(now);
+        } else if (status == AccessPassStatus.APPROVED) {
+            accessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+        }
 
         log.debug("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
+    }
+
+    private void normalizeIdMobileAndPlateNumber(RapidPassRequest rapidPassRequest) {
+        if (rapidPassRequest.getPlateNumber() != null) {
+            rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
+        }
+        rapidPassRequest.setMobileNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getMobileNumber()));
+        rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
     public RapidPassPageView findRapidPass(QueryFilter q) {
@@ -193,27 +230,25 @@ public class RegistryService {
                 .build();
     }
 
-    public Page<RapidPass> findAllApprovedOrSuspendedRapidPassAfter(OffsetDateTime lastUpdatedOn, Pageable page)
-    {
+    public Page<RapidPass> findAllApprovedOrSuspendedRapidPassAfter(OffsetDateTime lastUpdatedOn, Pageable page) {
         final Page<AccessPass> pagedAccessPasses = accessPassRepository.findAllApprovedAndSuspendedSince(lastUpdatedOn, page);
         Function<List<AccessPass>, List<RapidPass>> collectionTransform = accessPasses -> accessPasses.stream()
-            .map(RapidPass::buildFrom)
-            .collect(Collectors.toList());
+                .map(RapidPass::buildFrom)
+                .collect(Collectors.toList());
 
         return PageableExecutionUtils.getPage(
-            collectionTransform.apply(pagedAccessPasses.getContent()),
-            page,
-            pagedAccessPasses::getTotalElements);
+                collectionTransform.apply(pagedAccessPasses.getContent()),
+                page,
+                pagedAccessPasses::getTotalElements);
     }
 
-    public RapidPassBulkData findAllApprovedSince(OffsetDateTime lastUpdatedOn, Pageable page)
-    {
+    public RapidPassBulkData findAllApprovedSince(OffsetDateTime lastUpdatedOn, Pageable page) {
         Page<AccessPass> dataPage = accessPassRepository
                 .findAllByStatusAndDateTimeUpdatedIsAfter(AccessPassStatus.APPROVED.name(), lastUpdatedOn, page);
 
         List<?> columnNames = RapidPassBulkData.getColumnNames();
 
-        List<Object> columnValues =  dataPage.stream()
+        List<Object> columnValues = dataPage.stream()
                 // Since these are all approved, we may bind the control codes for them.
                 .map(controlCodeService::bindControlCodeForAccessPass)
                 .map(RapidPassBulkData::values)
@@ -231,7 +266,7 @@ public class RegistryService {
                 .data(dataRecords)
                 .build();
 
-        return  rapidPassBulkData;
+        return rapidPassBulkData;
     }
 
     public Iterable<ControlCode> getControlCodes() {
@@ -284,7 +319,7 @@ public class RegistryService {
      * @param rapidPassRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
-    public RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
+    private RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPasses.size() == 0)
@@ -332,7 +367,7 @@ public class RegistryService {
         return RapidPass.buildFrom(savedAccessPass);
     }
 
-    public RapidPass grant(String referenceId) throws UpdateAccessPassException {
+    private RapidPass grant(String referenceId) throws UpdateAccessPassException {
         log.debug("APPROVING refId {}", referenceId);
         RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
@@ -342,13 +377,11 @@ public class RegistryService {
 
             // is it April 30 yet?
             OffsetDateTime now = OffsetDateTime.now();
-            OffsetDateTime aprilThirty = OffsetDateTime.of(2020,4,30,23,59,
-                    59,99999, ZoneOffset.ofHours(8));
             OffsetDateTime validUntil = now;
-            if (OffsetDateTime.now().isAfter(aprilThirty)) {
+            if (OffsetDateTime.now().isAfter(DEFAULT_EXPIRATION_DATE)) {
                 validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
             } else {
-                validUntil = aprilThirty;
+                validUntil = DEFAULT_EXPIRATION_DATE;
             }
             accessPass.setValidTo(validUntil);
             accessPass.setValidFrom(now);
@@ -371,7 +404,7 @@ public class RegistryService {
      * @param status      The status to apply
      * @return Data stored on the database
      */
-    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws RegistryService.UpdateAccessPassException {
+    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws UpdateAccessPassException {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
@@ -411,8 +444,8 @@ public class RegistryService {
     /**
      * Updates a referenceId with status of rapidPass.
      *
-     * @param referenceId reference id to update
-     * @param rapidPassStatus   object containing update status
+     * @param referenceId     reference id to update
+     * @param rapidPassStatus object containing update status
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
@@ -434,20 +467,25 @@ public class RegistryService {
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
-        log.debug("Sending out notifs for {}", referenceId);
-        // push APPROVED/DENIED notifications.
+        log.debug("Sending {} event for {}", status, referenceId);
+        if (isKafaEnabled)
+            eventProducer.sendMessage(referenceId, updatedRapidPass);
+
+        log.debug("Sending {} SMS/Email notification for {}", status, referenceId);
         // TODO: someday let's do this asynchronously
-        accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
-                .stream()
-                .findFirst()
-                .map(controlCodeService::bindControlCodeForAccessPass)
-                .ifPresent(accessPass -> {
-                    try {
-                        accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
-                    } catch (ParseException | IOException | WriterException e) {
-                        log.error("Error sending out notifications for " + accessPass, e);
-                    }
-                });
+        if (!isKafaEnabled) {
+            accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
+                    .stream()
+                    .findFirst()
+                    .map(controlCodeService::bindControlCodeForAccessPass)
+                    .ifPresent(accessPass -> {
+                        try {
+                            accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
+                        } catch (ParseException | IOException | WriterException e) {
+                            log.error("Error sending out notifications for " + accessPass, e);
+                        }
+                    });
+        }
 
 
         return updatedRapidPass;
@@ -476,7 +514,10 @@ public class RegistryService {
         accessPass.setStatus(AccessPassStatus.SUSPENDED.toString());
         accessPassRepository.saveAndFlush(accessPass);
 
-        return RapidPass.buildFrom(accessPass);
+        RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+        if (isKafaEnabled)
+            eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
+        return rapidPass;
     }
 
 
@@ -489,38 +530,77 @@ public class RegistryService {
     public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
-        List<String> passes = new ArrayList<String>();
+        List<String> passes = new ArrayList<>();
 
         // Validation
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
 
         RapidPass pass;
         int counter = 1;
-        for (RapidPassCSVdata rapidPassRequest : approvedRapidPasses) {
+        Instant start = Instant.now();
+        for (RapidPassCSVdata r : approvedRapidPasses) {
             try {
-                RapidPassRequest request = RapidPassRequest.buildFrom(rapidPassRequest);
+                RapidPassRequest request = RapidPassRequest.buildFrom(r);
                 request.setSource(RecordSource.BULK.toString());
 
-                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+                normalizeIdMobileAndPlateNumber(request);
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 
-                pass = this.newRequestPass(request);
+                if (isKafaEnabled) {
+                    String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
+                            request.getPlateNumber();
+                    requestProducer.sendMessage(key, request);
 
-                if (pass != null) {
+                    passes.add("Record " + counter++ + ": Processed. ");
+                } else {
 
-                    RapidPassStatus rapidPassStatus = RapidPassStatus.builder()
-                            .remarks(null)
-                            .status(AccessPassStatus.APPROVED)
-                            .build();
+                    String referenceId = request.getPassType().equals(PassType.INDIVIDUAL) ?
+                            request.getMobileNumber() : request.getPlateNumber();
+                    List<String> statuses = Stream.of("APPROVED", "PENDING").collect(Collectors.toList());
+                    OffsetDateTime now = OffsetDateTime.now();
+                    List<AccessPass> accessPasses = accessPassRepository
+                            .findAllByReferenceIDAndPassTypeAndValidToAfterAndStatusIn(referenceId,
+                                    request.getPassType().name(), now, statuses);
 
-                    updateAccessPass(pass.getReferenceId(), rapidPassStatus);
+                    if (accessPasses.isEmpty()) {
+                        // no existing approved or pending requests, add a pre-approved request
+                        pass = persistAccessPass(request, AccessPassStatus.APPROVED);
 
+                        if (pass == null) {
+                            throw new Exception("Unable to create new Access Pass.");
+                        }
+                    } else  if (accessPasses.stream().filter(a -> "APPROVED".equalsIgnoreCase(a.getStatus())).count() > 0) {
+                        // there is already an approved and valid access pass with the same reference id and pass type
+                        throw new Exception("Duplicate (Approved) Access Pass found.");
+                    } else {
+                        // there are at least 1 pending request, this should not happen
+                        // only 1 pending request per pass type and reference id should be in the system
+                        if (accessPasses.size() > 1) {
+                            log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
+                                    request.getPassType().name(), referenceId);
+                        }
+                        // let's approve all pending requests with the same reference id and pass type
+                        for (AccessPass accessPass: accessPasses) {
+                            accessPass.setValidFrom(now);
+                            if (now.isAfter(DEFAULT_EXPIRATION_DATE)) {
+                                accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
+                            } else {
+                                accessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+                            }
+                            accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
+                            accessPassRepository.saveAndFlush(accessPass);
+                        }
+                    }
                     passes.add("Record " + counter++ + ": Success. ");
+
                 }
-            } catch ( Exception e ) {
+            } catch (Exception e) {
+                log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
                 passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
             }
         }
+        log.info("Execution time: {} seconds", Duration.between(start, Instant.now()).toMillis() / 1000);
         return passes;
     }
 

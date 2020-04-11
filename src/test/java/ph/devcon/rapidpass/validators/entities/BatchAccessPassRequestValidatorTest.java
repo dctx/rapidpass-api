@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class NewAccessPassRequestValidatorTest {
+public class BatchAccessPassRequestValidatorTest {
 
     @Mock
     LookupTableService lookupTableService;
@@ -72,30 +72,37 @@ public class NewAccessPassRequestValidatorTest {
 
         // ---- CASE already has one existing access pass, but it is declined ----
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        AccessPass.builder()
-                                .referenceID("DEF 456")
-                                .status(AccessPassStatus.DECLINED.toString())
-                                .aporType("AG")
-                                .plateNumber("DEF 456")
-                                .build()
-                ))
-        );
+//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
+//                Collections.unmodifiableList(Lists.newArrayList(
+//                        AccessPass.builder()
+//                                .referenceID("DEF 456")
+//                                .status(AccessPassStatus.DECLINED.toString())
+//                                .aporType("AG")
+//                                .plateNumber("DEF 456")
+//                                .build()
+//                ))
+//        );
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
                 .idType("PLT")
+                .aporType("AG")
+                .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
                 .passType(PassType.VEHICLE)
                 .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -110,17 +117,22 @@ public class NewAccessPassRequestValidatorTest {
 
         // ---- CASE No existing access passes ----
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        // no results
-                ))
-        );
+//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
+//                Collections.unmodifiableList(Lists.newArrayList(
+//                        // no results
+//                ))
+//        );
 
-        newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
                 .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
@@ -128,7 +140,7 @@ public class NewAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -145,17 +157,25 @@ public class NewAccessPassRequestValidatorTest {
     @Test
     public void failIfMissingIdType() {
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE APOR invalid type ----
         
         rapidPassRequest = RapidPassRequest.builder()
-        		.passType(PassType.INDIVIDUAL)
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
                 .idType("SOME INVALID ID TYPE")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -171,12 +191,20 @@ public class NewAccessPassRequestValidatorTest {
         // ---- CASE APOR is null  ----
 
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
         		.passType(PassType.INDIVIDUAL)
                 .idType(null)
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -186,7 +214,7 @@ public class NewAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Invalid ID Type."));
+        assertThat(errors, hasItem("Missing ID Type."));
 
         System.out.println(bindingResult);
     }
@@ -194,17 +222,25 @@ public class NewAccessPassRequestValidatorTest {
     @Test
     public void failIfMissingPlateNumberIfVehicle() {
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE pass type is vehicle, and plate number is missing ----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("09111234321")
                 .plateNumber(null)
                 .passType(PassType.VEHICLE)
                 .build();
 
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -214,7 +250,7 @@ public class NewAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem("Missing plate number."));
+        assertThat(errors, hasItem("Missing Plate Number."));
 
         // ---- CASE pass type is individual, and plate number is missing  ----
 
@@ -224,7 +260,7 @@ public class NewAccessPassRequestValidatorTest {
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -240,7 +276,7 @@ public class NewAccessPassRequestValidatorTest {
     }
 
     @Test
-    public void failIfExistingAccessPassAlreadyExists() {
+    public void continueIfExistingAccessPassAlreadyExists() {
 
         when(lookupTableService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
@@ -265,31 +301,34 @@ public class NewAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        AccessPass.builder()
-                                .referenceID("ABC 123")
-                                .aporType("AG")
-                                .plateNumber("ABC 123")
-                                .status(AccessPassStatus.PENDING.toString())
-                                .build()
-                ))
-        );
+//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
+//                Collections.unmodifiableList(Lists.newArrayList(
+//                        AccessPass.builder()
+//                                .referenceID("ABC 123")
+//                                .aporType("AG")
+//                                .plateNumber("ABC 123")
+//                                .status(AccessPassStatus.PENDING.toString())
+//                                .build()
+//                ))
+//        );
 
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
                 .idType("PLT")
                 .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.VEHICLE)
-                .mobileNumber("09662015319")
+                .mobileNumber("+639662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -299,22 +338,30 @@ public class NewAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem(containsString("An existing PENDING/APPROVED RapidPass already exists")));
+        assertThat(errors, is(empty()));
     }
     
     @Test
     public void failIfIncorrectMobileNumberFormat() {
    
         
-        NewAccessPassRequestValidator newAccessPassRequestValidator = new NewAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
         		.mobileNumber("a09662006888")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
@@ -327,13 +374,21 @@ public class NewAccessPassRequestValidatorTest {
         assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
         
         
-        // ---- CASE Mobile number has more than 11 characters but doesnt start with 09XXXXXXXXX----
+        // ---- CASE Mobile number can only use Philippine numbers ----
         rapidPassRequest = RapidPassRequest.builder()
-        		.mobileNumber("639662006888")
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .passType(PassType.INDIVIDUAL)
+        		.mobileNumber("+659662006888")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newAccessPassRequestValidator);
+        binder.setValidator(batchAccessPassRequestValidator);
 
         binder.validate();
 
