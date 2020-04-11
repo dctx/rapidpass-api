@@ -74,7 +74,7 @@ public class UserRestController {
         return ResponseEntity.ok(active);
     }
 
-    @GetMapping("/apor-types/{userName}")
+    @GetMapping("/{userName}/apor-types")
     public final ResponseEntity<List<String>> getAporTypesByUser(@PathVariable String userName) {
         List<String> aporTypesForUser = lookupTableService.getAporTypesForUser(userName);
         if (aporTypesForUser == null || aporTypesForUser.isEmpty()) {

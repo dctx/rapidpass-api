@@ -46,9 +46,12 @@ public class LookupTableService {
 
     public List<String> getAporTypesForUser(String username) {
         RegistrarUser registrarUser = registrarUserRepository.findByUsername(username);
-        List<String> aporTypeList = registrarUser.getRegistrarId().getAporTypeApproverLookupList().stream()
-                .map(a -> a.getAporType())
-                .collect(Collectors.toList());
+        List<String> aporTypeList = null;
+        if (registrarUser != null) {
+            aporTypeList = registrarUser.getRegistrarId().getAporTypeApproverLookupList().stream()
+                    .map(a -> a.getAporType())
+                    .collect(Collectors.toList());
+        }
         return aporTypeList;
     }
 }
