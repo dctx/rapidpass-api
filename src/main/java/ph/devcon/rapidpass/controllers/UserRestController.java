@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.controllers;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.springframework.http.HttpStatus;
@@ -9,21 +10,25 @@ import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.Login;
 import ph.devcon.rapidpass.models.UserActivationRequest;
 import ph.devcon.rapidpass.services.ApproverAuthService;
+import ph.devcon.rapidpass.services.LookupTableService;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 @Slf4j
 @CrossOrigin
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserRestController {
 
+    private final LookupTableService lookupTableService;
     private final ApproverAuthService approverAuthService;
 
-    public UserRestController(final ApproverAuthService approverAuthService) {
-        this.approverAuthService = approverAuthService;
-    }
+//    public UserRestController(final ApproverAuthService approverAuthService) {
+//        this.approverAuthService = approverAuthService;
+//    }
 
     @PostMapping("/auth")
     public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
@@ -67,6 +72,16 @@ public class UserRestController {
     public ResponseEntity<Boolean> isActive(@PathVariable("username") final String username) {
         final boolean active = this.approverAuthService.isActive(username);
         return ResponseEntity.ok(active);
+    }
+
+    @GetMapping("/{userName}/apor-types")
+    public final ResponseEntity<List<String>> getAporTypesByUser(@PathVariable String userName) {
+        List<String> aporTypesForUser = lookupTableService.getAporTypesForUser(userName);
+        if (aporTypesForUser == null || aporTypesForUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(aporTypesForUser);
+        }
     }
 
 }

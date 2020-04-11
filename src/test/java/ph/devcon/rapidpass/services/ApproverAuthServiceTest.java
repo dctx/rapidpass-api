@@ -101,9 +101,9 @@ class ApproverAuthServiceTest {
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrarId);
         // has existing user
         final RegistrarUser existingUser = new RegistrarUser();
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(users);
+//        final List<RegistrarUser> users = new ArrayList<>();
+//        users.add(existingUser);
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(existingUser);
 
         boolean captured = false;
         try {
@@ -160,9 +160,9 @@ class ApproverAuthServiceTest {
         existingUser.setStatus("active");
         existingUser.setUsername(username);
         existingUser.setPassword(hashedPassword);
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(users);
+//        final List<RegistrarUser> users = new ArrayList<>();
+//        users.add(existingUser);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(existingUser);
         when(this.jwtSecretsConfig.findGroupSecret(anyString())).thenReturn(jwtSecret);
 
         try {
@@ -195,9 +195,9 @@ class ApproverAuthServiceTest {
         existingUser.setStatus("active");
         existingUser.setUsername(username);
         existingUser.setPassword(hashedPassword);
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(users);
+//        final List<RegistrarUser> users = new ArrayList<>();
+//        users.add(existingUser);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(existingUser);
 
         try {
             final AgencyAuth login = this.approverAuthService.login(username, "a different password");
@@ -244,7 +244,7 @@ class ApproverAuthServiceTest {
         registrarUser.setStatus("active");
 
         // has no user
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(registrarUser);
 
         try {
             this.approverAuthService.changePassword(username, oldPassword, password);
@@ -274,7 +274,7 @@ class ApproverAuthServiceTest {
         registrarUser.setStatus("active");
 
         // has no user
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(registrarUser);
 
         boolean exceptionThrown = false;
         try {
@@ -307,7 +307,7 @@ class ApproverAuthServiceTest {
         }
 
         // has pending user
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(registrarUser);
 
         try {
             this.approverAuthService.activateUser(username, password, activationCode);
@@ -374,7 +374,7 @@ class ApproverAuthServiceTest {
 
         boolean caught = false;
         // has pending user
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(registrarUser);
 
         try {
             this.approverAuthService.activateUser(username, password, "wrong activation key");
@@ -394,7 +394,7 @@ class ApproverAuthServiceTest {
 
         boolean caught = false;
         // has pending user
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList());
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(null);
 
         try {
             this.approverAuthService.activateUser(username, "any", "any");
@@ -413,7 +413,7 @@ class ApproverAuthServiceTest {
         final RegistrarUser registrarUser = new RegistrarUser();
         registrarUser.setUsername(username);
         registrarUser.setStatus("active");
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(registrarUser);
         assertTrue(this.approverAuthService.isActive(username));
     }
 
@@ -423,14 +423,14 @@ class ApproverAuthServiceTest {
         final RegistrarUser registrarUser = new RegistrarUser();
         registrarUser.setUsername(username);
         registrarUser.setStatus("pending");
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList(registrarUser));
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(registrarUser);
         assertFalse(this.approverAuthService.isActive(username));
     }
 
     @Test
     void testNotExistingUserNotActive() {
         final String username = "user@user.com";
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(Arrays.asList());
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(null);
         assertFalse(this.approverAuthService.isActive(username));
     }
 

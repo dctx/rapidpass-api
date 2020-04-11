@@ -180,6 +180,32 @@ paths:
           description: The user or the activation code does not match
         500:
           description: Internal Error
+  /users/{username}/apor-types:
+    get:
+      tags:
+        - dashboard
+      summary:
+        Retrieves the list of APOR Types associated with the user
+      operationId: getUserAporTypes
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+            example: doh@doh.gov
+      responses:
+        '200':
+          description: not found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: [ "MS", "ER" ]
+        '404':
+          description: not found
   /registry/access-passes:
     post:
       tags:
@@ -279,8 +305,8 @@ paths:
           schema:
             type: string
           description: Filters retrieved access passes based on the provided search query. This filter allows you to
-                search access passes where the name (of the rapidpass owner) matches OR the company name matches the query.
-                Matching is performed as a `startsWith` matching, not a `contains` matching.
+            search access passes where the name (of the rapidpass owner) matches OR the company name matches the query.
+            Matching is performed as a `startsWith` matching, not a `contains` matching.
           example: Jose
       responses:
         '200':
@@ -868,11 +894,11 @@ components:
           enum: [INDIVIDUAL, VEHICLE]
           example: INDIVIDUAL
         aporType:
-            type: string
-            description: Filters retrieved access passes by Apor type. For possible values, trust the database
-              definitions first-and-foremost. Note that {@link CommonRapidPassFields.AporTypeEnum} may
-              potentially be outdated, as it is based on the OpenAPI Spec. Again, trust the db first and foremost.
-            example: GOV
+          type: string
+          description: Filters retrieved access passes by Apor type. For possible values, trust the database
+            definitions first-and-foremost. Note that {@link CommonRapidPassFields.AporTypeEnum} may
+            potentially be outdated, as it is based on the OpenAPI Spec. Again, trust the db first and foremost.
+          example: GOV
         status:
           type: string
           description: Filters retrieved access passes by Status. For possible values, see `RapidPassStatus`.

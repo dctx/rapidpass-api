@@ -12,6 +12,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -150,6 +151,8 @@ public class Registrar implements Serializable {
     private Registrar parentRegistrarId;
     @OneToMany(mappedBy = "registrarId")
     private Collection<RegistrarUser> registrarUserCollection;
+    @OneToMany(mappedBy = "registrarShortName", fetch = FetchType.EAGER)
+    private List<AporTypeApproverLookup> aporTypeApproverLookupList;
 //    @OneToMany(mappedBy = "registrarId")
 //    private Collection<ScannerDevice> scannerDeviceCollection;
 //    @OneToMany(mappedBy = "registrarId")

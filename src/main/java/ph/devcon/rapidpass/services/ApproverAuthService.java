@@ -60,12 +60,11 @@ public class ApproverAuthService {
      * @throws DecoderException this is returned when the hashing algorithm fails. This is an illegal state
      */
     public final AgencyAuth login(final String username, final String password) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
-        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
-        if (CollectionUtils.isEmpty(registrarUsers)) {
+        final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
+        if (registrarUser == null) {
             log.warn("unregistered user attempted to login");
             return null;
         }
-        RegistrarUser registrarUser = registrarUsers.get(0);
         final String hashedPassword = registrarUser.getPassword();
 
         final boolean isPasswordCorrect = passwordCompare(hashedPassword, password);
@@ -97,20 +96,20 @@ public class ApproverAuthService {
             throw new IllegalArgumentException("unable to find registrar for user");
         }
 
-        final List<RegistrarUser> users = this.registrarUserRepository.findByUsername(user.getUsername());
-        if (!CollectionUtils.isEmpty(users)) {
+        final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(user.getUsername());
+        if (registrarUser != null) {
             log.error("user already exists");
             throw new IllegalArgumentException("user already exists");
         }
 
-        final RegistrarUser registrarUser = new RegistrarUser();
-        registrarUser.setRegistrarId(registrar);
-        registrarUser.setUsername(user.getUsername());
+        final RegistrarUser newRegistrarUser = new RegistrarUser();
+        newRegistrarUser.setRegistrarId(registrar);
+        newRegistrarUser.setUsername(user.getUsername());
         final String hashedPassword = passwordHash(user.getPassword());
-        registrarUser.setPassword(hashedPassword);
-        registrarUser.setStatus("active");
+        newRegistrarUser.setPassword(hashedPassword);
+        newRegistrarUser.setStatus("active");
 
-        registrarUserRepository.save(registrarUser);
+        registrarUserRepository.save(newRegistrarUser);
     }
 
     /**
@@ -126,11 +125,10 @@ public class ApproverAuthService {
      * @throws DecoderException this is returned when the hashing algorithm fails. This is an illegal state
      */
     public final void changePassword(final String username, final String oldPassword, final String newPassword) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
-        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
-        if (CollectionUtils.isEmpty(registrarUsers)) {
+        final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
+        if (registrarUser == null) {
             throw new IllegalArgumentException("cannot change password if user does not exists");
         }
-        final RegistrarUser registrarUser = registrarUsers.get(0);
         final String hashedPassword = registrarUser.getPassword();
         final boolean isOldPasswordCorrect = passwordCompare(hashedPassword, oldPassword);
         if (!isOldPasswordCorrect) {
@@ -160,12 +158,10 @@ public class ApproverAuthService {
         if (StringUtils.isEmpty(activationKey)) {
             throw new IllegalArgumentException("activationKey must not be empty");
         }
-        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
-        if (CollectionUtils.isEmpty(registrarUsers)) {
+        final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
+        if (registrarUser == null) {
             throw new IllegalStateException("cannot activate a non existent user");
-        }
-        final RegistrarUser registrarUser = registrarUsers.get(0);
-        if (!"pending".equals(registrarUser.getStatus())) {
+        } else if (!"pending".equals(registrarUser.getStatus())) {
             throw new IllegalStateException("cannot activate if user is not pending");
         }
         if (!activationKey.equals(registrarUser.getAccessKey())) {
@@ -182,10 +178,10 @@ public class ApproverAuthService {
         if (StringUtils.isEmpty(username)) {
             throw new IllegalArgumentException("username must not be empty");
         }
-        final List<RegistrarUser> registrarUsers = this.registrarUserRepository.findByUsername(username);
-        if (CollectionUtils.isEmpty(registrarUsers)) {
+        final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
+        if (registrarUser == null) {
             return false;
         }
-        return "active".equals(registrarUsers.get(0).getStatus());
+        return "active".equals(registrarUser.getStatus());
     }
 }
