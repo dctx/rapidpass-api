@@ -6,13 +6,7 @@ package ph.devcon.rapidpass.entities;
 import lombok.Data;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 /**
@@ -30,12 +24,12 @@ public class AporTypeApproverLookup implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
-    @Size(max = 30)
-    @Column(name = "registrar_short_name")
-    private String registrarShortName;
     @Size(max = 10)
     @Column(name = "apor_type")
     private String aporType;
+    @JoinColumn(name = "registrar_short_name", referencedColumnName = "short_name")
+    @ManyToOne
+    private Registrar registrarShortName;
 
     public AporTypeApproverLookup() {
     }
