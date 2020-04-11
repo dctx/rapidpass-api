@@ -11,6 +11,7 @@ import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class NewAgencyUserValidator implements Validator {
 
@@ -78,10 +79,7 @@ public class NewAgencyUserValidator implements Validator {
         if (StringUtils.isEmpty(agencyUser.getUsername()))
             return false;
 
-        return registrarUserRepository.findByUsername(agencyUser.getUsername())
-                .stream()
-                .map(RegistrarUser::getUsername)
-                .anyMatch(username -> username.equals(agencyUser.getUsername()));
+        return registrarUserRepository.findByUsername(agencyUser.getUsername()) != null;
     }
 
     private boolean isBatchUpload(AgencyUser agencyUser, Errors errors) {

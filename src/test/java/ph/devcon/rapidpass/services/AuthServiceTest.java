@@ -63,7 +63,7 @@ class AuthServiceTest {
 
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrar);
         // no existing user
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(Collections.emptyList());
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
 
         try {
             this.authService.createAgencyCredentials(user);
@@ -99,9 +99,7 @@ class AuthServiceTest {
         existingUser.setStatus("active");
         existingUser.setUsername(username);
         existingUser.setPassword(hashedPassword);
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(users);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(existingUser);
         when(this.jwtSecretsConfig.findGroupSecret(anyString())).thenReturn(jwtSecret);
 
         try {
@@ -134,9 +132,8 @@ class AuthServiceTest {
         existingUser.setStatus("active");
         existingUser.setUsername(username);
         existingUser.setPassword(hashedPassword);
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(users);
+
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(existingUser);
 
         try {
             final AgencyAuth login = this.authService.login(username, "a different password");

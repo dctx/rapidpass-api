@@ -39,11 +39,6 @@ public class NewAgencyUserValidatorTest {
 
     private List<String> errors;
 
-    @BeforeEach
-    public void init() {
-
-    }
-
     @Test
     public void newAccessPass_INDIVIDUAL() {
 
@@ -113,12 +108,10 @@ public class NewAgencyUserValidatorTest {
     @Test
     public void failsIfUsernameAlreadyInUse() {
         when(registrarUserRepository.findByUsername("darrensapalo")).thenReturn(
-                Collections.singletonList(
-                        RegistrarUser.builder()
-                                .username("darrensapalo")
-                                .id(1)
-                                .build()
-                )
+            RegistrarUser.builder()
+                    .username("darrensapalo")
+                    .id(1)
+                    .build()
         );
 
         NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
