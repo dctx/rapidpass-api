@@ -3,7 +3,7 @@ package ph.devcon.rapidpass.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
@@ -21,7 +21,6 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class RapidPassRequest {
     // required fields reference: https://docs.google.com/spreadsheets/d/1YemwomlhoKnDcBDI3OlrA5-yMSOSfA3BHj0N6PijmT4/edit#gid=0
@@ -41,6 +40,7 @@ public final class RapidPassRequest {
     private String idType;
     @NotEmpty
     private String identifierNumber;
+
     private String plateNumber;
     @NotEmpty
     private String mobileNumber; // todo validate. use validation annotations.
