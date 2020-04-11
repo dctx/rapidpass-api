@@ -1,0 +1,20 @@
+id,name,short_name,description,parent_registrar_id,shard_key,institution_type,institution_classification,status,address,country,region,province,city,zip_code,phone,mobile,email,representative,rep_designation,rep_phone,rep_mobile,rep_email,website,reference1,reference2,updates,date_time_created,date_time_updated
+9,"Department of Foreign Affairs","DFA","The Department of Health",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+10,"Department of Transportation","DOTr","The Armed Forces of the Philippines",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+11,"National Telecommunications Commission","NTC","The Armed Forces of the Philippines",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+12,"Department of Communication and Technology","DICT","Kagawaran ng Teknolohiyang Pang-Impormasyon at Komunikasyon",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+13,"Department of Tourism","DOT","Kagawaran ng Turismo",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+14,"Department of Public Works and Highways","DPWH","Kagawaran ng Pagawaing Bayan at Lansangan",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+15,"Department of Energy","DOE","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+16,"Department of Environment and Natural Resources","DENR","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+17,"Department of Finance","DOF","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+18,"Department of Justice","DOJ","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+19,"Department of Education","DEPED","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+20,"Department of Trade and Industry","DTI","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+21,"Department of Labor and Employment","DOLE","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+22,"Department of Science and Technology","DOST","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+23,"Department of National Defense","DND","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+24,"Department of Budget and Management","DBM","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+25,"Department of Agriculture","DA","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+26,"Department of Agrarian Reform","DAR","",3,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
+27,"Department of Human Settlements and Urban Development","DHSUD","",,,0,,active,,,,,,,,,,,,,,,,,,,2020-03-27 17:08:19.000000,2020-03-27 17:08:25.000000
