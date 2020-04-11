@@ -55,8 +55,8 @@ public class RegistryService {
             OffsetDateTime.of(2020, 4, 30, 23,
                     59, 59, 999, ZoneOffset.ofHours(8));
 
-    @Value("${bulk-upload.process}")
-    protected String bulkUploadProcess;
+    @Value("${kafka.enabled:false}")
+    protected boolean isKafaEnabled;
 
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
@@ -92,7 +92,8 @@ public class RegistryService {
         validation.validate(rapidPassRequest);
 
         RapidPass rapidPass = persistAccessPass(rapidPassRequest, AccessPassStatus.PENDING);
-        eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
+        if (isKafaEnabled)
+            eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
 
         return rapidPass;
     }
@@ -467,11 +468,12 @@ public class RegistryService {
         }
 
         log.debug("Sending {} event for {}", status, referenceId);
-        eventProducer.sendMessage(referenceId, updatedRapidPass);
+        if (isKafaEnabled)
+            eventProducer.sendMessage(referenceId, updatedRapidPass);
 
         log.debug("Sending {} SMS/Email notification for {}", status, referenceId);
         // TODO: someday let's do this asynchronously
-        if (!"KAFKA".equalsIgnoreCase(bulkUploadProcess)) {
+        if (!isKafaEnabled) {
             accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
                     .stream()
                     .findFirst()
@@ -513,7 +515,8 @@ public class RegistryService {
         accessPassRepository.saveAndFlush(accessPass);
 
         RapidPass rapidPass = RapidPass.buildFrom(accessPass);
-        eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
+        if (isKafaEnabled)
+            eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
         return rapidPass;
     }
 
@@ -544,7 +547,7 @@ public class RegistryService {
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 
-                if ("KAFKA".equalsIgnoreCase(bulkUploadProcess)) {
+                if (isKafaEnabled) {
                     String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
                             request.getPlateNumber();
                     requestProducer.sendMessage(key, request);

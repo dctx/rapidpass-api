@@ -78,7 +78,7 @@ class RegistryServiceTest {
     void setUp() {
         instance = new RegistryService(requestProducer, eventProducer, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
-        instance.bulkUploadProcess="KAFKA";
+        instance.isKafaEnabled=false;
         now = OffsetDateTime.now();
     }
 

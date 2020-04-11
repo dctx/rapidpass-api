@@ -47,8 +47,8 @@ topic:
   partitions-num: 3
   replication-factor: 1
 
-bulk-upload:
-  process: inline # options: inline or kafka
+kafka:
+  enabled: false # enables or disables kafka event processing
 
 springfox:
   documentation:
@@ -102,12 +102,13 @@ rbac:
         #            - ALL
         - endpoint: /registry/access-passes/?**
           verbs:
-            # GET, POST being used for registration
+            - GET # used for registration
+            - POST # used for registration
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
-#        - endpoint: /registry/access-passes
-#          verbs:
-#            - ALL
+        - endpoint: /registry/access-passes
+          verbs:
+            - ALL
 #    - role: checkpoint
 #      resources:
 #        - endpoint: /batch/access-passes
@@ -122,6 +123,9 @@ rbac:
 #        - endpoint: /registry/scanner-devices/**
 #          verbs:
 #            - ALL
+
+security:
+  enabled: false
 
 logging:
   level:
