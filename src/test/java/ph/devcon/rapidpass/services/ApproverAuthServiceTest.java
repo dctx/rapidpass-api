@@ -66,7 +66,9 @@ class ApproverAuthServiceTest {
 
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
         // no existing user
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(
+                ImmutableList.of()
+        );
 
         try {
             this.approverAuthService.createAgencyCredentials(agencyUser);
