@@ -44,9 +44,9 @@ class RegistryServiceTest {
 
     @Mock ControlCodeService controlCodeService;
 
-    @Mock RegistryRepository mockRegistryRepository;
-
     @Mock RegistrarUserRepository mockRegistrarUserRepository;
+
+    @Mock RegistryRepository mockRegistryRepository;
 
     @Mock RegistrantRepository mockRegistrantRepository;
 
@@ -68,8 +68,21 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(requestProducer, eventProducer, mockAuthService, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
-                mockAccessPassNotifierService, mockScannerDeviceRepository);
+        instance = new RegistryService(
+                requestProducer,
+                eventProducer,
+                mockAuthService,
+                lookupTableService,
+                mockAccessPassNotifierService,
+                mockRegistrarRepository,
+                mockRegistryRepository,
+                controlCodeService,
+                mockRegistrantRepository,
+                mockAccessPassRepository,
+                mockScannerDeviceRepository,
+                mockRegistrarUserRepository
+        );
+
         instance.isKafaEnabled=false;
         now = OffsetDateTime.now();
     }

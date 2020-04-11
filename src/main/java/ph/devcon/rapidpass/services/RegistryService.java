@@ -60,8 +60,8 @@ public class RegistryService {
     private final ApproverAuthService authService;
     private final LookupTableService lookupTableService;
     private final AccessPassNotifierService accessPassNotifierService;
-
     private final RegistrarRepository registrarRepository;
+
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
     private final RegistrantRepository registrantRepository;
