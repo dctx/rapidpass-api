@@ -34,14 +34,14 @@ class AuthServiceTest {
     private RegistrarUserRepository registrarUserRepository;
     private JwtSecretsConfig jwtSecretsConfig;
 
-    private AuthService authService;
+    private ApproverAuthService authService;
 
     @BeforeEach
     void before() {
         this.registrarUserRepository = Mockito.mock(RegistrarUserRepository.class);
         this.registrarRepository = Mockito.mock(RegistrarRepository.class);
         this.jwtSecretsConfig = Mockito.mock(JwtSecretsConfig.class);
-        this.authService = new AuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
+        this.authService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
     }
 
     @Test
