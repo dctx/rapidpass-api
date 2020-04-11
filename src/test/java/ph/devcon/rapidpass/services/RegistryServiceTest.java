@@ -12,10 +12,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.models.RapidPassStatus;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -37,15 +36,15 @@ class RegistryServiceTest {
 
     RegistryService instance;
 
-    @Mock AuthService mockAuthService;
+    @Mock ApproverAuthService mockAuthService;
 
     @Mock RegistrarRepository mockRegistrarRepository;
 
     @Mock ControlCodeService controlCodeService;
 
-    @MockRegistrantRepository mockRegistrantRepository;
-
     @Mock RegistrarUserRepository mockRegistrarUserRepository;
+
+    @Mock RegistryRepository mockRegistryRepository;
 
     @Mock RegistrantRepository mockRegistrantRepository;
 
@@ -65,8 +64,9 @@ class RegistryServiceTest {
                 mockAuthService,
                 lookupTableService,
                 mockAccessPassNotifierService,
-                mockRegistryRepository,
                 mockRegistrarRepository,
+                mockRegistryRepository,
+                controlCodeService,
                 mockRegistrantRepository,
                 mockAccessPassRepository,
                 mockScannerDeviceRepository,

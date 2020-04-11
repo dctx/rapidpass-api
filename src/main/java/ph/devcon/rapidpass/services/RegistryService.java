@@ -13,7 +13,8 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
-import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.access_pass.NewAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
@@ -38,9 +39,10 @@ public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 7;
 
-    private final AuthService authService;
+    private final ApproverAuthService authService;
     private final LookupTableService lookupTableService;
     private final AccessPassNotifierService accessPassNotifierService;
+    private final RegistrarRepository registrarRepository;
 
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
