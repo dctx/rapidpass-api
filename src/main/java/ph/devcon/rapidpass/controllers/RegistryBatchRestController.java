@@ -1,7 +1,9 @@
 package ph.devcon.rapidpass.controllers;
 
 
-import com.opencsv.bean.*;
+import com.opencsv.bean.ColumnPositionMappingStrategy;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.RapidPassBulkData;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -42,7 +48,7 @@ public class RegistryBatchRestController {
     /**
      * Upload CSV or excel file of approved control numbers
      *
-     * @param csvFile  Receives CSV File Payload
+     * @param csvFile Receives CSV File Payload
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
@@ -110,13 +116,8 @@ public class RegistryBatchRestController {
             @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
                     Integer pageSize) {
 
-        OffsetDateTime lastSyncDateTime = null;
-        if (lastSyncOn == 0) {
-            lastSyncDateTime = OffsetDateTime.now().minusDays(1);
-        } else {
-            lastSyncDateTime =
-                    OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-        }
+        OffsetDateTime lastSyncDateTime =
+                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
