@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import ph.devcon.rapidpass.messaging.models.RapidPassMessage;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
 @Service

@@ -10,12 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
-import ph.devcon.rapidpass.messaging.models.RapidPassMessage;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.RegistrantRepository;
@@ -62,9 +60,6 @@ class RegistryServiceTest {
     ScannerDeviceRepository mockScannerDeviceRepository;
 
     @Mock LookupTableService lookupTableService;
-
-    @Mock
-    KafkaTemplate<String, RapidPassMessage> mockKafkaTemplate;
 
     @Mock
     RapidPassEventProducer eventProducer;
