@@ -45,6 +45,17 @@ public class AgencyUser {
 
     private String lastName;
 
+    public static AgencyUser buildFrom(RegistrarUser registryUser) {
+        return AgencyUser.builder()
+                .firstName(registryUser.getFirstName())
+                .lastName(registryUser.getLastName())
+                .email(registryUser.getEmail())
+                .username(registryUser.getUsername())
+                .password(registryUser.getPassword())
+                .registrar(registryUser.getRegistrarId().getShortName())
+                .build();
+    }
+
     /**
      * If the source value of this AgencyUser is null, then it defaults to an individual (single) registration.
      * @return true if the AgencyUser was generated from batch upload.
