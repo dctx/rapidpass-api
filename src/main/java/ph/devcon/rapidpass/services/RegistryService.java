@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +20,7 @@ import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
@@ -37,6 +35,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -195,7 +194,7 @@ public class RegistryService {
         rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
-    public RapidPassPageView findRapidPass(QueryFilter q) {
+    public RapidPassPageView    findRapidPass(QueryFilter q) {
 
         Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q),
                 ExampleMatcher.matchingAll()
@@ -210,7 +209,18 @@ public class RegistryService {
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
-        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
+        String[] aporTypes = StringUtils.split(q.getAporType(), ",");
+        List<String> aporList = null;
+        if (aporTypes != null)
+            aporList = Arrays.asList(aporTypes);
+        Specification<AccessPass> byAporTypes = AccessPassSpecifications.byAporTypes(aporList);
+        Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());
+//        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
+        Page<AccessPass> accessPassPages = accessPassRepository.findAll(byAporTypes.and(byPassType)
+                .and(AccessPassSpecifications.byCompany(q.getCompany())).and(AccessPassSpecifications.byName(q.getName()))
+                .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber())).and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
+                .and(AccessPassSpecifications.bySource(q.getSource() != null ? q.getSource().name() : null ))
+                .and(AccessPassSpecifications.byStatus(q.getStatus())), pageView);
 
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
