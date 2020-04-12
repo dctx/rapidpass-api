@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.services;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.DecoderException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +9,8 @@ import org.mockito.Mockito;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.enums.RegistrarUserSource;
+import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
@@ -19,9 +20,6 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,6 +33,7 @@ class ApproverAuthServiceTest {
     private RegistrarRepository registrarRepository;
     private RegistrarUserRepository registrarUserRepository;
     private JwtSecretsConfig jwtSecretsConfig;
+    private RegistrarUserRequestProducer registrarUserRequestProducer;
 
     private ApproverAuthService approverAuthService;
 
@@ -43,7 +42,8 @@ class ApproverAuthServiceTest {
         this.registrarUserRepository = Mockito.mock(RegistrarUserRepository.class);
         this.registrarRepository = Mockito.mock(RegistrarRepository.class);
         this.jwtSecretsConfig = Mockito.mock(JwtSecretsConfig.class);
-        this.approverAuthService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
+        this.registrarUserRequestProducer = Mockito.mock(RegistrarUserRequestProducer.class);
+        this.approverAuthService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig, this.registrarUserRequestProducer);
     }
 
     @Test
@@ -123,7 +123,7 @@ class ApproverAuthServiceTest {
             captured = true;
         }
 
-        assertTrue(captured, "should throw illegalargument");
+        assertTrue(captured, "should throw illegal argument");
     }
 
     @Test
@@ -143,6 +143,7 @@ class ApproverAuthServiceTest {
         registrarUser.setPassword(password);
 
         final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
+        agencyUser.setSource(RegistrarUserSource.ONLINE.name());
 
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
         // no existing user
