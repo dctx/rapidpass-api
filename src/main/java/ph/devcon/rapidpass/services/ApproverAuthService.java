@@ -18,7 +18,8 @@ import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 import ph.devcon.rapidpass.utilities.CryptUtils;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.agency_user.NewAgencyUserValidator;
+import ph.devcon.rapidpass.validators.entities.agencyuser.BaseAgencyUserRequestValidator;
+import ph.devcon.rapidpass.validators.entities.agencyuser.NewSingleAgencyUserRequestValidator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -101,7 +102,7 @@ public class ApproverAuthService {
     public final RegistrarUser createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
 
         if (!user.isBatchUpload()) {
-            NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
+            BaseAgencyUserRequestValidator validator = new NewSingleAgencyUserRequestValidator(this.registrarUserRepository, this.registrarRepository);
             StandardDataBindingValidation dataValidator = new StandardDataBindingValidation(validator);
             dataValidator.validate(user);
         }
