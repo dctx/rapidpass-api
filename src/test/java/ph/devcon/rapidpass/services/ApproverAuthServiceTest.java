@@ -158,11 +158,10 @@ class ApproverAuthServiceTest {
         final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
+        final AgencyUser user = new AgencyUser();
+        user.setRegistrar(registrar);
+        user.setUsername(username);
+        user.setPassword(password);
 
         // has no registrar
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(null);
