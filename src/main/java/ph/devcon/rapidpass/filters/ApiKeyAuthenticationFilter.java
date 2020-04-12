@@ -32,7 +32,6 @@ public class ApiKeyAuthenticationFilter extends AbstractPreAuthenticatedProcessi
             authentication.setAuthenticated(true);
             return authentication;
         });
-        setCheckForPrincipalChanges(true);
     }
 
     @Override

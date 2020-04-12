@@ -117,13 +117,8 @@ public class RegistryBatchRestController {
             @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
                     Integer pageSize) {
 
-        OffsetDateTime lastSyncDateTime = null;
-        if (lastSyncOn == 0) {
-            lastSyncDateTime = OffsetDateTime.now().minusDays(1);
-        } else {
-            lastSyncDateTime =
-                    OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-        }
+        OffsetDateTime lastSyncDateTime =
+                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
