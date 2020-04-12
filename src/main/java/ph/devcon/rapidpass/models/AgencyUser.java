@@ -6,6 +6,8 @@ import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
 import ph.devcon.rapidpass.enums.RegistrarUserSource;
 
+import javax.validation.constraints.NotEmpty;
+
 /**
  * This data model maps out to the database table {@link RegistrarUser}.
  */
@@ -14,23 +16,27 @@ import ph.devcon.rapidpass.enums.RegistrarUserSource;
 public class AgencyUser {
 
     /**
-     * The {@link Registrar} or agency that this user is associated with.
+     * The short name of the {@link Registrar} that this user is associated with.
      */
+    @NotEmpty
     private String registrar;
 
     /**
      * The user's personal username.
      */
+    @NotEmpty
     private String username;
 
     /**
      * The user's personal password.
      */
+    @NotEmpty
     private String password;
 
     /**
      * The user's email.
      */
+    @NotEmpty
     private String email;
 
     /**
@@ -38,11 +44,19 @@ public class AgencyUser {
      *
      * Please see {@link RegistrarUserSource}.
      */
+    @NotEmpty
     private String source;
 
-
+    /**
+     * The user's first name.
+     */
+    @NotEmpty
     private String firstName;
 
+    /**
+     * The user's last name.
+     */
+    @NotEmpty
     private String lastName;
 
     public static AgencyUser buildFrom(RegistrarUser registryUser) {
@@ -57,11 +71,11 @@ public class AgencyUser {
     }
 
     /**
-     * If the source value of this AgencyUser is null, then it defaults to an individual (single) registration.
-     * @return true if the AgencyUser was generated from batch upload.
+     * If the source value of this {@link AgencyUser} is null, then it defaults to an single ONLINE registration.
+     * @return true if the {@link AgencyUser} <code>source</code> is equal to <code>BULK</code>.
      */
     public boolean isBatchUpload() {
-        return RegistrarUserSource.BATCH_UPLOAD.toString().equalsIgnoreCase(this.source);
+        return RegistrarUserSource.BULK.toString().equalsIgnoreCase(this.source);
     }
 
     public boolean isIndividualRegistration() {
