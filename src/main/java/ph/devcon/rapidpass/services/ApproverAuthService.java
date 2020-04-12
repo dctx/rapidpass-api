@@ -100,7 +100,7 @@ public class ApproverAuthService {
      */
     public final RegistrarUser createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
 
-        if (user.isBatchUpload()) {
+        if (!user.isBatchUpload()) {
             NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
             StandardDataBindingValidation dataValidator = new StandardDataBindingValidation(validator);
             dataValidator.validate(user);
