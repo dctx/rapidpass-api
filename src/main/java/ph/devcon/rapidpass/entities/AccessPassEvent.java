@@ -6,20 +6,12 @@
 package ph.devcon.rapidpass.entities;
 
 import lombok.Data;
+import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 /**
@@ -37,6 +29,8 @@ public class AccessPassEvent implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
+    @Column(name = "access_pass_id")
+    private Integer accessPassID;
     @Size(max = 30)
     @Column(name = "reference_id")
     private String referenceId;
@@ -46,6 +40,8 @@ public class AccessPassEvent implements Serializable {
     @Size(max = 10)
     @Column(name = "apor_type")
     private String aporType;
+    @Transient
+    private String controlCode;
     @Size(max = 100)
     @Column(name = "name")
     private String name;
@@ -56,16 +52,18 @@ public class AccessPassEvent implements Serializable {
     @Column(name = "status")
     private String status;
     @Column(name = "valid_from")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validFrom;
+    private OffsetDateTime validFrom;
     @Column(name = "valid_to")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validTo;
+    private OffsetDateTime validTo;
     @Column(name = "event_timestamp")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date eventTimestamp;
+    private OffsetDateTime eventTimestamp;
 
     public AccessPassEvent() {
+    }
+
+    @PostLoad
+    private void postLoad() {
+        controlCode = ControlCodeGenerator.generate(accessPassID);
     }
 
     @Override

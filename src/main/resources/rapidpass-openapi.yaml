@@ -375,7 +375,7 @@ paths:
       responses:
         '200':
           description: Upload successful
-  /batch/access-pass-events/{eventID}:
+  '/batch/access-pass-events':
     get:
       tags:
         - inspector
@@ -383,8 +383,8 @@ paths:
       summary:
         Download the access pass event log
       parameters:
-        - name: eventID
-          in: path
+        - name: fromEventID
+          in: query
           description: 'event id'
           required: true
           schema:

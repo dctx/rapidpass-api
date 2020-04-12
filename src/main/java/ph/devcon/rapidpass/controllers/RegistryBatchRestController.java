@@ -42,7 +42,7 @@ public class RegistryBatchRestController {
     /**
      * Upload CSV or excel file of approved control numbers
      *
-     * @param csvFile  Receives CSV File Payload
+     * @param csvFile Receives CSV File Payload
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
@@ -120,6 +120,29 @@ public class RegistryBatchRestController {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
+    }
+
+    @GetMapping("/access-pass-events")
+    public ResponseEntity<?> getAccessPassEvents(
+                                           @RequestParam(value="fromEventID", required = true)
+                                           Integer fromEventID,
+                                           @Valid @RequestParam(value = "pageNumber", required = false, defaultValue = "0")
+                                           Integer pageNumber, @ApiParam(value = "size of page requested")
+                                           @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
+                                           Integer pageSize)
+
+    {
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        try {
+            PagedAccessPassEvent pagedAccessPassEvent = registryService.getAccessPassEvent(fromEventID, page);
+            if (pagedAccessPassEvent != null) {
+                return ResponseEntity.ok(pagedAccessPassEvent);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
 

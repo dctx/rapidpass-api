@@ -9,20 +9,14 @@ import org.springframework.data.domain.*;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
@@ -61,6 +55,7 @@ public class RegistryService {
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
 
+    private final AccessPassEventRepository accessPassEventRepository;
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
     private final RegistrantRepository registrantRepository;
@@ -645,5 +640,14 @@ public class RegistryService {
         device.setStatus(request.getStatus());
 
         return scannerDeviceRepository.saveAndFlush(device);
+    }
+
+    public PagedAccessPassEvent getAccessPassEvent(Integer eventId, Pageable pageable) {
+        Page<AccessPassEvent> accessPassEvents = accessPassEventRepository.findAllByIdIsGreaterThanEqual(eventId, pageable);
+        if (accessPassEvents == null || accessPassEvents.isEmpty()) {
+            return null;
+        } else {
+            return PagedAccessPassEvent.buildFrom(accessPassEvents);
+        }
     }
 }

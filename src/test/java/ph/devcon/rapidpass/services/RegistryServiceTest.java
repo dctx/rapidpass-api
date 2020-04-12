@@ -15,10 +15,7 @@ import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
@@ -67,16 +64,16 @@ class RegistryServiceTest {
     @Mock
     RapidPassRequestProducer requestProducer;
 
-    private OffsetDateTime now;
+    @Mock
+    AccessPassEventRepository accessPassEventRepository;
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(requestProducer, eventProducer, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
+        instance = new RegistryService(requestProducer, eventProducer, accessPassEventRepository, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
                 mockAccessPassNotifierService, mockScannerDeviceRepository);
         instance.isKafaEnabled=false;
-        now = OffsetDateTime.now();
+//        OffsetDateTime now = OffsetDateTime.now();
     }
-
 
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
