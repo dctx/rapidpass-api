@@ -21,13 +21,13 @@ public class RapidPassEvent {
     private Long validTo;
     private Long eventTimestamp;
 
-    public static RapidPassEvent buildFrom(AccessPassEvent accessPassEvent){
+    public static RapidPassEvent buildFrom(AccessPassEvent accessPassEvent, String secretKey){
         return RapidPassEvent.builder()
                 .eventID(accessPassEvent.getId())
                 .referenceId(accessPassEvent.getReferenceId())
                 .passType(accessPassEvent.getPassType())
                 .aporType(accessPassEvent.getAporType())
-                .controlCode(ControlCodeGenerator.generate(accessPassEvent.getAccessPassID()))
+                .controlCode(ControlCodeGenerator.generate(secretKey, accessPassEvent.getAccessPassID()))
                 .name(accessPassEvent.getName())
                 .plateNumber(accessPassEvent.getPlateNumber())
                 .status(accessPassEvent.getStatus())

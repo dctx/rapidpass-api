@@ -11,15 +11,7 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import javax.persistence.Transient;
 import java.util.Base64;
 
-@Component
 public class ControlCodeGenerator {
-
-    @Value("${qrmaster.controlkey:***REMOVED***}")
-    private static String secretKey = "***REMOVED***";
-
-    public static String generate(int id) {
-        return generate(secretKey, id);
-    }
 
     /**
      * Generates a control code.

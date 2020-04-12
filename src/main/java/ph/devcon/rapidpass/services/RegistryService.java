@@ -52,6 +52,12 @@ public class RegistryService {
     @Value("${kafka.enabled:false}")
     protected boolean isKafaEnabled;
 
+    /**
+     * Secret key used for control code generation
+     */
+    @Value("${qrmaster.controlkey:***REMOVED***}")
+    private String secretKey;
+
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
 
@@ -647,7 +653,7 @@ public class RegistryService {
         if (accessPassEvents == null || accessPassEvents.isEmpty()) {
             return null;
         } else {
-            return PagedAccessPassEvent.buildFrom(accessPassEvents);
+            return PagedAccessPassEvent.buildFrom(accessPassEvents, secretKey);
         }
     }
 }

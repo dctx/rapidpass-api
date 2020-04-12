@@ -40,8 +40,6 @@ public class AccessPassEvent implements Serializable {
     @Size(max = 10)
     @Column(name = "apor_type")
     private String aporType;
-    @Transient
-    private String controlCode;
     @Size(max = 100)
     @Column(name = "name")
     private String name;
@@ -59,11 +57,6 @@ public class AccessPassEvent implements Serializable {
     private OffsetDateTime eventTimestamp;
 
     public AccessPassEvent() {
-    }
-
-    @PostLoad
-    private void postLoad() {
-        controlCode = ControlCodeGenerator.generate(accessPassID);
     }
 
     @Override

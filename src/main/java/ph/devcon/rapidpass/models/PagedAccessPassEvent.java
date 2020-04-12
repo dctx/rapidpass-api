@@ -36,9 +36,9 @@ public class PagedAccessPassEvent {
                 Objects.equals(this.data, pagedAccessPassEvent.data);
     }
 
-    public static PagedAccessPassEvent buildFrom(Page<AccessPassEvent> accessPassEventPage) {
+    public static PagedAccessPassEvent buildFrom(Page<AccessPassEvent> accessPassEventPage, String secretKey) {
         List<RapidPassEvent> rapidPassEvents = accessPassEventPage.getContent().stream()
-                .map(RapidPassEvent::buildFrom)
+                .map(a -> RapidPassEvent.buildFrom(a, secretKey))
                 .collect(Collectors.toList());
         return PagedAccessPassEvent.builder()
                 .meta(PageMetaData.builder()
