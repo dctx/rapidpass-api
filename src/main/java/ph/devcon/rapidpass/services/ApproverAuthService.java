@@ -3,13 +3,14 @@ package ph.devcon.rapidpass.services;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
 import ph.devcon.rapidpass.enums.RegistrarUserStatus;
+import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
@@ -24,8 +25,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static ph.devcon.rapidpass.utilities.CryptUtils.passwordCompare;
 import static ph.devcon.rapidpass.utilities.CryptUtils.passwordHash;
@@ -42,14 +43,20 @@ public class ApproverAuthService {
     private final RegistrarUserRepository registrarUserRepository;
     private final RegistrarRepository registrarRepository;
     private final JwtSecretsConfig jwtSecretsConfig;
+    private final RegistrarUserRequestProducer registrarUserRequestProducer;
+
+    @Value("${kafka.enabled:false}")
+    protected boolean isKafaEnabled;
 
     @Autowired
     public ApproverAuthService(final RegistrarUserRepository registrarUserRepository,
                                final RegistrarRepository registrarRepository,
-                               final JwtSecretsConfig jwtSecretsConfig) {
+                               final JwtSecretsConfig jwtSecretsConfig,
+                               final RegistrarUserRequestProducer registrarUserRequestProducer) {
         this.registrarUserRepository = registrarUserRepository;
         this.registrarRepository = registrarRepository;
         this.jwtSecretsConfig = jwtSecretsConfig;
+        this.registrarUserRequestProducer = registrarUserRequestProducer;
     }
 
     /**
@@ -93,10 +100,11 @@ public class ApproverAuthService {
      */
     public final RegistrarUser createAgencyCredentials(final AgencyUser user) throws IllegalArgumentException, InvalidKeySpecException, NoSuchAlgorithmException {
 
-        // Reworked validation
-        NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
-        StandardDataBindingValidation dataValidator = new StandardDataBindingValidation(validator);
-        dataValidator.validate(user);
+        if (user.isBatchUpload()) {
+            NewAgencyUserValidator validator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
+            StandardDataBindingValidation dataValidator = new StandardDataBindingValidation(validator);
+            dataValidator.validate(user);
+        }
 
         Registrar registrar = this.registrarRepository.findByShortName(user.getRegistrar());
 
@@ -112,7 +120,12 @@ public class ApproverAuthService {
             registrar.setEmail(user.getEmail());
             registrarUser.setStatus(RegistrarUserStatus.INACTIVE.toString());
 
-            // TODO: Send email to approver
+            // Uses a v4 UUID.
+            String randomUniqueActivationCode = UUID.randomUUID().toString();
+            registrarUser.setAccessKey(randomUniqueActivationCode);
+
+            if (isKafaEnabled)
+                registrarUserRequestProducer.sendMessage(registrarUser.getUsername(), registrarUser);
 
         } else if (user.isIndividualRegistration()) {
             final String hashedPassword = passwordHash(user.getPassword());
