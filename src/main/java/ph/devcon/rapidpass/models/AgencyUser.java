@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.models;
 
-import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
@@ -12,7 +11,6 @@ import javax.validation.constraints.NotEmpty;
  * This data model maps out to the database table {@link RegistrarUser}.
  */
 @Data
-@Builder
 public class AgencyUser {
 
     /**
@@ -60,14 +58,14 @@ public class AgencyUser {
     private String lastName;
 
     public static AgencyUser buildFrom(RegistrarUser registryUser) {
-        return AgencyUser.builder()
-                .firstName(registryUser.getFirstName())
-                .lastName(registryUser.getLastName())
-                .email(registryUser.getEmail())
-                .username(registryUser.getUsername())
-                .password(registryUser.getPassword())
-                .registrar(registryUser.getRegistrarId().getShortName())
-                .build();
+        AgencyUser agencyUser = new AgencyUser();
+        agencyUser.setFirstName(registryUser.getFirstName());
+        agencyUser.setLastName(registryUser.getLastName());
+        agencyUser.setEmail(registryUser.getEmail());
+        agencyUser.setUsername(registryUser.getUsername());
+        agencyUser.setPassword(registryUser.getPassword());
+        agencyUser.setRegistrar(registryUser.getRegistrarId().getShortName());
+        return agencyUser;
     }
 
     /**
