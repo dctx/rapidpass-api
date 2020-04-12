@@ -381,11 +381,11 @@ paths:
         - inspector
         - bulk
       summary:
-        Download the access pass event log
+        Download the access pass event log starting from the specified event id.
       parameters:
         - name: fromEventID
           in: query
-          description: 'event id'
+          description: 'starting point - event id'
           required: true
           schema:
             type: integer
@@ -408,7 +408,7 @@ paths:
             default: 0
       responses:
         '200':
-          description: json containing page metadata and csv data
+          description: page metadata and array of values
           content:
             application/json:
               schema:
@@ -1004,6 +1004,12 @@ components:
           type: integer
           format: int64
           description: total number of rows in whole dataset
+        columnNames:
+          type: array
+          items:
+            type: string
+          example: ["eventID", "referenceID", "passType", "aporType", "controlCode",
+                    "name", "plateNumber", "status", "validFrom", "validTo", "eventTimestamp"]
     RapidPassStatus:
       type: object
       description: Modifies the status of an existing access pass with PENDING status.

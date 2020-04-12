@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,26 +17,28 @@ import java.util.Objects;
 @Validated
 @Data
 @Builder
-public class PageMetaData   {
+public class PageMetaData {
 
-  private Integer currentPage = null;
-  private Integer currentPageRows = null;
-  private Integer totalPages = null;
-  private Long totalRows = null;
+    private Integer currentPage = null;
+    private Integer currentPageRows = null;
+    private Integer totalPages = null;
+    private Long totalRows = null;
+    private List<String> columnNames;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PageMetaData pageMetaData = (PageMetaData) o;
+        return Objects.equals(this.currentPage, pageMetaData.currentPage) &&
+                Objects.equals(this.currentPageRows, pageMetaData.currentPageRows) &&
+                Objects.equals(this.totalPages, pageMetaData.totalPages) &&
+                Objects.equals(this.totalRows, pageMetaData.totalRows) &&
+                Objects.equals(this.columnNames, pageMetaData.columnNames);
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    PageMetaData pageMetaData = (PageMetaData) o;
-    return Objects.equals(this.currentPage, pageMetaData.currentPage) &&
-        Objects.equals(this.currentPageRows, pageMetaData.currentPageRows) &&
-        Objects.equals(this.totalPages, pageMetaData.totalPages) &&
-        Objects.equals(this.totalRows, pageMetaData.totalRows);
-  }
 
 }

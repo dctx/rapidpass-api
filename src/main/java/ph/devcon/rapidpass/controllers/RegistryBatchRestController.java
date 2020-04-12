@@ -1,7 +1,9 @@
 package ph.devcon.rapidpass.controllers;
 
 
-import com.opencsv.bean.*;
+import com.opencsv.bean.ColumnPositionMappingStrategy;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +13,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.RapidPassBulkData;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.models.RapidPassEventLog;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -134,9 +141,9 @@ public class RegistryBatchRestController {
     {
         Pageable page = PageRequest.of(pageNumber, pageSize);
         try {
-            PagedAccessPassEvent pagedAccessPassEvent = registryService.getAccessPassEvent(fromEventID, page);
-            if (pagedAccessPassEvent != null) {
-                return ResponseEntity.ok(pagedAccessPassEvent);
+            RapidPassEventLog rapidPassEventLog = registryService.getAccessPassEvent(fromEventID, page);
+            if (rapidPassEventLog != null) {
+                return ResponseEntity.ok(rapidPassEventLog);
             } else {
                 return ResponseEntity.notFound().build();
             }

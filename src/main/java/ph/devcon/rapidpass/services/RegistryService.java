@@ -648,12 +648,12 @@ public class RegistryService {
         return scannerDeviceRepository.saveAndFlush(device);
     }
 
-    public PagedAccessPassEvent getAccessPassEvent(Integer eventId, Pageable pageable) {
+    public RapidPassEventLog getAccessPassEvent(Integer eventId, Pageable pageable) {
         Page<AccessPassEvent> accessPassEvents = accessPassEventRepository.findAllByIdIsGreaterThanEqual(eventId, pageable);
         if (accessPassEvents == null || accessPassEvents.isEmpty()) {
             return null;
         } else {
-            return PagedAccessPassEvent.buildFrom(accessPassEvents, secretKey);
+            return RapidPassEventLog.buildFrom(accessPassEvents, secretKey);
         }
     }
 }
