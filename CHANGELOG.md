@@ -5,17 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [1.2.1] - 2020-04-11
-### Fixed
-- `GET /batch/access-passes` with hard coded `lastSyncOn` logic.
 
 ## [1.3.0-SNAPSHOT]
-### Changedd
+### Changed
 - Bulk upload validation has been optimized to not query database if basic validation fails
 - Bulk upload no longer rejects records if duplicate requests 
 - Bulk upload can now send messages to a kafka topic called 'requests' instead of directly updating the RapidPass database
 - introduced 'bulk-upload.process' parameter to switch between kafka-based bulk upload or internal processing
 - added index on access_pass to optimize queries 
+
+## [1.2.1] - 2020-04-11
+### Added
+- [#172](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/172) - Can now bulk register approvers. See 
+    `src/main/resources/approver-bulk-registration.csv` for template CSV.
+
+### Fixed
+- `GET /batch/access-passes` with hard coded `lastSyncOn` logic.
 
 ## [1.1.9] - 2020-04-10
 ### Fixed
