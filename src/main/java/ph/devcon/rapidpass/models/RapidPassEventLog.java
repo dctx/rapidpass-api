@@ -3,10 +3,12 @@ package ph.devcon.rapidpass.models;
 import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.AccessPassEvent;
+import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
 import java.util.ArrayList;
@@ -26,6 +28,8 @@ public class RapidPassEventLog {
     private PageMetaData meta;
     private List<?> data;
 
+    @Autowired
+    ControlCodeService controlCodeService;
 
     public static List<String> getColumnNames() {
         List<String> columnList = new ArrayList<>();
@@ -43,13 +47,13 @@ public class RapidPassEventLog {
         return columnList;
     }
 
-    public static List<?> values(AccessPassEvent a, String secretKey) {
+    public static List<?> values(AccessPassEvent a, ControlCodeService controlCodeService) {
         List<Object> valueList = new ArrayList<>();
         valueList.add(a.getId());
         valueList.add(a.getReferenceId());
         valueList.add(a.getPassType());
         valueList.add(a.getAporType());
-        valueList.add(ControlCodeGenerator.generate(secretKey, a.getId()));
+        valueList.add(controlCodeService.encode(a.getId()));
         valueList.add(a.getName());
         valueList.add(a.getPlateNumber());
         valueList.add(a.getStatus());
@@ -60,9 +64,9 @@ public class RapidPassEventLog {
         return valueList;
     }
 
-    public static RapidPassEventLog buildFrom(Page<AccessPassEvent> accessPassEventPage, String secretKey) {
+    public static RapidPassEventLog buildFrom(Page<AccessPassEvent> accessPassEventPage, ControlCodeService controlCodeService) {
         List<?> rapidPassEvents = accessPassEventPage.getContent().stream()
-                .map(a -> RapidPassEventLog.values(a, secretKey))
+                .map(a -> RapidPassEventLog.values(a, controlCodeService))
                 .collect(Collectors.toList());
         return RapidPassEventLog.builder()
                 .meta(PageMetaData.builder()
