@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bulk upload can now send messages to a kafka topic called 'requests' instead of directly updating the RapidPass database.
 - introduced 'bulk-upload.process' parameter to switch between kafka-based bulk upload or internal processing.
 - added index on access_pass to optimize queries. 
+- [#345](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/345) fixed `get /registry/access-passes` to allow multiple apor types in the query parameters
 
 ## [1.2.1] - 2020-04-11
 ### Fixed
