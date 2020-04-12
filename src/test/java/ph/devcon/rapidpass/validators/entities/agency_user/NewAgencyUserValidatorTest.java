@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.validators.entities.agency_user;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,7 +14,6 @@ import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,7 +86,7 @@ public class NewAgencyUserValidatorTest {
                 .lastName("boku-no last namae")
                 .email("myemail@gmail.com")
                 .registrar("DOH")
-                .source(RegistrarUserSource.BATCH_UPLOAD.toString())
+                .source(RegistrarUserSource.BULK.toString())
                 .build();
 
         binder = new DataBinder(agencyUser);
@@ -207,7 +205,7 @@ public class NewAgencyUserValidatorTest {
 
         // ---- CASE username is invalid type ----
         AgencyUser agencyUser = AgencyUser.builder()
-                .source(RegistrarUserSource.BATCH_UPLOAD.toString())
+                .source(RegistrarUserSource.BULK.toString())
                 .build();
 
         binder = new DataBinder(agencyUser);
