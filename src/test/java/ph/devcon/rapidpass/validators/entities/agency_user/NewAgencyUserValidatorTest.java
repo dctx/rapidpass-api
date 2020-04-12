@@ -154,7 +154,7 @@ public class NewAgencyUserValidatorTest {
                 .lastName("Sapalo")
                 .email("myemail@gmail.com")
                 .registrar("DOH")
-                .source("BATCH_UPLOAD")
+                .source(RegistrarUserSource.BULK.name())
                 .build();
 
         binder = new DataBinder(agencyUser);
