@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ph.devcon.rapidpass.models.RapidPassBulkData;
@@ -19,6 +20,7 @@ import ph.devcon.rapidpass.models.RapidPassEventLog;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/batch")
+@Validated
 @Slf4j
 public class RegistryBatchRestController {
 
@@ -126,24 +129,17 @@ public class RegistryBatchRestController {
 
     @GetMapping("/access-pass-events")
     public ResponseEntity<?> getAccessPassEvents(
-                                           @RequestParam(value="fromEventID", required = true)
-                                           Integer fromEventID,
-                                           @Valid @RequestParam(value = "pageNumber", required = false, defaultValue = "0")
-                                           Integer pageNumber, @ApiParam(value = "size of page requested")
-                                           @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
-                                           Integer pageSize)
+            @RequestParam @Min(0) Integer fromEventID,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "1000") Integer pageSize)
 
     {
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        try {
-            RapidPassEventLog rapidPassEventLog = registryService.getAccessPassEvent(fromEventID, page);
-            if (rapidPassEventLog != null) {
-                return ResponseEntity.ok(rapidPassEventLog);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        RapidPassEventLog rapidPassEventLog = registryService.getAccessPassEvent(fromEventID, page);
+        if (rapidPassEventLog != null) {
+            return ResponseEntity.ok(rapidPassEventLog);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }
