@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.validators.entities.agency_user;
+package ph.devcon.rapidpass.validators.entities.agencyuser;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class NewAgencyUserValidatorTest {
+public class BaseAgencyUserRequestValidatorTest {
 
     @Mock
     RegistrarUserRepository registrarUserRepository;
@@ -46,14 +46,13 @@ public class NewAgencyUserValidatorTest {
                         .id(1)
                         .build()
         );
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new NewSingleAgencyUserRequestValidator(registrarUserRepository, registrarRepository);
 
-        AgencyUser agencyUser = AgencyUser.builder()
-                .username("darrensapalo")
-                .password("mypassword")
-                .email("myemail@gmail.com")
-                .registrar("DOH")
-                .build();
+        final AgencyUser agencyUser = new AgencyUser();
+        agencyUser.setUsername("darrensapalo");
+        agencyUser.setPassword("mypassword");
+        agencyUser.setEmail("myemail@gmail.com");
+        agencyUser.setRegistrar("DOH");
 
         binder = new DataBinder(agencyUser);
         binder.setValidator(newAccessPassRequestValidator);
@@ -78,16 +77,15 @@ public class NewAgencyUserValidatorTest {
                         .id(1)
                         .build()
         );
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(registrarUserRepository, registrarRepository);
 
-        AgencyUser agencyUser = AgencyUser.builder()
-                .username("darrensapalo")
-                .firstName("boku-no namae")
-                .lastName("boku-no last namae")
-                .email("myemail@gmail.com")
-                .registrar("DOH")
-                .source(RegistrarUserSource.BULK.toString())
-                .build();
+        AgencyUser agencyUser = new AgencyUser();
+        agencyUser.setUsername("darrensapalo");
+        agencyUser.setFirstName("boku-no namae");
+        agencyUser.setLastName("boku-no last namae");
+        agencyUser.setEmail("myemail@gmail.com");
+        agencyUser.setRegistrar("DOH");
+        agencyUser.setSource(RegistrarUserSource.BULK.toString());
 
         binder = new DataBinder(agencyUser);
         binder.setValidator(newAccessPassRequestValidator);
@@ -112,14 +110,13 @@ public class NewAgencyUserValidatorTest {
                     .build()
         );
 
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new NewSingleAgencyUserRequestValidator(registrarUserRepository, registrarRepository);
 
-        AgencyUser agencyUser = AgencyUser.builder()
-                .username("darrensapalo")
-                .password("mypassword")
-                .email("myemail@gmail.com")
-                .registrar("DOH")
-                .build();
+        final AgencyUser agencyUser = new AgencyUser();
+        agencyUser.setUsername("darrensapalo");
+        agencyUser.setPassword("mypassword");
+        agencyUser.setEmail("myemail@gmail.com");
+        agencyUser.setRegistrar("DOH");
 
         binder = new DataBinder(agencyUser);
         binder.setValidator(newAccessPassRequestValidator);
@@ -145,17 +142,16 @@ public class NewAgencyUserValidatorTest {
                         .build()
         );
 
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(registrarUserRepository, registrarRepository);
 
         // ---- CASE password is undefined, but source is batch upload  ----
-        AgencyUser agencyUser = AgencyUser.builder()
-                .username("darrensapalo")
-                .firstName("Darren")
-                .lastName("Sapalo")
-                .email("myemail@gmail.com")
-                .registrar("DOH")
-                .source(RegistrarUserSource.BULK.name())
-                .build();
+        AgencyUser agencyUser = new AgencyUser();
+        agencyUser.setUsername("darrensapalo");
+        agencyUser.setFirstName("Darren");
+        agencyUser.setLastName("Sapalo");
+        agencyUser.setEmail("myemail@gmail.com");
+        agencyUser.setRegistrar("DOH");
+        agencyUser.setSource(RegistrarUserSource.BULK.name());
 
         binder = new DataBinder(agencyUser);
         binder.setValidator(newAccessPassRequestValidator);
@@ -174,11 +170,12 @@ public class NewAgencyUserValidatorTest {
     @Test
     public void failIfMissingFields_INDIVIDUAL() {
 
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new NewSingleAgencyUserRequestValidator(registrarUserRepository, registrarRepository);
+
+        when(registrarRepository.findByShortName(anyString())).thenReturn(null);
 
         // ---- CASE username is invalid type ----
-        AgencyUser agencyUser = AgencyUser.builder()
-                .build();
+        AgencyUser agencyUser = new AgencyUser();
 
         binder = new DataBinder(agencyUser);
         binder.setValidator(newAccessPassRequestValidator);
@@ -194,19 +191,41 @@ public class NewAgencyUserValidatorTest {
         assertThat(errors, hasItem("Missing registrar."));
         assertThat(errors, hasItem("Missing password."));
         assertThat(errors, hasItem("Missing username."));
+
+        // ---- CASE invalid type registrar type ----
+        agencyUser = new AgencyUser();
+        agencyUser.setUsername("my username");
+        agencyUser.setPassword("my password");
+        agencyUser.setRegistrar("INVALID_REGISTRAR");
+
+        binder = new DataBinder(agencyUser);
+        binder.setValidator(newAccessPassRequestValidator);
+
+        binder.validate();
+
+        bindingResult = binder.getBindingResult();
+
+        errors = bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+
         assertThat(errors, hasItems(containsString("No registrar found")));
+
+
 
     }
 
     @Test
     public void failIfMissingFields_BATCH() {
 
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(registrarUserRepository, registrarRepository);
+        // when
+        when(registrarRepository.findByShortName(anyString())).thenReturn(null);
+
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(registrarUserRepository, registrarRepository);
 
         // ---- CASE username is invalid type ----
-        AgencyUser agencyUser = AgencyUser.builder()
-                .source(RegistrarUserSource.BULK.toString())
-                .build();
+        AgencyUser agencyUser = new AgencyUser();
+        agencyUser.setSource(RegistrarUserSource.BULK.toString());
 
         binder = new DataBinder(agencyUser);
         binder.setValidator(newAccessPassRequestValidator);
@@ -223,6 +242,28 @@ public class NewAgencyUserValidatorTest {
         assertThat(errors, hasItem("Missing first name."));
         assertThat(errors, hasItem("Missing last name."));
         assertThat(errors, hasItem("Missing email."));
+
+        // ---- Case invalid registrar type ----
+        agencyUser = new AgencyUser();
+        agencyUser.setSource(RegistrarUserSource.BULK.toString());
+        agencyUser.setUsername("my username");
+        agencyUser.setPassword("my password");
+        agencyUser.setFirstName("my first name");
+        agencyUser.setLastName("my last name");
+        agencyUser.setRegistrar("INVALID_REGISTRAR");
+        agencyUser.setEmail("my email");
+
+        binder = new DataBinder(agencyUser);
+        binder.setValidator(newAccessPassRequestValidator);
+
+        binder.validate();
+
+        bindingResult = binder.getBindingResult();
+
+        errors = bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+
         assertThat(errors, hasItems(containsString("No registrar found")));
 
     }
