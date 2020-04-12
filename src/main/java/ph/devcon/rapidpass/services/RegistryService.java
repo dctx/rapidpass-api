@@ -196,13 +196,6 @@ public class RegistryService {
 
     public RapidPassPageView    findRapidPass(QueryFilter q) {
 
-        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q),
-                ExampleMatcher.matchingAll()
-                        .withIgnoreCase()
-                        .withMatcher("name", contains())
-                        .withMatcher("company", contains())
-        );
-
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
             int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
@@ -215,7 +208,6 @@ public class RegistryService {
             aporList = Arrays.asList(aporTypes);
         Specification<AccessPass> byAporTypes = AccessPassSpecifications.byAporTypes(aporList);
         Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());
-//        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
         Page<AccessPass> accessPassPages = accessPassRepository.findAll(byAporTypes.and(byPassType)
                 .and(AccessPassSpecifications.byCompany(q.getCompany())).and(AccessPassSpecifications.byName(q.getName()))
                 .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber())).and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))

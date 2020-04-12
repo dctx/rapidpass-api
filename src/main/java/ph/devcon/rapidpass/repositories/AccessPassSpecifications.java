@@ -64,7 +64,7 @@ public class AccessPassSpecifications {
         return (((root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(company))
                 return null;
-            return criteriaBuilder.equal(root.get("company"), company);
+            return criteriaBuilder.like(root.get("company"), "%"+company+"%");
         }));
     }
 
@@ -72,7 +72,7 @@ public class AccessPassSpecifications {
         return (((root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(name))
                 return null;
-            return criteriaBuilder.equal(root.get("name"), name);
+            return criteriaBuilder.like(root.get("name"), "%"+name+"%");
         }));
     }
 
