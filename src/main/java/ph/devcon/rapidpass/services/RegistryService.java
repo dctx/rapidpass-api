@@ -13,12 +13,12 @@ import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
+import ph.devcon.rapidpass.enums.RegistrarUserSource;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
@@ -611,17 +611,16 @@ public class RegistryService {
         List<String> result = new ArrayList<String>();
 
         // Validation
-        NewAgencyUserValidator newAccessPassRequestValidator = new NewAgencyUserValidator(this.registrarUserRepository, this.registrarRepository);
+        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(this.registrarUserRepository, this.registrarRepository);
 
-        RegistrarUser registrarUser;
         int counter = 1;
         for (AgencyUser agencyUser : agencyUsers) {
             try {
-
+                agencyUser.setSource(RegistrarUserSource.BULK.name());
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(agencyUser);
 
-                this.authService.createAgencyCredentials(agencyUser);
+                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
 
                 result.add("Record " + counter++ + ": Success. ");
             } catch ( Exception e ) {
