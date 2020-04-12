@@ -22,8 +22,8 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
-import ph.devcon.rapidpass.validators.entities.access_pass.NewSingleAccessPassRequestValidator;
-import ph.devcon.rapidpass.validators.entities.agency_user.NewAgencyUserValidator;
+import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.agencyuser.BatchAgencyUserRequestValidator;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -611,7 +611,7 @@ public class RegistryService {
         List<String> result = new ArrayList<String>();
 
         // Validation
-        BaseAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(this.registrarUserRepository, this.registrarRepository);
+        BatchAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(this.registrarUserRepository, this.registrarRepository);
 
         int counter = 1;
         for (AgencyUser agencyUser : agencyUsers) {

@@ -1,18 +1,11 @@
-package ph.devcon.rapidpass.validators.entities.access_pass;
+package ph.devcon.rapidpass.validators.entities;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.validators.entities.BaseAccessPassRequestValidator;
-import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
-
-import java.util.List;
 
 /**
  * Subset of {@link BatchAccessPassRequestValidator}, that doesn't do id type checking.

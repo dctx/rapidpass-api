@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
@@ -17,9 +18,6 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +31,7 @@ class AuthServiceTest {
     private RegistrarRepository registrarRepository;
     private RegistrarUserRepository registrarUserRepository;
     private JwtSecretsConfig jwtSecretsConfig;
+    private RegistrarUserRequestProducer registrarUserRequestProducer;
 
     private ApproverAuthService authService;
 
@@ -41,7 +40,8 @@ class AuthServiceTest {
         this.registrarUserRepository = Mockito.mock(RegistrarUserRepository.class);
         this.registrarRepository = Mockito.mock(RegistrarRepository.class);
         this.jwtSecretsConfig = Mockito.mock(JwtSecretsConfig.class);
-        this.authService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
+        this.registrarUserRequestProducer = Mockito.mock(RegistrarUserRequestProducer.class);
+        this.authService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig, registrarUserRequestProducer);
     }
 
     @Test
@@ -49,11 +49,10 @@ class AuthServiceTest {
         final String username = "username";
         final String password = "password";
 
-        final AgencyUser user = AgencyUser.builder()
-                .registrar("DOH")
-                .username(username)
-                .password(password)
-                .build();
+        final AgencyUser user = new AgencyUser();
+        user.setRegistrar("DOH");
+        user.setUsername(username);
+        user.setPassword(password);
 
         // has registrar
         final Registrar registrar = Registrar.builder()
@@ -63,7 +62,7 @@ class AuthServiceTest {
 
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrar);
         // no existing user
-        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(Collections.emptyList());
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
 
         try {
             this.authService.createAgencyCredentials(user);
