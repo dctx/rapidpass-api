@@ -16,8 +16,8 @@ import java.time.OffsetDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class CheckpointRestControllerTest extends BaseApiTest
 {
@@ -74,7 +74,6 @@ public class CheckpointRestControllerTest extends BaseApiTest
         OffsetDateTime validUntil = OffsetDateTime.now().plusDays(1);
         AccessPass accessPassEntity = new AccessPass();
         accessPassEntity.setValidTo(validUntil);
-        accessPassEntity.setLastUsedOn(OffsetDateTime.now());
         accessPassEntity.setAporType("ME");
         accessPassEntity.setPassType(PassType.INDIVIDUAL.toString());
         accessPassEntity.setReferenceID("Sample");

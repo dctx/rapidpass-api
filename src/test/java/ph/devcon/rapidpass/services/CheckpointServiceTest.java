@@ -13,7 +13,6 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -67,7 +66,6 @@ public class CheckpointServiceTest
         assertEquals(controlCode,accessPass.getControlCode(),"Control Code");
         assertEquals(accessPassEntity.getIssuedBy(),accessPass.getIssuedBy(),"Approved By");
         assertEquals(accessPassEntity.getValidTo(),accessPass.getValidTo(),"Valid Until");
-        assertEquals(accessPassEntity.getLastUsedOn(),accessPass.getLastUsedOn(),"LastUsed");
         assertEquals(accessPassEntity.getReferenceID(),accessPass.getReferenceID(),"Reference ID");
     }
 
@@ -100,7 +98,6 @@ public class CheckpointServiceTest
         OffsetDateTime validUntil = OffsetDateTime.now().plusDays(1);
         AccessPass accessPassEntity = new AccessPass();
         accessPassEntity.setValidTo(validUntil);
-        accessPassEntity.setLastUsedOn(OffsetDateTime.now());
         accessPassEntity.setAporType("ME");
         accessPassEntity.setPassType(PassType.INDIVIDUAL.toString());
         accessPassEntity.setReferenceID("Sample");
