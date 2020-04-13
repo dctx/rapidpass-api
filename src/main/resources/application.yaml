@@ -42,6 +42,7 @@ spring:
 
 topic:
   new-requests: rapidpass-requests
+  new-registrar-user-requests: rapidpass-approver-requests
   approval-notifications: rapidpass-approvals
   rapidpass-events: rapidpass-events
   partitions-num: 3

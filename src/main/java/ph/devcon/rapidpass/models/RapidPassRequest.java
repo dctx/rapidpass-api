@@ -40,6 +40,7 @@ public final class RapidPassRequest {
     private String idType;
     @NotEmpty
     private String identifierNumber;
+
     private String plateNumber;
     @NotEmpty
     private String mobileNumber; // todo validate. use validation annotations.

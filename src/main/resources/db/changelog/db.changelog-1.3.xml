@@ -15,6 +15,7 @@
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="access_pass_event_pk"/>
             </column>
+            <column name="access_pass_id" type="INTEGER"/>
             <column name="reference_id" type="VARCHAR(30)"/>
             <column name="pass_type" type="VARCHAR(10)"/>
             <column name="apor_type" type="VARCHAR(10)"/>
@@ -32,5 +33,63 @@
             <column name="id"/>
             <column name="status"/>
         </createIndex>
+    </changeSet>
+    <changeSet author="eric" id="202004111-1">
+        <createTable tableName="apor_type_approver_lookup">
+            <column autoIncrement="true" name="id" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="apor_approver_lookup_pk"/>
+            </column>
+            <column name="registrar_short_name" type="VARCHAR(30)"/>
+            <column name="apor_type" type="VARCHAR(10)" />
+        </createTable>
+        <createIndex indexName="apor_user_lookup_idx" tableName="apor_type_approver_lookup" unique="true">
+            <column name="apor_type"/>
+            <column name="registrar_short_name"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="eric" id="20200411-2">
+        <loadData encoding="UTF-8"
+                  file="registrars-20200411.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="registrar"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="eric" id="20200411-3">
+        <loadData encoding="UTF-8"
+                  file="registrar-users-20200411.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="registrar_user"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="eric" id="20200411-4">
+        <loadData encoding="UTF-8"
+                  file="apor-type-approver-lookup.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="apor_type_approver_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="darren" id="20200413-1">
+        <sql dbms="postgresql" endDelimiter=";">
+            select setval('registrar_user_id_seq', 501)
+        </sql>
+    </changeSet>
+    <changeSet author="darrenn" id="20200413-2">
+        <dropColumn
+                schemaName="public"
+                tableName="access_pass">
+            <column name="last_used_on" type="TIMESTAMP without time zone"/>
+        </dropColumn>
     </changeSet>
 </databaseChangeLog>

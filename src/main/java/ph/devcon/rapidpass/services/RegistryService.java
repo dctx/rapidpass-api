@@ -1,33 +1,31 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.ControlCode;
-import ph.devcon.rapidpass.entities.Registrant;
-import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
+import ph.devcon.rapidpass.enums.RegistrarUserSource;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.agencyuser.BatchAgencyUserRequestValidator;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -37,13 +35,12 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 
 @Component
 @Slf4j
@@ -61,13 +58,18 @@ public class RegistryService {
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
 
+    private final AccessPassEventRepository accessPassEventRepository;
+    private final ApproverAuthService authService;
+    private final LookupTableService lookupTableService;
+    private final AccessPassNotifierService accessPassNotifierService;
+    private final RegistrarRepository registrarRepository;
+
     private final RegistryRepository registryRepository;
     private final ControlCodeService controlCodeService;
     private final RegistrantRepository registrantRepository;
-    private final LookupTableService lookupTableService;
     private final AccessPassRepository accessPassRepository;
-    private final AccessPassNotifierService accessPassNotifierService;
     private final ScannerDeviceRepository scannerDeviceRepository;
+    private final RegistrarUserRepository registrarUserRepository;
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -195,14 +197,7 @@ public class RegistryService {
         rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
-    public RapidPassPageView findRapidPass(QueryFilter q) {
-
-        Example<AccessPass> accessPassExample = Example.of(AccessPass.fromQueryFilter(q),
-                ExampleMatcher.matchingAll()
-                        .withIgnoreCase()
-                        .withMatcher("name", contains())
-                        .withMatcher("company", contains())
-        );
+    public RapidPassPageView    findRapidPass(QueryFilter q) {
 
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
@@ -210,7 +205,19 @@ public class RegistryService {
             pageView = PageRequest.of(q.getPageNo(), pageSize);
         }
 
-        Page<AccessPass> accessPassPages = accessPassRepository.findAll(accessPassExample, pageView);
+        String[] aporTypes = StringUtils.split(q.getAporType(), ",");
+        List<String> aporList = null;
+        if (aporTypes != null)
+            aporList = Arrays.asList(aporTypes);
+        Specification<AccessPass> byAporTypes = AccessPassSpecifications.byAporTypes(aporList);
+        Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());
+        Page<AccessPass> accessPassPages = accessPassRepository.findAll(byAporTypes.and(byPassType)
+                .and(AccessPassSpecifications.byCompany(q.getCompany()))
+                .and(AccessPassSpecifications.byName(q.getName()))
+                .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber()))
+                .and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
+                .and(AccessPassSpecifications.bySource(q.getSource() != null ? q.getSource().name() : null ))
+                .and(AccessPassSpecifications.byStatus(q.getStatus())), pageView);
 
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
@@ -527,7 +534,7 @@ public class RegistryService {
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
-    public List<String> batchUpload(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<String> batchUploadRapidPassRequest(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
         List<String> passes = new ArrayList<>();
@@ -604,6 +611,34 @@ public class RegistryService {
         return passes;
     }
 
+    public List<String> batchUploadApprovers(List<AgencyUser> agencyUsers) {
+        log.info("Processing batch registration of approvers.");
+        List<String> result = new ArrayList<String>();
+
+        // Validation
+        BatchAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(this.registrarUserRepository, this.registrarRepository);
+
+        int counter = 1;
+        for (AgencyUser agencyUser : agencyUsers) {
+            try {
+
+                agencyUser.setUsername(StringUtils.trim(agencyUser.getUsername()));
+                agencyUser.setFirstName(StringUtils.trim(agencyUser.getFirstName()));
+                agencyUser.setLastName(StringUtils.trim(agencyUser.getLastName()));
+
+                agencyUser.setSource(RegistrarUserSource.BULK.name());
+                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
+                validation.validate(agencyUser);
+
+                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
+
+                result.add("Record " + counter++ + ": Success. ");
+            } catch ( Exception e ) {
+                result.add("Record " + counter++ + ": Failed. " + e.getMessage());
+            }
+        }
+        return result;
+    }
 
     /**
      * This is thrown when updates are not allowed for the AccessPass.
@@ -645,5 +680,14 @@ public class RegistryService {
         device.setStatus(request.getStatus());
 
         return scannerDeviceRepository.saveAndFlush(device);
+    }
+
+    public RapidPassEventLog getAccessPassEvent(Integer eventId, Pageable pageable) {
+        Page<AccessPassEvent> accessPassEvents = accessPassEventRepository.findAllByIdIsGreaterThanEqual(eventId, pageable);
+        if (accessPassEvents == null || accessPassEvents.isEmpty()) {
+            return null;
+        } else {
+            return RapidPassEventLog.buildFrom(accessPassEvents, controlCodeService);
+        }
     }
 }

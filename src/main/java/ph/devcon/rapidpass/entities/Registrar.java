@@ -5,7 +5,10 @@
  */
 package ph.devcon.rapidpass.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -19,38 +22,11 @@ import java.util.List;
  * @author eric
  */
 @Data
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "registrar")
-@NamedQueries({
-    @NamedQuery(name = "Registrar.findAll", query = "SELECT r FROM Registrar r"),
-    @NamedQuery(name = "Registrar.findById", query = "SELECT r FROM Registrar r WHERE r.id = :id"),
-    @NamedQuery(name = "Registrar.findByName", query = "SELECT r FROM Registrar r WHERE r.name = :name"),
-    @NamedQuery(name = "Registrar.findByShortName", query = "SELECT r FROM Registrar r WHERE r.shortName = :shortName"),
-    @NamedQuery(name = "Registrar.findByDescription", query = "SELECT r FROM Registrar r WHERE r.description = :description"),
-    @NamedQuery(name = "Registrar.findByShardKey", query = "SELECT r FROM Registrar r WHERE r.shardKey = :shardKey"),
-    @NamedQuery(name = "Registrar.findByInstitutionType", query = "SELECT r FROM Registrar r WHERE r.institutionType = :institutionType"),
-    @NamedQuery(name = "Registrar.findByInstitutionClassification", query = "SELECT r FROM Registrar r WHERE r.institutionClassification = :institutionClassification"),
-    @NamedQuery(name = "Registrar.findByStatus", query = "SELECT r FROM Registrar r WHERE r.status = :status"),
-    @NamedQuery(name = "Registrar.findByAddress", query = "SELECT r FROM Registrar r WHERE r.address = :address"),
-    @NamedQuery(name = "Registrar.findByCountry", query = "SELECT r FROM Registrar r WHERE r.country = :country"),
-    @NamedQuery(name = "Registrar.findByRegion", query = "SELECT r FROM Registrar r WHERE r.region = :region"),
-    @NamedQuery(name = "Registrar.findByProvince", query = "SELECT r FROM Registrar r WHERE r.province = :province"),
-    @NamedQuery(name = "Registrar.findByCity", query = "SELECT r FROM Registrar r WHERE r.city = :city"),
-    @NamedQuery(name = "Registrar.findByZipCode", query = "SELECT r FROM Registrar r WHERE r.zipCode = :zipCode"),
-    @NamedQuery(name = "Registrar.findByPhone", query = "SELECT r FROM Registrar r WHERE r.phone = :phone"),
-    @NamedQuery(name = "Registrar.findByMobile", query = "SELECT r FROM Registrar r WHERE r.mobile = :mobile"),
-    @NamedQuery(name = "Registrar.findByEmail", query = "SELECT r FROM Registrar r WHERE r.email = :email"),
-    @NamedQuery(name = "Registrar.findByRepresentative", query = "SELECT r FROM Registrar r WHERE r.representative = :representative"),
-    @NamedQuery(name = "Registrar.findByRepDesignation", query = "SELECT r FROM Registrar r WHERE r.repDesignation = :repDesignation"),
-    @NamedQuery(name = "Registrar.findByRepPhone", query = "SELECT r FROM Registrar r WHERE r.repPhone = :repPhone"),
-    @NamedQuery(name = "Registrar.findByRepMobile", query = "SELECT r FROM Registrar r WHERE r.repMobile = :repMobile"),
-    @NamedQuery(name = "Registrar.findByRepEmail", query = "SELECT r FROM Registrar r WHERE r.repEmail = :repEmail"),
-    @NamedQuery(name = "Registrar.findByWebsite", query = "SELECT r FROM Registrar r WHERE r.website = :website"),
-    @NamedQuery(name = "Registrar.findByReference1", query = "SELECT r FROM Registrar r WHERE r.reference1 = :reference1"),
-    @NamedQuery(name = "Registrar.findByReference2", query = "SELECT r FROM Registrar r WHERE r.reference2 = :reference2"),
-    @NamedQuery(name = "Registrar.findByUpdates", query = "SELECT r FROM Registrar r WHERE r.updates = :updates"),
-    @NamedQuery(name = "Registrar.findByDateTimeCreated", query = "SELECT r FROM Registrar r WHERE r.dateTimeCreated = :dateTimeCreated"),
-    @NamedQuery(name = "Registrar.findByDateTimeUpdated", query = "SELECT r FROM Registrar r WHERE r.dateTimeUpdated = :dateTimeUpdated")})
 public class Registrar implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -157,9 +133,6 @@ public class Registrar implements Serializable {
 //    private Collection<ScannerDevice> scannerDeviceCollection;
 //    @OneToMany(mappedBy = "registrarId")
 //    private Collection<Registrant> registrantCollection;
-
-    public Registrar() {
-    }
 
     @Override
     public int hashCode() {

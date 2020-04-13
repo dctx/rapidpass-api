@@ -27,6 +27,7 @@ public class RapidPassBulkData {
         columnList.add("referenceID");
         columnList.add("passType");
         columnList.add("aporType");
+        columnList.add("identifierNumber");
         columnList.add("validFrom");
         columnList.add("validTo");
         columnList.add("name");
@@ -41,6 +42,7 @@ public class RapidPassBulkData {
         valueList.add(accessPass.getReferenceID());
         valueList.add(accessPass.getPassType());
         valueList.add(accessPass.getAporType());
+        valueList.add(accessPass.getIdentifierNumber());
         valueList.add(accessPass.getValidFrom().toEpochSecond());
         valueList.add(accessPass.getValidTo().toEpochSecond());
         valueList.add(accessPass.getName());
