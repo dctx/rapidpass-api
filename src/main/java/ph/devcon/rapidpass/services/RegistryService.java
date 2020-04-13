@@ -42,8 +42,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
-
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -209,8 +207,10 @@ public class RegistryService {
         Specification<AccessPass> byAporTypes = AccessPassSpecifications.byAporTypes(aporList);
         Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());
         Page<AccessPass> accessPassPages = accessPassRepository.findAll(byAporTypes.and(byPassType)
-                .and(AccessPassSpecifications.byCompany(q.getCompany())).and(AccessPassSpecifications.byName(q.getName()))
-                .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber())).and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
+                .and(AccessPassSpecifications.byCompany(q.getCompany()))
+                .and(AccessPassSpecifications.byName(q.getName()))
+                .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber()))
+                .and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
                 .and(AccessPassSpecifications.bySource(q.getSource() != null ? q.getSource().name() : null ))
                 .and(AccessPassSpecifications.byStatus(q.getStatus())), pageView);
 

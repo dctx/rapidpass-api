@@ -40,7 +40,7 @@ public class AccessPassSpecifications {
         return (((root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(referenceId))
                 return null;
-            return criteriaBuilder.equal(root.get("referenceId"), referenceId);
+            return criteriaBuilder.equal(root.get("referenceID"), referenceId);
         }));
     }
 
