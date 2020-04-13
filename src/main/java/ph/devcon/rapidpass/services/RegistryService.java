@@ -593,6 +593,9 @@ public class RegistryService {
                             log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
                                     request.getPassType().name(), referenceId);
                         }
+
+                        AccessPass topAccessPass = accessPasses.remove(0);
+
                         // let's approve all pending requests with the same reference id and pass type
                         for (AccessPass accessPass: accessPasses) {
                             accessPass.setValidFrom(now);
@@ -602,6 +605,12 @@ public class RegistryService {
 
                             accessPassRepository.saveAndFlush(accessPass);
                         }
+
+                        topAccessPass.setValidFrom(now);
+                        topAccessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+                        topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
+
+                        accessPassRepository.saveAndFlush(topAccessPass);
 
                     }
 
