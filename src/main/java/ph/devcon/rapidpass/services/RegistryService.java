@@ -1,12 +1,13 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -531,6 +532,10 @@ public class RegistryService {
     /**
      * Returns a list of rapid passes that were requested for granting or approval.
      *
+     * <p>Note that this method should not be performing any Email or SMS sending, because bulk uploads may
+     * cause congestion on the API server. Instead, data should be inserted in the database, to be picked up by
+     * a polling push notification service.</p>
+     *
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
@@ -546,8 +551,9 @@ public class RegistryService {
         int counter = 1;
         Instant start = Instant.now();
         for (RapidPassCSVdata r : approvedRapidPasses) {
+            RapidPassRequest request = RapidPassRequest.buildFrom(r);
+
             try {
-                RapidPassRequest request = RapidPassRequest.buildFrom(r);
                 request.setSource(RecordSource.BULK.toString());
 
                 normalizeIdMobileAndPlateNumber(request);
@@ -590,22 +596,30 @@ public class RegistryService {
                         // let's approve all pending requests with the same reference id and pass type
                         for (AccessPass accessPass: accessPasses) {
                             accessPass.setValidFrom(now);
-                            if (now.isAfter(DEFAULT_EXPIRATION_DATE)) {
-                                accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
-                            } else {
-                                accessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
-                            }
+                            accessPass.setValidTo(now);
+
                             accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
+
                             accessPassRepository.saveAndFlush(accessPass);
                         }
+
                     }
+
                     passes.add("Record " + counter++ + ": Success. ");
 
                 }
             } catch (Exception e) {
                 log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
+
+                // Access passes that are declined should still be persisted. Reusing existing code.
+                pass = persistAccessPass(request, AccessPassStatus.PENDING);
+                decline(pass.getReferenceId(), e.getMessage());
+
                 passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
             }
+
+
+
         }
         log.info("Execution time: {} seconds", Duration.between(start, Instant.now()).toMillis() / 1000);
         return passes;
