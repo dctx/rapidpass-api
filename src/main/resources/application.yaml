@@ -42,13 +42,14 @@ spring:
 
 topic:
   new-requests: rapidpass-requests
+  new-registrar-user-requests: rapidpass-approver-requests
   approval-notifications: rapidpass-approvals
   rapidpass-events: rapidpass-events
   partitions-num: 3
   replication-factor: 1
 
 kafka:
-  enabled: true # enables or disables kafka event processing
+  enabled: false # enables or disables kafka event processing
 
 springfox:
   documentation:
