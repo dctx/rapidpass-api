@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [1.3.0-SNAPSHOT]
+### Added
+- Included IATF as ID Type (Individual) from the look up table.
+
 ### Changed
 - Bulk upload validation has been optimized to not query database if basic validation fails.
 - Bulk upload no longer rejects records if duplicate requests.

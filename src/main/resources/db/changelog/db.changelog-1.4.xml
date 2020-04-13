@@ -48,4 +48,21 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
+    <changeSet author="carlo" id="20200409-1">
+        <delete schemaName="public"
+                tableName="lookup_table">
+            <where>key='IDTYPE-I' OR key='IDTYPE-V'</where>
+        </delete>
+    </changeSet>
+    <changeSet author="darren" id="20200413-2">
+        <loadData encoding="UTF-8"
+                  file="id_type-lookup.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="lookup_table"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
 </databaseChangeLog>
