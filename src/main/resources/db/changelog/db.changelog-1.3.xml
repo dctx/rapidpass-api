@@ -85,4 +85,11 @@
             select setval('registrar_user_id_seq', 501)
         </sql>
     </changeSet>
+    <changeSet author="darrenn" id="20200413-2">
+        <dropColumn
+                schemaName="public"
+                tableName="access_pass">
+            <column name="last_used_on" type="TIMESTAMP without time zone"/>
+        </dropColumn>
+    </changeSet>
 </databaseChangeLog>
