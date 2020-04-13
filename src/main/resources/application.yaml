@@ -84,7 +84,10 @@ rbac:
             - DELETE # APPROVE/DENY
         - endpoint: /registry/access-passes
           verbs:
-            - ALL
+            - GET
+            - PUT
+            - DELETE
+            # POST # used for registration  DO NOT ENABLE!
 #    - role: checkpoint
 #      resources:
 #        - endpoint: /batch/access-passes
