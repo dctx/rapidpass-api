@@ -187,7 +187,7 @@ public class ApproverAuthService {
         final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
         if (registrarUser == null) {
             throw new IllegalStateException("cannot activate a non existent user");
-        } else if (!"pending".equals(registrarUser.getStatus())) {
+        } else if (!RegistrarUserStatus.PENDING.name().equalsIgnoreCase(registrarUser.getStatus())) {
             throw new IllegalStateException("cannot activate if user is not pending");
         }
         if (!activationKey.equals(registrarUser.getAccessKey())) {
@@ -196,7 +196,7 @@ public class ApproverAuthService {
         final String hashedPassword = passwordHash(password);
         registrarUser.setPassword(hashedPassword);
         registrarUser.setAccessKey(null);
-        registrarUser.setStatus("active");
+        registrarUser.setStatus(RegistrarUserStatus.ACTIVE.name());
         this.registrarUserRepository.save(registrarUser);
     }
 
@@ -208,6 +208,6 @@ public class ApproverAuthService {
         if (registrarUser == null) {
             return false;
         }
-        return "active".equals(registrarUser.getStatus());
+        return RegistrarUserStatus.ACTIVE.name().equalsIgnoreCase(registrarUser.getStatus());
     }
 }

@@ -131,10 +131,6 @@ public class AccessPass implements Serializable {
 
     private OffsetDateTime dateTimeUpdated;
 
-    @Column(name = "last_used_on")
-
-    private OffsetDateTime lastUsedOn;
-
     @JoinColumn(name = "registrant_id", referencedColumnName = "id")
     @ManyToOne
     private Registrant registrantId;
