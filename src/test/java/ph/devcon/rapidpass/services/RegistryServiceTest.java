@@ -15,10 +15,7 @@ import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.repositories.RegistrantRepository;
-import ph.devcon.rapidpass.repositories.RegistryRepository;
-import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
+import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
@@ -41,23 +38,23 @@ class RegistryServiceTest {
 
     RegistryService instance;
 
-    @Mock
-    RegistryRepository mockRegistryRepository;
+    @Mock ApproverAuthService mockAuthService;
 
-    @Mock
-    ControlCodeService controlCodeService;
+    @Mock RegistrarRepository mockRegistrarRepository;
 
-    @Mock
-    RegistrantRepository mockRegistrantRepository;
+    @Mock ControlCodeService controlCodeService;
 
-    @Mock
-    AccessPassRepository mockAccessPassRepository;
+    @Mock RegistrarUserRepository mockRegistrarUserRepository;
 
-    @Mock
-    AccessPassNotifierService mockAccessPassNotifierService;
+    @Mock RegistryRepository mockRegistryRepository;
 
-    @Mock
-    ScannerDeviceRepository mockScannerDeviceRepository;
+    @Mock RegistrantRepository mockRegistrantRepository;
+
+    @Mock AccessPassRepository mockAccessPassRepository;
+
+    @Mock AccessPassNotifierService mockAccessPassNotifierService;
+
+    @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
     @Mock LookupTableService lookupTableService;
 
@@ -71,8 +68,21 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(requestProducer, eventProducer, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
-                mockAccessPassNotifierService, mockScannerDeviceRepository);
+        instance = new RegistryService(
+                requestProducer,
+                eventProducer,
+                mockAuthService,
+                lookupTableService,
+                mockAccessPassNotifierService,
+                mockRegistrarRepository,
+                mockRegistryRepository,
+                controlCodeService,
+                mockRegistrantRepository,
+                mockAccessPassRepository,
+                mockScannerDeviceRepository,
+                mockRegistrarUserRepository
+        );
+
         instance.isKafaEnabled=false;
         now = OffsetDateTime.now();
     }

@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.enums.RegistrarUserSource;
+import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.repositories.RegistrarRepository;
@@ -18,18 +20,9 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,6 +33,7 @@ class ApproverAuthServiceTest {
     private RegistrarRepository registrarRepository;
     private RegistrarUserRepository registrarUserRepository;
     private JwtSecretsConfig jwtSecretsConfig;
+    private RegistrarUserRequestProducer registrarUserRequestProducer;
 
     private ApproverAuthService approverAuthService;
 
@@ -48,7 +42,8 @@ class ApproverAuthServiceTest {
         this.registrarUserRepository = Mockito.mock(RegistrarUserRepository.class);
         this.registrarRepository = Mockito.mock(RegistrarRepository.class);
         this.jwtSecretsConfig = Mockito.mock(JwtSecretsConfig.class);
-        this.approverAuthService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig);
+        this.registrarUserRequestProducer = Mockito.mock(RegistrarUserRequestProducer.class);
+        this.approverAuthService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig, this.registrarUserRequestProducer);
     }
 
     @Test
@@ -56,30 +51,35 @@ class ApproverAuthServiceTest {
         final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
 
         // has registrar
-        final Registrar registrarId = new Registrar();
-        when(this.registrarRepository.findByShortName(anyString())).thenReturn(registrarId);
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setShortName(registrar);
+        mockRegistrar.setId(5);
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setRegistrarId(mockRegistrar);
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(password);
+
+        final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
+
+        when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
         // no existing user
         when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(null);
 
         try {
-            this.approverAuthService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(agencyUser);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         }
 
         final ArgumentCaptor<RegistrarUser> argCaptor = ArgumentCaptor.forClass(RegistrarUser.class);
-        verify(this.registrarUserRepository).save(argCaptor.capture());
+        verify(this.registrarUserRepository).saveAndFlush(argCaptor.capture());
 
         final RegistrarUser capturedEntity = argCaptor.getValue();
         assertEquals(capturedEntity.getUsername(), username);
-        assertEquals(capturedEntity.getRegistrarId(), registrarId);
+        assertEquals(capturedEntity.getRegistrarId(), mockRegistrar);
         assertNotNull(capturedEntity.getPassword(), password);
         assertNotEquals(capturedEntity.getPassword(), "");
         assertNotEquals(capturedEntity.getPassword(), password);
@@ -90,11 +90,18 @@ class ApproverAuthServiceTest {
         final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
+
+        // has registrar
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setShortName(registrar);
+        mockRegistrar.setId(5);
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setRegistrarId(mockRegistrar);
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(password);
+
+        final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
 
         // has registrar
         final Registrar registrarId = new Registrar();
@@ -107,14 +114,43 @@ class ApproverAuthServiceTest {
 
         boolean captured = false;
         try {
-            this.approverAuthService.createAgencyCredentials(user);
+            this.approverAuthService.createAgencyCredentials(agencyUser);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             fail(e);
         } catch (IllegalArgumentException e) {
             captured = true;
         }
 
-        assertTrue(captured, "should throw illegalargument");
+        assertTrue(captured, "should throw illegal argument");
+    }
+
+    @Test
+    void testCreateUsernameAlreadyExists() {
+        final String registrar = "DOH";
+        final String username = "username";
+        final String password = "password";
+
+        // has registrar
+        final Registrar mockRegistrar = new Registrar();
+        mockRegistrar.setShortName(registrar);
+        mockRegistrar.setId(5);
+
+        final RegistrarUser registrarUser = new RegistrarUser();
+        registrarUser.setRegistrarId(mockRegistrar);
+        registrarUser.setUsername(username);
+        registrarUser.setPassword(password);
+
+        final AgencyUser agencyUser = AgencyUser.buildFrom(registrarUser);
+        agencyUser.setSource(RegistrarUserSource.ONLINE.name());
+
+        when(this.registrarRepository.findByShortName(anyString())).thenReturn(mockRegistrar);
+        // no existing user
+        when(this.registrarUserRepository.findByUsername(anyString())).thenReturn(registrarUser);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            this.approverAuthService.createAgencyCredentials(agencyUser);
+        });
+
     }
 
     @Test
@@ -122,11 +158,10 @@ class ApproverAuthServiceTest {
         final String registrar = "DOH";
         final String username = "username";
         final String password = "password";
-        final AgencyUser user = AgencyUser.builder()
-                .registrar(registrar)
-                .username(username)
-                .password(password)
-                .build();
+        final AgencyUser user = new AgencyUser();
+        user.setRegistrar(registrar);
+        user.setUsername(username);
+        user.setPassword(password);
 
         // has no registrar
         when(this.registrarRepository.findByShortName(anyString())).thenReturn(null);
