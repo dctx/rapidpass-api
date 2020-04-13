@@ -271,10 +271,10 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         assertThat(errors, hasItem(containsString("An existing PENDING/APPROVED RapidPass already exists")));
     }
-    
+
     @Test
     public void failIfIncorrectMobileNumberFormat() {
-   
+
     	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----

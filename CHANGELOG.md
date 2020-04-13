@@ -6,7 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2020-04-12
+
 ## [1.3.1-SNAPSHOT]
+### Added
+- [#172](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/172) - Can now bulk register approvers. See 
+    `src/main/resources/approver-bulk-registration.csv` for template CSV.
+
+## [1.3.0-SNAPSHOT]
 ### Changed
 - Bulk upload validation has been optimized to not query database if basic validation fails.
 - Bulk upload no longer rejects records if duplicate requests.

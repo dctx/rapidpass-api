@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ph.devcon.rapidpass.services.RegistryService;
 
+import javax.validation.ConstraintViolationException;
+import java.io.IOException;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -51,6 +53,7 @@ public class ExceptionTranslator {
      * @return response body with errors
      */
     @ExceptionHandler({
+            ConstraintViolationException.class,
             IllegalArgumentException.class,
             InvalidFormatException.class,
             RegistryService.UpdateAccessPassException.class})
@@ -74,5 +77,4 @@ public class ExceptionTranslator {
         log.warn("Server error! ", ex);
         return ImmutableMap.of("message", "Something went wrong! Please contact application owners.");
     }
-
 }

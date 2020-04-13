@@ -38,23 +38,23 @@ class RegistryServiceTest {
 
     RegistryService instance;
 
-    @Mock
-    RegistryRepository mockRegistryRepository;
+    @Mock ApproverAuthService mockAuthService;
 
-    @Mock
-    ControlCodeService controlCodeService;
+    @Mock RegistrarRepository mockRegistrarRepository;
 
-    @Mock
-    RegistrantRepository mockRegistrantRepository;
+    @Mock ControlCodeService controlCodeService;
 
-    @Mock
-    AccessPassRepository mockAccessPassRepository;
+    @Mock RegistrarUserRepository mockRegistrarUserRepository;
 
-    @Mock
-    AccessPassNotifierService mockAccessPassNotifierService;
+    @Mock RegistryRepository mockRegistryRepository;
 
-    @Mock
-    ScannerDeviceRepository mockScannerDeviceRepository;
+    @Mock RegistrantRepository mockRegistrantRepository;
+
+    @Mock AccessPassRepository mockAccessPassRepository;
+
+    @Mock AccessPassNotifierService mockAccessPassNotifierService;
+
+    @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
     @Mock LookupTableService lookupTableService;
 
@@ -69,8 +69,22 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
-        instance = new RegistryService(requestProducer, eventProducer, accessPassEventRepository, mockRegistryRepository, controlCodeService, mockRegistrantRepository, lookupTableService, mockAccessPassRepository,
-                mockAccessPassNotifierService, mockScannerDeviceRepository);
+        instance = new RegistryService(
+                requestProducer,
+                eventProducer,
+                accessPassEventRepository,
+                mockAuthService,
+                lookupTableService,
+                mockAccessPassNotifierService,
+                mockRegistrarRepository,
+                mockRegistryRepository,
+                controlCodeService,
+                mockRegistrantRepository,
+                mockAccessPassRepository,
+                mockScannerDeviceRepository,
+                mockRegistrarUserRepository
+        );
+
         instance.isKafaEnabled=false;
 //        OffsetDateTime now = OffsetDateTime.now();
     }
