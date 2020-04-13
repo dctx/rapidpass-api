@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [1.4.1] - 2020-04-12
+### Fixed
+- [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
+
 ## [1.4.0] - 2020-04-12
 
 ## [1.3.1-SNAPSHOT]
