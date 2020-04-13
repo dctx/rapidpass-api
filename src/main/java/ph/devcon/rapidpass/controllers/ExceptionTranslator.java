@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,11 +46,11 @@ public class ExceptionTranslator {
                         DefaultMessageSourceResolvable::getDefaultMessage));
     }
 
-    @ExceptionHandler({AuthenticationException.class})
+    @ExceptionHandler({AuthenticationException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
-    public Map<String, String> forbiddenError(AuthenticationException e) {
-        log.warn("Authenication Error!", e);
+    public Map<String, String> forbiddenError(Throwable e) {
+        log.warn("Authentication Error!", e);
         return ImmutableMap.of("message", "You are not allowed to access resource.");
     }
 
