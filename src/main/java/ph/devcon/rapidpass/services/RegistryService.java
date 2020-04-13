@@ -616,6 +616,11 @@ public class RegistryService {
         int counter = 1;
         for (AgencyUser agencyUser : agencyUsers) {
             try {
+
+                agencyUser.setUsername(StringUtils.trim(agencyUser.getUsername()));
+                agencyUser.setFirstName(StringUtils.trim(agencyUser.getFirstName()));
+                agencyUser.setLastName(StringUtils.trim(agencyUser.getLastName()));
+
                 agencyUser.setSource(RegistrarUserSource.BULK.name());
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(agencyUser);
