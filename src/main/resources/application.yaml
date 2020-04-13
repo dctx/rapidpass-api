@@ -78,7 +78,8 @@ rbac:
         #            - ALL
         - endpoint: /registry/access-passes/?**
           verbs:
-            # GET, POST being used for registration
+            # GET # used for registration   DO NOT ENABLE!
+            # POST # used for registration  DO NOT ENABLE!
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
         - endpoint: /registry/access-passes
