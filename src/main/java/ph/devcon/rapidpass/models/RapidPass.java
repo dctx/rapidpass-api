@@ -3,17 +3,18 @@ package ph.devcon.rapidpass.models;
 import lombok.Builder;
 import lombok.Data;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
 
 import java.time.format.DateTimeFormatter;
 
 /**
  * Data model representing an {@link AccessPass}, but is only a subset of the model's properties.
- *
+ * <p>
  * API consumers send and receive {@link RapidPass} when interacting with the API for registering a rapid pass (GET, PUT).
- *
+ * <p>
  * API consumers send {@link RapidPassRequest} when they send a query for creating a {@link AccessPass} (POST).
- *
+ * <p>
  * This is JSON format returned to the user when they request for a GET on the AccessPass Resource.
  */
 @Data
@@ -49,9 +50,10 @@ public class RapidPass {
 
     public static RapidPass buildFrom(AccessPass accessPass) {
         // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
+        final Registrant registrantId = accessPass.getRegistrantId();
         return RapidPass.builder()
                 .referenceId(accessPass.getReferenceID())
-                .controlCode(accessPass.getControlCode() == null? "" : accessPass.getControlCode())
+                .controlCode(accessPass.getControlCode() == null ? "" : accessPass.getControlCode())
                 .passType(PassType.valueOf(accessPass.getPassType()))
                 .aporType(accessPass.getAporType())
                 .name(accessPass.getName())
@@ -72,7 +74,7 @@ public class RapidPass {
                 .destProvince(accessPass.getDestinationProvince())
                 .remarks(accessPass.getRemarks())
                 .updates(accessPass.getUpdates())
-                .email(accessPass.getRegistrantId().getEmail())
+                .email(registrantId == null ? "" : registrantId.getEmail())
                 .build();
     }
 }
