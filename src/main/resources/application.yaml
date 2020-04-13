@@ -48,7 +48,7 @@ topic:
   replication-factor: 1
 
 kafka:
-  enabled: true # enables or disables kafka event processing
+  enabled: false # enables or disables kafka event processing
 
 springfox:
   documentation:
@@ -102,13 +102,16 @@ rbac:
         #            - ALL
         - endpoint: /registry/access-passes/?**
           verbs:
-            - GET # used for registration
-            - POST # used for registration
+            # GET # used for registration   DO NOT ENABLE!
+            # POST # used for registration  DO NOT ENABLE!
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
         - endpoint: /registry/access-passes
           verbs:
-            - ALL
+            - GET
+            - PUT
+            - DELETE
+            # POST # used for registration  DO NOT ENABLE!
 #    - role: checkpoint
 #      resources:
 #        - endpoint: /batch/access-passes
@@ -123,9 +126,6 @@ rbac:
 #        - endpoint: /registry/scanner-devices/**
 #          verbs:
 #            - ALL
-
-security:
-  enabled: false
 
 logging:
   level:

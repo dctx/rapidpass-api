@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - introduced 'bulk-upload.process' parameter to switch between kafka-based bulk upload or internal processing.
 - added index on access_pass to optimize queries. 
 
+## [1.2.3] - 2020-04-13
+### Fixed
+- `/registry/access-passes` was already fixed, but `/registry/access-passes/` was not
+
 ## [1.2.1] - 2020-04-11
 ### Fixed
 - `GET /batch/access-passes` with hard coded `lastSyncOn` logic.

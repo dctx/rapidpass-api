@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
@@ -42,6 +43,7 @@ public class RegistryRestController {
     private final ApproverAuthService approverAuthService;
     private final QrPdfService qrPdfService;
 
+    @PreAuthorize("hasAuthority('approver')")
     @GetMapping("/access-passes")
     public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
 
