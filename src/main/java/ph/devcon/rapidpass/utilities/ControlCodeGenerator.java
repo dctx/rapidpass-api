@@ -1,13 +1,18 @@
 package ph.devcon.rapidpass.utilities;
 
 import com.boivie.skip32.Skip32;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import ph.devcon.dctx.rapidpass.commons.CrockfordBase32;
 import ph.devcon.dctx.rapidpass.commons.Damm32;
 import ph.devcon.rapidpass.entities.AccessPass;
 
+import javax.persistence.Transient;
 import java.util.Base64;
 
 public class ControlCodeGenerator {
+
     /**
      * Generates a control code.
      *

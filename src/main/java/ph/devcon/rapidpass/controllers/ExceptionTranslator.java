@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ph.devcon.rapidpass.services.RegistryService;
 
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -52,6 +53,7 @@ public class ExceptionTranslator {
      * @return response body with errors
      */
     @ExceptionHandler({
+            ConstraintViolationException.class,
             IllegalArgumentException.class,
             InvalidFormatException.class,
             RegistryService.UpdateAccessPassException.class})

@@ -1,10 +1,5 @@
 package ph.devcon.rapidpass.controllers;
 
-
-import com.opencsv.CSVWriter;
-import com.opencsv.ICSVWriter;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,22 +7,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.AgencyUser;
+import ph.devcon.rapidpass.models.RapidPassBulkData;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.models.RapidPassEventLog;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.utilities.csv.ApproverRegistrationCsvProcessor;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-
 
 /**
  * Registry API Rest Controller specifically for batch operations
@@ -35,6 +33,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/batch")
+@Validated
 @Slf4j
 public class RegistryBatchRestController {
 
@@ -79,7 +78,22 @@ public class RegistryBatchRestController {
         return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
     }
 
-    @PostMapping("approvers")
+    @GetMapping("/access-pass-events")
+    public ResponseEntity<?> getAccessPassEvents(
+            @RequestParam @Min(0) Integer fromEventID,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "1000") Integer pageSize)
+    {
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        RapidPassEventLog rapidPassEventLog = registryService.getAccessPassEvent(fromEventID, page);
+        if (rapidPassEventLog != null) {
+            return ResponseEntity.ok(rapidPassEventLog);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/approvers")
     public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException {
         ApproverRegistrationCsvProcessor processor = new ApproverRegistrationCsvProcessor();
 
@@ -87,6 +101,5 @@ public class RegistryBatchRestController {
 
         return this.registryService.batchUploadApprovers(agencyUsers);
     }
-
 }
 

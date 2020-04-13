@@ -64,13 +64,15 @@ class RegistryServiceTest {
     @Mock
     RapidPassRequestProducer requestProducer;
 
-    private OffsetDateTime now;
+    @Mock
+    AccessPassEventRepository accessPassEventRepository;
 
     @BeforeEach
     void setUp() {
         instance = new RegistryService(
                 requestProducer,
                 eventProducer,
+                accessPassEventRepository,
                 mockAuthService,
                 lookupTableService,
                 mockAccessPassNotifierService,
@@ -84,9 +86,8 @@ class RegistryServiceTest {
         );
 
         instance.isKafaEnabled=false;
-        now = OffsetDateTime.now();
+//        OffsetDateTime now = OffsetDateTime.now();
     }
-
 
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()

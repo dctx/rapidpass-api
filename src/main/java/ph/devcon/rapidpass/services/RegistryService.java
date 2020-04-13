@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +58,7 @@ public class RegistryService {
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
 
+    private final AccessPassEventRepository accessPassEventRepository;
     private final ApproverAuthService authService;
     private final LookupTableService lookupTableService;
     private final AccessPassNotifierService accessPassNotifierService;
@@ -68,8 +70,6 @@ public class RegistryService {
     private final AccessPassRepository accessPassRepository;
     private final ScannerDeviceRepository scannerDeviceRepository;
     private final RegistrarUserRepository registrarUserRepository;
-
-
 
     /**
      * Creates a new {@link RapidPass} with PENDING status.
@@ -635,7 +635,6 @@ public class RegistryService {
         return result;
     }
 
-
     /**
      * This is thrown when updates are not allowed for the AccessPass.
      */
@@ -676,5 +675,14 @@ public class RegistryService {
         device.setStatus(request.getStatus());
 
         return scannerDeviceRepository.saveAndFlush(device);
+    }
+
+    public RapidPassEventLog getAccessPassEvent(Integer eventId, Pageable pageable) {
+        Page<AccessPassEvent> accessPassEvents = accessPassEventRepository.findAllByIdIsGreaterThanEqual(eventId, pageable);
+        if (accessPassEvents == null || accessPassEvents.isEmpty()) {
+            return null;
+        } else {
+            return RapidPassEventLog.buildFrom(accessPassEvents, controlCodeService);
+        }
     }
 }

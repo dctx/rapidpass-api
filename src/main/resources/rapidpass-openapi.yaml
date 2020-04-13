@@ -247,6 +247,7 @@ paths:
       description:
         Retrieves a set of access passes based on the optional query parameters.  If there are no query parameters provide, a paginated list of access passes will be returned.
       parameters:
+
         - name: passType
           in: query
           required: false
@@ -299,15 +300,18 @@ paths:
           description: Filters retrieved access passes by the data source, whether registered one-at-a-time, or
             through the bulk registration process. Possible values are [ONLINE, BULK].
           example: ONLINE
-        - name: search
+        - name: pageNo
           in: query
           required: false
           schema:
-            type: string
-          description: Filters retrieved access passes based on the provided search query. This filter allows you to
-            search access passes where the name (of the rapidpass owner) matches OR the company name matches the query.
-            Matching is performed as a `startsWith` matching, not a `contains` matching.
-          example: Jose
+            type: integer
+          description: Used for pagination, specifies the page number that will be returned.  Page numbers start with zero.
+        - name: maxPageRows
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Used for pagination, the maximum number of records per page.  Defaults to 25.
       responses:
         '200':
           description: Status of the request pass
@@ -375,8 +379,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PagedCSV'
-
+                $ref: '#/components/schemas/PagedList'
     post:
       tags:
         - dashboard
@@ -394,6 +397,44 @@ paths:
       responses:
         '200':
           description: Upload successful
+  '/batch/access-pass-events':
+    get:
+      tags:
+        - inspector
+        - bulk
+      summary:
+        Download the access pass event log starting from the specified event id.
+      parameters:
+        - name: fromEventID
+          in: query
+          description: 'starting point - event id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: pageSize
+          in: query
+          description: 'size of page requested'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1000
+        - name: pageNumber
+          in: query
+          description: 'page number requested'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        '200':
+          description: page metadata and array of values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedList'
   /batch/scanner-devices:
     get:
       tags:
@@ -900,65 +941,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RapidPass'
-
-
-    AccessPassQueryFilter:
-      type: object
-      description: Filters the retrieved access passes, using an AND logical operation on all the used filters. Note
-        that the `search` parameter has an inner logical operation of OR between the company and the name of the owner
-        of the access pass.
-      allOf:
-        - $ref: '#/components/schemas/QueryFilter'
-      properties:
-        passType:
-          type: string
-          description: Filters retrieved access passes by Pass type.
-          enum: [INDIVIDUAL, VEHICLE]
-          example: INDIVIDUAL
-        aporType:
-          type: string
-          description: Filters retrieved access passes by Apor type. For possible values, trust the database
-            definitions first-and-foremost. Note that {@link CommonRapidPassFields.AporTypeEnum} may
-            potentially be outdated, as it is based on the OpenAPI Spec. Again, trust the db first and foremost.
-          example: GOV
-        status:
-          type: string
-          description: Filters retrieved access passes by Status. For possible values, see `RapidPassStatus`.
-          enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
-          example: PENDING
-        plateNumber:
-          type: string
-          description: Filters retrieved access passes by Plate number.
-        company:
-          type: string
-          description: Filters retrieved access passes by Company.
-          example: DevCon.ph
-        name:
-          type: string
-          description: Filters retrieved access passes by the name of owner of this rapid pass.
-          example: Jose Rizal
-        source:
-          type: string
-          description: Filters retrieved access passes by the data source, whether registered one-at-a-time, or
-            through the bulk registration process.
-          enum: [ONLINE, BULK]
-          example: ONLINE
-        search:
-          type: string
-          description: Filters retrieved access passes based on the provided search query. This filter allows you to
-            search access passes where the name (of the rapidpass owner) matches OR the company name matches the query.
-            Matching is performed as a `startsWith` matching, not a `contains` matching.
-          example: Jose
-    QueryFilter:
-      type: object
-      description: These are generic query parameters used to filter records returned by the endpoints.
-      properties:
-        pageNo:
-          type: integer
-          description: The page number you wish to query. Page numbers begin with 0.
-        pageSize:
-          type: integer
-          description: The total number of records that you request to be returned per page. Defaults to 25.
     CheckpointAuthRequest:
       type: object
       description: The checkpoint authentication request
@@ -1018,15 +1000,18 @@ components:
           type: string
           description: The password for the user
           example: secure-password
-    PagedCSV:
+    PagedList:
       type: object
       description: Paged CSV with meta data for client to know what page has been downloaded
       properties:
         meta:
           $ref: '#/components/schemas/PageMetaData'
-        csv:
-          description: string containg CSV
-          type: string
+        data:
+          description: array of elements
+          type: array
+          items:
+            type: array
+            items: {}
     PageMetaData:
       description: Page Meta Data
       type: object
@@ -1041,6 +1026,12 @@ components:
           type: integer
           format: int64
           description: total number of rows in whole dataset
+        columnNames:
+          type: array
+          items:
+            type: string
+          example: ["eventID", "referenceID", "passType", "aporType", "controlCode",
+                    "name", "plateNumber", "status", "validFrom", "validTo", "eventTimestamp"]
     RapidPassStatus:
       type: object
       description: Modifies the status of an existing access pass with PENDING status.

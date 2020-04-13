@@ -15,6 +15,7 @@
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="access_pass_event_pk"/>
             </column>
+            <column name="access_pass_id" type="INTEGER"/>
             <column name="reference_id" type="VARCHAR(30)"/>
             <column name="pass_type" type="VARCHAR(10)"/>
             <column name="apor_type" type="VARCHAR(10)"/>
