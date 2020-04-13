@@ -118,7 +118,7 @@ public class ApproverAuthService {
         if (user.isBatchUpload()) {
             registrarUser.setFirstName(user.getFirstName());
             registrarUser.setLastName(user.getLastName());
-            registrar.setEmail(user.getEmail());
+            registrarUser.setEmail(user.getEmail());
             registrarUser.setStatus(RegistrarUserStatus.INACTIVE.toString());
 
             // Uses a v4 UUID.
