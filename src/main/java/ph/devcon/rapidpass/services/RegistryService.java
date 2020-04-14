@@ -1,12 +1,13 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -434,6 +435,11 @@ public class RegistryService {
 
         if (reason != null && (status == AccessPassStatus.DECLINED || status == AccessPassStatus.SUSPENDED)) {
             accessPass.setUpdates(reason);
+        }
+
+        if (status == AccessPassStatus.SUSPENDED) {
+            // Change validity period to reach only up to now.
+            accessPass.setValidTo(OffsetDateTime.now());
         }
 
         accessPass.setStatus(status.toString());
