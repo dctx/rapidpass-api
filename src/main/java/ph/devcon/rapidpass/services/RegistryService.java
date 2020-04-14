@@ -23,6 +23,7 @@ import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
+import ph.devcon.rapidpass.validators.ReadableValidationException;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
@@ -30,6 +31,8 @@ import ph.devcon.rapidpass.validators.entities.agencyuser.BatchAgencyUserRequest
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
@@ -617,14 +620,18 @@ public class RegistryService {
                     passes.add("Record " + counter++ + ": Success. ");
 
                 }
-            } catch (Exception e) {
+            } catch (ReadableValidationException e) {
                 log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
 
                 // Access passes that are declined should still be persisted. Reusing existing code.
                 pass = persistAccessPass(request, AccessPassStatus.PENDING);
                 decline(pass.getReferenceId(), e.getMessage());
 
-                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
+                passes.add("Record " + counter++ + ": was declined. " + e.getMessage());
+            } catch (Exception e) {
+                log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
+                // noop
+                passes.add("Record " + counter++ + ": Failed. Internal server error.");
             }
 
 
@@ -656,8 +663,11 @@ public class RegistryService {
                 RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
 
                 result.add("Record " + counter++ + ": Success. ");
-            } catch ( Exception e ) {
+            } catch ( ReadableValidationException e ) {
                 result.add("Record " + counter++ + ": Failed. " + e.getMessage());
+
+            } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+                result.add("Record " + counter++ + ": Failed. Internal server error.");
             }
         }
         return result;

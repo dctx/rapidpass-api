@@ -35,9 +35,9 @@ public class StandardDataBindingValidation {
     /**
      * Throws an illegal argument exception when a validation rule fails.
      * In case that multiple validation rules fail, each default error message is concatenated into a paragraph.
-     * @throws IllegalArgumentException when there are validation errors.
+     * @throws ReadableValidationException when there are validation errors.
      */
-    public void validate(Object target) throws IllegalArgumentException {
+    public void validate(Object target) throws ReadableValidationException {
         DataBinder binder = new DataBinder(target);
 
         List<String> errors = this.validators.stream()
@@ -53,7 +53,7 @@ public class StandardDataBindingValidation {
 
         if (errors.size() > 0) {
             String allErrors = String.join(" ", errors);
-            throw new IllegalArgumentException(allErrors);
+            throw new ReadableValidationException(allErrors);
         }
     }
 }
