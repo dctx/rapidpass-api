@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-04-12
+### Fixed
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
+
 ## [1.4.0] - 2020-04-12
 ### Removed
 - [#122](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/122) - Removed `last_used` property from the
