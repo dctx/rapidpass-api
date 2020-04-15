@@ -68,6 +68,17 @@ public class AccessPassSpecifications {
         }));
     }
 
+    public static Specification<AccessPass> bySearch(String search) {
+        return (((root, criteriaQuery, criteriaBuilder) -> {
+            if (StringUtils.isBlank(search))
+                return null;
+            return criteriaBuilder.or(
+                    criteriaBuilder.like(root.get("company"), "%"+ search +"%"),
+                    criteriaBuilder.like(root.get("name"), "%"+ search +"%")
+            );
+        }));
+    }
+
     public static Specification<AccessPass> byName(String name) {
         return (((root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(name))

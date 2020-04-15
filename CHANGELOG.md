@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-04-15
+### Fixed
+- [#368](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/368) - fixed regression issue to make sure `search`
+    property works when performing `GET /registry/access-passes`.
+
 ## [1.4.0] - 2020-04-12
 ### Removed
 - [#122](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/122) - Removed `last_used` property from the
