@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.1] - 2020-04-20
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle incorrect format for CSV caused by Excel.
+
 ## [1.5.0] - 2020-04-19
 ### Fixed
 - [#322](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/332) - Implemented registrar user account 
@@ -49,9 +53,10 @@ locking for several failed login attempts
 - [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
 the PDF is illegal.
 
-## [1.4.1] - 2020-04-12
 ### Fixed
 - [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle XLSX default or missing data, after
+    the approver saves the Excel sheet as a CSV.
 
 ## [1.4.0] - 2020-04-12
 ### Removed
