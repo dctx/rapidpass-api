@@ -294,9 +294,7 @@ class ApproverAuthServiceTest {
         existingUser.setStatus("active");
         existingUser.setUsername(username);
         existingUser.setPassword(hashedPassword);
-        final List<RegistrarUser> users = new ArrayList<>();
-        users.add(existingUser);
-        when(this.registrarUserRepository.findByUsername(username)).thenReturn(users);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(existingUser);
         when(this.jwtSecretsConfig.findGroupSecret(anyString())).thenReturn(jwtSecret);
 
         try {

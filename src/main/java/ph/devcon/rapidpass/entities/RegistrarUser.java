@@ -133,9 +133,6 @@ public class RegistrarUser implements Serializable {
     @Column(name = "is_account_non_locked")
     private boolean isAccountNonLocked = true;
 
-    public RegistrarUser() {
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;

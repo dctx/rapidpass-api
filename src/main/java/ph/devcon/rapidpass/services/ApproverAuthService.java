@@ -88,12 +88,14 @@ public class ApproverAuthService {
      * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
      * @throws DecoderException this is returned when the hashing algorithm fails. This is an illegal state
      */
-    public final AgencyAuth login(final String username, final String password) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
+    public final AgencyAuth login(final String username, final String password) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException, AccountLockedException {
         final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
+
         if (registrarUser == null) {
             log.warn("unregistered user attempted to login");
             return null;
         }
+
         if (!registrarUser.isAccountNonLocked()) {
             throw new AccountLockedException("Account has been locked due to too many failed login attempts");
         }
