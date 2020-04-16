@@ -104,6 +104,7 @@ public class ApproverAuthService {
 
         if (isPasswordCorrect) {
             registrarUser.setLoginAttempts(0);
+            registrarUserRepository.save(registrarUser);
 
             final Map<String, Object> claims = new HashMap<>();
             claims.put("sub", username);
