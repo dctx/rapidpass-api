@@ -123,10 +123,10 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
-    <changeSet author="CAvanzado" id="20200411-1">
+    <changeSet author="CAvanzado" id="20200416-1">
         <addColumn tableName="registrar_user">
             <column name="login_attempts" type="INT" defaultValueNumeric="0" remarks="Counter for login attempts" />
-            <column name="is_account_non_locked" type="BOOLEAN" defaultValueBoolean="true" remarks="Used for locking user accounts" />
+            <column name="is_account_locked" type="BOOLEAN" defaultValueBoolean="false" remarks="Used for locking user accounts" />
         </addColumn>
     </changeSet>
 </databaseChangeLog>

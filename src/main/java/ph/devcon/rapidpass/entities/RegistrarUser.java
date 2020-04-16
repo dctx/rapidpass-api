@@ -130,8 +130,8 @@ public class RegistrarUser implements Serializable {
     @Column(name = "login_attempts")
     private int loginAttempts = 0;
 
-    @Column(name = "is_account_non_locked")
-    private boolean isAccountNonLocked = true;
+    @Column(name = "is_account_locked")
+    private boolean isAccountLocked = false;
 
     @Override
     public int hashCode() {
