@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.4.4] - 2020-04-16
+### Added
+- Included IATF as ID Type (Individual) from the look up table.
+
 ## [1.4.3] - 2020-04-16
 ### Changed
 - closed `GET /batch/access-passes` since currently being reworked for checkpoint.
@@ -32,6 +36,9 @@ the PDF is illegal.
     `src/main/resources/approver-bulk-registration.csv` for template CSV.
 
 ## [1.3.0-SNAPSHOT]
+### Added
+- Included IATF as ID Type (Individual) from the look up table.
+
 ### Changed
 - Bulk upload validation has been optimized to not query database if basic validation fails.
 - Bulk upload no longer rejects records if duplicate requests.
