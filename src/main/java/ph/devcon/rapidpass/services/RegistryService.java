@@ -1,12 +1,13 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
+import ph.devcon.rapidpass.validators.ReadableValidationException;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
@@ -29,6 +31,8 @@ import ph.devcon.rapidpass.validators.entities.agencyuser.BatchAgencyUserRequest
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
@@ -531,6 +535,10 @@ public class RegistryService {
     /**
      * Returns a list of rapid passes that were requested for granting or approval.
      *
+     * <p>Note that this method should not be performing any Email or SMS sending, because bulk uploads may
+     * cause congestion on the API server. Instead, data should be inserted in the database, to be picked up by
+     * a polling push notification service.</p>
+     *
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
      * @return a list of generated rapid passes, whose status are all approved.
      */
@@ -546,8 +554,9 @@ public class RegistryService {
         int counter = 1;
         Instant start = Instant.now();
         for (RapidPassCSVdata r : approvedRapidPasses) {
+            RapidPassRequest request = RapidPassRequest.buildFrom(r);
+
             try {
-                RapidPassRequest request = RapidPassRequest.buildFrom(r);
                 request.setSource(RecordSource.BULK.toString());
 
                 normalizeIdMobileAndPlateNumber(request);
@@ -587,25 +596,46 @@ public class RegistryService {
                             log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
                                     request.getPassType().name(), referenceId);
                         }
+
+                        AccessPass topAccessPass = accessPasses.remove(0);
+
                         // let's approve all pending requests with the same reference id and pass type
                         for (AccessPass accessPass: accessPasses) {
                             accessPass.setValidFrom(now);
-                            if (now.isAfter(DEFAULT_EXPIRATION_DATE)) {
-                                accessPass.setValidTo(now.plusDays(DEFAULT_VALIDITY_DAYS));
-                            } else {
-                                accessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
-                            }
+                            accessPass.setValidTo(now);
+
                             accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
+
                             accessPassRepository.saveAndFlush(accessPass);
                         }
+
+                        topAccessPass.setValidFrom(now);
+                        topAccessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+                        topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
+
+                        accessPassRepository.saveAndFlush(topAccessPass);
+
                     }
+
                     passes.add("Record " + counter++ + ": Success. ");
 
                 }
+            } catch (ReadableValidationException e) {
+                log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
+
+                // Access passes that are declined should still be persisted. Reusing existing code.
+                pass = persistAccessPass(request, AccessPassStatus.PENDING);
+                decline(pass.getReferenceId(), e.getMessage());
+
+                passes.add("Record " + counter++ + ": was declined. " + e.getMessage());
             } catch (Exception e) {
                 log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
-                passes.add("Record " + counter++ + ": Failed. " + e.getMessage());
+                // noop
+                passes.add("Record " + counter++ + ": Failed. Internal server error.");
             }
+
+
+
         }
         log.info("Execution time: {} seconds", Duration.between(start, Instant.now()).toMillis() / 1000);
         return passes;
@@ -633,8 +663,11 @@ public class RegistryService {
                 RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
 
                 result.add("Record " + counter++ + ": Success. ");
-            } catch ( Exception e ) {
+            } catch ( ReadableValidationException e ) {
                 result.add("Record " + counter++ + ": Failed. " + e.getMessage());
+
+            } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+                result.add("Record " + counter++ + ": Failed. Internal server error.");
             }
         }
         return result;
