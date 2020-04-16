@@ -3,6 +3,7 @@ package ph.devcon.rapidpass.controllers;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+@Disabled
 public class CheckpointRestControllerTest extends BaseApiTest
 {
 
@@ -33,7 +35,7 @@ public class CheckpointRestControllerTest extends BaseApiTest
     @Test
     public void testGetRapidPassByControlCode() throws Exception {
         // GIVEN
-       AccessPass accessPass = createAccessPassEntity();
+        AccessPass accessPass = createAccessPassEntity();
 
         String controlCode = "12345A";
 

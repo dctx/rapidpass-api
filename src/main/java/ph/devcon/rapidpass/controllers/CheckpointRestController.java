@@ -1,9 +1,5 @@
 package ph.devcon.rapidpass.controllers;
 
-import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +12,13 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
 import ph.devcon.rapidpass.models.CheckpointAuthResponse;
-import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
+
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -55,31 +54,33 @@ public class CheckpointRestController
 
     @GetMapping("/access-passes/control-codes/{control-code}")
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
-        ResponseEntity response = null;
-        try {
-            final AccessPass accessPass = this.controlCodeService.findAccessPassByControlCode(controlCode);
-            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
-            response = new ResponseEntity(rapidPass, HttpStatus.OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage(),e);
-            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
+//        ResponseEntity response = null;
+//        try {
+//            final AccessPass accessPass = this.controlCodeService.findAccessPassByControlCode(controlCode);
+//            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
+//            response = new ResponseEntity(rapidPass, HttpStatus.OK);
+//        }
+//        catch (Exception e) {
+//            log.error(e.getMessage(),e);
+//            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//        return response;
+        return ResponseEntity.ok("Coming Soon!");
     }
 
     @GetMapping("/access-passes/plate-numbers/{plate-no}")
     public ResponseEntity<?> getAccessPassByPlateNumber(@PathVariable("plate-no") String plateNo) {
-        ResponseEntity response = null;
-        try {
-            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByPlateNo(plateNo);
-            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
-            response = new ResponseEntity(rapidPass, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
+//        ResponseEntity response = null;
+//        try {
+//            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByPlateNo(plateNo);
+//            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
+//            response = new ResponseEntity(rapidPass, HttpStatus.OK);
+//        } catch (Exception e) {
+//            log.error(e.getMessage(),e);
+//            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//        return response;
+        return ResponseEntity.ok("Coming Soon!");
     }
 
     public ResponseEntity getAccessPassByQrCode(String qrCode)
