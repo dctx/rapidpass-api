@@ -34,6 +34,10 @@ import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Implementation that maps a CSV row into a {@link RapidPassCSVdata} POJO.
  *
