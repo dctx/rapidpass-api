@@ -217,6 +217,7 @@ public class RegistryService {
         Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());
         Page<AccessPass> accessPassPages = accessPassRepository.findAll(byAporTypes.and(byPassType)
                 .and(AccessPassSpecifications.byCompany(q.getCompany()))
+                .and(AccessPassSpecifications.bySearch(q.getSearch()))
                 .and(AccessPassSpecifications.byName(q.getName()))
                 .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber()))
                 .and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
