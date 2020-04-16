@@ -49,7 +49,7 @@ public class UserRestController {
 //    }
 
     @PostMapping("/auth")
-    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
+    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) throws AccountLockedException {
         try {
             final AgencyAuth auth = this.approverAuthService.login(login.getUsername(), login.getPassword());
             if (auth == null) {
@@ -61,8 +61,7 @@ public class UserRestController {
             log.error("hashing function error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (AccountLockedException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw e;
         } catch (Exception e) {
             log.error("something went wrong", e);
             return ResponseEntity.badRequest().build();

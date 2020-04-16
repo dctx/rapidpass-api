@@ -96,8 +96,10 @@ public class ApproverAuthService {
             return null;
         }
 
+        int maximum_failed_login_attempts = 10;
+
         if (!registrarUser.isAccountNonLocked()) {
-            throw new AccountLockedException("Account has been locked due to too many failed login attempts");
+            throw new AccountLockedException(String.format("This account has been locked due to too many (%d) failed login attempts.", maximum_failed_login_attempts));
         }
 
         final String hashedPassword = registrarUser.getPassword();
@@ -118,11 +120,11 @@ public class ApproverAuthService {
         }
 
         // TODO: System setting for login attempts
-        if (registrarUser.getLoginAttempts() < 10) {
+        if (registrarUser.getLoginAttempts() < maximum_failed_login_attempts) {
             registrarUser.setLoginAttempts(registrarUser.getLoginAttempts() + 1);
 
-            if (registrarUser.getLoginAttempts() == 10) {
-                log.warn("Registrar User `{}` has been locked due to {} failed login attempts", registrarUser.getUsername(), 10);
+            if (registrarUser.getLoginAttempts() == maximum_failed_login_attempts) {
+                log.warn("Registrar User `{}` has been locked due to {} failed login attempts", registrarUser.getUsername(), maximum_failed_login_attempts);
                 registrarUser.setAccountNonLocked(false);
             }
         }
