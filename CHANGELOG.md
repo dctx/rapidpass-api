@@ -36,6 +36,9 @@ the PDF is illegal.
     `src/main/resources/approver-bulk-registration.csv` for template CSV.
 
 ## [1.3.0-SNAPSHOT]
+### Added
+- Included IATF as ID Type (Individual) from the look up table.
+
 ### Changed
 - Bulk upload validation has been optimized to not query database if basic validation fails.
 - Bulk upload no longer rejects records if duplicate requests.
