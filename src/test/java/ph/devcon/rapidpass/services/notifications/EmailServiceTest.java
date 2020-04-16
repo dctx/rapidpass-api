@@ -75,7 +75,7 @@ public class EmailServiceTest{
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this https://www.google.com. Please DO NOT share your QR code."));
+        assertThat(message, equalTo("Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this https://www.google.com. Please DO NOT share your QR code. Tampering with the pass is punishable by law."));
     }
 
 
@@ -103,7 +103,7 @@ public class EmailServiceTest{
 
         String message = template.compose();
 
-        assertThat(message, equalTo("Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this https://www.google.com. Please DO NOT share your QR code."));
+        assertThat(message, equalTo("Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this https://www.google.com. Please DO NOT share your QR code. Tampering with the pass is punishable by law."));
     }
 
     @Test

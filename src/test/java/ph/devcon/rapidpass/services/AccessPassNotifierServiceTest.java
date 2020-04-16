@@ -119,7 +119,7 @@ class AccessPassNotifierServiceTest {
         assertThat(notificationMessage.getMessage(), is(
                 "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a" +
                         " printable file that you can use at the checkpoint. " +
-                        "You can download your QR code on RapidPass.ph by following this a-test-url.com. Please DO NOT share your QR code."));
+                        "You can download your QR code on RapidPass.ph by following this a-test-url.com. Please DO NOT share your QR code. Tampering with the pass is punishable by law."));
         assertThat(notificationMessage.getTitle(), is("RapidPass is APPROVED"));
 
     }

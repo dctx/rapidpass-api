@@ -262,12 +262,19 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
 
             originToDest.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 70, rectangle.getWidth());
 
-            Paragraph[] results = new Paragraph[3];
+
+            Paragraph tampering_is_illegal = new Paragraph();
+            tampering_is_illegal.setFontSize(10);
+            tampering_is_illegal.setItalic();
+            tampering_is_illegal.setTextAlignment(TextAlignment.LEFT);
+            tampering_is_illegal.add("Tampering with the pass is punishable by law.").setCharacterSpacing(1.5f);
+            tampering_is_illegal.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 55, rectangle.getWidth());
+
+            Paragraph[] results = new Paragraph[4];
             results[0] = details;
             results[1] = date;
             results[2] = originToDest;
-
-
+            results[3] = tampering_is_illegal;
 
             return results;
         } else {
@@ -293,11 +300,19 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             originToDest.add(String.format("%s - %s", originCity, destCity)).setCharacterSpacing(1.3f);
             originToDest.setFixedPosition(290, 90, 400);
 
+            Paragraph tampering_is_illegal = new Paragraph();
+            tampering_is_illegal.setFontSize(16);
+            tampering_is_illegal.setItalic();
+            tampering_is_illegal.setTextAlignment(TextAlignment.LEFT);
+            tampering_is_illegal.add("Tampering with the pass is punishable by law.").setCharacterSpacing(1.5f);
+            tampering_is_illegal.setFixedPosition(290, 75, 400);
 
-            Paragraph[] results = new Paragraph[3];
+
+            Paragraph[] results = new Paragraph[4];
             results[0] = details;
             results[1] = date;
             results[2] = originToDest;
+            results[3] = tampering_is_illegal;
 
             return results;
         }
@@ -515,6 +530,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 managedCanvas.add(paragraphs[0]);
                 managedCanvas.add(paragraphs[1]);
                 managedCanvas.add(paragraphs[2]);
+                managedCanvas.add(paragraphs[3]);
 
                 canvas.concatMatrix(inverse);
 
@@ -645,6 +661,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
                 managedCanvas.add(paragraphs[0]);
                 managedCanvas.add(paragraphs[1]);
                 managedCanvas.add(paragraphs[2]);
+                managedCanvas.add(paragraphs[3]);
 
                 canvas.concatMatrix(inverse);
 

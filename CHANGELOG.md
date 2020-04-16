@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-04-16
+### Added
+- [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
+the PDF is illegal.
+
+
 ## [1.4.0] - 2020-04-12
 ### Removed
 - [#122](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/122) - Removed `last_used` property from the

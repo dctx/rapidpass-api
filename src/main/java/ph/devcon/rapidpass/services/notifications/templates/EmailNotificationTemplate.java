@@ -50,7 +50,7 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
         if (isGranted()) {
             if (StringUtils.isEmpty(url)) throw new IllegalArgumentException("The URL for the QR code must be provided");
 
-            String ACCESS_GRANTED = "Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this %s. Please DO NOT share your QR code.";
+            String ACCESS_GRANTED = "Your entry for your vehicle has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this %s. Please DO NOT share your QR code. Tampering with the pass is punishable by law.";
             return new Formatter().format(ACCESS_GRANTED, url).toString();
         } else {
         	
@@ -64,7 +64,7 @@ public class EmailNotificationTemplate implements NotificationTemplate<String> {
         if (isGranted()) {
             if (StringUtils.isEmpty(url)) throw new IllegalArgumentException("The URL for the QR code must be provided");
 
-            String ACCESS_GRANTED = "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this %s. Please DO NOT share your QR code.";
+            String ACCESS_GRANTED = "Your entry has been approved. We've sent you a list of instructions on how you can use your QR code along with a printable file that you can use at the checkpoint. You can download your QR code on RapidPass.ph by following this %s. Please DO NOT share your QR code. Tampering with the pass is punishable by law.";
             return new Formatter().format(ACCESS_GRANTED, url).toString();
         } else {
         	
