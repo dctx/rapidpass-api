@@ -10,7 +10,7 @@
 
     <groupId>ph.devcon</groupId>
     <artifactId>rapidpass-api</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <name>rapidpass-api</name>
     <description>Rapid Pass API</description>
 

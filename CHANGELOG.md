@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.2] - 2020-04-16
+### Fixed
+- [#368](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/368) - fixed regression issue to make sure `search`
+    property works when performing `GET /registry/access-passes`.
+
+
 ## [1.4.1] - 2020-04-16
 ### Added
 - [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
