@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.4.4] - 2020-04-16
+### Added
+- Included IATF as ID Type (Individual) from the look up table.
+
+## [1.4.3] - 2020-04-16
+### Changed
+- closed `GET /batch/access-passes` since currently being reworked for checkpoint.
+
+## [1.4.2] - 2020-04-16
+### Fixed
+- [#368](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/368) - fixed regression issue to make sure `search`
+    property works when performing `GET /registry/access-passes`.
+
+
+## [1.4.1] - 2020-04-16
+### Added
+- [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
+the PDF is illegal.
+
 
 
 ## [1.4.1] - 2020-04-12
@@ -22,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `src/main/resources/approver-bulk-registration.csv` for template CSV.
 
 ## [1.3.0-SNAPSHOT]
+### Added
+- Included IATF as ID Type (Individual) from the look up table.
+
 ### Changed
 - Bulk upload validation has been optimized to not query database if basic validation fails.
 - Bulk upload no longer rejects records if duplicate requests.

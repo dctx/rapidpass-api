@@ -11,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ph.devcon.rapidpass.models.AgencyUser;
-import ph.devcon.rapidpass.models.RapidPassBulkData;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassEventLog;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -22,9 +21,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -61,7 +57,7 @@ public class RegistryBatchRestController {
     }
 
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<RapidPassBulkData> downloadAccessPasses(
+    public ResponseEntity<?> downloadAccessPasses(
             @NotNull @ApiParam(value = "indicates last sync of checkpoint device in Epoch format", required = true)
             @Valid @RequestParam(value = "lastSyncOn", required = true)
                     Long lastSyncOn,
@@ -71,11 +67,14 @@ public class RegistryBatchRestController {
             @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
                     Integer pageSize) {
 
-        OffsetDateTime lastSyncDateTime =
-                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+//        OffsetDateTime lastSyncDateTime =
+//                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
+//        return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
+
+        // closing off /batch/access-passes due to PII exposure and checkpoint not yet authenticating
+        return ResponseEntity.ok().body(new String[]{});
     }
 
     @GetMapping("/access-pass-events")
