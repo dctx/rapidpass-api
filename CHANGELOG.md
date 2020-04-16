@@ -73,6 +73,8 @@ locking for several failed login attempts
 
 ### Fixed
 - [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle XLSX default or missing data, after
+    the approver saves the Excel sheet as a CSV.
 
 ## [1.4.0] - 2020-04-12
 ### Removed
