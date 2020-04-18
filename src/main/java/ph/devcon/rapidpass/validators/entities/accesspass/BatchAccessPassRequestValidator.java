@@ -12,13 +12,9 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities;
+package ph.devcon.rapidpass.validators.entities.accesspass;
 
-import org.springframework.util.StringUtils;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
