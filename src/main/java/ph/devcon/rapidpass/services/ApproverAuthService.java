@@ -34,9 +34,9 @@ import ph.devcon.rapidpass.repositories.RegistrarRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 import ph.devcon.rapidpass.utilities.CryptUtils;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
-import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.agencyuser.BaseAgencyUserRequestValidator;
-import ph.devcon.rapidpass.validators.entities.agencyuser.NewSingleAgencyUserRequestValidator;
+import ph.devcon.rapidpass.utilities.validators.StandardDataBindingValidation;
+import ph.devcon.rapidpass.utilities.validators.entities.agencyuser.BaseAgencyUserRequestValidator;
+import ph.devcon.rapidpass.utilities.validators.entities.agencyuser.NewSingleAgencyUserRequestValidator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;

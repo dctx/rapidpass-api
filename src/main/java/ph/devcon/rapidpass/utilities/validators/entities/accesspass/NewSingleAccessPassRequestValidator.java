@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities.accesspass;
+package ph.devcon.rapidpass.utilities.validators.entities.accesspass;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.validators.entities.accesspass.rules.HasNoExistingApprovedOrPendingPass;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.HasNoExistingApprovedOrPendingPass;
 
 /**
  * Subset of {@link BatchAccessPassRequestValidator}, that doesn't do id type checking.

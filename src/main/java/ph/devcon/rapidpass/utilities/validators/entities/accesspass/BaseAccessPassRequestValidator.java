@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities.accesspass;
+package ph.devcon.rapidpass.utilities.validators.entities.accesspass;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.validation.Errors;
@@ -23,7 +23,7 @@ import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.validators.entities.accesspass.rules.*;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +74,7 @@ public abstract class BaseAccessPassRequestValidator implements Validator {
                 new RequiredField("identifierNumber", "missing.identifierNumber", "Missing identifier number."),
                 new RequiredField("firstName", "missing.firstName", "Missing First Name."),
                 new RequiredField("lastName", "missing.lastName", "Missing Last Name."),
-                new RequiredField("originStreet", "missing.originStreet", "Missing Origin Street."),
+                // new RequiredField("originStreet", "missing.originStreet", "Missing Origin Street."),
                 new MobileNumberRequiredForIndividualPasses(),
                 new PlateNumberRequiredForVehiclePasses()
         );
