@@ -25,11 +25,11 @@ import org.springframework.validation.DataBinder;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.entities.LookupTablePK;
-import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.validators.entities.accesspass.BatchAccessPassRequestValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

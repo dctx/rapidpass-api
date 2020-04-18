@@ -39,8 +39,8 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.validators.ReadableValidationException;
 import ph.devcon.rapidpass.validators.StandardDataBindingValidation;
-import ph.devcon.rapidpass.validators.entities.BatchAccessPassRequestValidator;
-import ph.devcon.rapidpass.validators.entities.NewSingleAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.accesspass.BatchAccessPassRequestValidator;
+import ph.devcon.rapidpass.validators.entities.accesspass.NewSingleAccessPassRequestValidator;
 import ph.devcon.rapidpass.validators.entities.agencyuser.BatchAgencyUserRequestValidator;
 
 import javax.validation.constraints.NotEmpty;
