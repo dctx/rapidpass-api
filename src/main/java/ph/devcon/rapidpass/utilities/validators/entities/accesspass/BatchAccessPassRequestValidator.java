@@ -14,17 +14,10 @@
 
 package ph.devcon.rapidpass.utilities.validators.entities.accesspass;
 
-import com.google.common.collect.ImmutableList;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
-
-import java.util.Arrays;
 
 /**
  * Tests whether a{@link RapidPassRequest} or {@link AccessPass} is valid, and ready for creation.
@@ -54,36 +47,4 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
         super(lookupTableService, accessPassRepository);
     }
 
-    @Override
-    protected void validateRequiredFields(RapidPassRequest request, Errors errors) {
-        ImmutableList<Validator> validations = ImmutableList.of(
-                new RequiredField("passType", "missing.passType", "Missing Pass Type."),
-                new RequiredField("aporType", "missing.aporType", "Missing APOR Type."),
-                new RequiredField("mobileNumber", "missing.mobileNumber", "Missing Mobile Number."),
-                new RequiredField("firstName", "missing.firstName", "Missing First Name."),
-                new RequiredField("lastName", "missing.lastName", "Missing Last Name."),
-                new MobileNumberRequiredForIndividualPasses(),
-                new PlateNumberRequiredForVehiclePasses()
-        );
-
-        validations.forEach(validator -> validator.validate(request, errors));
-    }
-
-    @Override
-    protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
-        validateRequiredFields(request, errors);
-
-        // Don't do db related queries if there were already some non-db related validation errors that failed.
-        if (errors.hasErrors())
-            return;
-
-        ImmutableList<Validator> validations = ImmutableList.of(
-                new IsValidAporType(this.aporTypes),
-                // new IsValidIdType(this.individualIdTypes, this.vehicleIdTypes),
-                new IsValidPassType(Arrays.asList(PassType.values())),
-                new IsValidMobileNumber()
-        );
-
-        validations.forEach(validator -> validator.validate(request, errors));
-    }
 }
