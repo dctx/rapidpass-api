@@ -26,6 +26,12 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.utilities.JwtGenerator;
+
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -123,6 +129,7 @@ public class CheckpointRestController
 //        Map<String, Object> claims = new HashMap<>();
 //        claims.put("group", JWT_GROUP);
 //        claims.put("sub", scannerDevice.getUniqueDeviceId());
+//        claims.put("xsrfToken", UUID.randomUUID().toString());
 //        claims.put("exp", expiry.toEpochSecond());
 //
 //        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
@@ -134,7 +141,6 @@ public class CheckpointRestController
 //                .build();
 //
 //        return ResponseEntity.ok().body(authResponse);
-
         return ResponseEntity.ok("Coming Soon!");
     }
 }
