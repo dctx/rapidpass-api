@@ -99,27 +99,27 @@
                         <goals>
                             <goal>generate</goal>
                         </goals>
+                        <configuration>
+                            <inputSpec>${swagger-definition-file}</inputSpec>
+                            <language>spring</language>
+                            <!--                            <configHelp>true</configHelp>-->
+                            <!-- if generating client -->
+                            <!--                            <language>java</language>-->
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                            <importMappings>
+                                <importMapping>DateTime=java.time.OffsetDateTime</importMapping>
+                            </importMappings>
+                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
+                            <configOptions>
+                                <modelPackage>${project.groupId}.rapidpass.api.models</modelPackage>
+                                <apiPackage>${project.groupId}.rapidpass.api.controllers</apiPackage>
+                                <configPackage>${project.groupId}.rapidpass.api.configurations</configPackage>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <java8>true</java8>
+                            </configOptions>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <inputSpec>${swagger-definition-file}</inputSpec>
-                    <language>spring</language>
-                    <!--                            <configHelp>true</configHelp>-->
-                    <!-- if generating client -->
-                    <!--                            <language>java</language>-->
-                    <addCompileSourceRoot>false</addCompileSourceRoot>
-                    <importMappings>
-                        <importMapping>DateTime=java.time.OffsetDateTime</importMapping>
-                    </importMappings>
-                    <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
-                    <configOptions>
-                        <modelPackage>${project.groupId}.rapidpass.api.models</modelPackage>
-                        <apiPackage>${project.groupId}.rapidpass.api.controllers</apiPackage>
-                        <configPackage>${project.groupId}.rapidpass.api.configurations</configPackage>
-                        <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                        <java8>true</java8>
-                    </configOptions>
-                </configuration>
             </plugin>
             <!-- display active profile in compile phase -->
             <plugin>
@@ -364,6 +364,11 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>2.4.5.RELEASE</version>
         </dependency>
     </dependencies>
 
