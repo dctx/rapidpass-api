@@ -32,7 +32,10 @@ import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -152,6 +155,26 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
                 return null;
             }
             log.debug("authenticating claims {}", claims);
+
+            String xsrfToken = JwtGenerator.getXsrfToken(token);
+
+            String headerXsrfToken = request.getHeader("xsrfToken");
+
+            List<Cookie> cookies = Arrays.asList(request.getCookies());
+            Cookie xsrfTokenCookie = cookies.stream().filter(c -> c.getName().equals("xsrfToken")).findAny().orElse(null);
+
+            if (xsrfTokenCookie != null) {
+                String cookieXsrfToken = xsrfTokenCookie.getValue();
+                if (!cookieXsrfToken.equals(xsrfToken)) {
+                    log.warn("Invalid xsrf token on the cookies (expected={}, actual={})", xsrfToken, cookieXsrfToken);
+                    return null;
+                }
+            }
+
+            if (!xsrfToken.equals(headerXsrfToken)) {
+                log.warn("Invalid xsrf token on the headers (expected={}, actual={})", xsrfToken, headerXsrfToken);
+                return null;
+            }
 
             return claims;
         } catch (JwtException | SignatureVerificationException e) {
