@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities.accesspass;
+package ph.devcon.rapidpass.utilities.validators.entities.accesspass;
 
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;

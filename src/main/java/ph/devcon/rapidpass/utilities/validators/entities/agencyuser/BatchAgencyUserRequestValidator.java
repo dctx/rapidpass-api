@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities.agencyuser;
+package ph.devcon.rapidpass.utilities.validators.entities.agencyuser;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -30,14 +30,17 @@ import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
  * 1. ID type is valid (as checked from the database look up tables).
  * 2. APOR type is valid (as checked from the database look up tables).
  */
-public class NewSingleAgencyUserRequestValidator extends BaseAgencyUserRequestValidator {
+public class BatchAgencyUserRequestValidator extends BaseAgencyUserRequestValidator {
 
-    public NewSingleAgencyUserRequestValidator(RegistrarUserRepository registrarUserRepository, RegistrarRepository registrarRepository) {
+    public BatchAgencyUserRequestValidator(RegistrarUserRepository registrarUserRepository, RegistrarRepository registrarRepository) {
         super(registrarUserRepository, registrarRepository);
     }
 
     protected void validateRequiredFields(AgencyUser agencyUser, Errors errors) {
-        ValidationUtils.rejectIfEmpty(errors, "password", "missing.password", "Missing password.");
+        ValidationUtils.rejectIfEmpty(errors, "firstName", "missing.firstName", "Missing first name.");
+        ValidationUtils.rejectIfEmpty(errors, "lastName", "missing.lastName", "Missing last name.");
+        ValidationUtils.rejectIfEmpty(errors, "email", "missing.email", "Missing email.");
+
         super.validateRequiredFields(agencyUser, errors);
     }
 }

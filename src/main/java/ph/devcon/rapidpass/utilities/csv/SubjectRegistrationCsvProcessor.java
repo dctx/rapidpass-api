@@ -14,7 +14,15 @@
 
 package ph.devcon.rapidpass.utilities.csv;
 
+import com.google.common.collect.ImmutableList;
+import com.opencsv.bean.ColumnPositionMappingStrategy;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.utilities.normalization.*;
+
+import java.io.Reader;
+import java.util.List;
 
 /**
  * Implementation that maps a CSV row into a {@link RapidPassCSVdata} POJO.
@@ -53,4 +61,28 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
         super(CSV_COLUMN_MAPPING);
     }
 
+    @Override
+    protected CsvToBean<RapidPassCSVdata> generateCsvToBeanParser(ColumnPositionMappingStrategy strategy, Class<RapidPassCSVdata> type, Reader fileReader) {
+        return (CsvToBean<RapidPassCSVdata>) new CsvToBeanBuilder(fileReader)
+                .withMappingStrategy(strategy)
+                .withType(type)
+                .withSkipLines(1)
+                .withIgnoreLeadingWhiteSpace(true)
+                .build();
+    }
+
+    @Override
+    public List<NormalizationRule<RapidPassCSVdata>> getNormalizationRules() {
+        return ImmutableList.of(
+                new Trim("passType"),
+                new Capitalize("passType"),
+                new Trim("aporType"),
+                new Trim("mobileNumber"),
+                new DefaultValue("email", ""),
+                new DefaultValue("remarks", "frontliner"),
+                new DefaultValue("idType", "OTH"),
+                new DefaultValue("identifierNumber", "OTH"),
+                new NormalizeMobileNumber("mobileNumber")
+        );
+    }
 }
