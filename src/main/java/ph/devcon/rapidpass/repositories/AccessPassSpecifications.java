@@ -79,7 +79,10 @@ public class AccessPassSpecifications {
         return (((root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(company))
                 return null;
-            return criteriaBuilder.like(root.get("company"), "%"+company+"%");
+
+            Expression<String> lowerCompany = criteriaBuilder.function("lower", String.class, root.get("name"));
+
+            return criteriaBuilder.like(lowerCompany, "%"+StringUtils.lowerCase(company)+"%");
         }));
     }
 
@@ -102,7 +105,10 @@ public class AccessPassSpecifications {
         return (((root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(name))
                 return null;
-            return criteriaBuilder.like(root.get("name"), "%"+name+"%");
+
+            Expression<String> lowerName = criteriaBuilder.function("lower", String.class, root.get("name"));
+
+            return criteriaBuilder.like(lowerName, "%"+StringUtils.lowerCase(name)+"%");
         }));
     }
 
