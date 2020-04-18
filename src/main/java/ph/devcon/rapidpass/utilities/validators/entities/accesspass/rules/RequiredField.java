@@ -1,4 +1,4 @@
-package ph.devcon.rapidpass.validators.entities.accesspass.rules;
+package ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
