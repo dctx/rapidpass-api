@@ -6,11 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.7] - 2020-04-18
+### Fixed
+- [#354](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/354) - Search `GET /registry/access-passes?search=query` is now case insensitive for both name and company.
+
 ## [1.4.6] - 2020-04-18
 ### Fixed
-- [242](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/242) - Suspended access passes will no longer take 
+- [#242](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/242) - Suspended access passes will no longer take 
     priority when querying `GET /registry/access-passes/{referenceId}`.
-
 
 ## [1.4.5] - 2020-04-16
 ### Changed
