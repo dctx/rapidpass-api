@@ -33,6 +33,7 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -131,6 +132,7 @@ public class CheckpointRestController
         claims.put("group", JWT_GROUP);
         claims.put("sub", scannerDevice.getUniqueDeviceId());
         claims.put("exp", expiry.toEpochSecond());
+        claims.put("xsrfToken", UUID.randomUUID().toString());
 
         String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
 
