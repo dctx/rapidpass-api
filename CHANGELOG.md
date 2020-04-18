@@ -6,11 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.7] - 2020-04-18
+### Fixed
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
+
 ## [1.4.6] - 2020-04-18
 ### Fixed
 - [242](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/242) - Suspended access passes will no longer take 
     priority when querying `GET /registry/access-passes/{referenceId}`.
-
 
 ## [1.4.5] - 2020-04-16
 ### Changed
