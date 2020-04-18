@@ -61,6 +61,10 @@ public class JwtGenerator {
         return decodedJWT(token).getExpiresAt();
     }
 
+    public static String getXsrfToken(String token) {
+        return decodedJWT(token).getClaim("xsrfToken").asString();
+    }
+
     public static String getSubject(String token) {
         return decodedJWT(token).getSubject();
     }
