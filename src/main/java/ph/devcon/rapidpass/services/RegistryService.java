@@ -455,6 +455,11 @@ public class RegistryService {
             accessPass.setUpdates(reason);
         }
 
+        if (status == AccessPassStatus.SUSPENDED) {
+            // Change validity period to reach only up to now.
+            accessPass.setValidTo(OffsetDateTime.now());
+        }
+
         accessPass.setStatus(status.toString());
 
         // TODO: We need to verify that only the authorized people to modify this pass are allowed.
