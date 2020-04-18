@@ -116,15 +116,19 @@ public class ExceptionTranslator {
         if (cause instanceof InvalidFormatException) {
             InvalidFormatException invalidFormatException = (InvalidFormatException) cause;
 
+            final Object[] enumConstants = invalidFormatException.getTargetType().getEnumConstants();
+
+            if (enumConstants == null) return everythingElse(ex);
+
+            final List<String> values = ImmutableList.copyOf(enumConstants)
+                    .stream().map(Object::toString).collect(Collectors.toList());
+
+            final String value = (String) invalidFormatException.getValue();
+
             List<String> errors = invalidFormatException.getPath()
                     .stream()
                     .map(reference -> {
                         String key = reference.getFieldName();
-                        String value = (String) invalidFormatException.getValue();
-
-                        ImmutableList<Object> objects = ImmutableList.copyOf(invalidFormatException.getTargetType().getEnumConstants());
-                        List<String> values = objects.stream().map(Object::toString).collect(Collectors.toList());
-
                         return new InvalidEnumValueException(value, key, values);
                     })
                     .map(Throwable::getMessage)
