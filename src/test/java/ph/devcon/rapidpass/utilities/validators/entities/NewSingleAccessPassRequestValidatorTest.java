@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities;
+package ph.devcon.rapidpass.utilities.validators.entities;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
