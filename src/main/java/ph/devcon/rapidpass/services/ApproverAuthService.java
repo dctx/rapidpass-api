@@ -16,6 +16,7 @@ package ph.devcon.rapidpass.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -171,7 +172,7 @@ public class ApproverAuthService {
         String currentLoggedInUser = principal.get("sub").toString();
 
         if (!username.equals(currentLoggedInUser))
-            throw new IllegalArgumentException("You are only allowed to change passwords for your account.");
+            throw new AuthorizationException("You are only allowed to change passwords for your account.");
 
         final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
 

@@ -138,8 +138,18 @@ paths:
                     type: string
                     example:
                       Successfully changed your password.
+        '400':
+          description: Response when the old password supplied is incorrect.
+          content:
+            application/json:
+              example:
+                message: Failed to change password. The old password entered is incorrect.
         '401':
-          description: Incorrect current password; or username doesn't match username in URL
+          description: Response when attempting to change the password of a user that is other than the currently logged in user.
+          content:
+            application/json:
+              example:
+                message: You are only allowed to change passwords for your account.
         '500':
           description: Internal Server Error
   /users/{username}/activate:
