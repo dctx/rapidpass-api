@@ -19,7 +19,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
@@ -34,12 +36,14 @@ import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static ph.devcon.rapidpass.utilities.CryptUtils.passwordHash;
 
 class ApproverAuthServiceTest {
@@ -53,10 +57,10 @@ class ApproverAuthServiceTest {
 
     @BeforeEach
     void before() {
-        this.registrarUserRepository = Mockito.mock(RegistrarUserRepository.class);
-        this.registrarRepository = Mockito.mock(RegistrarRepository.class);
-        this.jwtSecretsConfig = Mockito.mock(JwtSecretsConfig.class);
-        this.registrarUserRequestProducer = Mockito.mock(RegistrarUserRequestProducer.class);
+        this.registrarUserRepository = mock(RegistrarUserRepository.class);
+        this.registrarRepository = mock(RegistrarRepository.class);
+        this.jwtSecretsConfig = mock(JwtSecretsConfig.class);
+        this.registrarUserRequestProducer = mock(RegistrarUserRequestProducer.class);
         this.approverAuthService = new ApproverAuthService(registrarUserRepository, registrarRepository, jwtSecretsConfig, this.registrarUserRequestProducer);
     }
 
@@ -483,5 +487,100 @@ class ApproverAuthServiceTest {
         assertFalse(this.approverAuthService.isActive(username));
     }
 
+    @Test
+    void testChangePassword() throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
+        final String username = "user@user.com";
+        final String oldPassword = "abcd";
+        final String newPassword = "1234";
+
+        final RegistrarUser user = RegistrarUser.builder()
+                .username(username)
+                .password(CryptUtils.passwordHash(oldPassword))
+                .build();
+
+        SecurityContext mockSecurityContext = mock(SecurityContext.class);
+        Authentication mockAuthentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(mockSecurityContext);
+
+        HashMap<String, Object> object = new HashMap<>();
+        object.put("sub", username);
+
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn(object);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(user);
+
+        this.approverAuthService.changePassword(username, oldPassword, newPassword);
+
+        verify(this.registrarUserRepository, times(1)).saveAndFlush(any());
+    }
+
+    @Test
+    void testFailChangePasswordDifferentUser() throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
+        final String username = "user@user.com";
+        final String targetHackUsername = "target@rapidpass.ph";
+        final String oldPassword = "abcd";
+        final String newPassword = "1234";
+
+        final RegistrarUser user = RegistrarUser.builder()
+                .username(username)
+                .password(CryptUtils.passwordHash(oldPassword))
+                .build();
+
+        SecurityContext mockSecurityContext = mock(SecurityContext.class);
+        Authentication mockAuthentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(mockSecurityContext);
+
+        HashMap<String, Object> object = new HashMap<>();
+        object.put("sub", username);
+
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn(object);
+        when(this.registrarUserRepository.findByUsername(targetHackUsername)).thenReturn(user);
+
+        try {
+            this.approverAuthService.changePassword(targetHackUsername, oldPassword, newPassword);
+            fail("Did not throw exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), equalTo("You are only allowed to change passwords for your account."));
+        }
+
+        verify(this.registrarUserRepository, times(0)).saveAndFlush(any());
+    }
+
+    @Test
+    void testFailChangePasswordWrongOldPassword() throws InvalidKeySpecException, NoSuchAlgorithmException {
+        final String username = "user@user.com";
+        final String oldPassword = "abcd";
+        final String incorrectOldPassword = "Y tu, brutus?";
+        final String newPassword = "1234";
+
+        final RegistrarUser user = RegistrarUser.builder()
+                .username(username)
+                .password(CryptUtils.passwordHash(oldPassword))
+                .build();
+
+        SecurityContext mockSecurityContext = mock(SecurityContext.class);
+        Authentication mockAuthentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(mockSecurityContext);
+
+        HashMap<String, Object> object = new HashMap<>();
+        object.put("sub", username);
+
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn(object);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(user);
+
+        try {
+            this.approverAuthService.changePassword(username, incorrectOldPassword, newPassword);
+            fail("Did not throw exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), equalTo("Failed to change password. The old password entered is incorrect."));
+        }
+
+        verify(this.registrarUserRepository, times(0)).saveAndFlush(any());
+    }
 
 }
