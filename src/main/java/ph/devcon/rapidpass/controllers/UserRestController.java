@@ -14,12 +14,15 @@
 
 package ph.devcon.rapidpass.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.api.models.RegistrarUserChangePasswordRequest;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.Login;
 import ph.devcon.rapidpass.models.UserActivationRequest;
@@ -79,6 +82,36 @@ public class UserRestController {
         } catch (final Exception e) {
             log.error("activation failed, an error has occurred", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/{username}/change-password")
+    public ResponseEntity<?> changePassword(
+            @PathVariable("username") final String username,
+            @RequestBody final RegistrarUserChangePasswordRequest request
+            ) {
+
+        try {
+            this.approverAuthService.changePassword(username, request.getCurrentPassword(), request.getNewPassword());
+
+            return ResponseEntity.ok(
+                    ImmutableMap.of("message", "Successfully changed your password.")
+            );
+
+        }
+        catch (AuthorizationException e) {
+            log.error("Attempt to change password of a different user! critical. {}", username, e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    ImmutableMap.of("message", e.getMessage())
+            );
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to change password of user {}", username, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ImmutableMap.of("message", e.getMessage())
+            );
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
+            log.error("Failed to change password of user {}", username, e);
+            throw new IllegalStateException("Failed to change password.");
         }
     }
 

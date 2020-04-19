@@ -1,3 +1,4 @@
+
 # Changelog
 All notable changes to this project will be documented in this file.
 
@@ -6,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.8] - 2020-04-19
+### Added
+- [#381](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/381) - Added change password endpoint, for 
+    approver dashboard users.
+
 ## [1.4.7] - 2020-04-18
 ### Fixed
-- [#354](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/354) - Search `GET /registry/access-passes?search=query` is now case insensitive for both name and company.
+- [#354](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/354) - Search `GET /registry/access-passes?search=query`
+    is now case insensitive for both name and company.
 
 ## [1.4.6] - 2020-04-18
 ### Fixed

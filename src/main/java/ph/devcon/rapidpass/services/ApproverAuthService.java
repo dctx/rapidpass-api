@@ -16,8 +16,11 @@ package ph.devcon.rapidpass.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
@@ -155,8 +158,6 @@ public class ApproverAuthService {
     /**
      * This changes the password of an approver.
      *
-     * FIXME: will not be used.
-     *
      * @param username the username
      * @param oldPassword the old password
      * @param newPassword the new password
@@ -165,18 +166,31 @@ public class ApproverAuthService {
      * @throws DecoderException this is returned when the hashing algorithm fails. This is an illegal state
      */
     public final void changePassword(final String username, final String oldPassword, final String newPassword) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+        String currentLoggedInUser = principal.get("sub").toString();
+
+        if (!username.equals(currentLoggedInUser))
+            throw new AuthorizationException("You are only allowed to change passwords for your account.");
+
         final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
-        if (registrarUser == null) {
-            throw new IllegalArgumentException("cannot change password if user does not exists");
-        }
+
+        if (registrarUser == null)
+            throw new IllegalArgumentException("This user does not exist.");
+
         final String hashedPassword = registrarUser.getPassword();
+
         final boolean isOldPasswordCorrect = passwordCompare(hashedPassword, oldPassword);
-        if (!isOldPasswordCorrect) {
-            throw new IllegalArgumentException("old password does not match!");
-        }
+
+        if (!isOldPasswordCorrect)
+            throw new IllegalArgumentException("Failed to change password. The old password entered is incorrect.");
+
         final String newHashedPassword = CryptUtils.passwordHash(newPassword);
         registrarUser.setPassword(newHashedPassword);
-        this.registrarUserRepository.save(registrarUser);
+
+
+        this.registrarUserRepository.saveAndFlush(registrarUser);
     }
 
     /**

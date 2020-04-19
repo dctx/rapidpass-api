@@ -24,7 +24,7 @@
 
     <groupId>ph.devcon</groupId>
     <artifactId>rapidpass-api</artifactId>
-    <version>1.4.7</version>
+    <version>1.4.8</version>
     <name>rapidpass-api</name>
     <description>Rapid Pass API</description>
 
@@ -99,27 +99,27 @@
                         <goals>
                             <goal>generate</goal>
                         </goals>
-                        <configuration>
-                            <inputSpec>${swagger-definition-file}</inputSpec>
-                            <language>spring</language>
-                            <!--                            <configHelp>true</configHelp>-->
-                            <!-- if generating client -->
-                            <!--                            <language>java</language>-->
-                            <addCompileSourceRoot>false</addCompileSourceRoot>
-                            <importMappings>
-                                <importMapping>DateTime=java.time.OffsetDateTime</importMapping>
-                            </importMappings>
-                            <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
-                            <configOptions>
-                                <modelPackage>${project.groupId}.rapidpass.api.models</modelPackage>
-                                <apiPackage>${project.groupId}.rapidpass.api.controllers</apiPackage>
-                                <configPackage>${project.groupId}.rapidpass.api.configurations</configPackage>
-                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <java8>true</java8>
-                            </configOptions>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <inputSpec>${swagger-definition-file}</inputSpec>
+                    <language>spring</language>
+                    <!--                            <configHelp>true</configHelp>-->
+                    <!-- if generating client -->
+                    <!--                            <language>java</language>-->
+                    <addCompileSourceRoot>false</addCompileSourceRoot>
+                    <importMappings>
+                        <importMapping>DateTime=java.time.OffsetDateTime</importMapping>
+                    </importMappings>
+                    <ignoreFileOverride>${project.basedir}/.swagger-codegen-ignore</ignoreFileOverride>
+                    <configOptions>
+                        <modelPackage>${project.groupId}.rapidpass.api.models</modelPackage>
+                        <apiPackage>${project.groupId}.rapidpass.api.controllers</apiPackage>
+                        <configPackage>${project.groupId}.rapidpass.api.configurations</configPackage>
+                        <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                        <java8>true</java8>
+                    </configOptions>
+                </configuration>
             </plugin>
             <!-- display active profile in compile phase -->
             <plugin>
