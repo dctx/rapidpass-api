@@ -15,7 +15,7 @@
 package ph.devcon.rapidpass.utilities.validators.entities;
 
 import com.google.common.collect.Lists;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -173,7 +173,7 @@ public class BatchAccessPassRequestValidatorTest {
      * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/374
      */
     @Test
-    @Ignore
+    @Disabled
     public void failIfMissingIdType() {
 
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
