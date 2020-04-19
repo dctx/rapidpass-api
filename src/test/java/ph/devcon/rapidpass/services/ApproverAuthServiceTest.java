@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.enums.RegistrarUserSource;
 import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
@@ -227,7 +228,7 @@ class ApproverAuthServiceTest {
             final Map<String, Object> claims = JwtGenerator.claimsToMap(accessCode);
             final Boolean validated = JwtGenerator.validateToken(accessCode, claims, jwtSecret);
             assertTrue(validated);
-        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException | AccountLockedException e) {
             fail(e);
         }
     }
@@ -255,7 +256,7 @@ class ApproverAuthServiceTest {
         try {
             final AgencyAuth login = this.approverAuthService.login(username, "a different password");
             Assertions.assertNull(login);
-        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException | AccountLockedException e) {
             fail(e);
         }
     }
@@ -271,6 +272,39 @@ class ApproverAuthServiceTest {
         try {
             final AgencyAuth login = this.approverAuthService.login(username, password);
             Assertions.assertNull(login);
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException | AccountLockedException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void testSeveralFailedLoginAttempts() {
+        final String username = "username";
+        final String password = "password";
+        final String jwtSecret = "supersecret";
+        String hashedPassword = "";
+        try {
+            hashedPassword = passwordHash(password);
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            fail(e);
+        }
+
+        // has existing user
+        final RegistrarUser existingUser = new RegistrarUser();
+        existingUser.setStatus("active");
+        existingUser.setUsername(username);
+        existingUser.setPassword(hashedPassword);
+        when(this.registrarUserRepository.findByUsername(username)).thenReturn(existingUser);
+        when(this.jwtSecretsConfig.findGroupSecret(anyString())).thenReturn(jwtSecret);
+
+        try {
+            for (int i = 0; i < 11; i++) {
+                this.approverAuthService.login(username, "wrong password");
+            }
+
+            fail();
+        } catch (AccountLockedException e) {
+            assertTrue(true);
         } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
             fail(e);
         }

@@ -22,6 +22,7 @@ import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.api.models.RegistrarUserChangePasswordRequest;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.Login;
@@ -48,7 +49,7 @@ public class UserRestController {
 //    }
 
     @PostMapping("/auth")
-    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
+    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) throws AccountLockedException {
         try {
             final AgencyAuth auth = this.approverAuthService.login(login.getUsername(), login.getPassword());
             if (auth == null) {
@@ -59,6 +60,8 @@ public class UserRestController {
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
             log.error("hashing function error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (AccountLockedException e) {
+            throw e;
         } catch (Exception e) {
             log.error("something went wrong", e);
             return ResponseEntity.badRequest().build();

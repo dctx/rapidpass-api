@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.AgencyUser;
@@ -124,7 +125,7 @@ class AuthServiceTest {
             final Map<String, Object> claims = JwtGenerator.claimsToMap(accessCode);
             final Boolean validated = JwtGenerator.validateToken(accessCode, claims, jwtSecret);
             assertTrue(validated);
-        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException | AccountLockedException e) {
             fail(e);
         }
     }
@@ -151,7 +152,7 @@ class AuthServiceTest {
         try {
             final AgencyAuth login = this.authService.login(username, "a different password");
             Assertions.assertNull(login);
-        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException | AccountLockedException e) {
             fail(e);
         }
     }
@@ -167,7 +168,7 @@ class AuthServiceTest {
         try {
             final AgencyAuth login = this.authService.login(username, password);
             Assertions.assertNull(login);
-        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | DecoderException | InvalidKeySpecException | AccountLockedException e) {
             fail(e);
         }
     }

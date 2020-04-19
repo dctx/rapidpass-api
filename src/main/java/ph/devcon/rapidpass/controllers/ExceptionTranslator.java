@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import javax.validation.ConstraintViolationException;
@@ -68,6 +69,14 @@ public class ExceptionTranslator {
     public Map<String, String> forbiddenError(Throwable e) {
         log.warn("Authentication Error!", e);
         return ImmutableMap.of("message", "You are not allowed to access resource.");
+    }
+
+    @ExceptionHandler({AccountLockedException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Map<String, String> lockedOut(AccountLockedException e) {
+        log.warn("Account was locked out", e);
+        return ImmutableMap.of("message", e.getMessage());
     }
 
     /**

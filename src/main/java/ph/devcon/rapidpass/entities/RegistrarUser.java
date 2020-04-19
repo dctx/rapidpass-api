@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
+import javax.validation.constraints.Min;
 
 /**
  *
@@ -124,6 +125,13 @@ public class RegistrarUser implements Serializable {
     private Registrar registrarId;
 //    @OneToMany(mappedBy = "registrarUserId")
 //    private Collection<ScannerDevice> scannerDeviceCollection;
+
+    @Min(value = 0)
+    @Column(name = "login_attempts")
+    private int loginAttempts = 0;
+
+    @Column(name = "is_account_locked")
+    private boolean isAccountLocked = false;
 
     @Override
     public int hashCode() {

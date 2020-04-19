@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.RecordSource;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
@@ -173,6 +174,9 @@ public class RegistryRestController {
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
             log.error("hashing function error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (AccountLockedException e) {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
             log.error("something went wrong", e);
             return ResponseEntity.badRequest().build();

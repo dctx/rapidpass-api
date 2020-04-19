@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.entities.RegistrarUser;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.enums.RegistrarUserStatus;
 import ph.devcon.rapidpass.kafka.RegistrarUserRequestProducer;
 import ph.devcon.rapidpass.models.AgencyAuth;
@@ -87,16 +88,28 @@ public class ApproverAuthService {
      * @throws NoSuchAlgorithmException this is returned when the hashing algorithm fails. This is an illegal state
      * @throws DecoderException this is returned when the hashing algorithm fails. This is an illegal state
      */
-    public final AgencyAuth login(final String username, final String password) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException {
+    public final AgencyAuth login(final String username, final String password) throws InvalidKeySpecException, NoSuchAlgorithmException, DecoderException, AccountLockedException {
         final RegistrarUser registrarUser = this.registrarUserRepository.findByUsername(username);
+
         if (registrarUser == null) {
             log.warn("unregistered user attempted to login");
             return null;
         }
+
+        int maximum_failed_login_attempts = 10;
+
+        if (registrarUser.isAccountLocked()) {
+            throw new AccountLockedException(String.format("This account has been locked due to too many (%d) failed login attempts.", maximum_failed_login_attempts));
+        }
+
         final String hashedPassword = registrarUser.getPassword();
 
         final boolean isPasswordCorrect = passwordCompare(hashedPassword, password);
+
         if (isPasswordCorrect) {
+            registrarUser.setLoginAttempts(0);
+            registrarUserRepository.save(registrarUser);
+
             final Map<String, Object> claims = new HashMap<>();
             claims.put("sub", username);
             claims.put("group", GROUP_NAME);
@@ -105,6 +118,19 @@ public class ApproverAuthService {
             final String token = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(GROUP_NAME));
             return AgencyAuth.builder().accessCode(token).build();
         }
+
+        // TODO: System setting for login attempts
+        if (registrarUser.getLoginAttempts() < maximum_failed_login_attempts) {
+            registrarUser.setLoginAttempts(registrarUser.getLoginAttempts() + 1);
+
+            if (registrarUser.getLoginAttempts() == maximum_failed_login_attempts) {
+                log.warn("Registrar User `{}` has been locked due to {} failed login attempts", registrarUser.getUsername(), maximum_failed_login_attempts);
+                registrarUser.setAccountLocked(true);
+            }
+        }
+
+        registrarUserRepository.save(registrarUser);
+
         return null;
     }
 
