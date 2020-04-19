@@ -15,6 +15,7 @@
 package ph.devcon.rapidpass.utilities.validators.entities;
 
 import com.google.common.collect.Lists;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -167,7 +168,12 @@ public class BatchAccessPassRequestValidatorTest {
     }
 
 
+    /**
+     * ID type no longer a required validation.
+     * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/374
+     */
     @Test
+    @Ignore
     public void failIfMissingIdType() {
 
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
