@@ -16,8 +16,12 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <include relativeToChangelogFile="true" file="db.changelog-1.1.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.2.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.3.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.4.xml"/>
+    <changeSet author="eric" id="20200419-1">
+        <createIndex tableName="access_pass"
+                     indexName="access_pass_apor_type_name_company_index">
+            <column name="apor_type"/>
+            <column name="lower(name)"/>
+            <column name="lower(company)"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
