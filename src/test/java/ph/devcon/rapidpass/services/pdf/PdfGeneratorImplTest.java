@@ -28,6 +28,7 @@ import ph.devcon.rapidpass.services.QrGeneratorServiceImpl;
 import ph.devcon.rapidpass.utilities.DateFormatter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
@@ -41,6 +42,8 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 class PdfGeneratorImplTest {
 
     QrGeneratorServiceImpl qrGeneratorService;
+
+    private static final String TEST_PDF_OUTPUT_FILENAME = "test.pdf";
 
     private String encryptionKey = "***REMOVED***";
     private String signingKey = "***REMOVED***";
@@ -228,6 +231,9 @@ class PdfGeneratorImplTest {
 
         fileOutputStream.flush();
         fileOutputStream.close();
+
+        File file = new File(TEST_PDF_OUTPUT_FILENAME);
+        file.delete();
 
         assertThat("pdf is being streamed", outputStream.toByteArray().length, is(greaterThan(0)));
     }
