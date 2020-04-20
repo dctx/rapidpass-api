@@ -128,6 +128,12 @@ rbac:
 #          verbs:
 #            - ALL
 
+security:
+  enabled: true
+  cors:
+    allowed-origins:
+      rapidpass.ph,dashboard.rapidpass.ph
+
 logging:
   level:
     ph.devcon: debug

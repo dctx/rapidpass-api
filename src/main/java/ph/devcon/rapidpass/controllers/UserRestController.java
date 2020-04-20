@@ -14,6 +14,7 @@
 
 package ph.devcon.rapidpass.controllers;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +23,17 @@ import org.apache.kafka.common.errors.AuthorizationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.api.models.RegistrarUserChangePasswordRequest;
+import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.Login;
 import ph.devcon.rapidpass.models.UserActivationRequest;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.utilities.JwtGenerator;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
@@ -49,13 +53,21 @@ public class UserRestController {
 //    }
 
     @PostMapping("/auth")
-    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) throws AccountLockedException {
+    public ResponseEntity<AgencyAuth> login(HttpServletResponse response, @RequestBody Login login) throws AccountLockedException {
         try {
             final AgencyAuth auth = this.approverAuthService.login(login.getUsername(), login.getPassword());
             if (auth == null) {
                 log.debug(" wrong password/username {}", login.getUsername());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
+
+            DecodedJWT decodedJWT = JwtGenerator.decodedJWT(auth.getAccessCode());
+
+            String xsrfToken = decodedJWT.getClaim("xsrfToken").asString();
+            Cookie cookie = new Cookie("xsrfToken", xsrfToken);
+            cookie.setMaxAge(86400); // 1 day constant
+            response.addCookie(cookie);
+
             return ResponseEntity.ok().body(auth);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
             log.error("hashing function error", e);

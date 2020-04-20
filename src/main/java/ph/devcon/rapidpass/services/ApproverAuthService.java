@@ -113,6 +113,7 @@ public class ApproverAuthService {
             final Map<String, Object> claims = new HashMap<>();
             claims.put("sub", username);
             claims.put("group", GROUP_NAME);
+            claims.put("xsrfToken", UUID.randomUUID().toString());
             // TODO: hardcoded expiry at 1 day
             claims.put("exp", LocalDateTime.now().plus(1, ChronoUnit.DAYS));
             final String token = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(GROUP_NAME));
