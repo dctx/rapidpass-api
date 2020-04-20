@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RbacAuthorizationFilter rbacAuthorizationFilter;
 
-    @Value("${security.cors.allowed-origins}")
+    @Value("${security.cors.allowedorigins}")
     private List<String> allowedOrigins;
 
     @Bean
