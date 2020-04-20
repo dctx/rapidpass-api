@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -30,7 +29,6 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import ph.devcon.rapidpass.filters.ApiKeyAuthenticationFilter;
 import ph.devcon.rapidpass.filters.JwtAuthenticationFilter;
 import ph.devcon.rapidpass.filters.RbacAuthorizationFilter;
@@ -62,39 +60,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${security.cors.allowedorigins}")
     private List<String> allowedOrigins;
 
-    //    @Bean
-    public FilterRegistrationBean corsFilter() {
-        // For now, the only part that needs CORS is the log in for the approver.
-        // Inside, we utilise JWT for authentication.
-
-        CorsConfiguration config = new CorsConfiguration();
-
-//        allowedOrigins.add("localhost");
-        config.setAllowedOrigins(allowedOrigins);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        config.setAllowCredentials(true);
-
-        allowedOrigins.forEach(config::addAllowedOrigin);
-
-        ImmutableList<String> allowedHeaders = ImmutableList.of(
-                "Accept", "Accept-Encoding", "Accept-Language",
-                "Connection", "Authorization", "Content-Length",
-                "Content-Type", "Connection",
-                "Host", "Origin", "RP-API-KEY", "Sec-Fetch-Dest",
-                "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent"
-        );
-
-        allowedHeaders.forEach(config::addAllowedHeader);
-
-        config.addAllowedMethod("*");
-
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        bean.setOrder(0);
-        return bean;
-    }
 
     /**
      * Set security.enabled to true to enable secured this configuration. Defaults to false for developer convenience
