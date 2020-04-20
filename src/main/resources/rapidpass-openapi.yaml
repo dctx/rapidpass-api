@@ -584,6 +584,33 @@ paths:
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
 
+  /registry/access-passes/{referenceID}/status:
+    get:
+      operationId: getAccessPassStatusById
+      tags:
+        - registration
+        - dashboard
+      summary:
+        Retrieves current status of access pass
+      parameters:
+        - name: referenceID
+          in: path
+          description: >-
+            Reference Number of access pass request.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current status of access pass
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
   '/registry/qr-codes/{controlCode}':
     get:
       operationId: downloadRapidPassPdf

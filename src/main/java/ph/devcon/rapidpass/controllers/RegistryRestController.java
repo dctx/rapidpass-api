@@ -27,7 +27,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.RecordSource;
+import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.ApproverAuthService;
@@ -42,7 +44,9 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -68,17 +72,41 @@ public class RegistryRestController {
     }
 
     @GetMapping("/access-passes/{referenceId}")
-    ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) {
+    ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) throws AccessPassNotFoundException {
 
         AccessPass accessPass = registryService.findByNonUniqueReferenceId(referenceId);
 
-        if (accessPass == null) return ResponseEntity.notFound().build();
+        if (accessPass == null) {
+            throw new AccessPassNotFoundException(
+                    String.format("There is no RapidPass found with reference ID `%s`", referenceId)
+            );
+        }
 
         RapidPass rapidPass = RapidPass.buildFrom(accessPass);
 
         if (rapidPass == null) ResponseEntity.notFound().build();
 
         return ResponseEntity.ok().body(rapidPass);
+    }
+
+    @GetMapping("/access-passes/{referenceId}/status")
+    ResponseEntity<?> getAccessPassStatus(@PathVariable String referenceId) throws AccessPassNotFoundException {
+        AccessPass accessPass = registryService.findByNonUniqueReferenceId(referenceId);
+
+        if (accessPass == null) {
+            throw new AccessPassNotFoundException(
+                    String.format("There is no RapidPass found with reference ID `%s`", referenceId)
+            );
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("status", accessPass.getStatus());
+
+        if (AccessPassStatus.INVALID_STATUSES.contains(accessPass.getStatus())) {
+            response.put("reason", accessPass.getUpdates());
+        }
+
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/access-passes")

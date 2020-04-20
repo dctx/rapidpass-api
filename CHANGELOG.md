@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [#382] Updated APOR seed data in Lookup Table
 
+### Added
+- [#285](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/285) - Added an endpoint that 
+retrieves the current access pass status
+
 ## [1.5.0] - 2020-04-19
 ### Fixed
 - [#322](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/332) - Implemented registrar user account 

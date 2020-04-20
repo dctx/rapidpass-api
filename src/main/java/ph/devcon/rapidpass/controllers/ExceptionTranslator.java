@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.services.RegistryService;
 
@@ -76,6 +77,14 @@ public class ExceptionTranslator {
     @ResponseBody
     public Map<String, String> lockedOut(AccountLockedException e) {
         log.warn("Account was locked out", e);
+        return ImmutableMap.of("message", e.getMessage());
+    }
+
+    @ExceptionHandler({AccessPassNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public Map<String, String> notFound(AccessPassNotFoundException e) {
+        log.warn("Invalid Access Pass", e);
         return ImmutableMap.of("message", e.getMessage());
     }
 
