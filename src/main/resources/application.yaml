@@ -134,6 +134,11 @@ security:
   cors:
     allowedorigins:
       rapidpass.ph,dashboard.rapidpass.ph
+  csp:
+    srcs:
+      script: "*.rapidpass.ph rapidpass.ph"
+
+
 
 logging:
   level:
