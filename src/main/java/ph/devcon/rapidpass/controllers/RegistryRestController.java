@@ -27,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
@@ -101,6 +102,10 @@ public class RegistryRestController {
 
         Map<String, String> response = new HashMap<>();
         response.put("status", accessPass.getStatus());
+
+        if (AccessPassStatus.INVALID_STATUSES.contains(accessPass.getStatus())) {
+            response.put("reason", accessPass.getUpdates());
+        }
 
         return ResponseEntity.ok().body(response);
     }

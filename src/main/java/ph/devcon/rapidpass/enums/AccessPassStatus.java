@@ -15,6 +15,9 @@
 package ph.devcon.rapidpass.enums;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * The Statuses that a RapidPass Request can have.
  */
@@ -35,6 +38,11 @@ public enum AccessPassStatus {
      * Access pass is no longer valid
      */
     SUSPENDED;
+
+    /**
+     * List of denied or invalid statuses
+     */
+    public static List<String> INVALID_STATUSES = Arrays.asList(DECLINED.name(), SUSPENDED.name());
 
     public static Boolean isValid(String status) {
       for (AccessPassStatus s: AccessPassStatus.values()) {
