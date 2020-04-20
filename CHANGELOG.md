@@ -6,12 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [1.5.2] - 2020-04-20
-### Fixed
-- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
-    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
-    manager).
-
 
 ## [1.5.1] - 2020-04-20
 ### Fixed
@@ -33,9 +27,6 @@ locking for several failed login attempts
 ### Fixed
 - [#354](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/354) - Search `GET /registry/access-passes?search=query`
     is now case insensitive for both name and company.
-- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
-    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
-    manager).
 
 ## [1.4.6] - 2020-04-18
 ### Fixed
