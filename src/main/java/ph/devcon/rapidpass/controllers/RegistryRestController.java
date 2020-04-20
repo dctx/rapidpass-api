@@ -35,6 +35,7 @@ import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -157,7 +158,7 @@ public class RegistryRestController {
     }
 
     /**
-     * Depecreated. Use {@link UserRestController#login(Login)}
+     * Depecreated. Use {@link UserRestController#login(HttpServletResponse, Login)}
      *
      * @param login
      * @return
