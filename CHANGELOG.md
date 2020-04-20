@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.5.3] - 2020-04-20
+### Fixed
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
+    
 ## [1.5.2] - 2020-04-20
 ### Changed
 - [#384](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/384) Added security headers.
@@ -59,11 +65,19 @@ locking for several failed login attempts
 ## [1.4.1] - 2020-04-16
 ### Added
 - [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
-the PDF is illegal.
+    the PDF is illegal.
+
+### Fixed
+- [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
 
 ## [1.4.1] - 2020-04-12
 ### Fixed
-- [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
 
 ## [1.4.0] - 2020-04-12
 ### Removed
