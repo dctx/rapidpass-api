@@ -39,7 +39,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 @Slf4j
-@CrossOrigin
 @RestController
 @RequestMapping("/users")
 @AllArgsConstructor

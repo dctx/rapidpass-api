@@ -40,7 +40,6 @@ import java.util.List;
 /**
  * Registry API Rest Controller specifically for batch operations
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/batch")
 @Validated

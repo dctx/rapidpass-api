@@ -26,18 +26,11 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.utilities.JwtGenerator;
-
-import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 
 /**
  *  Checkpoint API Rest Controller
  */
-@CrossOrigin
 @RestController
 @Slf4j
 @Api(tags = "checkpoint")
