@@ -16,7 +16,6 @@ package ph.devcon.rapidpass.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +26,6 @@ import java.io.InputStream;
 /**
  * Manually expose swagger doc
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/spec")
 @Slf4j

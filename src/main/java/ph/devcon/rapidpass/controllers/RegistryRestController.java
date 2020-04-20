@@ -48,7 +48,6 @@ import java.util.Optional;
 /**
  * Registry API Rest Controller
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/registry")
 @Slf4j
