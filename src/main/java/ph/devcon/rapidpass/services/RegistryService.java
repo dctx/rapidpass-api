@@ -207,6 +207,11 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
+    /**
+     * Please use normalization rules instead, for composable rules.
+     * @deprecated
+     * @param rapidPassRequest The rapidpass to normalize.
+     */
     private void normalizeIdMobileAndPlateNumber(RapidPassRequest rapidPassRequest) {
         if (rapidPassRequest.getPlateNumber() != null) {
             rapidPassRequest.setPlateNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getPlateNumber()));
@@ -426,6 +431,7 @@ public class RegistryService {
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
      *
+     * @throws UpdateAccessPassException If the pass could not be found, or if it is not pending.
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @param status      The status to apply
      * @return Data stored on the database
@@ -579,7 +585,6 @@ public class RegistryService {
             try {
                 request.setSource(RecordSource.BULK.toString());
 
-                normalizeIdMobileAndPlateNumber(request);
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
                 validation.validate(request);
 
@@ -604,11 +609,13 @@ public class RegistryService {
                         pass = persistAccessPass(request, AccessPassStatus.APPROVED);
 
                         if (pass == null) {
-                            throw new Exception("Unable to create new Access Pass.");
+                            throw new ReadableValidationException("Unable to create new Access Pass.");
                         }
-                    } else  if (accessPasses.stream().filter(a -> "APPROVED".equalsIgnoreCase(a.getStatus())).count() > 0) {
+
+                        passes.add("Record " + counter++ + ": Success. ");
+                    } else  if (accessPasses.stream().anyMatch(a -> "APPROVED".equalsIgnoreCase(a.getStatus()))) {
                         // there is already an approved and valid access pass with the same reference id and pass type
-                        throw new Exception("Duplicate (Approved) Access Pass found.");
+                        passes.add("Record " + counter++ + ": No change. An existing approved Access Pass was found.");
                     } else {
                         // there are at least 1 pending request, this should not happen
                         // only 1 pending request per pass type and reference id should be in the system
@@ -634,14 +641,11 @@ public class RegistryService {
                         topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
 
                         accessPassRepository.saveAndFlush(topAccessPass);
-
+                        passes.add("Record " + counter++ + ": Success. ");
                     }
-
-                    passes.add("Record " + counter++ + ": Success. ");
-
                 }
             } catch (ReadableValidationException e) {
-                log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
+                log.warn("Did not create/udpdate access pass for record {}. error: {}", counter, e.getMessage());
 
                 // Access passes that are declined should still be persisted. Reusing existing code.
                 pass = persistAccessPass(request, AccessPassStatus.PENDING);

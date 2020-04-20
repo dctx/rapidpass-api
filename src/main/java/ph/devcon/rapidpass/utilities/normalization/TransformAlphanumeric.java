@@ -1,21 +1,19 @@
 package ph.devcon.rapidpass.utilities.normalization;
 
 import org.apache.commons.lang3.StringUtils;
+import ph.devcon.rapidpass.utilities.StringFormatter;
 
 import java.lang.reflect.Field;
 
-public class DefaultValue<E> implements NormalizationRule<E>  {
-
+public class TransformAlphanumeric<E> implements NormalizationRule<E> {
     private final String field;
-    private String defaultValue;
 
-    public DefaultValue(String field, String defaultValue) {
+    public TransformAlphanumeric(String field) {
         this.field = field;
-        this.defaultValue = defaultValue;
     }
 
     @Override
-    public void normalize(E input) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
+    public void normalize(E input) throws Exception {
         Field declaredField = input.getClass().getDeclaredField(field);
         declaredField.setAccessible(true);
 
@@ -23,9 +21,11 @@ public class DefaultValue<E> implements NormalizationRule<E>  {
 
         if (!type.equals(String.class)) throw new IllegalArgumentException("This only works for strings.");
 
-        String o = (String) declaredField.get(input);
+        String value = (String) declaredField.get(input);
 
-        if (StringUtils.isBlank(o))
-            declaredField.set(input, defaultValue);
+        if (StringUtils.isNotBlank(value)) {
+            value = StringFormatter.normalizeAlphanumeric(value);
+            declaredField.set(input, value);
+        }
     }
 }
