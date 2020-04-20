@@ -6,9 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+<<<<<<< CHANGELOG.md
+
+## [1.5.2] - 2020-04-20
+### Fixed
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle incorrect format for CSV caused by Excel.
 
 ## [1.5.1] - 2020-04-20
-- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle incorrect format for CSV caused by Excel.
+### Changed
+- [#382] Updated APOR seed data in Lookup Table.
 
 ## [1.5.0] - 2020-04-19
 ### Fixed
