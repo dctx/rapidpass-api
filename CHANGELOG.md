@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.4] - 2020-04-20
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle incorrect format for CSV caused by Excel.
+
 ## [1.5.3] - 2020-04-20
 ### Fixed
 - [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
@@ -18,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2020-04-20
 ### Changed
-- [#382](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/382) Updated APOR seed data in Lookup Table
+- [#382](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/382) Updated APOR seed data in Lookup Table.
 
 ### Added
 - [#285](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/285) - Added an endpoint that 
@@ -69,15 +73,8 @@ locking for several failed login attempts
 
 ### Fixed
 - [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
-- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
-    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
-    manager).
-
-## [1.4.1] - 2020-04-12
-### Fixed
-- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
-    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
-    manager).
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle XLSX default or missing data, after
+    the approver saves the Excel sheet as a CSV.
 
 ## [1.4.0] - 2020-04-12
 ### Removed

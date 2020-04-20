@@ -21,11 +21,9 @@ public class Trim<E> implements NormalizationRule<E>  {
 
         if (!type.equals(String.class)) throw new IllegalArgumentException("This only works for strings.");
 
-        Object objectValue = type.newInstance();
-
-        String o = (String) declaredField.get(objectValue);
+        String o = (String) declaredField.get(input);
 
         if (!StringUtils.isBlank(o))
-            declaredField.set(objectValue, o.trim());
+            declaredField.set(input, o.trim());
     }
 }

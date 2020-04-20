@@ -22,14 +22,12 @@ public class NormalizeMobileNumber<E> implements NormalizationRule<E> {
 
         if (!type.equals(String.class)) throw new IllegalArgumentException("This only works for strings.");
 
-        Object objectValue = type.newInstance();
-
-        String mobileNumber = (String) declaredField.get(objectValue);
+        String mobileNumber = (String) declaredField.get(input);
 
         if (StringUtils.isNotBlank(mobileNumber)) {
             mobileNumber = "0" + StringUtils.right(mobileNumber, 10);
 
-            declaredField.set(objectValue, mobileNumber);
+            declaredField.set(input, mobileNumber);
         }
     }
 }

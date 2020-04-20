@@ -18,10 +18,19 @@ import com.google.common.collect.ImmutableList;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.CsvToBeanFilter;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.utilities.normalization.*;
 
 import java.io.Reader;
+import java.util.List;
+
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+
+import java.io.Reader;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -61,28 +70,83 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
         super(CSV_COLUMN_MAPPING);
     }
 
-    @Override
     protected CsvToBean<RapidPassCSVdata> generateCsvToBeanParser(ColumnPositionMappingStrategy strategy, Class<RapidPassCSVdata> type, Reader fileReader) {
+
+        // Don't handle rows that have incorrect column length.
+        CsvToBeanFilter dontHandleRowsWithIncorrectColumnLength = strings -> strings.length == 21;
+
+        // Don't handle rows with email `juan@xxxx.xxx`.
+        CsvToBeanFilter dontHandleRowsWithMissingEmailOrDefaultEmail = strings -> {
+            int indexOfEmail = 11;
+            boolean isEmailNotInCsv = strings.length < indexOfEmail;
+            if (isEmailNotInCsv) return false;
+
+            String email = strings[indexOfEmail];
+
+            String DEFAULT_EMAIL = "juan@xxxx.xxx";
+
+            boolean isDefaultEmail = email.equalsIgnoreCase(DEFAULT_EMAIL);
+
+            return !isDefaultEmail;
+        };
+
+        // Don't handle rows with mobile number `09000000000`.
+        CsvToBeanFilter dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber = strings -> {
+            int indexOfMobileNumber = 10;
+            boolean isMobileNotInCsv = strings.length < indexOfMobileNumber;
+            if (isMobileNotInCsv) return false;
+
+            String mobileNumber = strings[indexOfMobileNumber];
+
+            String DEFAULT_MOBILE_NUMBER = "09000000000";
+
+            boolean isDefaultMobile = mobileNumber.equals(DEFAULT_MOBILE_NUMBER);
+
+            return !isDefaultMobile;
+        };
+
         return (CsvToBean<RapidPassCSVdata>) new CsvToBeanBuilder(fileReader)
                 .withMappingStrategy(strategy)
                 .withType(type)
                 .withSkipLines(1)
+                .withFilter(dontHandleRowsWithIncorrectColumnLength)
+                .withFilter(dontHandleRowsWithMissingEmailOrDefaultEmail)
+                .withFilter(dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
     }
+
 
     @Override
     public List<NormalizationRule<RapidPassCSVdata>> getNormalizationRules() {
         return ImmutableList.of(
                 new Trim("passType"),
                 new Capitalize("passType"),
+
+                new Trim("plateNumber"),
+                new Capitalize("plateNumber"),
+
                 new Trim("aporType"),
+                new Capitalize("aporType"),
+
                 new Trim("mobileNumber"),
+                new Trim("company"),
+
                 new DefaultValue("email", ""),
+                new Trim("email"),
                 new DefaultValue("remarks", "frontliner"),
+
                 new DefaultValue("idType", "OTH"),
+                new Trim("idType"),
+
+                new TransformAlphanumeric("plateNumber"),
+
                 new DefaultValue("identifierNumber", "OTH"),
-                new NormalizeMobileNumber("mobileNumber")
+                new Trim("identifierNumber"),
+                new TransformAlphanumeric("identifierNumber"),
+
+                new NormalizeMobileNumber("mobileNumber"),
+                new TransformAlphanumeric("mobileNumber")
         );
     }
 }
