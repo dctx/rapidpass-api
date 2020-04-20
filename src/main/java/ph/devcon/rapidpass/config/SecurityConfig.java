@@ -14,6 +14,7 @@
 
 package ph.devcon.rapidpass.config;
 
+import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,15 +69,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         config.setAllowedOrigins(allowedOrigins);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/user/auth", config);
+        source.registerCorsConfiguration("/**", config);
 
         config.setAllowCredentials(true);
 
         allowedOrigins.forEach(config::addAllowedOrigin);
 
-        config.addAllowedHeader("*");
+        ImmutableList<String> allowedHeaders = ImmutableList.of(
+                "Accept", "Accept-Encoding", "Accept-Language",
+                "Connection", "Authorization", "Content-Length",
+                "Content-Type", "Connection",
+                "Host", "Origin", "RP-API-KEY", "Sec-Fetch-Dest",
+                "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent"
+        );
+
+        allowedHeaders.forEach(config::addAllowedHeader);
+
         config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
+
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         bean.setOrder(0);
         return bean;
