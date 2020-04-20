@@ -54,6 +54,7 @@ locking for several failed login attempts
 ## [1.4.1] - 2020-04-16
 ### Added
 - [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
+    the PDF is illegal.
 
 ### Fixed
 - [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
