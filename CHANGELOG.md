@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.5.2] - 2020-04-20
+### Fixed
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
+
+
 ## [1.5.1] - 2020-04-20
 ### Fixed
 - [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
@@ -26,9 +33,6 @@ locking for several failed login attempts
 ### Fixed
 - [#354](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/354) - Search `GET /registry/access-passes?search=query`
     is now case insensitive for both name and company.
-
-## [1.4.7] - 2020-04-18
-### Fixed
 - [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
     an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
     manager).
@@ -59,20 +63,9 @@ locking for several failed login attempts
 ## [1.4.1] - 2020-04-16
 ### Added
 - [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
-the PDF is illegal.
 
-## [1.4.1] - 2020-04-12
 ### Fixed
 - [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
-
-## [1.4.1] - 2020-04-12
-### Fixed
-- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
-    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
-    manager).
-
-## [1.4.1] - 2020-04-12
-### Fixed
 - [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
     an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
     manager).
