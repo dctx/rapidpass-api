@@ -17,13 +17,16 @@ package ph.devcon.rapidpass.utilities.csv;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
+import ph.devcon.rapidpass.utilities.normalization.NormalizationRule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,6 +34,7 @@ import java.util.List;
  *
  * @param <E>
  */
+@Slf4j
 public class GenericCsvProcessor<E> implements CsvProcessor<E> {
 
     private final String[] columnMapping;
@@ -91,10 +95,35 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
             CsvToBean<E> csvParser = generateCsvToBeanParser(strategy, type, fileReader);
 
             result = csvParser.parse();
+
+            result = normalize(result);
         } catch (IOException e) {
             throw new IOException("Failed to read CSV file.", e);
         }
 
         return result;
+    }
+
+    public List<NormalizationRule<E>> getNormalizationRules() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Default normalization op is no operation
+     */
+    private List<E> normalize(List<E> csvRows) {
+
+        List<NormalizationRule<E>> normalizationRules = getNormalizationRules();
+
+        csvRows.forEach((E csvRow) ->
+                normalizationRules.forEach(n -> {
+                    try {
+                        n.normalize(csvRow);
+                    } catch (Exception e) {
+                        log.warn("Failed to perform normalization {}", n.getClass().getName(), e);
+                    }
+                }));
+
+        return csvRows;
     }
 }

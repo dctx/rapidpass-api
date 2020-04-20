@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package ph.devcon.rapidpass.validators.entities;
+package ph.devcon.rapidpass.utilities.validators.entities.accesspass;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.HasNoExistingApprovedOrPendingPass;
 
 /**
  * Subset of {@link BatchAccessPassRequestValidator}, that doesn't do id type checking.
@@ -34,18 +34,14 @@ public class NewSingleAccessPassRequestValidator extends BaseAccessPassRequestVa
 
     protected void validateRequiredFields(RapidPassRequest request, Errors errors) {
         super.validateRequiredFields(request, errors);
+
         ValidationUtils.rejectIfEmpty(errors, "email", "missing.email", "Missing Email.");
 
         if (errors.hasErrors())
             return;
 
-        String identifier = PassType.INDIVIDUAL == request.getPassType() ?
-                "0" + org.apache.commons.lang3.StringUtils.right(request.getMobileNumber(), 10) :
-                request.getPlateNumber();
-
-        if (identifier != null && !hasNoExistingApprovedOrPendingPasses(identifier)) {
-            errors.reject("existing.accessPass", String.format("An existing PENDING/APPROVED RapidPass already exists for %s.", identifier));
-        }
+        HasNoExistingApprovedOrPendingPass hasNoExistingApprovedOrPendingPass = new HasNoExistingApprovedOrPendingPass(this.accessPassRepository);
+        hasNoExistingApprovedOrPendingPass.validate(request, errors);
     }
 
 }
