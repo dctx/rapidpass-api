@@ -1,11 +1,13 @@
 package ph.devcon.rapidpass.filters;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Component
 public class ResponseHeaderSecurityFilter implements Filter {
 
     @Value("${security.csp.srcs.script:*.rapidpass.ph rapidpass.ph}")
