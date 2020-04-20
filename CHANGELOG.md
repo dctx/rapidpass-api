@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [1.5.1] - 2020-04-20
-- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle incorrect format for CSV caused by Excel.
+### Fixed
+- [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle XLSX default or missing data, after
+    the approver saves the Excel sheet as a CSV.
 
 ## [1.5.0] - 2020-04-19
 ### Fixed
