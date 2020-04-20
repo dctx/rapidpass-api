@@ -281,6 +281,105 @@ class RegistryRestControllerTest {
         verify(mockRegistryService, only()).findByNonUniqueReferenceId(eq(("I DO NOT EXIST")));
     }
 
+    @Test
+    public void getPassRequestStatus() throws Exception {
+        TEST_INDIVIDUAL_ACCESS_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID())))
+                .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
+
+        TEST_VEHICLE_ACCESS_PASS.setStatus(AccessPassStatus.APPROVED.toString());
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
+                .thenReturn(TEST_VEHICLE_ACCESS_PASS);
+
+        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}/status";
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(AccessPassStatus.APPROVED.toString()))
+                .andDo(print());
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_VEHICLE_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(AccessPassStatus.APPROVED.toString()))
+                .andDo(print());
+    }
+
+    @Test
+    public void getPassRequestInvalidStatus() throws Exception {
+        String declinedReason = "Fake";
+
+        TEST_INDIVIDUAL_ACCESS_PASS.setStatus(AccessPassStatus.DECLINED.toString());
+        TEST_INDIVIDUAL_ACCESS_PASS.setUpdates(declinedReason);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID())))
+                .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
+
+        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}/status";
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(AccessPassStatus.DECLINED.toString()))
+                .andExpect(jsonPath("$.reason").value(declinedReason))
+                .andDo(print());
+
+        TEST_INDIVIDUAL_ACCESS_PASS.setStatus(AccessPassStatus.SUSPENDED.toString());
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID())))
+                .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(AccessPassStatus.SUSPENDED.toString()))
+                .andExpect(jsonPath("$.reason").value(declinedReason))
+                .andDo(print());
+
+        TEST_VEHICLE_ACCESS_PASS.setStatus(AccessPassStatus.DECLINED.toString());
+        TEST_VEHICLE_ACCESS_PASS.setUpdates(declinedReason);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
+                .thenReturn(TEST_VEHICLE_ACCESS_PASS);
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_VEHICLE_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(AccessPassStatus.DECLINED.toString()))
+                .andExpect(jsonPath("$.reason").value(declinedReason))
+                .andDo(print());
+
+        TEST_VEHICLE_ACCESS_PASS.setStatus(AccessPassStatus.SUSPENDED.toString());
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
+                .thenReturn(TEST_VEHICLE_ACCESS_PASS);
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_VEHICLE_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(AccessPassStatus.SUSPENDED.toString()))
+                .andExpect(jsonPath("$.reason").value(declinedReason))
+                .andDo(print());
+    }
+
+    @Test
+    public void getNullPassRequestStatus() throws Exception {
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID())))
+                .thenReturn(null);
+        when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
+                .thenReturn(null);
+
+        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}/status";
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(String.format("There is no RapidPass found with reference ID `%s`", TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID())))
+                .andDo(print());
+
+        mockMvc.perform(
+                get(getAccessPathUrlTemplate, TEST_VEHICLE_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(String.format("There is no RapidPass found with reference ID `%s`", TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
+                .andDo(print());
+    }
 
     /**
      * This tests GETting `requestPass` with either mobileNum or plateNum.
