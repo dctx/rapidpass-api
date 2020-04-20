@@ -23,11 +23,6 @@ import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.utilities.normalization.*;
 
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.List;
-
-import java.io.Reader;
-import java.util.Arrays;
 import java.util.List;
 
 import java.io.Reader;
@@ -83,33 +78,31 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
         // Don't handle rows with email `juan@xxxx.xxx`.
         CsvToBeanFilter dontHandleRowsWithMissingEmailOrDefaultEmail = strings -> {
             int indexOfEmail = 11;
-            if (strings.length < indexOfEmail) return false;
+            boolean isEmailNotInCsv = strings.length < indexOfEmail;
+            if (isEmailNotInCsv) return false;
 
             String email = strings[indexOfEmail];
 
             String DEFAULT_EMAIL = "juan@xxxx.xxx";
 
-            return email.equalsIgnoreCase(DEFAULT_EMAIL);
+            boolean isDefaultEmail = email.equalsIgnoreCase(DEFAULT_EMAIL);
+
+            return !isDefaultEmail;
         };
 
         // Don't handle rows with mobile number `09000000000`.
         CsvToBeanFilter dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber = strings -> {
             int indexOfMobileNumber = 10;
-            if (strings.length < indexOfMobileNumber) return false;
+            boolean isMobileNotInCsv = strings.length < indexOfMobileNumber;
+            if (isMobileNotInCsv) return false;
 
             String mobileNumber = strings[indexOfMobileNumber];
 
             String DEFAULT_MOBILE_NUMBER = "09000000000";
 
-            return mobileNumber.equals(DEFAULT_MOBILE_NUMBER);
-        };
+            boolean isDefaultMobile = mobileNumber.equals(DEFAULT_MOBILE_NUMBER);
 
-        // Don't handle rows with mobile csv row `,,,,,,,,,,,,,,,,,,,,`.
-        CsvToBeanFilter dontHandleCompletelyEmptyRows = strings -> {
-
-            List<String> values = Arrays.asList(strings);
-            int countEmpty = (int) values.stream().filter(v -> v.trim().isEmpty()).count();
-            return countEmpty == values.size();
+            return !isDefaultMobile;
         };
 
         return (CsvToBean<RapidPassCSVdata>) new CsvToBeanBuilder(fileReader)
@@ -119,7 +112,6 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 .withFilter(dontHandleRowsWithIncorrectColumnLength)
                 .withFilter(dontHandleRowsWithMissingEmailOrDefaultEmail)
                 .withFilter(dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber)
-                .withFilter(dontHandleCompletelyEmptyRows)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
     }
@@ -130,13 +122,31 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
         return ImmutableList.of(
                 new Trim("passType"),
                 new Capitalize("passType"),
+
+                new Trim("plateNumber"),
+                new Capitalize("plateNumber"),
+
                 new Trim("aporType"),
+                new Capitalize("aporType"),
+
                 new Trim("mobileNumber"),
+                new Trim("company"),
+
                 new DefaultValue("email", ""),
+                new Trim("email"),
                 new DefaultValue("remarks", "frontliner"),
+
                 new DefaultValue("idType", "OTH"),
+                new Trim("idType"),
+
+                new TransformAlphanumeric("plateNumber"),
+
                 new DefaultValue("identifierNumber", "OTH"),
-                new NormalizeMobileNumber("mobileNumber")
+                new Trim("identifierNumber"),
+                new TransformAlphanumeric("identifierNumber"),
+
+                new NormalizeMobileNumber("mobileNumber"),
+                new TransformAlphanumeric("mobileNumber")
         );
     }
 }
