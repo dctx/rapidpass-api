@@ -27,6 +27,12 @@ locking for several failed login attempts
 - [#354](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/354) - Search `GET /registry/access-passes?search=query`
     is now case insensitive for both name and company.
 
+## [1.4.7] - 2020-04-18
+### Fixed
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
+
 ## [1.4.6] - 2020-04-18
 ### Fixed
 - [#242](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/242) - Suspended access passes will no longer take 
