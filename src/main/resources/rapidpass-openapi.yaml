@@ -586,7 +586,7 @@ paths:
 
   /registry/access-passes/{referenceID}/status:
     get:
-      operationId: getAccessPassById
+      operationId: getAccessPassStatusById
       tags:
         - registration
         - dashboard
