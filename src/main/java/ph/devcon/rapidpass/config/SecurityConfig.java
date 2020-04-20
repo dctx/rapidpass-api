@@ -126,6 +126,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         log.debug("allowed origins {}", allowedOrigins);
         configuration.applyPermitDefaultValues();
         configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedHeaders(ImmutableList.of(
+                "Accept", "Accept-Encoding", "Accept-Language",
+                "Connection", "Authorization", "Content-Length",
+                "Content-Type", "Connection",
+                "Host", "Origin", "RP-API-KEY", "Sec-Fetch-Dest",
+                "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent"
+        ));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
