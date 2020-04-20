@@ -65,11 +65,13 @@ locking for several failed login attempts
 ## [1.4.1] - 2020-04-16
 ### Added
 - [#371](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/371) - Added in the PDF and email that tampering with
-the PDF is illegal.
+    the PDF is illegal.
 
-## [1.4.1] - 2020-04-12
 ### Fixed
 - [#358](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/358) Fixed missing email in `RapidPass` model.
+- [#353](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/353) - API now returns a human readable error when
+    an enum value could not be parsed (it used to throw a 500 error, informing user to see the application/project
+    manager).
 
 ## [1.4.1] - 2020-04-12
 ### Fixed
