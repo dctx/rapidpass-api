@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import ph.devcon.rapidpass.filters.ApiKeyAuthenticationFilter;
@@ -56,10 +57,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final RbacAuthorizationFilter rbacAuthorizationFilter;
 
     @Value("${security.cors.allowedorigins}")
+    private String allowedOriginsCsv;
+
+    @Value("${security.cors.allowedorigins}")
     private List<String> allowedOrigins;
 
-    @Bean
-    public FilterRegistrationBean corsFilter(){
+    //    @Bean
+    public FilterRegistrationBean corsFilter() {
         // For now, the only part that needs CORS is the log in for the approver.
         // Inside, we utilise JWT for authentication.
 
@@ -107,11 +111,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf()
                 .disable() // just to simplify things
-//                .cors().configurationSource(corsConfigurationSource()).and()
+                .cors()
+                .and()
                 .addFilterBefore(apiKeyAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
                 .addFilterAfter(jwtAuthenticationFilter, ApiKeyAuthenticationFilter.class)
                 .addFilterAfter(rbacAuthorizationFilter, JwtAuthenticationFilter.class);
         // rbac config will take care of authorization. endpoints not in rbac is not authenticated
+    }
+
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        log.debug("allowed origins {}", allowedOrigins);
+        configuration.applyPermitDefaultValues();
+        configuration.setAllowedOrigins(allowedOrigins);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Override
