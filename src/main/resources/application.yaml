@@ -132,8 +132,7 @@ security:
   enabled: true
   cors:
     allowed-origins:
-      rapidpass.ph
-      dashboard.rapidpass.ph
+      rapidpass.ph,dashboard.rapidpass.ph
 
 logging:
   level:

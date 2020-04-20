@@ -17,6 +17,8 @@ package ph.devcon.rapidpass.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,11 +26,15 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import ph.devcon.rapidpass.filters.ApiKeyAuthenticationFilter;
 import ph.devcon.rapidpass.filters.JwtAuthenticationFilter;
 import ph.devcon.rapidpass.filters.RbacAuthorizationFilter;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * The {@link SecurityConfig} configuration class sets up HTTP security using the Spring Security Framework.
@@ -48,6 +54,34 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RbacAuthorizationFilter rbacAuthorizationFilter;
 
+    @Value("${security.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Bean
+    public FilterRegistrationBean corsFilter(){
+        // For now, the only part that needs CORS is the log in for the approver.
+        // Inside, we utilise JWT for authentication.
+
+        CorsConfiguration config = new CorsConfiguration();
+
+//        allowedOrigins.add("localhost");
+        config.setAllowedOrigins(allowedOrigins);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/user/auth", config);
+
+        config.setAllowCredentials(true);
+
+        allowedOrigins.forEach(config::addAllowedOrigin);
+
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+        bean.setOrder(0);
+        return bean;
+    }
+
     /**
      * Set security.enabled to true to enable secured this configuration. Defaults to false for developer convenience
      */
@@ -61,7 +95,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable() // just to simplify things
+        http.csrf()
+                .disable() // just to simplify things
+//                .cors().configurationSource(corsConfigurationSource()).and()
                 .addFilterBefore(apiKeyAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
                 .addFilterAfter(jwtAuthenticationFilter, ApiKeyAuthenticationFilter.class)
                 .addFilterAfter(rbacAuthorizationFilter, JwtAuthenticationFilter.class);
