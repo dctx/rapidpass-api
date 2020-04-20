@@ -160,6 +160,10 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
 
             String headerXsrfToken = request.getHeader("xsrfToken");
 
+            if (request.getCookies() == null) {
+                log.warn("Invalid- xsrf token not found because there weren't any cookies.");
+                return null;
+            }
             List<Cookie> cookies = Arrays.asList(request.getCookies());
             Cookie xsrfTokenCookie = cookies.stream().filter(c -> c.getName().equals("xsrfToken")).findAny().orElse(null);
 

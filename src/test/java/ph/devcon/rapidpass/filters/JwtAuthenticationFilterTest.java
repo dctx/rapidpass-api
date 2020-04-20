@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 
+import javax.servlet.http.Cookie;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,10 +59,13 @@ class JwtAuthenticationFilterTest {
         claims.put("sub", "12314");
         claims.put("name", "Kevin Smith");
         claims.put("group", "checkpoint");
+        claims.put("xsrfToken", "some-uuid");
 
         String token = JwtGenerator.generateToken(claims, CHECKPOINT_SECRET);
 
         mockMvc.perform(get("/hello")
+                .cookie(new Cookie("xsrfToken", "some-uuid"))
+                .header("xsrfToken", "some-uuid")
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())
