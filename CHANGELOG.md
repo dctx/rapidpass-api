@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.5] - 2020-04-21
+- implemented Spring Security CSRF
+
+
 ## [1.5.4] - 2020-04-20
 - [#370](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/370) - Handle incorrect format for CSV caused by Excel.
 
