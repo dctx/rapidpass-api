@@ -167,14 +167,22 @@ public class RegistryRestController {
     }
 
     @GetMapping("/scanner-devices")
-    public ResponseEntity<List<MobileDevice>> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
-        Pageable pageView = null;
-        if (queryFilter.isPresent() && queryFilter.get().getPageNo() != null) {
-            int pageSize = (null != queryFilter.get().getMaxPageRows()) ? queryFilter.get().getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
-            pageView = PageRequest.of(queryFilter.get().getPageNo(), pageSize);
+    public ResponseEntity<?> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
+
+        boolean isDisabled = true;
+        if (isDisabled) {
+            return ResponseEntity.status(403).body(
+                    ImmutableMap.of("message", "This endpoint has been temporarily disabled.")
+            );
+        } else {
+            Pageable pageView = null;
+            if (queryFilter.isPresent() && queryFilter.get().getPageNo() != null) {
+                int pageSize = (null != queryFilter.get().getMaxPageRows()) ? queryFilter.get().getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
+                pageView = PageRequest.of(queryFilter.get().getPageNo(), pageSize);
+            }
+            List<MobileDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
+            return ResponseEntity.ok().body(scannerDevices);
         }
-        List<MobileDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
-        return ResponseEntity.ok().body(scannerDevices);
     }
 
     @PostMapping("/scanner-devices")
