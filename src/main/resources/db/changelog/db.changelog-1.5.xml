@@ -33,4 +33,35 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
+    <changeSet author="darren" id="20200422-1">
+        <modifyDataType
+                columnName="username"
+                newDataType="varchar(40)"
+                schemaName="public"
+                tableName="registrar_user"/>
+        <loadData encoding="UTF-8"
+                  file="registrars-20200422.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="registrar"
+                  usePreparedStatements="true">
+        </loadData>
+        <delete schemaName="public"
+                tableName="apor_type_approver_lookup">
+        </delete>
+        <loadData encoding="UTF-8"
+                  file="apor-type-approver-lookup-20200422.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="apor_type_approver_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+        <delete schemaName="public"
+                tableName="registrar_user">
+        </delete>
+    </changeSet>
 </databaseChangeLog>
