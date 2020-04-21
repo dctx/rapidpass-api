@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2020.  DevConnect Philippines, Inc.
- *  
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- *  
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- *  
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed 
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  
+ *
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
@@ -45,6 +46,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -173,7 +176,8 @@ class RegistryRestControllerTest {
                 post("/registry/access-passes")
                         .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(requestBody)
+                        .with(testUser()).with(csrf()))
                 .andExpect(status().isCreated())
                 // expect returned reference Id
                 .andExpect(jsonPath("$.referenceId", is(referenceId)))
@@ -194,7 +198,8 @@ class RegistryRestControllerTest {
                 post("/registry/access-passes")
                         .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequestBody))
+                        .content(jsonRequestBody)
+                        .with(testUser()).with(csrf()))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 // spot check some errors
@@ -462,6 +467,7 @@ class RegistryRestControllerTest {
                         .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
+                        .with(testUser()).with(csrf())
         )
                 .andExpect(status().isOk())
                 // test json is expected
@@ -497,6 +503,7 @@ class RegistryRestControllerTest {
                         .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
+                        .with(testUser()).with(csrf())
         )
                 .andExpect(status().isBadRequest())
                 // test json is expected
@@ -530,6 +537,7 @@ class RegistryRestControllerTest {
                         .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
+                        .with(testUser()).with(csrf())
         )
                 .andExpect(status().isBadRequest())
                 // test json is expected
@@ -557,6 +565,7 @@ class RegistryRestControllerTest {
                         .header(API_KEY_HEADER, API_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequestBody)
+                        .with(testUser()).with(csrf())
         )
                 .andExpect(status().isBadRequest())
                 // test json is expected
@@ -576,6 +585,10 @@ class RegistryRestControllerTest {
 
         assertThat(response.getContentType(), is(MediaType.APPLICATION_PDF.toString()));
         assertThat(response.getContentAsByteArray(), is(samplePdf));
+    }
+
+    protected RequestPostProcessor testUser() {
+        return user("user").password("userPass").roles("USER");
     }
 
 
