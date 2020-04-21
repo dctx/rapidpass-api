@@ -98,7 +98,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "Connection", "Authorization", "Content-Length",
                 "Content-Type", "Connection",
                 "Host", "Origin", "RP-API-KEY", "Sec-Fetch-Dest",
-                "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent"
+                "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent",
+                "X-XSRF-TOKEN"
         ));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
