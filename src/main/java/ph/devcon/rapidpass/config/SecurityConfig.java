@@ -99,6 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         log.debug("allowed origins {}", allowedOrigins);
         configuration.applyPermitDefaultValues();
+        configuration.addAllowedMethod(HttpMethod.PUT);
         configuration.addAllowedMethod(HttpMethod.OPTIONS);
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedHeaders(ImmutableList.of(
