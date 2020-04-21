@@ -79,6 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         csrfTokenRepository.setCookiePath("/");
 
         http
+                .csrf().disable()
 // temporarily disable while frontend not ready
 //                .csrf().csrfTokenRepository(csrfTokenRepository)
 //                .ignoringAntMatchers("/registry/auth", "/users/auth")
