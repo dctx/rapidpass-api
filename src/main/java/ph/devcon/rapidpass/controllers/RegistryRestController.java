@@ -101,6 +101,7 @@ public class RegistryRestController {
 
         Map<String, String> response = new HashMap<>();
         response.put("status", accessPass.getStatus());
+        response.put("validUntil", accessPass.getValidTo().toString());
 
         if (AccessPassStatus.INVALID_STATUSES.contains(accessPass.getStatus())) {
             response.put("reason", accessPass.getUpdates());
