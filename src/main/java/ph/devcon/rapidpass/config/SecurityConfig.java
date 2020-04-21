@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -98,6 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         log.debug("allowed origins {}", allowedOrigins);
         configuration.applyPermitDefaultValues();
+        configuration.addAllowedMethod(HttpMethod.OPTIONS);
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedHeaders(ImmutableList.of(
                 "Accept", "Accept-Encoding", "Accept-Language",
