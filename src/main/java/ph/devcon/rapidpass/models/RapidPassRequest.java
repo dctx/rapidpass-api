@@ -99,9 +99,9 @@ public final class RapidPassRequest {
         if (csvData == null)
             return null;
 
-        PassType passType = csvData.getPassType() != null ? PassType.valueOf(csvData.getPassType()) : null;
+        PassType passType = !StringUtils.isEmpty(csvData.getPassType()) ? PassType.valueOf(csvData.getPassType()) : null;
 
-        String plateNumber = csvData.getPlateNumber() != null ? StringFormatter.normalizeAlphanumeric(csvData.getPlateNumber()) : null;
+        String plateNumber = !StringUtils.isEmpty(csvData.getPlateNumber()) ? StringFormatter.normalizeAlphanumeric(csvData.getPlateNumber()) : null;
 
         String company = StringUtils.trim(csvData.getCompany());
         String destName = StringUtils.trim(csvData.getDestName());

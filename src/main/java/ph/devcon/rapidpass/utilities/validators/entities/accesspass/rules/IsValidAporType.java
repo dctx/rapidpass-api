@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.LookupTable;
@@ -35,9 +36,9 @@ public class IsValidAporType implements Validator {
     @Override
     public void validate(Object object, Errors errors) {
         RapidPassRequest request = object instanceof RapidPassRequest ? ((RapidPassRequest) object) : null;
-        if (request == null) return;
 
-        if (!isValidAporType(request.getAporType()))
+        if (request != null && (StringUtils.isEmpty(request.getAporType()) || !isValidAporType(request.getAporType()))) {
             errors.rejectValue("aporType", "invalid.aporType", "Invalid APOR Type.");
+        }
     }
 }

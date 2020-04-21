@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.LookupTable;
@@ -29,7 +30,7 @@ public class IsValidIdType implements Validator {
         return IdTypes.stream().map(LookupTable::getLookupTablePK).map(LookupTablePK::getValue);
     }
 
-    protected boolean isValidPassType(String aporType) {
+    protected boolean isValidIdType(String aporType) {
         return getIdTypes()
                 .filter(type -> type.equals(aporType))
                 .count() == 1L;
@@ -38,9 +39,10 @@ public class IsValidIdType implements Validator {
     @Override
     public void validate(Object object, Errors errors) {
         RapidPassRequest request = object instanceof RapidPassRequest ? ((RapidPassRequest) object) : null;
-        if (request == null) return;
 
-        if (request.getPassType() == null || !isValidPassType(request.getPassType().toString()))
-            errors.rejectValue("passType", "invalid.passType", "Invalid Pass Type.");
+        if (request != null && (StringUtils.isEmpty(request.getIdType()) && !isValidIdType(request.getPassType().name()))) {
+            errors.rejectValue("idType", "invalid.idType", "Invalid ID Type.");
+        }
+
     }
 }

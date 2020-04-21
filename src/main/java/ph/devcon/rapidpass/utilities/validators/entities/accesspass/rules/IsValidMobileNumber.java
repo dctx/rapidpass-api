@@ -1,6 +1,5 @@
 package ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.models.RapidPassRequest;
@@ -24,10 +23,9 @@ public class IsValidMobileNumber implements Validator {
     @Override
     public void validate(Object object, Errors errors) {
         RapidPassRequest request = object instanceof RapidPassRequest ? ((RapidPassRequest) object) : null;
-        if (request == null) return;
 
-        if (StringUtils.isEmpty(request.getMobileNumber()) || !isValidMobileNumber(request.getMobileNumber())) {
-            errors.rejectValue("mobileNumber", "incorrectFormat.mobileNumber", "Incorrect mobile number format.");
+        if (request != null && !isValidMobileNumber(request.getMobileNumber())) {
+            errors.rejectValue("mobileNumber", "invalid.mobileNumber", "Incorrect mobile number format.");
         }
     }
 }
