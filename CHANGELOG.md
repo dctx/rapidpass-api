@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.7] - 2020-04-21
+- set csrf cookie path      
+
 ## [1.5.6] - 2020-04-21
 - implemented `Access-Control-Allow-Credentials: true`         
 

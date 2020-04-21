@@ -75,7 +75,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+        final CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        csrfTokenRepository.setCookiePath("/");
+
+        http
+                .csrf().csrfTokenRepository(csrfTokenRepository)
                 .ignoringAntMatchers("/registry/auth", "/users/auth")
                 .and()
                 .cors()
