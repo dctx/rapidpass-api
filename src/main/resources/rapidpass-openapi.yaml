@@ -475,20 +475,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/PagedList'
   /batch/scanner-devices:
-    get:
-      tags:
-        - dashboard
-        - bulk
-      summary: Downloads a list of mobile devices in CSV format.
-      responses:
-        '200':
-          description: Download initiated.
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: byte[]
-                description: csv file containing all registered mobile devices
     post:
       tags:
         - dashboard
