@@ -760,30 +760,30 @@ paths:
                 referenceId: '$response.body#/deviceId'
         '400':
           description: Invalid Input
-    get:
-      tags:
-        - dashboard
-      summary: Gets a list of registered mobile devices.
-      operationId: getScannerDevices
-      parameters:
-        - name: status
-          in: query
-          required: false
-          description: status of mobile devices to retrieve
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful mobile/scanner device operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MobileDevice'
-      description:
-        These mobile devices are used by the inspectors at the checkpoint. This endpoint retrieves a set of registered
-        mobile devices based on the optional query parameters.
+#    get:
+#      tags:
+#        - dashboard
+#      summary: Gets a list of registered mobile devices.
+#      operationId: getScannerDevices
+#      parameters:
+#        - name: status
+#          in: query
+#          required: false
+#          description: status of mobile devices to retrieve
+#          schema:
+#            type: string
+#      responses:
+#        '200':
+#          description: successful mobile/scanner device operation
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  $ref: '#/components/schemas/MobileDevice'
+#      description:
+#        These mobile devices are used by the inspectors at the checkpoint. This endpoint retrieves a set of registered
+#        mobile devices based on the optional query parameters.
   '/registry/scanner-devices/{deviceId}':
     get:
       tags:
