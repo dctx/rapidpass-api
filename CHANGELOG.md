@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.8] - 2020-04-21
+- disable muna csrf due to cookie disappearing act    
+
 ## [1.5.7] - 2020-04-21
 - set csrf cookie path      
 
