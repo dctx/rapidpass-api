@@ -1,0 +1,16 @@
+id,name,short_name,description,parent_registrar_id,shard_key,institution_type,institution_classification,status,address,country,region,province,city,zip_code,phone,mobile,email,representative,rep_designation,rep_phone,rep_mobile,rep_email,website,reference1,reference2,updates,date_time_created,date_time_updated
+28,"Bangko Sentral ng Pilipinas","BSP",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+29,"Inter-Agency Task Force","IATF",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+30,"Local Government Unit","LGU",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+31,"Metropolitan Waterworks and Sewerage System","MWSS",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+32,"Overseas Workers Welfare Administration","OWWA",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+33,"Presidential Communications Operations Office","PCOO",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+34,"Securities and Exchange Commission","SEC",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+35,"Philippine Ports Authority","PPA",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+36,"Philippine Stock Exchange","PSE",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+37,"Department of Trade and Industry (DTI) - Manufacturing (Board of Investments)","DT-BOI",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+38,"Buereau of Customs","BOC",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+39,"Civil Aviation Authority of the Philippines","CAAP",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+40,"DTI - Supply Chain and Logistics Management Division (SCLMD)","DTI-SCLMD",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+41,"DTI - Consumer Protection Group (CPG)","DTI-CPG",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
+42,"DICT-PRD","DICT-PRD",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-04-21 16:00:00.000000,2020-04-21 16:00:0.000000
