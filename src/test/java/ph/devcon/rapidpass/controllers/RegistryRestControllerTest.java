@@ -40,6 +40,7 @@ import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.io.ByteArrayOutputStream;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -125,7 +126,7 @@ class RegistryRestControllerTest {
         TEST_INDIVIDUAL_ACCESS_PASS.setRemarks(TEST_INDIVIDUAL_REQUEST.getRemarks());
         // Mobile number is the reference ID?
         TEST_INDIVIDUAL_ACCESS_PASS.setReferenceID(TEST_INDIVIDUAL_REQUEST.getMobileNumber());
-
+        TEST_INDIVIDUAL_ACCESS_PASS.setValidTo(OffsetDateTime.now());
         TEST_VEHICLE_ACCESS_PASS = new AccessPass();
 
         TEST_VEHICLE_ACCESS_PASS.setPassType(TEST_VEHICLE_REQUEST.getPassType().toString());
@@ -135,6 +136,7 @@ class RegistryRestControllerTest {
         TEST_VEHICLE_ACCESS_PASS.setRemarks(TEST_VEHICLE_REQUEST.getRemarks());
         TEST_VEHICLE_ACCESS_PASS.setIdentifierNumber(TEST_VEHICLE_REQUEST.getIdentifierNumber());
         TEST_VEHICLE_ACCESS_PASS.setIdType(TEST_VEHICLE_REQUEST.getIdType());
+        TEST_VEHICLE_ACCESS_PASS.setValidTo(OffsetDateTime.now());
 
         // Mobile number is the reference ID?
         TEST_VEHICLE_ACCESS_PASS.setReferenceID(TEST_VEHICLE_REQUEST.getMobileNumber());
@@ -389,7 +391,7 @@ class RegistryRestControllerTest {
     /**
      * This tests GETting `requestPass` with either mobileNum or plateNum.
      *
-     * @throws Exception on failed test
+     * @throws Exception on failed testRegistryRestControllerTest
      */
     @Test
     @Disabled
