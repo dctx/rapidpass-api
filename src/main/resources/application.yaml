@@ -76,6 +76,8 @@ endpointswitch:
     auth: false
   batch:
     accesspasses: false
+  registry:
+    accesspasses: false
 
 
 qrmaster:
@@ -110,7 +112,7 @@ rbac:
         #            - ALL
         - endpoint: /registry/access-passes/?**
           verbs:
-            # GET # used for registration   DO NOT ENABLE!
+             GET # used by approver only
             # POST # used for registration  DO NOT ENABLE!
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY

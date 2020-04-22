@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
@@ -61,6 +62,9 @@ public class RegistryRestController {
     private final RegistryService registryService;
     private final ApproverAuthService approverAuthService;
     private final QrPdfService qrPdfService;
+
+    @Value("${endpointswitch.registry.accesspasses:false}")
+    private boolean isRegisterSinglePassEnabled;
 
     @PreAuthorize("hasAuthority('approver')")
     @GetMapping("/access-passes")
@@ -111,6 +115,11 @@ public class RegistryRestController {
 
     @PostMapping("/access-passes")
     ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
+
+        if (!isRegisterSinglePassEnabled) {
+            return ResponseEntity.status(200).body("Coming soon!");
+        }
+
         rapidPassRequest.setSource(RecordSource.ONLINE.toString());
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
 //        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
