@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.12] - 2020-04-23
+- [#392](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/392) Implemented endpoint toggling for easy configuration.
 
 ## [1.5.11] - 2020-04-22
 - Implemented CSRF cookie implementation with dynamic domain

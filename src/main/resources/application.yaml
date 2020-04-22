@@ -71,6 +71,13 @@ rapidpass:
       enabled: true
       key: dctx
 
+endpointswitch:
+  checkpoint:
+    auth: false
+  batch:
+    accesspasses: false
+
+
 qrmaster:
   skey: ***REMOVED***
   controlkey: controlsecretkey
@@ -133,7 +140,7 @@ security:
   enabled: true
   cors:
     allowedorigins:
-      rapidpass.ph,dashboard.rapidpass.ph
+      https://rapidpass.ph,https://dashboard.rapidpass.ph
   csp:
     srcs:
       script: "*.rapidpass.ph rapidpass.ph"

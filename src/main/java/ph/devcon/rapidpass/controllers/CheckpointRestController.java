@@ -23,9 +23,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
+import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.utilities.JwtGenerator;
+
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -52,6 +60,9 @@ public class CheckpointRestController
 
     @Value("${qrmaster.masterKey}")
     private String masterKey;
+
+    @Value("${endpointswitch.checkpoint.auth:false")
+    private boolean enableCheckpointAuth;
 
     /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
@@ -108,32 +119,37 @@ public class CheckpointRestController
     @PostMapping("/auth")
     public ResponseEntity<?> authenticateDevice(@RequestBody CheckpointAuthRequest authRequest) {
 
-//        // check master key first
-//        if (!this.masterKey.equals(authRequest.getMasterKey())) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//
-//        final ScannerDevice scannerDevice = this.checkpointService.retrieveDeviceByImei(authRequest.getImei());
-//
-//        OffsetDateTime expiry = OffsetDateTime.now();
-//        // TODO replace with default expiry
-//        expiry.plusHours(24);
-//
-//        Map<String, Object> claims = new HashMap<>();
-//        claims.put("group", JWT_GROUP);
-//        claims.put("sub", scannerDevice.getUniqueDeviceId());
-//        claims.put("xsrfToken", UUID.randomUUID().toString());
-//        claims.put("exp", expiry.toEpochSecond());
-//
-//        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
-//
-//        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
-//                .signingKey(this.signingKey)
-//                .encryptionKey(this.encryptionKey)
-//                .accessCode(jwt)
-//                .build();
-//
-//        return ResponseEntity.ok().body(authResponse);
-        return ResponseEntity.ok("Coming Soon!");
+        if (!enableCheckpointAuth) {
+            return ResponseEntity.ok("Coming Soon!");
+        }
+
+        // check master key first
+        if (!this.masterKey.equals(authRequest.getMasterKey())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+
+
+        final ScannerDevice scannerDevice = this.checkpointService.retrieveDeviceByImei(authRequest.getImei());
+
+        OffsetDateTime expiry = OffsetDateTime.now();
+        // TODO replace with default expiry
+        expiry.plusHours(24);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("group", JWT_GROUP);
+        claims.put("sub", scannerDevice.getUniqueDeviceId());
+        claims.put("xsrfToken", UUID.randomUUID().toString());
+        claims.put("exp", expiry.toEpochSecond());
+
+        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
+
+        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
+                .signingKey(this.signingKey)
+                .encryptionKey(this.encryptionKey)
+                .accessCode(jwt)
+                .build();
+
+        return ResponseEntity.ok().body(authResponse);
     }
 }
