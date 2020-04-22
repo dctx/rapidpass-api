@@ -61,7 +61,7 @@ public class CheckpointRestController
     @Value("${qrmaster.masterKey}")
     private String masterKey;
 
-    @Value("${endpointswitch.checkpoint.auth:false")
+    @Value("${endpointswitch.checkpoint.auth:false}")
     private boolean enableCheckpointAuth;
 
     /*@Autowired
