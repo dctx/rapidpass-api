@@ -27,13 +27,13 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ph.devcon.rapidpass.filters.ApiKeyAuthenticationFilter;
 import ph.devcon.rapidpass.filters.JwtAuthenticationFilter;
 import ph.devcon.rapidpass.filters.RbacAuthorizationFilter;
+import ph.devcon.rapidpass.repositories.CrossDomainCsrfTokenRepository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -76,13 +76,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        final CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfTokenRepository.setCookieDomain(".azurewebsites.net");
-        csrfTokenRepository.setCookiePath("/");
-
         http
 //                .csrf().disable()
-                .csrf().csrfTokenRepository(csrfTokenRepository)
+                .csrf().csrfTokenRepository(new CrossDomainCsrfTokenRepository())
                 .ignoringAntMatchers("/registry/auth", "/users/auth")
                 .and()
                 .cors()
