@@ -77,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         final CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfTokenRepository.setCookieDomain(null);
+        csrfTokenRepository.setCookieDomain(".azurewebsites.net");
         csrfTokenRepository.setCookiePath("/");
 
         http
