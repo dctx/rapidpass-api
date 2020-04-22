@@ -33,7 +33,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ph.devcon.rapidpass.filters.ApiKeyAuthenticationFilter;
 import ph.devcon.rapidpass.filters.JwtAuthenticationFilter;
 import ph.devcon.rapidpass.filters.RbacAuthorizationFilter;
-import ph.devcon.rapidpass.repositories.CrossDomainCsrfTokenRepository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -77,10 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-//                .csrf().disable()
-                .csrf().csrfTokenRepository(new CrossDomainCsrfTokenRepository())
-                .ignoringAntMatchers("/registry/auth", "/users/auth")
-                .and()
+                .csrf().disable()
+//                .csrf().csrfTokenRepository(new CrossDomainCsrfTokenRepository())
+//                .ignoringAntMatchers("/registry/auth", "/users/auth")
+//                .and()
                 .cors()
                 .and()
                 .addFilterBefore(apiKeyAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
