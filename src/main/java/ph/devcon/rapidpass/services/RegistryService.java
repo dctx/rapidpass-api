@@ -580,84 +580,99 @@ public class RegistryService {
         int counter = 1;
         Instant start = Instant.now();
         for (RapidPassCSVdata r : approvedRapidPasses) {
-            RapidPassRequest request = RapidPassRequest.buildFrom(r);
-
             try {
-                request.setSource(RecordSource.BULK.toString());
+                RapidPassRequest request = RapidPassRequest.buildFrom(r);
 
-                StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
-                validation.validate(request);
+                try {
 
-                if (isKafaEnabled) {
-                    String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
-                            request.getPlateNumber();
-                    requestProducer.sendMessage(key, request);
+                    request.setSource(RecordSource.BULK.toString());
 
-                    passes.add("Record " + counter++ + ": Processed. ");
-                } else {
+                    StandardDataBindingValidation validation = new StandardDataBindingValidation(batchAccessPassRequestValidator);
+                    validation.validate(request);
 
-                    String referenceId = request.getPassType().equals(PassType.INDIVIDUAL) ?
-                            request.getMobileNumber() : request.getPlateNumber();
-                    List<String> statuses = Stream.of("APPROVED", "PENDING").collect(Collectors.toList());
-                    OffsetDateTime now = OffsetDateTime.now();
-                    List<AccessPass> accessPasses = accessPassRepository
-                            .findAllByReferenceIDAndPassTypeAndValidToAfterAndStatusIn(referenceId,
-                                    request.getPassType().name(), now, statuses);
+                    if (isKafaEnabled) {
+                        String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
+                                request.getPlateNumber();
+                        requestProducer.sendMessage(key, request);
 
-                    if (accessPasses.isEmpty()) {
-                        // no existing approved or pending requests, add a pre-approved request
-                        pass = persistAccessPass(request, AccessPassStatus.APPROVED);
-
-                        if (pass == null) {
-                            throw new ReadableValidationException("Unable to create new Access Pass.");
-                        }
-
-                        passes.add("Record " + counter++ + ": Success. ");
-                    } else  if (accessPasses.stream().anyMatch(a -> "APPROVED".equalsIgnoreCase(a.getStatus()))) {
-                        // there is already an approved and valid access pass with the same reference id and pass type
-                        passes.add("Record " + counter++ + ": No change. An existing approved Access Pass was found.");
+                        passes.add("Record " + counter++ + ": Processed. ");
                     } else {
-                        // there are at least 1 pending request, this should not happen
-                        // only 1 pending request per pass type and reference id should be in the system
-                        if (accessPasses.size() > 1) {
-                            log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
-                                    request.getPassType().name(), referenceId);
+
+                        String referenceId = request.getPassType().equals(PassType.INDIVIDUAL) ?
+                                request.getMobileNumber() : request.getPlateNumber();
+                        List<String> statuses = Stream.of("APPROVED", "PENDING").collect(Collectors.toList());
+                        OffsetDateTime now = OffsetDateTime.now();
+                        List<AccessPass> accessPasses = accessPassRepository
+                                .findAllByReferenceIDAndPassTypeAndValidToAfterAndStatusIn(referenceId,
+                                        request.getPassType().name(), now, statuses);
+
+                        if (accessPasses.isEmpty()) {
+                            // no existing approved or pending requests, add a pre-approved request
+                            pass = persistAccessPass(request, AccessPassStatus.APPROVED);
+
+                            if (pass == null) {
+                                throw new ReadableValidationException("Unable to create new Access Pass.");
+                            }
+
+                            passes.add("Record " + counter++ + ": Success. ");
+                        } else if (accessPasses.stream().anyMatch(a -> "APPROVED".equalsIgnoreCase(a.getStatus()))) {
+                            // there is already an approved and valid access pass with the same reference id and pass type
+                            passes.add("Record " + counter++ + ": No change. An existing approved Access Pass was found.");
+                        } else {
+                            // there are at least 1 pending request, this should not happen
+                            // only 1 pending request per pass type and reference id should be in the system
+                            if (accessPasses.size() > 1) {
+                                log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
+                                        request.getPassType().name(), referenceId);
+                            }
+
+                            AccessPass topAccessPass = accessPasses.remove(0);
+
+                            // let's approve all pending requests with the same reference id and pass type
+                            for (AccessPass accessPass : accessPasses) {
+                                accessPass.setValidFrom(now);
+                                accessPass.setValidTo(now);
+
+                                accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
+
+                                accessPassRepository.saveAndFlush(accessPass);
+                            }
+
+                            topAccessPass.setValidFrom(now);
+                            topAccessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+                            topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
+
+                            accessPassRepository.saveAndFlush(topAccessPass);
+                            passes.add("Record " + counter++ + ": Success. ");
                         }
+                    }
+                } catch (ReadableValidationException e) {
+                    log.warn("Did not create/update access pass for record {}. error: {}", counter, e.getMessage());
 
-                        AccessPass topAccessPass = accessPasses.remove(0);
+                    // Access passes that are declined should still be persisted. Reusing existing code.
+                    pass = persistAccessPass(request, AccessPassStatus.PENDING);
+                    decline(pass.getReferenceId(), e.getMessage());
 
-                        // let's approve all pending requests with the same reference id and pass type
-                        for (AccessPass accessPass: accessPasses) {
-                            accessPass.setValidFrom(now);
-                            accessPass.setValidTo(now);
+                    passes.add("Record " + counter++ + ": was declined. " + e.getMessage());
+                } catch (Exception e) {
+                    log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
+                    // noop
+                    passes.add("Record " + counter++ + ": Failed. Internal server error.");
+                }
 
-                            accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
-
-                            accessPassRepository.saveAndFlush(accessPass);
-                        }
-
-                        topAccessPass.setValidFrom(now);
-                        topAccessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
-                        topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
-
-                        accessPassRepository.saveAndFlush(topAccessPass);
-                        passes.add("Record " + counter++ + ": Success. ");
+            }catch (IllegalArgumentException e) {
+                if (e.getMessage().matches("No enum constant")) {
+                    log.warn("Illegal argument.", e);
+                    passes.add("Record " + counter++ + ": Failed. Invalid pass type (passType=" + r.getPassType() + ").");
+                } else {
+                    if (r.getPassType().contains("REQUIRED") && r.getPassType().contains("PASS TYPE")) {
+                        // excel header line- noop
+                    } else {
+                        log.warn("Illegal argument.");
+                        passes.add("Record " + counter++ + ": Failed. Internal server error.");
                     }
                 }
-            } catch (ReadableValidationException e) {
-                log.warn("Did not create/udpdate access pass for record {}. error: {}", counter, e.getMessage());
-
-                // Access passes that are declined should still be persisted. Reusing existing code.
-                pass = persistAccessPass(request, AccessPassStatus.PENDING);
-                decline(pass.getReferenceId(), e.getMessage());
-
-                passes.add("Record " + counter++ + ": was declined. " + e.getMessage());
-            } catch (Exception e) {
-                log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
-                // noop
-                passes.add("Record " + counter++ + ": Failed. Internal server error.");
             }
-
 
 
         }

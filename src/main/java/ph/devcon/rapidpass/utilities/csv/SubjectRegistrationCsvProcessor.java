@@ -19,18 +19,11 @@ import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.CsvToBeanFilter;
+import org.apache.commons.lang3.StringUtils;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.utilities.normalization.*;
 
 import java.io.Reader;
-import java.util.List;
-
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.List;
-
-import java.io.Reader;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -73,7 +66,9 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
     protected CsvToBean<RapidPassCSVdata> generateCsvToBeanParser(ColumnPositionMappingStrategy strategy, Class<RapidPassCSVdata> type, Reader fileReader) {
 
         // Don't handle rows that have incorrect column length.
-        CsvToBeanFilter dontHandleRowsWithIncorrectColumnLength = strings -> strings.length == 21;
+        CsvToBeanFilter dontHandleRowsWithIncorrectColumnLength = strings -> {
+            return strings.length == 21;
+        };
 
         // Don't handle rows with email `juan@xxxx.xxx`.
         CsvToBeanFilter dontHandleRowsWithMissingEmailOrDefaultEmail = strings -> {
@@ -105,13 +100,51 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
             return !isDefaultMobile;
         };
 
+        // Don't handle rows with mobile number `09000000000`.
+        CsvToBeanFilter dontHandleRowsWithEmptyFirstNameOrEmptyLastName = strings -> {
+            int indexOfFirstName = 2;
+            int indexOfLastName = 4;
+            boolean isFirstNameNotInCsv = strings.length < indexOfFirstName;
+            if (isFirstNameNotInCsv) return false;
+
+
+            boolean isLastNameNotInCsv = strings.length < indexOfLastName;
+            if (isLastNameNotInCsv) return false;
+
+            if (StringUtils.isBlank(StringUtils.trimToEmpty(strings[indexOfFirstName]))) return false;
+
+            if (StringUtils.isBlank(StringUtils.trimToEmpty(strings[indexOfLastName]))) return false;
+
+            return true;
+        };
+
+        // Don't handle rows with mobile number `09000000000`.
+        CsvToBeanFilter dontHandleRowsWithoutRequiredColumns = strings -> {
+
+            if (strings.length > 0 && StringUtils.isBlank(strings[0])) return false;
+            if (strings.length > 1 && StringUtils.isBlank(strings[1])) return false;
+            if (strings.length > 10 && StringUtils.isBlank(strings[10])) return false;
+            if (strings.length > 11 && StringUtils.isBlank(strings[11])) return false;
+
+            return true;
+        };
+
+        CsvToBeanFilter filterComposer = strings -> {
+            if (!dontHandleRowsWithIncorrectColumnLength.allowLine(strings)) return false;
+            if (!dontHandleRowsWithMissingEmailOrDefaultEmail.allowLine(strings)) return false;
+            if (!dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber.allowLine(strings)) return false;
+            if (!dontHandleRowsWithoutRequiredColumns.allowLine(strings)) return false;
+            if (!dontHandleRowsWithEmptyFirstNameOrEmptyLastName.allowLine(strings)) return false;
+            return true;
+        };
+
         return (CsvToBean<RapidPassCSVdata>) new CsvToBeanBuilder(fileReader)
                 .withMappingStrategy(strategy)
                 .withType(type)
-                .withSkipLines(1)
-                .withFilter(dontHandleRowsWithIncorrectColumnLength)
-                .withFilter(dontHandleRowsWithMissingEmailOrDefaultEmail)
-                .withFilter(dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber)
+                .withSeparator(',')
+                .withQuoteChar('"')
+                .withKeepCarriageReturn(true)
+                .withFilter(filterComposer)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
     }
@@ -129,7 +162,12 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new Trim("aporType"),
                 new Capitalize("aporType"),
 
+                new SplitInTwoAndGetFirst("email"),
+
                 new Trim("mobileNumber"),
+                new SplitInTwoAndGetFirst("mobileNumber"),
+                new TransformAlphanumeric("mobileNumber"),
+
                 new Trim("company"),
 
                 new DefaultValue("email", ""),
@@ -139,6 +177,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new DefaultValue("idType", "OTH"),
                 new Trim("idType"),
 
+                new SplitInTwoAndGetFirst("plateNumber"),
                 new TransformAlphanumeric("plateNumber"),
 
                 new DefaultValue("identifierNumber", "OTH"),
@@ -146,7 +185,21 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new TransformAlphanumeric("identifierNumber"),
 
                 new NormalizeMobileNumber("mobileNumber"),
-                new TransformAlphanumeric("mobileNumber")
+                new TransformAlphanumeric("mobileNumber"),
+
+                new Max<>("aporType", 10),
+                new Max<>("identifierNumber", 25),
+                new Max<>("plateNumber", 20),
+                new Max<>("remarks", 250),
+                new Max<>("originStreet", 150),
+                new Max<>("originProvince", 50),
+                new Max<>("originCity", 50),
+
+
+                new Max<>("destStreet", 150),
+                new Max<>("destProvince", 50),
+                new Max<>("destCity", 50)
+
         );
     }
 }

@@ -154,7 +154,7 @@ public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingF
             log.debug("authenticating claims {}", claims);
 
             // FIXME
-            // currently broken. Dashboard does not use cookies. ~jje
+            // currently broken.. ~jje
 //            String xsrfToken = JwtGenerator.getXsrfToken(token);
 //
 //            String headerXsrfToken = request.getHeader("xsrfToken");

@@ -18,13 +18,10 @@ import com.google.common.collect.ImmutableList;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
-
-import java.util.Arrays;
 
 /**
  * Tests whether a{@link RapidPassRequest} or {@link AccessPass} is valid, and ready for creation.
@@ -80,7 +77,7 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
         ImmutableList<Validator> validations = ImmutableList.of(
                 new IsValidAporType(this.aporTypes),
                 // new IsValidIdType(this.individualIdTypes, this.vehicleIdTypes),
-                new IsValidPassType(Arrays.asList(PassType.values())),
+                new IsValidPassType(),
                 new IsValidMobileNumber()
         );
 

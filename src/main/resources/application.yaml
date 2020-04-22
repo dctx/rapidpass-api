@@ -71,6 +71,15 @@ rapidpass:
       enabled: true
       key: dctx
 
+endpointswitch:
+  checkpoint:
+    auth: false
+  batch:
+    accesspasses: false
+  registry:
+    accesspasses: false
+
+
 qrmaster:
   skey: ***REMOVED***
   controlkey: controlsecretkey
@@ -103,7 +112,7 @@ rbac:
         #            - ALL
         - endpoint: /registry/access-passes/?**
           verbs:
-            # GET # used for registration   DO NOT ENABLE!
+            - GET # used by approver only
             # POST # used for registration  DO NOT ENABLE!
             - PUT # APPROVE/DENY
             - DELETE # APPROVE/DENY
@@ -133,7 +142,7 @@ security:
   enabled: true
   cors:
     allowedorigins:
-      rapidpass.ph,dashboard.rapidpass.ph
+      https://rapidpass.ph,https://dashboard.rapidpass.ph
   csp:
     srcs:
       script: "*.rapidpass.ph rapidpass.ph"
