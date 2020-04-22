@@ -632,6 +632,9 @@ public class RegistryService {
                             for (AccessPass accessPass : accessPasses) {
                                 accessPass.setValidFrom(now);
                                 accessPass.setValidTo(now);
+                                accessPass.setDateTimeUpdated(OffsetDateTime.now());
+                                accessPass.setStatus(AccessPassStatus.APPROVED.name());
+                                accessPass.setSource("BULK_OVERRIDE_ONLINE");
 
                                 accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
 
@@ -639,7 +642,10 @@ public class RegistryService {
                             }
 
                             topAccessPass.setValidFrom(now);
+                            topAccessPass.setDateTimeUpdated(OffsetDateTime.now());
                             topAccessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+                            topAccessPass.setSource("BULK_OVERRIDE_ONLINE");
+                            topAccessPass.setStatus(AccessPassStatus.APPROVED.name());
                             topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
 
                             accessPassRepository.saveAndFlush(topAccessPass);
@@ -665,7 +671,7 @@ public class RegistryService {
                     log.warn("Illegal argument.", e);
                     passes.add("Record " + counter++ + ": Failed. Invalid pass type (passType=" + r.getPassType() + ").");
                 } else {
-                    if (r.getPassType().contains("REQUIRED") && r.getPassType().contains("PASS TYPE")) {
+                    if (r.getPassType().contains("REQUIRED") || r.getPassType().contains("PASS TYPE") || r.getPassType().contains("PASSTYPE")) {
                         // excel header line- noop
                     } else {
                         log.warn("Illegal argument.");
