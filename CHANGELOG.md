@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [1.5.9] - 2020-04-22
+- Created registrar data and mapping of the APOR to the registrars. 
+
 ## [1.5.8] - 2020-04-21
 - disable muna csrf due to cookie disappearing act    
 
@@ -14,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - set csrf cookie path      
 
 ## [1.5.6] - 2020-04-21
-- implemented `Access-Control-Allow-Credentials: true`         
+- implemented `Access-Control-Allow-Credentials: true`
 
 ## [1.5.5] - 2020-04-21
 - [#377](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/377) - Disable `GET /registry/scanner-devices` endpoint.
