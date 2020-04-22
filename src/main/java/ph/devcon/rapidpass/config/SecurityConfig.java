@@ -27,6 +27,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -77,7 +78,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-//                .csrf().csrfTokenRepository(new CrossDomainCsrfTokenRepository())
+// temporarily disable while frontend not ready
+//                .csrf().csrfTokenRepository(csrfTokenRepository)
 //                .ignoringAntMatchers("/registry/auth", "/users/auth")
 //                .and()
                 .cors()
@@ -94,9 +96,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         log.debug("allowed origins {}", allowedOrigins);
         configuration.applyPermitDefaultValues();
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.addAllowedMethod(HttpMethod.OPTIONS);
         configuration.addAllowedMethod(HttpMethod.PUT);
-        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedHeaders(ImmutableList.of(
                 "Accept", "Accept-Encoding", "Accept-Language",
                 "Connection", "Authorization", "Content-Length",
