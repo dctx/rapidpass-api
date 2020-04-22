@@ -35,7 +35,7 @@ public class CrossDomainCsrfTokenRepository implements CsrfTokenRepository {
         if (token == null) {
             cookie.setMaxAge(0);
         } else {
-            cookie.setMaxAge(-1);
+            cookie.setMaxAge(86400); // set to 24 hours
         }
 
         cookie.setHttpOnly(false); // allow javascript access
