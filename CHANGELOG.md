@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [1.5.10] - 2020-04-22
+- Reenabled CSRF for dev env with cookie path set to `/`
+
 ## [1.5.9] - 2020-04-22
 - Created registrar data and mapping of the APOR to the registrars. 
 
