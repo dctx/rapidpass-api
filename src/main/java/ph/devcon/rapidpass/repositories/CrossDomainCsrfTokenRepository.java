@@ -41,7 +41,7 @@ public class CrossDomainCsrfTokenRepository implements CsrfTokenRepository {
         cookie.setHttpOnly(false); // allow javascript access
 
         // set domain dynamically. TODO: whitelist server names
-        cookie.setDomain(request.getRemoteHost().replaceAll(".*\\.(?=.*\\.)", ""));
+        cookie.setDomain(request.getServerName().replaceAll(".*\\.(?=.*\\.)", "");)
         response.addCookie(cookie);
     }
 
