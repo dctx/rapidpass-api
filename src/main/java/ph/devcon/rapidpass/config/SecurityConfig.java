@@ -99,6 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         log.debug("allowed origins {}", allowedOrigins);
         configuration.applyPermitDefaultValues();
         configuration.addAllowedMethod(HttpMethod.OPTIONS);
+        configuration.addAllowedMethod(HttpMethod.PUT);
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedHeaders(ImmutableList.of(
                 "Accept", "Accept-Encoding", "Accept-Language",
