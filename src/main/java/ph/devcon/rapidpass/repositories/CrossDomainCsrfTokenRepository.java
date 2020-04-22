@@ -41,7 +41,7 @@ public class CrossDomainCsrfTokenRepository implements CsrfTokenRepository {
         cookie.setHttpOnly(false); // allow javascript access
 
         // set domain dynamically. TODO: whitelist server names
-        cookie.setDomain(".rapidpass-approver-dev.azurewebsites.net");
+        cookie.setDomain("rapidpass-approver-dev.azurewebsites.net");
         response.addCookie(cookie);
     }
 
