@@ -73,7 +73,7 @@ rapidpass:
 
 endpointswitch:
   checkpoint:
-    auth: false
+    auth: true
   batch:
     accesspasses: false
   registry:

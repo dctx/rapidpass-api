@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.13] - 2020-04-23
+### HotFix
+- [#394](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/394) Enabled checkpoint auth endpoint.
+
 ## [1.5.12] - 2020-04-23
 - [#392](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/392) Implemented endpoint toggling for easy configuration.
 
