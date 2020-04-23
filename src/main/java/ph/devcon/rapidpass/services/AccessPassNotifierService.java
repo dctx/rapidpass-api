@@ -262,6 +262,7 @@ public class AccessPassNotifierService {
         return NotificationMessage.New()
                 .from(mailFrom)
                 .to(email)
+                .title("We're sorry, your RapidPass request is Declined.")
                 .message(EmailNotificationTemplate.builder()
                         .name(name)
                         .passType(passType)
