@@ -81,10 +81,10 @@ endpointswitch:
 
 
 qrmaster:
-  skey: ***REMOVED***
+  skey: ${RAPIDPASS_SIGNING_KEY}
   controlkey: controlsecretkey
-  encryptionKey: ***REMOVED***
-  masterKey: ***REMOVED***
+  encryptionKey: ${RAPIDPASS_ENCRYPTION_KEY}
+  masterKey: ${RAPIDPASS_MASTER_KEY}
 
 
 jwt:
