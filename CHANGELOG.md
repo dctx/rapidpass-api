@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.14] - 2020-04-23
+## [1.5.14] - 2020-04-24
+### BugFix
+- [#399](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/399) Removed hardcoded keys and cycle test keys.
 - [#360](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/360) Fixed sending of email for declined transactions.
 
 ## [1.5.13] - 2020-04-23

@@ -41,8 +41,8 @@ class QrGeneratorServiceImplTest {
     QrGeneratorServiceImpl instance;
     QrCodeDeserializer qrDeserializer;
 
-    private String encryptionKey = "***REMOVED***";
-    private String signingKey = "***REMOVED***";
+    private String encryptionKey = "2D4B6150645367566B59703373357638792F423F4528482B4D6251655468576D";
+    private String signingKey = "67566B5970337336763979244226452948404D6351665468576D5A7134743777";
 
 
     private static String decodeQRCode(byte[] qrCodeimage) throws IOException {
