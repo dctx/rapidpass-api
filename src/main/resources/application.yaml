@@ -70,6 +70,10 @@ rapidpass:
     apiKey:
       enabled: true
       key: dctx
+  expiration:
+    year: 2020
+    month: 5
+    day: 15
 
 endpointswitch:
   checkpoint:

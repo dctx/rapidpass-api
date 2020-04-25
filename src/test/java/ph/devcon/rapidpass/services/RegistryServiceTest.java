@@ -99,6 +99,10 @@ class RegistryServiceTest {
                 mockRegistrarUserRepository
         );
 
+        instance.expirationMonth = 5;
+        instance.expirationDay = 15;
+        instance.expirationYear = 2020;
+
         instance.isKafaEnabled=false;
 //        OffsetDateTime now = OffsetDateTime.now();
     }
@@ -362,7 +366,6 @@ class RegistryServiceTest {
                 .status("PENDING")
                 .id(123456)
                 .build();
-
 
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
