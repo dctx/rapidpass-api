@@ -14,11 +14,14 @@
 
 package ph.devcon.rapidpass.utilities.csv;
 
+import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
+import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.utilities.normalization.NormalizationRule;
 
 import java.io.BufferedReader;
@@ -74,7 +77,7 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
     }
 
     @Override
-    public List<E> process(MultipartFile csvFile) throws IOException {
+    public List<E> process(MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException {
 
         if (csvFile.isEmpty()) {
             throw new IllegalArgumentException("Uploaded CSV file was empty.");
@@ -90,6 +93,10 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
         }
 
         try (Reader fileReader = new BufferedReader(new InputStreamReader(csvFile.getInputStream()))) {
+            if (columnMapping.length != new CSVReader(fileReader).readNext().length) {
+                throw new CsvColumnMappingMismatchException("Missing columns in the imported CSV");
+            }
+
             ColumnPositionMappingStrategy strategy = generateStrategy(type);
 
             CsvToBean<E> csvParser = generateCsvToBeanParser(strategy, type, fileReader);
@@ -97,7 +104,7 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
             result = csvParser.parse();
 
             result = normalize(result);
-        } catch (IOException e) {
+        } catch (IOException | CsvValidationException e) {
             throw new IOException("Failed to read CSV file.", e);
         }
 
