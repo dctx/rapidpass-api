@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.16] - 2020-04-26
+### Added
+- [#402](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/402) Added an error message for missing columns in 
+CSV batch upload
+
 ## [1.5.15] - 2020-04-25
 - [#401](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/401) Expiration Date is now a system parameter, defaults to May 15, 2020
 
