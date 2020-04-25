@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassEventLog;
@@ -68,7 +69,7 @@ public class RegistryBatchRestController {
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
-            throws IOException, RegistryService.UpdateAccessPassException {
+            throws IOException, RegistryService.UpdateAccessPassException, CsvColumnMappingMismatchException {
 
         SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
         List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
@@ -115,7 +116,7 @@ public class RegistryBatchRestController {
     }
 
     @PostMapping("/approvers")
-    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException {
+    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException {
         ApproverRegistrationCsvProcessor processor = new ApproverRegistrationCsvProcessor();
 
         List<AgencyUser> agencyUsers = processor.process(csvFile);

@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
+import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.validators.InvalidEnumValueException;
 
@@ -81,6 +82,14 @@ public class ExceptionTranslator {
     @ResponseBody
     public Map<String, String> lockedOut(AccountLockedException e) {
         log.warn("Account was locked out", e);
+        return ImmutableMap.of("message", e.getMessage());
+    }
+
+    @ExceptionHandler({CsvColumnMappingMismatchException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> csvError(CsvColumnMappingMismatchException e) {
+        log.warn("CSV Error!", e);
         return ImmutableMap.of("message", e.getMessage());
     }
 
