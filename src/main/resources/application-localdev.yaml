@@ -18,7 +18,7 @@ spring:
     host: smtp.mailgun.org
     port: 587
     username: rapidpass@talino.mg.amihan.net
-    password: 3676de1a3597825c0e83e6403c664115-ed4dc7c4-0b0b96ba
+    password: ''
     properties:
       mail:
         smtp:
