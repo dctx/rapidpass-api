@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Date;
+import javax.validation.constraints.Min;
 
 /**
  *
