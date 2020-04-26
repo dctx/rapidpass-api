@@ -31,8 +31,8 @@ public class ControlCodeServiceImpl  implements ControlCodeService {
     /**
      * Secret key used for control code generation
      */
-    @Value("${qrmaster.controlkey:***REMOVED***}")
-    private String secretKey = "***REMOVED***";
+    @Value("${qrmaster.controlkey}")
+    private String secretKey;
 
     private final AccessPassRepository accessPassRepository;
 
