@@ -85,8 +85,8 @@ endpointswitch:
 
 
 qrmaster:
-  skey: ${RAPIDPASS_SIGNING_KEY}
-  controlkey: controlsecretkey
+  skey: ${RAPIDPASS_QRMASTER_SKEY}
+  controlkey: ${RAPIDPASS_QRMASTER_CONTROLKEY}
   encryptionKey: ${RAPIDPASS_ENCRYPTION_KEY}
   masterKey: ${RAPIDPASS_MASTER_KEY}
 
