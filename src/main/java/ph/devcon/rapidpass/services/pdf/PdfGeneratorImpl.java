@@ -281,7 +281,7 @@ public class PdfGeneratorImpl implements PdfGeneratorService {
             tampering_is_illegal.setFontSize(10);
             tampering_is_illegal.setItalic();
             tampering_is_illegal.setTextAlignment(TextAlignment.LEFT);
-            tampering_is_illegal.add("Tampering with the pass is punishable by law.").setCharacterSpacing(1.5f);
+            tampering_is_illegal.add("Falsification of this Pass is a criminal offense.").setCharacterSpacing(1.5f);
             tampering_is_illegal.setFixedPosition(rectangle.getX() + 230, rectangle.getY() + 55, rectangle.getWidth());
 
             Paragraph[] results = new Paragraph[4];
