@@ -143,7 +143,6 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 .withType(type)
                 .withSeparator(',')
                 .withQuoteChar('"')
-                .withKeepCarriageReturn(true)
                 .withFilter(filterComposer)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
