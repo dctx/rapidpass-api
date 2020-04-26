@@ -20,6 +20,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -91,7 +92,7 @@ public class RegistrarUser implements Serializable {
     @Size(max = 50)
     @Column(name = "socmed2")
     private String socmed2;
-    @Size(max = 20)
+    @Size(max = 40)
     @Column(name = "username")
     private String username;
     @Size(max = 140)

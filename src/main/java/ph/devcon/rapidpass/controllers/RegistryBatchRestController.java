@@ -17,6 +17,7 @@ package ph.devcon.rapidpass.controllers;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassEventLog;
@@ -35,6 +37,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -47,6 +52,9 @@ import java.util.List;
 public class RegistryBatchRestController {
 
     private RegistryService registryService;
+
+    @Value("${endpointswitch.batch.accesspasses:false}")
+    private boolean enableBatchDownloadAccessPasses;
 
     @Autowired
     public RegistryBatchRestController(RegistryService registryService) {
@@ -61,7 +69,7 @@ public class RegistryBatchRestController {
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
-            throws IOException, RegistryService.UpdateAccessPassException {
+            throws IOException, RegistryService.UpdateAccessPassException, CsvColumnMappingMismatchException {
 
         SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
         List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
@@ -80,14 +88,16 @@ public class RegistryBatchRestController {
             @Valid @RequestParam(value = "pageSize", required = false, defaultValue = "1000")
                     Integer pageSize) {
 
-//        OffsetDateTime lastSyncDateTime =
-//                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        if (!enableBatchDownloadAccessPasses) {
+            return ResponseEntity.ok().body(new String[]{});
+        }
 
-//        return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
+//         closing off /batch/access-passes due to PII exposure and checkpoint not yet authenticating
+        OffsetDateTime lastSyncDateTime =
+                OffsetDateTime.of(LocalDateTime.ofEpochSecond(lastSyncOn, 0, ZoneOffset.UTC), ZoneOffset.UTC);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        // closing off /batch/access-passes due to PII exposure and checkpoint not yet authenticating
-        return ResponseEntity.ok().body(new String[]{});
+        return ResponseEntity.ok().body(registryService.findAllApprovedSince(lastSyncDateTime, pageable));
     }
 
     @GetMapping("/access-pass-events")
@@ -106,7 +116,7 @@ public class RegistryBatchRestController {
     }
 
     @PostMapping("/approvers")
-    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException {
+    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException {
         ApproverRegistrationCsvProcessor processor = new ApproverRegistrationCsvProcessor();
 
         List<AgencyUser> agencyUsers = processor.process(csvFile);

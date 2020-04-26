@@ -66,9 +66,15 @@ import java.util.stream.Stream;
 public class RegistryService {
 
     public static final int DEFAULT_VALIDITY_DAYS = 7;
-    public static final OffsetDateTime DEFAULT_EXPIRATION_DATE =
-            OffsetDateTime.of(2020, 4, 30, 23,
-                    59, 59, 999, ZoneOffset.ofHours(8));
+
+    @Value("${rapidpass.expiration.year}")
+    protected Integer expirationYear;
+
+    @Value("${rapidpass.expiration.month}")
+    protected Integer expirationMonth;
+
+    @Value("${rapidpass.expiration.day}")
+    protected Integer expirationDay;
 
     @Value("${kafka.enabled:false}")
     protected boolean isKafaEnabled;
@@ -198,7 +204,7 @@ public class RegistryService {
             // just set the validity period to today until the request is approved
             accessPass.setValidTo(now);
         } else if (status == AccessPassStatus.APPROVED) {
-            accessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+            accessPass.setValidTo(getExpirationDate());
         }
 
         log.debug("Persisting Registrant: {}", registrant.toString());
@@ -406,13 +412,13 @@ public class RegistryService {
         if (accessPasses.size() > 0) {
             AccessPass accessPass = accessPasses.get(0);
 
-            // is it April 30 yet?
             OffsetDateTime now = OffsetDateTime.now();
             OffsetDateTime validUntil = now;
-            if (OffsetDateTime.now().isAfter(DEFAULT_EXPIRATION_DATE)) {
+            OffsetDateTime expirationDate = getExpirationDate();
+            if (OffsetDateTime.now().isAfter(expirationDate)) {
                 validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
             } else {
-                validUntil = DEFAULT_EXPIRATION_DATE;
+                validUntil = expirationDate;
             }
             accessPass.setValidTo(validUntil);
             accessPass.setValidFrom(now);
@@ -632,6 +638,9 @@ public class RegistryService {
                             for (AccessPass accessPass : accessPasses) {
                                 accessPass.setValidFrom(now);
                                 accessPass.setValidTo(now);
+                                accessPass.setDateTimeUpdated(OffsetDateTime.now());
+                                accessPass.setStatus(AccessPassStatus.APPROVED.name());
+                                accessPass.setSource("BULK_OVERRIDE_ONLINE");
 
                                 accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
 
@@ -639,7 +648,10 @@ public class RegistryService {
                             }
 
                             topAccessPass.setValidFrom(now);
-                            topAccessPass.setValidTo(DEFAULT_EXPIRATION_DATE);
+                            topAccessPass.setDateTimeUpdated(OffsetDateTime.now());
+                            topAccessPass.setValidTo(getExpirationDate());
+                            topAccessPass.setSource("BULK_OVERRIDE_ONLINE");
+                            topAccessPass.setStatus(AccessPassStatus.APPROVED.name());
                             topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
 
                             accessPassRepository.saveAndFlush(topAccessPass);
@@ -665,7 +677,7 @@ public class RegistryService {
                     log.warn("Illegal argument.", e);
                     passes.add("Record " + counter++ + ": Failed. Invalid pass type (passType=" + r.getPassType() + ").");
                 } else {
-                    if (r.getPassType().contains("REQUIRED") && r.getPassType().contains("PASS TYPE")) {
+                    if (r.getPassType().contains("REQUIRED") || r.getPassType().contains("PASS TYPE") || r.getPassType().contains("PASSTYPE")) {
                         // excel header line- noop
                     } else {
                         log.warn("Illegal argument.");
@@ -761,5 +773,10 @@ public class RegistryService {
         } else {
             return RapidPassEventLog.buildFrom(accessPassEvents, controlCodeService);
         }
+    }
+
+    private OffsetDateTime getExpirationDate() {
+            return OffsetDateTime.of(expirationYear, expirationMonth, expirationDay, 23,
+                    59, 59, 999, ZoneOffset.ofHours(8));
     }
 }

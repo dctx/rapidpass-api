@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.17] - 2020-04-26
+### Changed
+- [#404](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/404) Changed warning text on PDF regarding illegally tampering with the rapid pass.
+
+## [1.5.16] - 2020-04-26
+### Added
+- [#402](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/402) Added an error message for missing columns in 
+CSV batch upload
+
+## [1.5.15] - 2020-04-25
+- [#401](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/401) Expiration Date is now a system parameter, defaults to May 15, 2020
+
+## [1.5.14] - 2020-04-24
+### BugFix
+- [#399](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/399) Removed hardcoded keys and cycle test keys.
+- [#360](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/360) Fixed sending of email for declined transactions.
+
+## [1.5.13] - 2020-04-23
+### HotFix
+- [#394](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/394) Enabled checkpoint auth endpoint.
+
+## [1.5.12] - 2020-04-23
+- [#392](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/392) Implemented endpoint toggling for easy configuration.
 
 ## [1.5.11] - 2020-04-22
 - Implemented CSRF cookie implementation with dynamic domain
