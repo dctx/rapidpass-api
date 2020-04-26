@@ -358,6 +358,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PagedRapidPass'
+  /registry/access-passes/{referenceID}/resend:
+    post:
+      operationId: resendAccessPass
+      tags:
+        - dashboard
+      summary: Resends the RapidPass for the specified reference ID.
+      parameters:
+        - name: referenceID
+          in: path
+          description: >-
+            Reference Number of access pass request.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendRapidPassRequest'
+      responses:
+        '200':
+          description: Successfully resent the RapidPass to the user's email and SMS.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example:
+                      Successfully resent the RapidPass.
+        '404':
+          description: There was no RapidPass found for the specified reference ID.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example:
+                      No RapidPass found for the specified reference ID.
+        '400':
+          description: >-
+            There was no RapidPass to re-send, because there was no approved RapidPass found. This could happen if the
+            user's RapidPass has already expired already AND `setValidToDefault` is not
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example:
+                      No RapidPass found for the specified reference ID.
   /batch/approvers:
     post:
       operationId: batchRegisterApprovers
@@ -1130,3 +1182,12 @@ components:
         newPassword:
           type: string
           description: The user's desired new password.
+    ResendRapidPassRequest:
+      type: object
+      description: A json object that contains additional instructions on how a rapid pass request should be resent.
+      properties:
+        setValidToDefault:
+          type: boolean
+          description: >-
+            Used to specify whether the `validTo` property of an existing approved RapidPass will be set to the
+            default maximum `validTo` date. As of April 26, this value is set to May 15, 2020.
