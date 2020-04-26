@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.17] - 2020-04-26
+### Changed
+- [#404](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/404) Changed warning text on PDF regarding illegally tampering with the rapid pass.
+
 ## [1.5.16] - 2020-04-26
 ### Added
 - [#402](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/402) Added an error message for missing columns in 
