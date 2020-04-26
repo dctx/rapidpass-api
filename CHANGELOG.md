@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.18] - 2020-04-26
+### Changed
+- [#406](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/406) Handle new lines inside of cells in the CSV file.
+
 ## [1.5.17] - 2020-04-26
 ### Changed
 - [#404](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/404) Changed warning text on PDF regarding illegally tampering with the rapid pass.
