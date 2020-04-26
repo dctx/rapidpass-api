@@ -514,23 +514,6 @@ public class RegistryService {
         if (isKafaEnabled)
             eventProducer.sendMessage(referenceId, updatedRapidPass);
 
-        log.debug("Sending {} SMS/Email notification for {}", status, referenceId);
-        // TODO: someday let's do this asynchronously
-        if (!isKafaEnabled) {
-            accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId)
-                    .stream()
-                    .findFirst()
-                    .map(controlCodeService::bindControlCodeForAccessPass)
-                    .ifPresent(accessPass -> {
-                        try {
-                            accessPassNotifierService.pushApprovalDeniedNotifs(accessPass);
-                        } catch (ParseException | IOException | WriterException e) {
-                            log.error("Error sending out notifications for " + accessPass, e);
-                        }
-                    });
-        }
-
-
         return updatedRapidPass;
     }
 
