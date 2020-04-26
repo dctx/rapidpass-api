@@ -135,43 +135,6 @@ class QrPdfServiceTest {
     }
 
     @Test
-    void generateQrPdf_VEHICLE() throws IOException, WriterException, ParseException, NullPointerException {
-
-        String controlCode = ControlCode.encode(38);
-
-        AccessPass accessPass = AccessPass.builder()
-                .id(38)
-                .status("APPROVED")
-                .referenceID("09171234567")
-                .passType("VEHICLE")
-                .controlCode(controlCode)
-                .idType("Plate Number")
-                .identifierNumber("ABC 123")
-                .plateNumber("ABC 123")
-                .name("ABC 123")
-                .aporType("AB")
-                .company("DevCon.ph")
-                .validFrom(NOW)
-                .validTo(NOW.plusDays(1))
-                .build();
-
-        when(controlCodeService.findAccessPassByControlCode(any()))
-                .thenReturn(accessPass);
-
-        when(controlCodeService.bindControlCodeForAccessPass(any())).thenReturn(
-                accessPass
-        );
-
-        when(controlCodeService.encode(anyInt()))
-                .thenReturn(controlCode);
-
-        final byte[] bytes = ((ByteArrayOutputStream) instance.generateQrPdf(controlCode)).toByteArray();
-        writeBytesForVisualInspection(bytes);
-
-        assertThat(bytes.length, is(greaterThan(0)));
-    }
-
-    @Test
     void generateQrPdf_failMissingStatus() {
 
         assertThrows(IllegalArgumentException.class, () -> {
