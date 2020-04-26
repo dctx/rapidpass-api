@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.19] - 2020-04-26
+### Changed
+- [#408](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/408) Updated PDF design to highlight the name of the person.
+
 ## [1.5.18] - 2020-04-26
 ### Changed
 - [#406](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/406) Handle new lines inside of cells in the CSV file.
