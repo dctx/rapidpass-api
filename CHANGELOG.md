@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.20] - 2020-04-27
+### Changed
+- [#414](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414) Pass type is always INDIVIDUAL when performing bulk upload.
+
 ## [1.5.19] - 2020-04-26
 ### Changed
 - [#408](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/408) Updated PDF design to highlight the name of the person.
