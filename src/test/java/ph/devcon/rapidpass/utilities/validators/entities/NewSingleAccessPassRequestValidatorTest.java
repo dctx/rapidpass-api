@@ -101,13 +101,13 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
-                .idType("PLT")
+                .idType("IATF")
                 .identifierNumber("ABC 123")
                 .firstName("Juan")
                 .lastName("dela Cruz")
                 .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
-                .passType(PassType.VEHICLE)
+                .passType(PassType.INDIVIDUAL)
                 .email("hello@world.com")
                 .mobileNumber("09662015319")
                 .build();
@@ -140,13 +140,13 @@ public class NewSingleAccessPassRequestValidatorTest {
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
-                .idType("PLT")
+                .idType("IATF")
                 .identifierNumber("ABC 123")
                 .firstName("Juan")
                 .lastName("dela Cruz")
                 .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
-                .passType(PassType.VEHICLE)
+                .passType(PassType.INDIVIDUAL)
                 .email("hello@world.com")
                 .mobileNumber("09662015319")
                 .build();
