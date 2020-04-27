@@ -111,8 +111,6 @@ public class BatchAccessPassRequestValidatorTest {
                 .plateNumber("ABC 123")
                 .passType(PassType.INDIVIDUAL)
                 .mobileNumber("09111234321")
-                .passType(PassType.VEHICLE)
-                .mobileNumber("09662015319")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -149,7 +147,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .plateNumber("ABC 123")
                 .identifierNumber("ABC 123")
                 .plateNumber("ABC 123")
-                .passType(PassType.VEHICLE)
+                .passType(PassType.INDIVIDUAL)
                 .mobileNumber("09662015319")
                 .build();
 
@@ -342,7 +340,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .lastName("dela Cruz")
                 .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
-                .passType(PassType.VEHICLE)
+                .passType(PassType.INDIVIDUAL)
                 .mobileNumber("+639662015319")
                 .build();
 
