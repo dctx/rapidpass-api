@@ -64,4 +64,14 @@
                 tableName="registrar_user">
         </delete>
     </changeSet>
+    <changeSet author="jonas" id="20200427-1">
+        <createTable tableName="notifier_log">
+            <column name="access_pass_id" type="INTEGER"/>
+            <column name="date_time_notified" type="TIMESTAMP without time zone"/>
+            <column name="mobile" type="VARCHAR(20)"/>
+            <column name="email" type="VARCHAR(50)"/>
+            <column name="control_number" type="VARCHAR(20)"/>
+            <column name="message" type="VARCHAR(200)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
