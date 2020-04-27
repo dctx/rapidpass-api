@@ -19,46 +19,46 @@ import lombok.Data;
 
 @Data
 public class RapidPassCSVdata {
-    @CsvBindByPosition(position = 0)
+    @CsvBindByPosition(position = 0, required = true)
     private String passType;
-    @CsvBindByPosition(position = 1)
+    @CsvBindByPosition(position = 1, required = true)
     private String aporType;
-    @CsvBindByPosition(position = 2)
+    @CsvBindByPosition(position = 2, required = true)
     private String firstName;
     @CsvBindByPosition(position = 3)
     private String middleName;
-    @CsvBindByPosition(position = 4)
+    @CsvBindByPosition(position = 4, required = true)
     private String lastName;
     @CsvBindByPosition(position = 5)
     private String suffix;
-    @CsvBindByPosition(position = 6)
+    @CsvBindByPosition(position = 6, required = true)
     private String company;
-    @CsvBindByPosition(position = 7)
+    @CsvBindByPosition(position = 7, required = true)
     private String idType;
-    @CsvBindByPosition(position = 8)
+    @CsvBindByPosition(position = 8, required = true)
     private String identifierNumber;
     @CsvBindByPosition(position = 9)
     private String plateNumber;
-    @CsvBindByPosition(position = 10)
+    @CsvBindByPosition(position = 10, required = true)
     private String mobileNumber;
-    @CsvBindByPosition(position = 11)
+    @CsvBindByPosition(position = 11, required = true)
     private String email;
     @CsvBindByPosition(position = 12)
     private String originName;
-    @CsvBindByPosition(position = 13)
+    @CsvBindByPosition(position = 13, required = true)
     private String originStreet;
-    @CsvBindByPosition(position = 14)
+    @CsvBindByPosition(position = 14, required = true)
     private String originCity;
-    @CsvBindByPosition(position = 15)
+    @CsvBindByPosition(position = 15, required = true)
     private String originProvince;
     @CsvBindByPosition(position = 16)
     private String destName;
-    @CsvBindByPosition(position = 17)
+    @CsvBindByPosition(position = 17, required = true)
     private String destStreet;
-    @CsvBindByPosition(position = 18)
+    @CsvBindByPosition(position = 18, required = true)
     private String destCity;
-    @CsvBindByPosition(position = 19)
+    @CsvBindByPosition(position = 19, required = true)
     private String destProvince;
-    @CsvBindByPosition(position = 20)
+    @CsvBindByPosition(position = 20, required = true)
     private String remarks;
 }

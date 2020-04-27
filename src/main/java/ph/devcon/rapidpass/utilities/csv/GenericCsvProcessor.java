@@ -18,6 +18,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,7 +78,7 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
     }
 
     @Override
-    public List<E> process(MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException {
+    public List<E> process(MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
 
         if (csvFile.isEmpty()) {
             throw new IllegalArgumentException("Uploaded CSV file was empty.");
@@ -106,6 +107,12 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
             result = normalize(result);
         } catch (IOException | CsvValidationException e) {
             throw new IOException("Failed to read CSV file.", e);
+        } catch (RuntimeException e) {
+            if (e.getCause().getClass() == CsvRequiredFieldEmptyException.class) {
+                throw new CsvRequiredFieldEmptyException(e.getCause().getMessage());
+            } else {
+                throw e;
+            }
         }
 
         return result;

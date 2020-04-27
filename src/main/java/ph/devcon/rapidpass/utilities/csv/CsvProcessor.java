@@ -14,6 +14,7 @@
 
 package ph.devcon.rapidpass.utilities.csv;
 
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.springframework.web.multipart.MultipartFile;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 
@@ -25,5 +26,5 @@ import java.util.List;
  * @param <CsvRowType> a POJO that holds data of a row in the CSV file.
  */
 public interface CsvProcessor<CsvRowType> {
-    List<CsvRowType> process(MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException;
+    List<CsvRowType> process(MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException;
 }
