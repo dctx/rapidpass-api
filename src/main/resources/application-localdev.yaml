@@ -37,10 +37,13 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
-  topic:
-    name: requests
-    partitions-num: 3
-    replication-factor: 1
+topic:
+  new-requests: rapidpass-requests
+  new-registrar-user-requests: rapidpass-approver-requests
+  approval-notifications: rapidpass-approvals
+  rapidpass-events: rapidpass-events
+  partitions-num: 3
+  replication-factor: 1
 
 kafka:
   enabled: false # enables or disables kafka event processing
@@ -51,5 +54,109 @@ springfox:
       v2:
         path: /api-docs
 
-testMobile: 09171234567
-testEmail: test@gmail.com
+
+semaphore:
+  url: https://api.semaphore.co/api/v4/messages
+  key: ''
+
+server:
+  servlet:
+    context-path: /api/v1
+
+rapidpass:
+  auth:
+    apiKey:
+      enabled: true
+      key: dctx
+  expiration:
+    year: 2020
+    month: 5
+    day: 15
+
+endpointswitch:
+  checkpoint:
+    auth: true
+  batch:
+    accesspasses: false
+  registry:
+    accesspasses: false
+
+
+qrmaster:
+  # Decoded, this value is: SOME_SIGNING_KEY
+  skey: 534f4d455f5349474e494e475f4b4559
+  controlkey: controlsecretkey
+  # Decoded, this value is: SOME_ENCRYPTION_KEY
+  encryptionKey: 534f4d455f454e4352595054494f4e5f4b4559
+  # Decoded, this value is: SOME_MASTER_KEY
+  masterKey: 534f4d455f4d41535445525f4b4559
+
+
+jwt:
+  secrets:
+    - group: checkpoint
+      secret: checkpoint-secret
+    - group: approver
+      secret: approver-secret
+
+# configure rbac roles here
+rbac:
+  roles:
+    - role: approver
+      resources:
+        # authenticating activate, active but allowing login as public
+        - endpoint: /users/**/activate
+          verbs:
+            - ALL
+        - endpoint: /users/**/active
+          verbs:
+            - ALL
+        # breaks checkpoint - no security integration yet >.<
+        #        - endpoint: /batch/**
+        #          verbs:
+        #            - ALL
+        - endpoint: /registry/access-passes/?**
+          verbs:
+            - GET # used by approver only
+            # POST # used for registration  DO NOT ENABLE!
+            - PUT # APPROVE/DENY
+            - DELETE # APPROVE/DENY
+        - endpoint: /registry/access-passes
+          verbs:
+            - GET
+            - PUT
+            - DELETE
+            # POST # used for registration  DO NOT ENABLE!
+#    - role: checkpoint
+#      resources:
+#        - endpoint: /batch/access-passes
+#          verbs:
+#            - GET
+#        - endpoint: /checkpoint/**
+#          verbs:
+#            - ALL
+#        - endpoint: /registry/scanner-devices
+#          verbs:
+#            - ALL
+#        - endpoint: /registry/scanner-devices/**
+#          verbs:
+#            - ALL
+
+
+security:
+  enabled: true
+  cors:
+    allowedorigins:
+      https://rapidpass.ph,https://dashboard.rapidpass.ph
+  csp:
+    srcs:
+      script: "*.rapidpass.ph rapidpass.ph"
+
+
+
+logging:
+  level:
+    ph.devcon: debug
+    org:
+      springframework:
+        security: debug
