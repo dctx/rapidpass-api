@@ -79,6 +79,37 @@ public class SubjectRegistrationCsvProcessorTest {
         }
     }
 
+    /**
+     * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414
+     *
+     * @throws IOException
+     */
+    @Test
+    void vehicleRowsNotModified() throws IOException {
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+
+        final String filename = "fake-data.csv";
+
+        // Incorrect row, has PERSON instead of INDIVIDUAL
+        byte[] byteContent = mockData(
+                "VEHICLE,BA,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE"
+        ).getBytes();
+
+        try {
+            List<RapidPassCSVdata> process = subjectRegistrationCsvProcessor.process(new MockMultipartFile(filename, byteContent));
+
+            assertThat(process.size(), equalTo(1));
+
+            RapidPassCSVdata csvData = process.get(0);
+
+            assertThat(csvData.getPassType(), equalTo("VEHICLE"));
+
+        } catch (Exception e) {
+            System.err.println(e);
+            fail("Unexpected error occurred.");
+        }
+    }
+
     private static String mockData(String... data) {
 
         final StringBuilder fileContentBuilder = new StringBuilder();
