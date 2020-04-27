@@ -220,6 +220,7 @@ public class AccessPass implements Serializable {
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond()))
                         .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getIdentifierNumber())
+                        .name(accessPass.getName())
                         .build() :
                 QrCodeData.vehicle()
                         .apor(accessPass.getAporType())
@@ -228,6 +229,7 @@ public class AccessPass implements Serializable {
                         .validFrom((int) (accessPass.getValidFrom().toEpochSecond()))
                         .controlCode(decodedControlCode)
                         .idOrPlate(accessPass.getPlateNumber())
+                        .name(accessPass.getName())
                         .build();
     }
 
