@@ -173,8 +173,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new Trim("email"),
                 new DefaultValue("remarks", "frontliner"),
 
-                new DefaultValue("idType", "OTH"),
-                new Trim("idType"),
+                new Overwrite<>("idType", "INDIVIDUAL"),
 
                 new SplitInTwoAndGetFirst("plateNumber"),
                 new TransformAlphanumeric("plateNumber"),
