@@ -4,14 +4,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SubjectRegistrationCsvProcessorTest {
+
+    private static String HEADERS = "passType,aporType,firstName,middleName,lastName,suffix,company,idType,identifierNumber,platenumber,mobileNumber,email,originName,originStreet,originCity,originProvince,destName,destStreet,destCity,destProvince,remarks";
 
     /**
      * Currently the file that Jeffrey gave me is able to trigger the error, but the test case that we have
@@ -42,6 +48,50 @@ public class SubjectRegistrationCsvProcessorTest {
         }
     }
 
+    /**
+     * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414
+     *
+     * @throws IOException
+     */
+    @Test
+    void idTypeAlwaysIndividual() throws IOException {
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+
+        final String filename = "fake-data.csv";
+
+        // Incorrect row, has PERSON instead of INDIVIDUAL
+        byte[] byteContent = mockData(
+                "PERSON,BA,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE"
+        ).getBytes();
+
+        try {
+            List<RapidPassCSVdata> process = subjectRegistrationCsvProcessor.process(new MockMultipartFile(filename, byteContent));
+
+            assertThat(process.size(), equalTo(1));
+
+            RapidPassCSVdata csvData = process.get(0);
+
+            assertThat(csvData.getPassType(), equalTo("INDIVIDUAL"));
+
+        } catch (Exception e) {
+            System.err.println(e);
+            fail("Unexpected error occurred.");
+        }
+    }
+
+    private static String mockData(String... data) {
+
+        final StringBuilder fileContentBuilder = new StringBuilder();
+
+        fileContentBuilder.append(HEADERS).append("\r\n");
+
+        for (String datum : data) {
+            fileContentBuilder.append(datum).append("\r\n");
+        }
+
+        return fileContentBuilder.toString();
+    }
+
     private static byte[] toByteArray(InputStream in) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -56,4 +106,6 @@ public class SubjectRegistrationCsvProcessorTest {
 
         return os.toByteArray();
     }
+
+
 }

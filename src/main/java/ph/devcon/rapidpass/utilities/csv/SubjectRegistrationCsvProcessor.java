@@ -152,8 +152,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
     @Override
     public List<NormalizationRule<RapidPassCSVdata>> getNormalizationRules() {
         return ImmutableList.of(
-                new Trim("passType"),
-                new Capitalize("passType"),
+                new Overwrite<>("passType", "INDIVIDUAL"),
 
                 new Trim("plateNumber"),
                 new Capitalize("plateNumber"),
