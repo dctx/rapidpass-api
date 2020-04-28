@@ -121,7 +121,7 @@ public final class RapidPassRequest {
                 .identifierNumber(StringUtils.trim(csvData.getIdentifierNumber()))
                 .plateNumber(StringUtils.defaultIfBlank(plateNumber, "NA"))
                 .mobileNumber(StringUtils.trim(csvData.getMobileNumber()))
-                .email(StringUtils.defaultIfBlank(email, "NA"))
+                .email(email)
                 .originName(StringUtils.trim(csvData.getOriginName()))
                 .originStreet(StringUtils.trim(csvData.getOriginStreet()))
                 .originCity(StringUtils.trim(csvData.getOriginCity()))
