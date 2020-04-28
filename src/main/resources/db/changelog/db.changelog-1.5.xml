@@ -74,4 +74,31 @@
             <column name="message" type="VARCHAR(200)"/>
         </createTable>
     </changeSet>
+    <changeSet author="darren" id="20200428-1">
+        <delete schemaName="public"
+                tableName="lookup_table">
+            <where>key='APOR'</where>
+        </delete>
+        <loadData encoding="UTF-8"
+                  file="apor-lookup-20200428.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="lookup_table"
+                  usePreparedStatements="true">
+        </loadData>
+        <loadData encoding="UTF-8"
+                  file="apor-lookup-20200428.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="lookup_table"
+                  usePreparedStatements="true">
+        </loadData>
+        <modifyDataType tableName="access_pass"
+                        columnName="issued_by"
+                        newDataType="VARCHAR(40)"/>
+    </changeSet>
 </databaseChangeLog>
