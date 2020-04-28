@@ -23,6 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ph.devcon.rapidpass.entities.*;
@@ -49,10 +51,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -197,6 +196,12 @@ public class RegistryService {
         accessPass.setSource(rapidPassRequest.getSource());
         accessPass.setStatus(status.name());
         accessPass.setValidFrom(now);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+        String currentLoggedInUser = principal.get("sub").toString();
+
+        accessPass.setIssuedBy(currentLoggedInUser);
         if (status == AccessPassStatus.PENDING) {
             // just set the validity period to today until the request is approved
             accessPass.setValidTo(now);
@@ -636,6 +641,10 @@ public class RegistryService {
 
                             AccessPass latestPendingAccessPass = accessPasses.remove(0);
 
+                            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+                            String currentLoggedInUser = principal.get("sub").toString();
+
                             // let's approve all pending requests with the same reference id and pass type
                             for (AccessPass accessPass : accessPasses) {
 
@@ -649,6 +658,7 @@ public class RegistryService {
                                 accessPass.setValidTo(now);
                                 accessPass.setDateTimeUpdated(now);
                                 accessPass.setStatus(AccessPassStatus.APPROVED.name());
+                                accessPass.setIssuedBy(currentLoggedInUser);
 
                                 accessPass.setSource("BULK_OVERRIDE_ONLINE");
                                 accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
@@ -662,6 +672,7 @@ public class RegistryService {
                             latestPendingAccessPass.setSource("BULK");
                             latestPendingAccessPass.setStatus(AccessPassStatus.APPROVED.name());
 
+                            latestPendingAccessPass.setIssuedBy(currentLoggedInUser);
                             latestPendingAccessPass.setDateTimeUpdated(OffsetDateTime.now());
                             latestPendingAccessPass.setControlCode(controlCodeService.encode(latestPendingAccessPass.getId()));
 
@@ -710,7 +721,15 @@ public class RegistryService {
      * @see #getExpirationDate()
      */
     private void updateAccessPassValidityToDefault(AccessPass accessPass) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+        String currentLoggedInUser = principal.get("sub").toString();
+
+        accessPass.setIssuedBy(currentLoggedInUser);
+
         accessPass.setValidTo(getExpirationDate());
+
         accessPassRepository.save(accessPass);
     }
 
