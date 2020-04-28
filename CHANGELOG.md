@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.21] - 2020-04-28
+### Fixed
+- [#417](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/417) Fixed de-dup potential when performing bulk uploads, when
+    an existing access pass is pending registered previously.
+
 ## [1.5.20] - 2020-04-27
 ### Changed
 - [#414](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414) Pass type is always INDIVIDUAL when performing bulk upload.
