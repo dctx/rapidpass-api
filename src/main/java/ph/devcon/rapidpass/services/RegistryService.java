@@ -627,9 +627,9 @@ public class RegistryService {
                             if (isLatestApprovedAccessPassExpired) {
                                 // Found an existing access pass, but its already expired. So we'll extend its validity.
                                 this.updateAccessPassValidityToDefault(latestApprovedAccessPass);
-                                passes.add("Record " + counter++ + ": Extended the validity of the Access Pass.");
+                                passes.add("Record " + counter++ + ": Success. Extended the validity of the Access Pass.");
                             } else {
-                                passes.add("Record " + counter++ + ": No change. An existing approved Access Pass was found.");
+                                passes.add("Record " + counter++ + ": Success. No change. An existing approved Access Pass was found.");
                             }
 
                         } else {
