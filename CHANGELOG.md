@@ -6,27 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [1.5.25] - 2020-04-28
+## [1.6.4] - 2020-04-28
 ### Fixed
 - [#420](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/420) Increase supported length for id type and suffix.
 
-## [1.5.24] - 2020-04-28
+## [1.6.3] - 2020-04-28
 ### Fixed
 - [#419](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/419) Allows bulk upload to handle rows with empty emails.
 
-## [1.5.23] - 2020-04-28
+## [1.6.2] - 2020-04-28
 ### Changed
 - [#410](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/410) Added issuer when bulk upload/approval is performed.
 
-## [1.5.22] - 2020-04-28
+## [1.6.1] - 2020-04-28
 ### Changed
 - [#418](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/418) Updated APOR codes to include SO and DR.
 - [#409](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/409) Increased issued_by from `varchar(20)` to `varchar(40)`. 
 
-## [1.5.21] - 2020-04-28
+## [1.6.0] - 2020-04-28
 ### Fixed
 - [#417](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/417) Fixed de-dup potential when performing bulk uploads, when
     an existing access pass is pending registered previously.
+
+## [Released]
 
 ## [1.5.20] - 2020-04-27
 ### Changed
@@ -263,8 +265,6 @@ CHECKPOINT
 ## [1.0.2] - 2020-04-06
 ### Added
 - String trimming CSV bulk upload data for Bulk Registration for RapidPass.
-
-## [Released]
 
 ## [1.0.1] - 2020-04-06
 
