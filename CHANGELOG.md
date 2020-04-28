@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.22] - 2020-04-28
+### Changed
+- [#418](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/418) Updated APOR codes to include SO and DR.
+- [#409](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/409) Increased issued_by from `varchar(20)` to `varchar(40)`. 
+
 ## [1.5.21] - 2020-04-28
 ### Fixed
 - [#417](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/417) Fixed de-dup potential when performing bulk uploads, when
