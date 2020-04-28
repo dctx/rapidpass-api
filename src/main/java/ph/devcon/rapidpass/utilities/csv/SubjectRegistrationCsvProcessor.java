@@ -124,7 +124,6 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
             if (strings.length > 0 && StringUtils.isBlank(strings[0])) return false;
             if (strings.length > 1 && StringUtils.isBlank(strings[1])) return false;
             if (strings.length > 10 && StringUtils.isBlank(strings[10])) return false;
-            if (strings.length > 11 && StringUtils.isBlank(strings[11])) return false;
 
             return true;
         };
