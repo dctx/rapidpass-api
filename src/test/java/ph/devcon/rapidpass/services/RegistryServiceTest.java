@@ -22,6 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
@@ -33,10 +36,7 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -84,6 +84,7 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
+
         instance = new RegistryService(
                 requestProducer,
                 eventProducer,
@@ -137,6 +138,17 @@ class RegistryServiceTest {
 
     @Test
     void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
+
+        SecurityContext mockSecurityContext = mock(SecurityContext.class);
+        Authentication mockAuthentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(mockSecurityContext);
+
+        HashMap<String, Object> object = new HashMap<>();
+        object.put("sub", "jose.rizal@gmail.com");
+
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn(object);
 
         final Registrant sampleRegistrant = Registrant.builder()
                 .registrarId(0)
