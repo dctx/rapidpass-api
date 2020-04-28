@@ -198,8 +198,12 @@ public class RegistryService {
         accessPass.setValidFrom(now);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-        String currentLoggedInUser = principal.get("sub").toString();
+        String currentLoggedInUser = null;
+
+        if (authentication.getPrincipal() instanceof HashMap) {
+            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+            currentLoggedInUser = principal.get("sub").toString();
+        }
 
         accessPass.setIssuedBy(currentLoggedInUser);
         if (status == AccessPassStatus.PENDING) {
@@ -567,6 +571,13 @@ public class RegistryService {
         // Validation
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
 
+        String currentLoggedInUser = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof HashMap) {
+            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+            currentLoggedInUser = principal.get("sub").toString();
+        }
+
         RapidPass pass;
         int counter = 1;
         Instant start = Instant.now();
@@ -641,9 +652,6 @@ public class RegistryService {
 
                             AccessPass latestPendingAccessPass = accessPasses.remove(0);
 
-                            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-                            String currentLoggedInUser = principal.get("sub").toString();
 
                             // let's approve all pending requests with the same reference id and pass type
                             for (AccessPass accessPass : accessPasses) {
@@ -723,10 +731,12 @@ public class RegistryService {
     private void updateAccessPassValidityToDefault(AccessPass accessPass) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-        String currentLoggedInUser = principal.get("sub").toString();
+        if (authentication.getPrincipal() instanceof HashMap) {
+            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+            String currentLoggedInUser = principal.get("sub").toString();
 
-        accessPass.setIssuedBy(currentLoggedInUser);
+            accessPass.setIssuedBy(currentLoggedInUser);
+        }
 
         accessPass.setValidTo(getExpirationDate());
 
