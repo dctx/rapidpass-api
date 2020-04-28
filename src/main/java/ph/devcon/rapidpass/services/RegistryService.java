@@ -14,7 +14,6 @@
 
 package ph.devcon.rapidpass.services;
 
-import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -44,10 +43,8 @@ import ph.devcon.rapidpass.utilities.validators.entities.accesspass.NewSingleAcc
 import ph.devcon.rapidpass.utilities.validators.entities.agencyuser.BatchAgencyUserRequestValidator;
 
 import javax.validation.constraints.NotEmpty;
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -590,57 +587,89 @@ public class RegistryService {
                         String referenceId = request.getPassType().equals(PassType.INDIVIDUAL) ?
                                 request.getMobileNumber() : request.getPlateNumber();
                         List<String> statuses = Stream.of("APPROVED", "PENDING").collect(Collectors.toList());
+
                         OffsetDateTime now = OffsetDateTime.now();
                         List<AccessPass> accessPasses = accessPassRepository
-                                .findAllByReferenceIDAndPassTypeAndValidToAfterAndStatusIn(referenceId,
-                                        request.getPassType().name(), now, statuses);
+                                .findAllByReferenceIDAndPassTypeAndStatusInOrderByValidToDesc(referenceId, PassType.INDIVIDUAL.name(), statuses);
 
-                        if (accessPasses.isEmpty()) {
+                        // there are at least 1 pending request, this should not happen
+                        // only 1 pending request per pass type and reference id should be in the system
+                        if (accessPasses.size() > 1) {
+                            log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
+                                    request.getPassType().name(), referenceId);
+                        }
+
+                        Optional<AccessPass> potentialLatestAccessPass = accessPasses.stream().filter(a -> "APPROVED".equalsIgnoreCase(a.getStatus())).findAny();
+                        // If the latest approved access pass exists, remove it from the initial list.
+
+
+                        boolean noPendingOrApprovedAccessPasses = accessPasses.isEmpty();
+
+                        boolean hasApprovedAccessPass = potentialLatestAccessPass.isPresent();
+
+                        if (noPendingOrApprovedAccessPasses) {
                             // no existing approved or pending requests, add a pre-approved request
                             pass = persistAccessPass(request, AccessPassStatus.APPROVED);
 
                             if (pass == null) {
                                 throw new ReadableValidationException("Unable to create new Access Pass.");
-                            }
+                           }
 
                             passes.add("Record " + counter++ + ": Success. ");
-                        } else if (accessPasses.stream().anyMatch(a -> "APPROVED".equalsIgnoreCase(a.getStatus()))) {
-                            // there is already an approved and valid access pass with the same reference id and pass type
-                            passes.add("Record " + counter++ + ": No change. An existing approved Access Pass was found.");
-                        } else {
-                            // there are at least 1 pending request, this should not happen
-                            // only 1 pending request per pass type and reference id should be in the system
-                            if (accessPasses.size() > 1) {
-                                log.warn("Multiple Requests found for the pass type: {} with reference id: {}",
-                                        request.getPassType().name(), referenceId);
+                        } else if (hasApprovedAccessPass) {
+
+                            AccessPass latestApprovedAccessPass = potentialLatestAccessPass.get();
+
+                            potentialLatestAccessPass.ifPresent(accessPasses::remove);
+
+                            boolean isLatestApprovedAccessPassExpired = latestApprovedAccessPass.getValidTo().isBefore(OffsetDateTime.now());
+
+                            if (isLatestApprovedAccessPassExpired) {
+                                // Found an existing access pass, but its already expired. So we'll extend its validity.
+                                this.updateAccessPassValidityToDefault(latestApprovedAccessPass);
+                                passes.add("Record " + counter++ + ": Extended the validity of the Access Pass.");
+                            } else {
+                                passes.add("Record " + counter++ + ": No change. An existing approved Access Pass was found.");
                             }
 
-                            AccessPass topAccessPass = accessPasses.remove(0);
+                        } else {
+
+                            AccessPass latestPendingAccessPass = accessPasses.remove(0);
 
                             // let's approve all pending requests with the same reference id and pass type
                             for (AccessPass accessPass : accessPasses) {
-                                accessPass.setValidFrom(now);
+
+                                /*
+                                 *
+                                 * The top most is set to be approved with the target expiration date, while the
+                                 * remaining duplicates are saved as APPROVED and their <code>valid_to</code> is set
+                                 * to now. Their control codes are also updated.
+                                 */
+
                                 accessPass.setValidTo(now);
-                                accessPass.setDateTimeUpdated(OffsetDateTime.now());
+                                accessPass.setDateTimeUpdated(now);
                                 accessPass.setStatus(AccessPassStatus.APPROVED.name());
+
                                 accessPass.setSource("BULK_OVERRIDE_ONLINE");
-
                                 accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
-
-                                accessPassRepository.saveAndFlush(accessPass);
+                                accessPassRepository.save(accessPass);
                             }
 
-                            topAccessPass.setValidFrom(now);
-                            topAccessPass.setDateTimeUpdated(OffsetDateTime.now());
-                            topAccessPass.setValidTo(getExpirationDate());
-                            topAccessPass.setSource("BULK_OVERRIDE_ONLINE");
-                            topAccessPass.setStatus(AccessPassStatus.APPROVED.name());
-                            topAccessPass.setControlCode(controlCodeService.encode(topAccessPass.getId()));
 
-                            accessPassRepository.saveAndFlush(topAccessPass);
+                            latestPendingAccessPass.setValidFrom(now);
+                            latestPendingAccessPass.setValidTo(getExpirationDate());
+
+                            latestPendingAccessPass.setSource("BULK");
+                            latestPendingAccessPass.setStatus(AccessPassStatus.APPROVED.name());
+
+                            latestPendingAccessPass.setDateTimeUpdated(OffsetDateTime.now());
+                            latestPendingAccessPass.setControlCode(controlCodeService.encode(latestPendingAccessPass.getId()));
+
+                            accessPassRepository.save(latestPendingAccessPass);
                             passes.add("Record " + counter++ + ": Success. ");
                         }
                     }
+
                 } catch (ReadableValidationException e) {
                     log.warn("Did not create/update access pass for record {}. error: {}", counter, e.getMessage());
 
@@ -673,6 +702,16 @@ public class RegistryService {
         }
         log.info("Execution time: {} seconds", Duration.between(start, Instant.now()).toMillis() / 1000);
         return passes;
+    }
+
+    /**
+     * Updates the access passes' <code>valid_to</code> property with the default expiration date.
+     * @param accessPass
+     * @see #getExpirationDate()
+     */
+    private void updateAccessPassValidityToDefault(AccessPass accessPass) {
+        accessPass.setValidTo(getExpirationDate());
+        accessPassRepository.save(accessPass);
     }
 
     public List<String> batchUploadApprovers(List<AgencyUser> agencyUsers) {
