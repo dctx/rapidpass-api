@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.23] - 2020-04-28
+### Changed
+- [#410](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/410) Added issuer when bulk upload/approval is performed.
+
 ## [1.5.22] - 2020-04-28
 ### Changed
 - [#418](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/418) Updated APOR codes to include SO and DR.
