@@ -68,7 +68,7 @@ public class AccessPass implements Serializable {
      */
     @Column(name = "control_code")
     private String controlCode;
-    @Size(max = 10)
+    @Size(max = 25)
     @Column(name = "id_type")
     private String idType;
     @Size(max = 25)
@@ -121,7 +121,7 @@ public class AccessPass implements Serializable {
     @Column(name = "valid_to")
 
     private OffsetDateTime validTo;
-    @Size(max = 20)
+    @Size(max = 40)
     @Column(name = "issued_by")
     private String issuedBy;
     @Size(max = 2147483647)

@@ -101,4 +101,12 @@
                         columnName="issued_by"
                         newDataType="VARCHAR(40)"/>
     </changeSet>
+    <changeSet author="darren" id="20200428-2">
+        <modifyDataType tableName="access_pass"
+                        columnName="id_type"
+                        newDataType="VARCHAR(25)"/>
+        <modifyDataType tableName="registrant"
+                        columnName="suffix"
+                        newDataType="VARCHAR(25)"/>
+    </changeSet>
 </databaseChangeLog>
