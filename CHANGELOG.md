@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.5.24] - 2020-04-28
+### Fixed
+- [#419](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/419) Allows bulk upload to handle rows with empty emails.
 
 ## [1.5.23] - 2020-04-28
 ### Changed
