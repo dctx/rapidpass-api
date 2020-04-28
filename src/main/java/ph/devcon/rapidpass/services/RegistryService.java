@@ -198,10 +198,14 @@ public class RegistryService {
         accessPass.setValidFrom(now);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-        String currentLoggedInUser = principal.get("sub").toString();
 
-        accessPass.setIssuedBy(currentLoggedInUser);
+        if (authentication.getPrincipal() instanceof HashMap) {
+            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+            String currentLoggedInUser = principal.get("sub").toString();
+
+            accessPass.setIssuedBy(currentLoggedInUser);
+        }
+
         if (status == AccessPassStatus.PENDING) {
             // just set the validity period to today until the request is approved
             accessPass.setValidTo(now);
@@ -642,8 +646,11 @@ public class RegistryService {
                             AccessPass latestPendingAccessPass = accessPasses.remove(0);
 
                             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-                            String currentLoggedInUser = principal.get("sub").toString();
+                            String currentLoggedInUser = null;
+                            if (authentication.getPrincipal() instanceof HashMap) {
+                                HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+                                currentLoggedInUser = principal.get("sub").toString();
+                            }
 
                             // let's approve all pending requests with the same reference id and pass type
                             for (AccessPass accessPass : accessPasses) {
