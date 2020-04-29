@@ -219,6 +219,25 @@ public class RegistryService {
         return RapidPass.buildFrom(accessPass);
     }
 
+    public RapidPass updateNotified(String referenceId) {
+        List<AccessPass> AccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+        Optional<AccessPass> firstAccessPass = AccessPasses.stream().findFirst();
+        final RapidPass rapidPass;
+
+        AccessPass accessPass = firstAccessPass.orElse(null);
+        if (accessPass == null) return null;
+
+        if (accessPass.getStatus() == "APPROVED") {
+             accessPass.setDateTimeUpdated(OffsetDateTime.now());
+             accessPass.setNotified(false);
+             accessPassRepository.saveAndFlush(accessPass);
+             log.info("Resending Text Message for {}", referenceId);
+        }
+
+        rapidPass = RapidPass.buildFrom(accessPass);
+        return rapidPass;
+    }
+
     /**
      * Please use normalization rules instead, for composable rules.
      * @deprecated
