@@ -149,25 +149,17 @@ public class RegistryRestController {
         return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
-     /* Re-sending a text Message */
+    /* Re-sending a text Message */
     @PostMapping("/access-passes/{referenceId}/resend")
-    ResponseEntity<?> resendTextMessage(@PathVariable String referenceId) throws AccessPassNotFoundException {
-        RapidPass notified = registryService.updateNotified(referenceId);
+    ResponseEntity<?> resendTextMessage(@PathVariable String referenceId) {
+        boolean notified = registryService.updateNotified(referenceId);
         Map<Object, Object> response = new HashMap<>();
-
-        if (notified == null) {
-            response.put("message", String.format("There is no RapidPass found with reference ID `%s`", referenceId));
-            return ResponseEntity.status(404).body(response);
+        if (notified) {
+            response.put("message", "RapidPass email and sms has been queued for processing.");
+            return ResponseEntity.status(200).body(response);
         }
-
-        switch (AccessPassStatus.valueOf(notified.getStatus())) {
-            case APPROVED :
-                response.put("message", "Successfully resent the RapidPass to the user's email and SMS.");
-                return ResponseEntity.status(200).body(response);
-            default :
-                response.put("message", "There was no RapidPass to re-send, because there was no approved RapidPass found.");
-                return ResponseEntity.status(400).body(response);
-            }
+        response.put("message", String.format("There is no RapidPass found with reference ID `%s`", referenceId));
+        return ResponseEntity.status(404).body(response);
     }
 
 

@@ -7,14 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.7.1] - 2020-05-01
+## [1.7.0] - 2020-04-28
 ### Added
 - [#403](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/403) Added Resend Text & Email Endpoint
-
-## [1.7.0] - 2020-05-01
-### Added
-- [#422](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/422) Add support for searching applicants 
-by mobile number 
 
 ## [1.6.4] - 2020-04-28
 ### Fixed
@@ -45,6 +40,7 @@ by mobile number
 - [#416](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/416) Fixed CSV bulk upload for required rows with 
 missing data
 
+## [1.5.20] - 2020-04-27
 ### Changed
 - [#414](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414) Pass type is always INDIVIDUAL when performing bulk upload.
 
