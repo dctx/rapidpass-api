@@ -68,7 +68,7 @@ public class AccessPass implements Serializable {
      */
     @Column(name = "control_code")
     private String controlCode;
-    @Size(max = 10)
+    @Size(max = 25)
     @Column(name = "id_type")
     private String idType;
     @Size(max = 25)
@@ -121,7 +121,7 @@ public class AccessPass implements Serializable {
     @Column(name = "valid_to")
 
     private OffsetDateTime validTo;
-    @Size(max = 20)
+    @Size(max = 40)
     @Column(name = "issued_by")
     private String issuedBy;
     @Size(max = 2147483647)
@@ -130,6 +130,25 @@ public class AccessPass implements Serializable {
     @Size(max = 20)
     @Column(name = "status")
     private String status;
+
+    /**
+     * <h2>Potential values</h2>
+     * <h3>BULK_OVERRIDE_ONLINE</h3>
+     * This is set to be the source, which means that, during bulk upload, multiple access passes were found for the
+     * given <code>reference_id</code>.
+     *
+     * The latest access pass (ordered by <code>valid_to</code> in descending order) of a <code>reference_id</code>
+     * has a source of <code>BULK</code>, but the other duplicates which have a PENDING status will be automatically
+     * APPROVED, and their <code>valid_to</code> will be set to the current timestamp and their source will have a
+     * value of <code>BULK_OVERRIDE_ONLINE</code>
+     *
+     * <h3>BULK</h3>
+     * This is the source when the user's data is uploaded via bulk upload.
+     *
+     * <h3>ONLINE</h3>
+     * This is the source when the user's data is uploaded via online registration.
+     */
+
     @Size(max = 50)
     @Column(name = "source")
     private String source;

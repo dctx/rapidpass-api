@@ -22,8 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
@@ -34,8 +35,8 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Collections;
+import java.time.ZoneOffset;
+import java.util.*;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -83,6 +84,7 @@ class RegistryServiceTest {
 
     @BeforeEach
     void setUp() {
+
         instance = new RegistryService(
                 requestProducer,
                 eventProducer,
@@ -136,6 +138,17 @@ class RegistryServiceTest {
 
     @Test
     void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
+
+        SecurityContext mockSecurityContext = mock(SecurityContext.class);
+        Authentication mockAuthentication = mock(Authentication.class);
+
+        SecurityContextHolder.setContext(mockSecurityContext);
+
+        HashMap<String, Object> object = new HashMap<>();
+        object.put("sub", "jose.rizal@gmail.com");
+
+        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
+        when(mockAuthentication.getPrincipal()).thenReturn(object);
 
         final Registrant sampleRegistrant = Registrant.builder()
                 .registrarId(0)
@@ -419,10 +432,10 @@ class RegistryServiceTest {
 
         ImmutableList<AccessPass> collections = ImmutableList.of(
                 AccessPass.builder()
-                .referenceID("REF-1")
-                .passType(INDIVIDUAL.toString())
-                .name("AJ")
-                .build()
+                        .referenceID("REF-1")
+                        .passType(INDIVIDUAL.toString())
+                        .name("AJ")
+                        .build()
         );
 
         QueryFilter queryFilter = QueryFilter.builder()
@@ -441,5 +454,177 @@ class RegistryServiceTest {
 //        assertThat(rapidPass.getRapidPassList(), hasItem((hasProperty("name", equalTo("AJ")))));
 //
 //        verify(mockAccessPassRepository, only()).findAll(any(), (Pageable) any());
+    }
+
+    @Test
+    void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
+
+        when(lookupTableService.getAporTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("APOR", "AG")),
+                        new LookupTable(new LookupTablePK("APOR", "BP")),
+                        new LookupTable(new LookupTablePK("APOR", "MS"))
+                ))
+        );
+
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
+                ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                ))
+        );
+
+        List<AccessPass> collections = new ArrayList<>();
+        collections.add(
+                AccessPass.builder()
+                        .id(1)
+                        .referenceID("09171234567")
+                        .passType(INDIVIDUAL.toString())
+                        .name("Darren Sapalo")
+                        .status("APPROVED")
+                        .aporType("MS")
+                        .plateNumber("ABC123")
+                        .originName("Origin")
+                        .originCity("Origin City")
+                        .originProvince("Origin Province")
+                        .destinationName("Destination")
+                        .destinationCity("Destination City")
+                        .destinationProvince("Destination Province")
+                        .validFrom(OffsetDateTime.of(2020, 4, 25, 23, 59, 59, 0, ZoneOffset.ofHours(8)))
+                        .validTo(OffsetDateTime.of(2020, 4, 25, 23, 59, 59, 0, ZoneOffset.ofHours(8)))
+                        .build()
+        );
+
+        RapidPassCSVdata csvData = new RapidPassCSVdata();
+        csvData.setPassType("INDIVIDUAL");
+        csvData.setAporType("MS");
+        csvData.setFirstName("Jose");
+        csvData.setLastName("Rizal");
+        csvData.setCompany("DevCon.PH");
+        csvData.setIdType("1234");
+        csvData.setIdentifierNumber("1234");
+        csvData.setPlateNumber("ABC123");
+        csvData.setMobileNumber("09171234567");
+        csvData.setEmail("jose.rizal@gmail.com");
+        csvData.setOriginName("Origin");
+        csvData.setOriginStreet("Origin Street");
+        csvData.setOriginCity("Origin City");
+        csvData.setOriginProvince("Origin Province");
+        csvData.setDestName("Dest");
+        csvData.setDestStreet("Dest Street");
+        csvData.setDestCity("Dest City");
+        csvData.setDestProvince("Dest Province");
+
+        ImmutableList<RapidPassCSVdata> mockCsvData = ImmutableList.of(
+                csvData
+        );
+
+        when(mockAccessPassRepository.findAllByReferenceIDAndPassTypeAndStatusInOrderByValidToDesc(any(), any(), any()))
+                .thenReturn(
+                        collections
+                );
+
+        try {
+            List<String> strings = instance.batchUploadRapidPassRequest(mockCsvData);
+            assertThat(strings, hasItem(containsString("Extended the validity of the Access Pass.")));
+
+        } catch (RegistryService.UpdateAccessPassException e) {
+            e.printStackTrace();
+            fail(e);
+        }
+    }
+
+    @Test
+    void bulkUploadShouldOverwriteExistingPendingData() {
+
+        when(lookupTableService.getAporTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("APOR", "AG")),
+                        new LookupTable(new LookupTablePK("APOR", "BP")),
+                        new LookupTable(new LookupTablePK("APOR", "MS"))
+                ))
+        );
+
+        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
+                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
+                ))
+        );
+
+        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
+                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                ))
+        );
+
+        List<AccessPass> collections = new ArrayList<>();
+        collections.add(
+                AccessPass.builder()
+                        .id(1)
+                        .referenceID("09171234567")
+                        .passType(INDIVIDUAL.toString())
+                        .name("Darren Sapalo")
+                        .status("PENDING")
+                        .aporType("MS")
+                        .plateNumber("ABC123")
+                        .originName("Origin")
+                        .originCity("Origin City")
+                        .originProvince("Origin Province")
+                        .destinationName("Destination")
+                        .destinationCity("Destination City")
+                        .destinationProvince("Destination Province")
+                        .validFrom(OffsetDateTime.of(2020, 4, 25, 23, 59, 59, 0, ZoneOffset.ofHours(8)))
+                        .validTo(OffsetDateTime.of(2020, 4, 25, 23, 59, 59, 0, ZoneOffset.ofHours(8)))
+                        .build()
+        );
+
+        RapidPassCSVdata csvData = new RapidPassCSVdata();
+        csvData.setPassType("INDIVIDUAL");
+        csvData.setAporType("MS");
+        csvData.setFirstName("Jose");
+        csvData.setLastName("Rizal");
+        csvData.setCompany("DevCon.PH");
+        csvData.setIdType("1234");
+        csvData.setIdentifierNumber("1234");
+        csvData.setPlateNumber("ABC123");
+        csvData.setMobileNumber("09171234567");
+        csvData.setEmail("jose.rizal@gmail.com");
+        csvData.setOriginName("Origin");
+        csvData.setOriginStreet("Origin Street");
+        csvData.setOriginCity("Origin City");
+        csvData.setOriginProvince("Origin Province");
+        csvData.setDestName("Dest");
+        csvData.setDestStreet("Dest Street");
+        csvData.setDestCity("Dest City");
+        csvData.setDestProvince("Dest Province");
+
+        ImmutableList<RapidPassCSVdata> mockCsvData = ImmutableList.of(
+                csvData
+        );
+
+        when(mockAccessPassRepository.findAllByReferenceIDAndPassTypeAndStatusInOrderByValidToDesc(any(), any(), any()))
+                .thenReturn(
+                        collections
+                );
+
+        try {
+            List<String> strings = instance.batchUploadRapidPassRequest(mockCsvData);
+            assertThat(strings, hasItem(containsString("Success.")));
+
+        } catch (RegistryService.UpdateAccessPassException e) {
+            e.printStackTrace();
+            fail("Thrown unexpected error", e);
+        }
     }
 }

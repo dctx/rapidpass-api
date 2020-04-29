@@ -45,6 +45,8 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
     List<AccessPass> findAllByReferenceIDAndPassTypeAndStatusAndValidToAfter(String referenceId, String passType,
                                                                              String status, OffsetDateTime validTo);
 
+    List<AccessPass> findAllByReferenceIDAndPassTypeAndStatusInOrderByValidToDesc(String referenceId, String passType, List<String> statuses);
+
     List<AccessPass> findAllByReferenceIDAndPassTypeAndValidToAfterAndStatusIn(String referenceId, String passType,
                                                                                OffsetDateTime validTo, List<String> statuses);
 
