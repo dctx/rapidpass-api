@@ -374,7 +374,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Successfully resent the RapidPass to the user's email and SMS.
+          description: RapidPass email and sms has been queued for processing.
           content:
             application/json:
               schema:
@@ -382,7 +382,7 @@ paths:
                   message:
                     type: string
                     example:
-                      Successfully resent the RapidPass to the user's email and SMS.
+                      RapidPass email and sms has been queued for processing.
         '404':
           description: There was no RapidPass found for the specified reference ID.
           content:
@@ -393,18 +393,6 @@ paths:
                     type: string
                     example:
                       There is no RapidPass found with reference ID `09171234567`
-        '400':
-          description: >-
-            There was no RapidPass to re-send, because there was no approved RapidPass found. This could happen if the
-            user's RapidPass has already expired already AND `setValidToDefault` is not
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example:
-                      There was no RapidPass to re-send, because there was no approved RapidPass found.
   /batch/approvers:
     post:
       operationId: batchRegisterApprovers
