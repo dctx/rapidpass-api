@@ -14,6 +14,7 @@
 
 package ph.devcon.rapidpass.controllers;
 
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class RegistryBatchRestController {
      */
     @PostMapping("/access-passes")
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
-            throws IOException, RegistryService.UpdateAccessPassException, CsvColumnMappingMismatchException {
+            throws IOException, RegistryService.UpdateAccessPassException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
 
         SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
         List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
@@ -116,7 +117,7 @@ public class RegistryBatchRestController {
     }
 
     @PostMapping("/approvers")
-    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException {
+    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
         ApproverRegistrationCsvProcessor processor = new ApproverRegistrationCsvProcessor();
 
         List<AgencyUser> agencyUsers = processor.process(csvFile);

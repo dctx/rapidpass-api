@@ -100,7 +100,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
             return !isDefaultMobile;
         };
 
-        // Don't handle rows with mobile number `09000000000`.
+        // Don't handle rows with missing names.
         CsvToBeanFilter dontHandleRowsWithEmptyFirstNameOrEmptyLastName = strings -> {
             int indexOfFirstName = 2;
             int indexOfLastName = 4;
@@ -118,7 +118,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
             return true;
         };
 
-        // Don't handle rows with mobile number `09000000000`.
+        // Don't handle rows non-required rows.
         CsvToBeanFilter dontHandleRowsWithoutRequiredColumns = strings -> {
 
             if (strings.length > 0 && StringUtils.isBlank(strings[0])) return false;
@@ -133,7 +133,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
             if (!dontHandleRowsWithMissingEmailOrDefaultEmail.allowLine(strings)) return false;
             if (!dontHandleRowsWithMissingMobileNumberOrDefaultMobileNumber.allowLine(strings)) return false;
             if (!dontHandleRowsWithoutRequiredColumns.allowLine(strings)) return false;
-            if (!dontHandleRowsWithEmptyFirstNameOrEmptyLastName.allowLine(strings)) return false;
+//            if (!dontHandleRowsWithEmptyFirstNameOrEmptyLastName.allowLine(strings)) return false;
             return true;
         };
 

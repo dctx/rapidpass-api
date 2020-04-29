@@ -17,6 +17,8 @@ package ph.devcon.rapidpass.controllers;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -85,10 +87,10 @@ public class ExceptionTranslator {
         return ImmutableMap.of("message", e.getMessage());
     }
 
-    @ExceptionHandler({CsvColumnMappingMismatchException.class})
+    @ExceptionHandler({CsvRequiredFieldEmptyException.class, CsvColumnMappingMismatchException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Map<String, String> csvError(CsvColumnMappingMismatchException e) {
+    public Map<String, String> csvError(CsvException e) {
         log.warn("CSV Error!", e);
         return ImmutableMap.of("message", e.getMessage());
     }
