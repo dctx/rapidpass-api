@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.5] - 2020-04-28
+## [1.7.0] - 2020-04-28
 ### Added
 - [#403](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/403) Added Resend Text & Email Endpoint
 
