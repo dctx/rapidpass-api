@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
@@ -32,9 +34,7 @@ import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.models.RapidPassStatus;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -42,6 +42,7 @@ import ph.devcon.rapidpass.services.RegistryService;
 import java.io.ByteArrayOutputStream;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -51,8 +52,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
@@ -103,6 +103,7 @@ class RegistryRestControllerTest {
             .originName("Abangers lane")
             .originCity("Friendly Zone")
             .remarks("This is a test for VEHICLE REQUEST").build();
+    @InjectMocks
     private final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     private AccessPass TEST_INDIVIDUAL_ACCESS_PASS;
@@ -236,6 +237,37 @@ class RegistryRestControllerTest {
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
         // FIXME
 //        verify(mockRegistryService, only()).newRequestPass(eq(TEST_VEHICLE_REQUEST));
+    }
+
+    @Test
+    void searchAccessPassByMobileNumber() throws Exception {
+        RapidPassPageView pageView = RapidPassPageView.builder()
+                .currentPage(1)
+                .currentPageRows(1)
+                .totalPages(1)
+                .totalRows(1)
+                .isFirstPage(true)
+                .isLastPage(true)
+                .hasNext(false)
+                .hasPrevious(false)
+                .rapidPassList(Collections.singletonList(RapidPass.buildFrom(TEST_INDIVIDUAL_ACCESS_PASS)))
+                .build();
+
+        when(mockRegistryService.findRapidPass(any(QueryFilter.class)))
+                .thenReturn(pageView);
+
+        mockMvc.perform(
+                get("/registry/access-passes")
+                        .header(API_KEY_HEADER, API_KEY_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("search", TEST_INDIVIDUAL_REQUEST.getMobileNumber())
+                        .with(testApproverUser()).with(csrf())
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().json(JSON_MAPPER.writeValueAsString(pageView)))
+                .andDo(print());
+
+        verify(mockRegistryService, only()).findRapidPass(any(QueryFilter.class));
     }
 
     /**
@@ -593,6 +625,10 @@ class RegistryRestControllerTest {
 
     protected RequestPostProcessor testUser() {
         return user("user").password("userPass").roles("USER");
+    }
+
+    protected RequestPostProcessor testApproverUser() {
+        return user("user").password("userPass").roles("USER").authorities(Collections.singleton(new SimpleGrantedAuthority("approver")));
     }
 
 
