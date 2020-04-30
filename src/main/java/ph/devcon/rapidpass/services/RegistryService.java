@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
@@ -824,6 +825,22 @@ public class RegistryService {
         } else {
             return RapidPassEventLog.buildFrom(accessPassEvents, controlCodeService);
         }
+    }
+
+    public ControlCodeResponse getControlCode(String referenceId) {
+        AccessPass accessPass = this.findByNonUniqueReferenceId(referenceId);
+
+        if (accessPass == null) return null;
+
+        if (!accessPass.getStatus().equals(AccessPassStatus.APPROVED.name()))
+            throw new IllegalArgumentException(String.format("Successfully found an access pass with reference ID %s, but it is not approved.", referenceId));
+
+        String controlCode = this.controlCodeService.encode(accessPass.getId());
+
+        ControlCodeResponse controlCodeResponse = new ControlCodeResponse();
+        controlCodeResponse.setControlCode(controlCode);
+
+        return controlCodeResponse;
     }
 
     private OffsetDateTime getExpirationDate() {
