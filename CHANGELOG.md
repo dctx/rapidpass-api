@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.6.5] - 2020-05-01
+### Fixed
+- [#422](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/422) Add support for searching applicants 
+by mobile number 
+
 ## [1.6.4] - 2020-04-28
 ### Fixed
 - [#420](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/420) Increase supported length for id type and suffix.
