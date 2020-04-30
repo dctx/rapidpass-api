@@ -61,7 +61,7 @@ public class AccessPass implements Serializable {
      * <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/327">on the fly</a>.
      *
      * <p>The {@link ph.devcon.rapidpass.services.QrPdfService} has the code necessary to encode and decode
-     * control codes based on the access passes' ID. Use its {@link ph.devcon.rapidpass.services.QrPdfService#bindControlCodeForAccessPass(AccessPass)}
+     * control codes based on the access passes' ID. Use its {@link ph.devcon.rapidpass.services.controlcode.ControlCodeService#bindControlCodeForAccessPass(AccessPass)}
      * method to give the access pass its correct control code values.
      * </p>
      * @deprecated
