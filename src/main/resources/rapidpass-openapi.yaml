@@ -358,6 +358,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PagedRapidPass'
+  /registry/access-passes/{referenceID}/resend:
+    post:
+      operationId: resendAccessPass
+      tags:
+        - dashboard
+      summary: Resends the RapidPass for the specified reference ID.
+      parameters:
+        - name: referenceID
+          in: path
+          description: >-
+            Reference Number of access pass request.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RapidPass email and sms has been queued for processing.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example:
+                      RapidPass email and sms has been queued for processing.
+        '404':
+          description: There was no RapidPass found for the specified reference ID.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example:
+                      There is no RapidPass found with reference ID `09171234567`
   /batch/approvers:
     post:
       operationId: batchRegisterApprovers

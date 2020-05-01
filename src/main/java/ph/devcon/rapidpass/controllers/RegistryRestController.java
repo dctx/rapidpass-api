@@ -149,6 +149,20 @@ public class RegistryRestController {
         return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
+    /* Re-sending a text Message */
+    @PostMapping("/access-passes/{referenceId}/resend")
+    ResponseEntity<?> resendTextMessage(@PathVariable String referenceId) {
+        boolean notified = registryService.updateNotified(referenceId);
+        Map<Object, Object> response = new HashMap<>();
+        if (notified) {
+            response.put("message", "RapidPass email and sms has been queued for processing.");
+            return ResponseEntity.status(200).body(response);
+        }
+        response.put("message", String.format("There is no RapidPass found with reference ID `%s`", referenceId));
+        return ResponseEntity.status(404).body(response);
+    }
+
+
     /**
      * Downloads the QR Code pdf associated with control code
      * <p>
