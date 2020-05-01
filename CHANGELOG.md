@@ -6,11 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.7.1] - 2020-05-01
+### Added
+- [#426](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/426) Added new endpoint to check the control code of
+    the RapidPass.
 
-## [1.7.0] - 2020-04-28
+## [1.7.0] - 2020-05-01
 ### Added
 - [#403](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/403) Added Resend Text & Email Endpoint
 - [#425](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/425) Added `notified` property when querying a RapidPass.
+
+## [Released]
 
 ## [1.6.4] - 2020-04-28
 ### Fixed
@@ -33,8 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [#417](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/417) Fixed de-dup potential when performing bulk uploads, when
     an existing access pass is pending registered previously.
-
-## [Released]
 
 ## [1.5.20] - 2020-04-27
 ### Fixed
