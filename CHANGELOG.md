@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.7.2] - 2020-05-01
+### Changed
+- [#431](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/431) Changed validation error message for invalid
+mobile number input.
+
 ## [1.7.1] - 2020-05-01
 ### Added
 - [#426](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/426) Added new endpoint to check the control code of
