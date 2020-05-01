@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
@@ -41,6 +42,7 @@ import java.util.*;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
@@ -57,7 +59,7 @@ class RegistryServiceTest {
 
     @Mock RegistrarRepository mockRegistrarRepository;
 
-    @Mock ControlCodeService controlCodeService;
+    @Mock ControlCodeService mockControlCodeService;
 
     @Mock RegistrarUserRepository mockRegistrarUserRepository;
 
@@ -94,7 +96,7 @@ class RegistryServiceTest {
                 mockAccessPassNotifierService,
                 mockRegistrarRepository,
                 mockRegistryRepository,
-                controlCodeService,
+                mockControlCodeService,
                 mockRegistrantRepository,
                 mockAccessPassRepository,
                 mockScannerDeviceRepository,
@@ -151,6 +153,7 @@ class RegistryServiceTest {
         when(mockAuthentication.getPrincipal()).thenReturn(object);
 
         final Registrant sampleRegistrant = Registrant.builder()
+                .id(1)
                 .registrarId(0)
                 .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
                 .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
@@ -160,6 +163,7 @@ class RegistryServiceTest {
                 .build();
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
+                .id(1)
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
@@ -218,7 +222,7 @@ class RegistryServiceTest {
         verify(mockRegistrantRepository, times(1))
                 .save(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
-        verify(mockAccessPassRepository, times(1))
+        verify(mockAccessPassRepository, times(2))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
@@ -294,6 +298,7 @@ class RegistryServiceTest {
     void temporarilyAllowInvalidIdTypesForSingleNewAccessPassRequests(){
 
         final Registrant sampleRegistrant = Registrant.builder()
+                .id(1)
                 .registrarId(0)
                 .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
                 .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
@@ -303,6 +308,7 @@ class RegistryServiceTest {
                 .build();
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
+                .id(1)
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
@@ -353,6 +359,8 @@ class RegistryServiceTest {
                 ))
         );
 
+        when(mockControlCodeService.encode(anyInt())).thenReturn("ABCDEFG1");
+
         final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
 
         assertThat(rapidPass, is(not(nullValue())));
@@ -362,7 +370,7 @@ class RegistryServiceTest {
         verify(mockRegistrantRepository, times(1))
                 .save(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
-        verify(mockAccessPassRepository, times(1))
+        verify(mockAccessPassRepository, times(2))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
@@ -626,5 +634,66 @@ class RegistryServiceTest {
             e.printStackTrace();
             fail("Thrown unexpected error", e);
         }
+    }
+
+    @Test
+    void getControlCode_exists() {
+
+        final AccessPass mockAccessPass = AccessPass.builder()
+                .id(1)
+                .controlCode("ABCDEFG1")
+                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
+                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
+                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
+                .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
+                .status(AccessPassStatus.APPROVED.toString())
+                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
+                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .build();
+
+
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(any()))
+                .thenReturn(ImmutableList.of(mockAccessPass));
+
+        when(mockControlCodeService.encode(anyInt())).thenReturn("ABCDEFG1");
+
+        ControlCodeResponse controlCode = instance.getControlCode("09171234567");
+
+        assertThat(controlCode, not(equalTo(null)));
+        assertThat(controlCode.getControlCode(), equalTo("ABCDEFG1"));
+    }
+
+    @Test
+    void getControlCode_doesNotExist() {
+
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(any()))
+                .thenReturn(ImmutableList.of());
+
+        ControlCodeResponse controlCode = instance.getControlCode("09171234567");
+
+        assertThat(controlCode, equalTo(null));
+    }
+
+    @Test
+    void getControlCode_notApproved() {
+
+        final AccessPass mockAccessPass = AccessPass.builder()
+                .id(1)
+                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
+                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
+                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
+                .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
+                .status(AccessPassStatus.PENDING.toString())
+                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
+                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .build();
+
+
+        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(any()))
+                .thenReturn(ImmutableList.of(mockAccessPass));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            ControlCodeResponse controlCode = instance.getControlCode("09171234567");
+        });
     }
 }

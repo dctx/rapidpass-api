@@ -245,6 +245,31 @@ paths:
               example: [ "MS", "ER" ]
         '404':
           description: not found
+  /registry/access-passes/{referenceID}/control-code:
+    get:
+      tags:
+        - dashboard
+      summary: >-
+        Fetches the control code associated with a reference ID.
+      operationId: getControlCode
+      responses:
+        '200':
+          description: Successfully retrieved the control code.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlCodeResponse'
+        '404':
+          description: Did not find an access pass with the specified mobile number.
+        '400':
+          description: Successfully found an access pass, but it is not approved.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Successfully found an access pass with reference ID 09171234567, but it is not approved.
   /registry/access-passes:
     post:
       tags:
@@ -1165,3 +1190,9 @@ components:
         newPassword:
           type: string
           description: The user's desired new password.
+    ControlCodeResponse:
+      type: object
+      properties:
+        controlCode:
+          type: string
+          example: ABCDEFG1

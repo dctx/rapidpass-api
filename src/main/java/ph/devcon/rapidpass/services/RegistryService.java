@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
@@ -200,7 +201,7 @@ public class RegistryService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentLoggedInUser = null;
 
-        if (authentication.getPrincipal() instanceof HashMap) {
+        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
             HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
             currentLoggedInUser = principal.get("sub").toString();
         }
@@ -215,6 +216,10 @@ public class RegistryService {
 
         log.debug("Persisting Registrant: {}", registrant.toString());
         accessPass = accessPassRepository.saveAndFlush(accessPass);
+
+        String controlCode = this.controlCodeService.encode(accessPass.getId());
+        accessPass.setControlCode(controlCode);
+        accessPassRepository.saveAndFlush(accessPass);
 
         return RapidPass.buildFrom(accessPass);
     }
@@ -248,7 +253,7 @@ public class RegistryService {
         rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
-    public RapidPassPageView    findRapidPass(QueryFilter q) {
+    public RapidPassPageView findRapidPass(QueryFilter q) {
 
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
@@ -365,8 +370,10 @@ public class RegistryService {
         AccessPass accessPass = accessPasses.get(0);
 
         // Only bind the QR code to the access pass IF the access pass is approved.
-        if (AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus()))
+        if (accessPass.getControlCode() == null && AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus())) {
             accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
+            accessPassRepository.saveAndFlush(accessPass);
+        }
 
         return accessPass;
     }
@@ -589,7 +596,7 @@ public class RegistryService {
 
         String currentLoggedInUser = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof HashMap) {
+        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
             HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
             currentLoggedInUser = principal.get("sub").toString();
         }
@@ -747,7 +754,7 @@ public class RegistryService {
     private void updateAccessPassValidityToDefault(AccessPass accessPass) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() instanceof HashMap) {
+        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
             HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
             String currentLoggedInUser = principal.get("sub").toString();
 
@@ -840,6 +847,24 @@ public class RegistryService {
         } else {
             return RapidPassEventLog.buildFrom(accessPassEvents, controlCodeService);
         }
+    }
+
+    public ControlCodeResponse getControlCode(String referenceId) {
+        AccessPass accessPass = this.findByNonUniqueReferenceId(referenceId);
+
+        if (accessPass == null) return null;
+
+        if (!accessPass.getStatus().equals(AccessPassStatus.APPROVED.name()))
+            throw new IllegalArgumentException(String.format("Successfully found an access pass with reference ID %s, but it is not approved.", referenceId));
+
+        String controlCode = this.controlCodeService.encode(accessPass.getId());
+        accessPass.setControlCode(controlCode);
+        accessPassRepository.saveAndFlush(accessPass);
+
+        ControlCodeResponse controlCodeResponse = new ControlCodeResponse();
+        controlCodeResponse.setControlCode(controlCode);
+
+        return controlCodeResponse;
     }
 
     private OffsetDateTime getExpirationDate() {
