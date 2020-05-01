@@ -45,7 +45,6 @@ by mobile number
 - [#416](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/416) Fixed CSV bulk upload for required rows with 
 missing data
 
-## [1.5.20] - 2020-04-27
 ### Changed
 - [#414](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414) Pass type is always INDIVIDUAL when performing bulk upload.
 
