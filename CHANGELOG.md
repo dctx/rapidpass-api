@@ -18,8 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released]
 
-## [Released]
-
 ## [1.6.4] - 2020-04-28
 ### Fixed
 - [#420](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/420) Increase supported length for id type and suffix.
