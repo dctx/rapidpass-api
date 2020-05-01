@@ -317,7 +317,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
+        assertThat(errors, hasItem(containsString("Invalid mobile input")));
 
 
         // ---- CASE Mobile number can only use Philippine numbers ----
@@ -345,6 +345,6 @@ public class NewSingleAccessPassRequestValidatorTest {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        assertThat(errors, hasItem(containsString("Incorrect mobile number format")));
+        assertThat(errors, hasItem(containsString("Invalid mobile input")));
     }
 }
