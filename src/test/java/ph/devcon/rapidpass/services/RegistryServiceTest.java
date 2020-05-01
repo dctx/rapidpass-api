@@ -153,6 +153,7 @@ class RegistryServiceTest {
         when(mockAuthentication.getPrincipal()).thenReturn(object);
 
         final Registrant sampleRegistrant = Registrant.builder()
+                .id(1)
                 .registrarId(0)
                 .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
                 .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
@@ -162,6 +163,7 @@ class RegistryServiceTest {
                 .build();
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
+                .id(1)
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
@@ -220,7 +222,7 @@ class RegistryServiceTest {
         verify(mockRegistrantRepository, times(1))
                 .save(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
-        verify(mockAccessPassRepository, times(1))
+        verify(mockAccessPassRepository, times(2))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
@@ -296,6 +298,7 @@ class RegistryServiceTest {
     void temporarilyAllowInvalidIdTypesForSingleNewAccessPassRequests(){
 
         final Registrant sampleRegistrant = Registrant.builder()
+                .id(1)
                 .registrarId(0)
                 .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
                 .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
@@ -305,6 +308,7 @@ class RegistryServiceTest {
                 .build();
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
+                .id(1)
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
                 .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
                 .company(TEST_INDIVIDUAL_REQUEST.getCompany())
@@ -355,6 +359,8 @@ class RegistryServiceTest {
                 ))
         );
 
+        when(mockControlCodeService.encode(anyInt())).thenReturn("ABCDEFG1");
+
         final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
 
         assertThat(rapidPass, is(not(nullValue())));
@@ -364,7 +370,7 @@ class RegistryServiceTest {
         verify(mockRegistrantRepository, times(1))
                 .save(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
-        verify(mockAccessPassRepository, times(1))
+        verify(mockAccessPassRepository, times(2))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
@@ -648,8 +654,6 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(any()))
                 .thenReturn(ImmutableList.of(mockAccessPass));
-
-        when(mockControlCodeService.bindControlCodeForAccessPass(any())).thenReturn(mockAccessPass);
 
         when(mockControlCodeService.encode(anyInt())).thenReturn("ABCDEFG1");
 
