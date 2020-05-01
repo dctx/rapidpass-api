@@ -96,7 +96,8 @@ public class AccessPassSpecifications {
 
             return criteriaBuilder.or(
                     criteriaBuilder.like(lowerCompany, "%"+StringUtils.lowerCase(search)+"%"),
-                    criteriaBuilder.like(lowerName, "%"+StringUtils.lowerCase(search)+"%")
+                    criteriaBuilder.like(lowerName, "%"+StringUtils.lowerCase(search).replaceAll("\\s", "%")+"%"),
+                    criteriaBuilder.like(root.get("referenceID"), String.format("%%%s%%", search))
             );
         }));
     }
