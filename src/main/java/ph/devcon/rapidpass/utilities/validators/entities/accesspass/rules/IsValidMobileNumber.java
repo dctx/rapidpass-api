@@ -25,7 +25,7 @@ public class IsValidMobileNumber implements Validator {
         RapidPassRequest request = object instanceof RapidPassRequest ? ((RapidPassRequest) object) : null;
 
         if (request != null && !isValidMobileNumber(request.getMobileNumber())) {
-            errors.rejectValue("mobileNumber", "invalid.mobileNumber", "Incorrect mobile number format.");
+            errors.rejectValue("mobileNumber", "invalid.mobileNumber", "Invalid mobile input.");
         }
     }
 }
