@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
+import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
@@ -230,7 +231,7 @@ public class RegistryService {
         AccessPass accessPass = firstAccessPass.orElse(null);
         if (accessPass == null) return false;
         switch (AccessPassStatus.valueOf(accessPass.getStatus())) {
-            case APPROVED :
+            case APPROVED:
                 accessPass.setDateTimeUpdated(OffsetDateTime.now());
                 accessPass.setNotified(false);
                 accessPassRepository.saveAndFlush(accessPass);
@@ -242,8 +243,9 @@ public class RegistryService {
 
     /**
      * Please use normalization rules instead, for composable rules.
-     * @deprecated
+     *
      * @param rapidPassRequest The rapidpass to normalize.
+     * @deprecated
      */
     private void normalizeIdMobileAndPlateNumber(RapidPassRequest rapidPassRequest) {
         if (rapidPassRequest.getPlateNumber() != null) {
@@ -381,99 +383,102 @@ public class RegistryService {
     }
 
     /**
-     * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
+     * Updates properties of an access pass that is not related to its status.
      *
-     * @param referenceId      The reference id of the {@link AccessPass} you are retrieving.
-     * @param rapidPassRequest The data update for the rapid pass request
+     * For status related updates, please see the other registry service methods.
+     *
+     * @see #decline(String, String)
+     * @see #approve(String)
+     * @see #suspend(String)
+     *
+     * @param rapidPassUpdateRequest The data update for the rapid pass request
      * @return Data stored on the database
      */
-    private RapidPass update(String referenceId, RapidPassRequest rapidPassRequest) throws UpdateAccessPassException {
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+    private AccessPass update(AccessPass accessPass, RapidPassUpdateRequest rapidPassUpdateRequest) throws UpdateAccessPassException {
 
-        if (accessPasses.size() == 0)
-            throw new UpdateAccessPassException("No AccessPass found with referenceId=" + referenceId);
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getRemarks()))
+            accessPass.setUpdates(rapidPassUpdateRequest.getRemarks());
 
-        AccessPass accessPass = accessPasses.get(0);
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getReasonForApplication()))
+            accessPass.setRemarks(rapidPassUpdateRequest.getReasonForApplication());
 
-        String status = accessPass.getStatus();
+        if (rapidPassUpdateRequest.getAporType() != null)
+            accessPass.setAporType(rapidPassUpdateRequest.getAporType().name());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getCompany()))
+            accessPass.setCompany(rapidPassUpdateRequest.getCompany());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestCity()))
+            accessPass.setDestinationCity(rapidPassUpdateRequest.getDestCity());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestName()))
+            accessPass.setDestinationName(rapidPassUpdateRequest.getDestName());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestStreet()))
+            accessPass.setDestinationStreet(rapidPassUpdateRequest.getDestStreet());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginName()))
+            accessPass.setOriginName(rapidPassUpdateRequest.getOriginName());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginCity()))
+            accessPass.setOriginCity(rapidPassUpdateRequest.getOriginCity());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginStreet()))
+            accessPass.setOriginStreet(rapidPassUpdateRequest.getOriginStreet());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getRemarks()))
+            accessPass.setRemarks(rapidPassUpdateRequest.getRemarks());
 
-        boolean isPending = AccessPassStatus.PENDING.toString().equals(status);
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getIdentifierNumber()))
+            accessPass.setIdentifierNumber(rapidPassUpdateRequest.getIdentifierNumber());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getIdType()))
+            accessPass.setIdType(rapidPassUpdateRequest.getIdType());
+        if (rapidPassUpdateRequest.getPassType() != null)
+            accessPass.setPassType(rapidPassUpdateRequest.getPassType().toString());
 
-        if (!isPending) {
-            throw new UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getName())) {
+            accessPass.setName(rapidPassUpdateRequest.getName());
+
+            // Update registrant only if it is found
+            Registrant registrantId = accessPass.getRegistrantId();
+            if (registrantId != null) {
+                registrantId.setRegistrantName(rapidPassUpdateRequest.getName());
+                registrantRepository.saveAndFlush(registrantId);
+            }
         }
 
-        accessPass.setRemarks(rapidPassRequest.getRemarks());
-        accessPass.setAporType(rapidPassRequest.getAporType());
-        accessPass.setCompany(rapidPassRequest.getCompany());
-        accessPass.setDestinationCity(rapidPassRequest.getDestCity());
-        accessPass.setDestinationName(rapidPassRequest.getDestName());
-        accessPass.setDestinationStreet(rapidPassRequest.getDestStreet());
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getValidUntil()))
+            accessPass.setValidTo(OffsetDateTime.parse(rapidPassUpdateRequest.getValidUntil()));
+        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getValidFrom()))
+            accessPass.setValidFrom(OffsetDateTime.parse(rapidPassUpdateRequest.getValidFrom()));
 
-        accessPass.setOriginName(rapidPassRequest.getOriginName());
-        accessPass.setOriginCity(rapidPassRequest.getOriginCity());
-        accessPass.setOriginStreet(rapidPassRequest.getOriginStreet());
-        accessPass.setRemarks(rapidPassRequest.getRemarks());
-
-        accessPass.setIdentifierNumber(rapidPassRequest.getIdentifierNumber());
-        accessPass.setIdType(rapidPassRequest.getIdType());
-
-        accessPass.setPassType(rapidPassRequest.getPassType().toString());
-
-        if (rapidPassRequest.getPassType() != null)
-            accessPass.setPassType(rapidPassRequest.getPassType().toString());
-
-        accessPass.setName(rapidPassRequest.getName());
-
-        // TODO: We need to verify that only the authorized people to modify this pass are allowed.
-        // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
-        // accessPass.setRegistrantId();
-
-        // TODO: This update operation doesn't update the access pass' validity. we used a constant value for now.
-
-        AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
-        return RapidPass.buildFrom(savedAccessPass);
+        return accessPassRepository.saveAndFlush(accessPass);
     }
 
-    private RapidPass grant(String referenceId) throws UpdateAccessPassException {
+    private AccessPass approve(String referenceId) throws UpdateAccessPassException {
         log.debug("APPROVING refId {}", referenceId);
-        RapidPass rapidPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
-        List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
-        if (accessPasses.size() > 0) {
-            AccessPass accessPass = accessPasses.get(0);
+        AccessPass accessPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
-            OffsetDateTime now = OffsetDateTime.now();
-            OffsetDateTime validUntil = now;
-            OffsetDateTime expirationDate = getExpirationDate();
-            if (OffsetDateTime.now().isAfter(expirationDate)) {
-                validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
-            } else {
-                validUntil = expirationDate;
-            }
-            accessPass.setValidTo(validUntil);
-            accessPass.setValidFrom(now);
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime validUntil = now;
 
-            accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
-            accessPass = accessPassRepository.saveAndFlush(accessPass);
-            return RapidPass.buildFrom(accessPass);
+        OffsetDateTime expirationDate = getExpirationDate();
+        if (OffsetDateTime.now().isAfter(expirationDate)) {
+            validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
+        } else {
+            validUntil = expirationDate;
         }
+        accessPass.setValidTo(validUntil);
+        accessPass.setValidFrom(now);
+
+        return accessPass;
 
         // Generate control code using the unique ID specified by the database.
-
-        throw new IllegalStateException("No access passes found with reference ID " + referenceId + ".");
     }
 
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
      *
-     * @throws UpdateAccessPassException If the pass could not be found, or if it is not pending.
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @param status      The status to apply
      * @return Data stored on the database
+     * @throws UpdateAccessPassException If the pass could not be found, or if it is not pending.
      */
-    private RapidPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws UpdateAccessPassException {
+    private AccessPass updateStatus(String referenceId, AccessPassStatus status, String reason) throws UpdateAccessPassException {
         List<AccessPass> accessPassesRetrieved = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPassesRetrieved.isEmpty()) {
@@ -484,6 +489,10 @@ public class RegistryService {
 
         if (accessPassesRetrieved.size() > 1) {
             log.warn("Found " + accessPassesRetrieved.size() + " AccessPasses for referenceId=" + referenceId + ".");
+        }
+
+        if (StringUtils.isEmpty(accessPass.getControlCode())) {
+            accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
         }
 
         String currentStatus = accessPass.getStatus();
@@ -509,46 +518,51 @@ public class RegistryService {
         // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
         // accessPass.setRegistrantId();
 
-        // TODO: This update operation doesn't update the access pass' validity. we used a constant value for now.
+        accessPass.setDateTimeUpdated(OffsetDateTime.now());
 
         AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
-        return RapidPass.buildFrom(savedAccessPass);
+        return savedAccessPass;
     }
 
     /**
-     * Updates a referenceId with status of rapidPass.
+     * Updates a rapid pass.
      *
-     * @param referenceId     reference id to update
-     * @param rapidPassStatus object containing update status
+     * @param referenceId            reference id to update
+     * @param rapidPassUpdateRequest object containing update status
      * @return updated rapid pass
      * @throws UpdateAccessPassException on error updating access pass
      */
     @Transactional
-    public RapidPass updateAccessPass(String referenceId, RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
-        final RapidPass updatedRapidPass;
-        final AccessPassStatus status = rapidPassStatus.getStatus();
+    public RapidPass updateAccessPass(String referenceId, RapidPassUpdateRequest rapidPassUpdateRequest) throws UpdateAccessPassException {
+        AccessPass accessPass;
+        final AccessPassStatus status = AccessPassStatus.valueOf(rapidPassUpdateRequest.getStatus().name());
         switch (status) {
             case APPROVED:
-                updatedRapidPass = grant(referenceId);
+                accessPass = approve(referenceId);
                 break;
             case DECLINED:
-                updatedRapidPass = decline(referenceId, rapidPassStatus.getRemarks());
+                accessPass = decline(referenceId, rapidPassUpdateRequest.getRemarks());
                 break;
             case SUSPENDED:
-                updatedRapidPass = revoke(referenceId);
+                accessPass = suspend(referenceId);
                 break;
             default:
                 throw new IllegalArgumentException("Request Status not yet supported!");
         }
 
-        log.debug("Sending {} event for {}", status, referenceId);
-        if (isKafaEnabled)
-            eventProducer.sendMessage(referenceId, updatedRapidPass);
+        accessPass = update(accessPass, rapidPassUpdateRequest);
 
-        return updatedRapidPass;
+        log.debug("Sending {} event for {}", status, referenceId);
+
+        final RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+
+        if (isKafaEnabled)
+            eventProducer.sendMessage(referenceId, rapidPass);
+
+        return rapidPass;
     }
 
-    public RapidPass decline(String referenceId, String reason) throws RegistryService.UpdateAccessPassException {
+    public AccessPass decline(String referenceId, String reason) throws RegistryService.UpdateAccessPassException {
         return this.updateStatus(referenceId, AccessPassStatus.DECLINED, reason);
     }
 
@@ -558,7 +572,7 @@ public class RegistryService {
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
-    public RapidPass revoke(String referenceId) {
+    public AccessPass suspend(String referenceId) {
         List<AccessPass> allAccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         Optional<AccessPass> firstAccessPass = allAccessPasses.stream()
@@ -572,9 +586,11 @@ public class RegistryService {
         accessPassRepository.saveAndFlush(accessPass);
 
         RapidPass rapidPass = RapidPass.buildFrom(accessPass);
+
         if (isKafaEnabled)
             eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
-        return rapidPass;
+
+        return accessPass;
     }
 
 
@@ -654,7 +670,7 @@ public class RegistryService {
 
                             if (pass == null) {
                                 throw new ReadableValidationException("Unable to create new Access Pass.");
-                           }
+                            }
 
                             passes.add("Record " + counter++ + ": Success. ");
                         } else if (hasApprovedAccessPass) {
@@ -728,7 +744,7 @@ public class RegistryService {
                     passes.add("Record " + counter++ + ": Failed. Internal server error.");
                 }
 
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 if (e.getMessage().matches("No enum constant")) {
                     log.warn("Illegal argument.", e);
                     passes.add("Record " + counter++ + ": Failed. Invalid pass type (passType=" + r.getPassType() + ").");
@@ -750,6 +766,7 @@ public class RegistryService {
 
     /**
      * Updates the access passes' <code>valid_to</code> property with the default expiration date.
+     *
      * @param accessPass
      * @see #getExpirationDate()
      */
@@ -790,7 +807,7 @@ public class RegistryService {
                 RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
 
                 result.add("Record " + counter++ + ": Success. ");
-            } catch ( ReadableValidationException e ) {
+            } catch (ReadableValidationException e) {
                 result.add("Record " + counter++ + ": Failed. " + e.getMessage());
 
             } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
@@ -870,7 +887,7 @@ public class RegistryService {
     }
 
     private OffsetDateTime getExpirationDate() {
-            return OffsetDateTime.of(expirationYear, expirationMonth, expirationDay, 23,
-                    59, 59, 999, ZoneOffset.ofHours(8));
+        return OffsetDateTime.of(expirationYear, expirationMonth, expirationDay, 23,
+                59, 59, 999, ZoneOffset.ofHours(8));
     }
 }
