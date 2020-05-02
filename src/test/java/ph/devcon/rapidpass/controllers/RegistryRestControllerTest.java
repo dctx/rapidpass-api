@@ -29,12 +29,16 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.QueryFilter;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassPageView;
+import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -464,8 +468,8 @@ class RegistryRestControllerTest {
     public void revokeAccessPass() throws Exception {
 
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockRegistryService.revoke(eq("0915999999")))
-                .thenReturn(TEST_INDIVIDUAL_RAPID_PASS);
+        when(mockRegistryService.suspend(eq("0915999999")))
+                .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
 
         // mock service to return null
         mockMvc.perform(
@@ -473,7 +477,7 @@ class RegistryRestControllerTest {
                 .andExpect(status().isOk());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        verify(mockRegistryService, only()).revoke(eq("0915999999"));
+        verify(mockRegistryService, only()).suspend(eq("0915999999"));
     }
 
     @Test
@@ -482,10 +486,9 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .status(AccessPassStatus.APPROVED)
-                .remarks(null)
-                .build();
+        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
+        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.APPROVED);
+        approveRequest.setRemarks(null);
 
         when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
                 .thenReturn(TEST_VEHICLE_RAPID_PASS);
@@ -519,10 +522,9 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .status(AccessPassStatus.APPROVED)
-                .remarks(null)
-                .build();
+        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
+        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.APPROVED);
+        approveRequest.setRemarks(null);
 
         // Registry will not return any data, which will case a thrown exception
         when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
@@ -553,10 +555,9 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .status(AccessPassStatus.APPROVED)
-                .remarks(null)
-                .build();
+        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
+        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.APPROVED);
+        approveRequest.setRemarks(null);
 
         // Registry will not return any data, which will case a thrown exception
         when(mockRegistryService.updateAccessPass(eq(TEST_VEHICLE_RAPID_PASS.getReferenceId()), eq(approveRequest)))
@@ -587,8 +588,7 @@ class RegistryRestControllerTest {
 
         TEST_VEHICLE_RAPID_PASS.setStatus(AccessPassStatus.APPROVED.toString());
 
-        RapidPassStatus approveRequest = RapidPassStatus.builder()
-                .build();
+        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
 
         final String urlPath = "/registry/access-passes/{referenceID}";
 

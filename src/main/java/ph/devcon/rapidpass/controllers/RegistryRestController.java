@@ -27,6 +27,7 @@ import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
+import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -145,8 +146,8 @@ public class RegistryRestController {
     }
 
     @PutMapping("/access-passes/{referenceId}")
-    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RapidPassStatus rapidPassStatus) throws UpdateAccessPassException {
-        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, rapidPassStatus);
+    ResponseEntity<?> updateAccessPass(@PathVariable String referenceId, @Valid @RequestBody RapidPassUpdateRequest rapidPassUpdate) throws UpdateAccessPassException {
+        RapidPass updatedRapidPass = registryService.updateAccessPass(referenceId, rapidPassUpdate);
 
         if (updatedRapidPass == null)
             throw new UpdateAccessPassException("Failed to update Access Pass because there was nothing updated.");
@@ -156,7 +157,8 @@ public class RegistryRestController {
 
     @DeleteMapping("/access-passes/{referenceId}")
     HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) {
-        RapidPass rapidPass = registryService.revoke(referenceId);
+        AccessPass suspendedAccessPass = registryService.suspend(referenceId);
+        RapidPass rapidPass = RapidPass.buildFrom(suspendedAccessPass);
         return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
 
