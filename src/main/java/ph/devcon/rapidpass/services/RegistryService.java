@@ -416,8 +416,6 @@ public class RegistryService {
             accessPass.setOriginCity(rapidPassUpdateRequest.getOriginCity());
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginStreet()))
             accessPass.setOriginStreet(rapidPassUpdateRequest.getOriginStreet());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getRemarks()))
-            accessPass.setRemarks(rapidPassUpdateRequest.getRemarks());
 
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getIdentifierNumber()))
             accessPass.setIdentifierNumber(rapidPassUpdateRequest.getIdentifierNumber());
