@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.models.NotifiedState;
 import ph.devcon.rapidpass.models.QueryFilter;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -64,6 +65,23 @@ public class AccessPassSpecifications {
             if (StringUtils.isBlank(status))
                 return null;
             return criteriaBuilder.equal(root.get("status"), status);
+        }));
+    }
+
+    public static Specification<AccessPass> byNotified(NotifiedState notifiedState) {
+        return (((root, criteriaQuery, criteriaBuilder) -> {
+            if (notifiedState == null)
+                return null;
+
+            switch (notifiedState){
+                case NULL:
+                    return criteriaBuilder.equal(root.get("notified"), null);
+                case NOTIFIED:
+                    return criteriaBuilder.equal(root.get("notified"), true);
+                case NOT_NOTIFIED:
+                    return criteriaBuilder.equal(root.get("notified"), false);
+            }
+            return null;
         }));
     }
 

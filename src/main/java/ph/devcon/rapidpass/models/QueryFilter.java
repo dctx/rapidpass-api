@@ -92,8 +92,11 @@ public class QueryFilter {
      */
     private Integer pageNo = 0;
 
+    private NotifiedState notifiedState;
+
     /**
      * Allows a user to paginate the results. This specifies how many results per page.
      */
     private Integer maxPageRows = DEFAULT_PAGE_SIZE;
 }
+
