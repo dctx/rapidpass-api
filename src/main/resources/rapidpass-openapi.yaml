@@ -579,13 +579,12 @@ paths:
     put:
       tags:
         - dashboard
-      summary: Approve or decline a request for an access pass.
+      summary: Update an existing access pass.
       parameters:
         - name: referenceID
           in: path
           description: >-
-            Reference ID of the access pass request, mobile number for
-            individuals and plate numbers for vehicles
+            Reference ID of the access pass request. This is the mobile number of the user.
           required: true
           schema:
             type: string
@@ -593,7 +592,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RapidPassStatus'
+              $ref: '#/components/schemas/RapidPassUpdateRequest'
 
       responses:
         '200':
@@ -990,10 +989,11 @@ components:
           description: Identification number of the individual.
           example: 789921123QWRTY
         plateNumber:
+          deprecated: true
           type: string
           description:
             This field is used only for VEHICLE access passes. This is either the plate number or the conduction
-            sticker ID of the vehicle.
+            sticker ID of the vehicle. Deprecated, as vehicle passes are no longer used.
           example: WNQ2412
     MobileDevice:
       type: object
@@ -1140,24 +1140,75 @@ components:
             type: string
           example: ["eventID", "referenceID", "passType", "aporType", "controlCode",
                     "name", "plateNumber", "status", "validFrom", "validTo", "eventTimestamp"]
-    RapidPassStatus:
+    RapidPassUpdateRequest:
       type: object
-      description: Modifies the status of an existing access pass with PENDING status.
-      properties:
-        status:
-          type: string
-          description:
-            The status of the access pass that you wish to apply. Note that EXPIRED is not a valid status. To determine
-            whether an access pass is expired, compute this using the current timestamp against the `validUntil`
-            property of a `RapidPass`.
-          enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
-        remarks:
-          type: string
-          description:
-            The reason why the access pass was declined. Note that the `remarks` property of a `RapidPass` schema denotes
-            the reason why they are requesting for a rapid pass, while the `updates` property of a `RapidPass` schema
-            denotes the reason why their access pass was granted, declined, or revoked.
-          example: Declining this request because the user did not complete the form.
+      allOf:
+        - $ref: '#/components/schemas/CommonRapidPassFields'
+        - properties:
+            name:
+              type: string
+              description: name of the person the acess pass is assigned to (first name + last name + suffix)
+            company:
+              type: string
+              description: name of the company of the access pass
+            controlCode:
+              type: string
+              description: generated identifer for approved requests
+            destName:
+              type: string
+              description: Destination Name
+            destStreet:
+              type: string
+              description: Destination Street
+            destCity:
+              type: string
+              description: Destination City
+            destProvince:
+              type: string
+              description: Destination Province
+            originName:
+              type: string
+              description: Origin Name
+            originStreet:
+              type: string
+              description: Origin Street
+            originCity:
+              type: string
+              description: Origin City
+            originProvince:
+              type: string
+              description: Origin Province
+            referenceId:
+              type: string
+              description: used for searching the access pass, either the plate number or ID of the individual
+            status:
+              type: string
+              description:
+                The status of the access pass that you wish to apply. Note that EXPIRED is not a valid status. To determine
+                whether an access pass is expired, compute this using the current timestamp against the `validUntil`
+                property of a `RapidPass`.
+              enum: [PENDING, APPROVED, DECLINED, SUSPENDED]
+            validFrom:
+              type: string
+              description: start date of the access pass's validity period
+              example: 2020-04-02T18:49:31.129435Z
+            validUntil:
+              type: string
+              description: expiration date of the access pass
+              example: 2020-04-02T18:49:31.129435Z
+            reasonForApplication:
+              type: string
+              description:
+                The reason why the user applied for a rapid pass.
+              example: Skeletal workforce.
+            remarks:
+              type: string
+              description:
+                The reason why the access pass was declined. Note that the `remarks` property of a `RapidPass` schema denotes
+                the reason why they are requesting for a rapid pass, while the `updates` property of a `RapidPass` schema
+                denotes the reason why their access pass was granted, declined, or revoked.
+              example: Declining this request because the user did not complete the form.
+      description: Modifies an existing access pass.
     LookupMap:
       type: object
       description: A map of lookup data

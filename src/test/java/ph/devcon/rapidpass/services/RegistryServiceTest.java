@@ -26,11 +26,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
+import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.QueryFilter;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassCSVdata;
+import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
@@ -391,12 +395,14 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
+
+        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
+        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.APPROVED);
+        approveRequest.setRemarks(null);
+
         final RapidPass approved = instance.updateAccessPass(
                 "ref-id",
-                RapidPassStatus.builder()
-                        .status(AccessPassStatus.APPROVED)
-                        .remarks(null) // No need for remarks if the user is approved
-                        .build()
+                approveRequest
         );
 
         assertThat(approved, is(notNullValue()));
@@ -423,16 +429,17 @@ class RegistryServiceTest {
         when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
                 .thenReturn(singletonList(pendingAccessPass));
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-        final RapidPass approved = instance.updateAccessPass("ref-id", RapidPassStatus.builder()
-                .status(AccessPassStatus.DECLINED)
-                .remarks("Some reason here")
-                .build()
-        );
+
+        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
+        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.DECLINED);
+        approveRequest.setRemarks("Some reason here");
+
+        final RapidPass approved = instance.updateAccessPass("ref-id", approveRequest);
 
         assertThat(approved, is(notNullValue()));
         assertThat(approved.getStatus(), is("DECLINED"));
 
-        verify(mockAccessPassRepository).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
+        verify(mockAccessPassRepository, times(2)).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
     @Test
