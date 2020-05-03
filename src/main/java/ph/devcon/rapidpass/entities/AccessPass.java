@@ -160,7 +160,7 @@ public class AccessPass implements Serializable {
     private OffsetDateTime dateTimeUpdated;
 
     @Column(name = "notified")
-    private boolean notified;
+    private Boolean notified;
 
     @JoinColumn(name = "registrant_id", referencedColumnName = "id")
     @ManyToOne

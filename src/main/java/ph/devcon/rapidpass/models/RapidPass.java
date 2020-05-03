@@ -61,7 +61,7 @@ public class RapidPass {
     private String remarks;
     private String updates;
     private String email;
-    private boolean notified;
+    private Boolean notified;
 
     public static RapidPass buildFrom(AccessPass accessPass) {
         // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
@@ -72,7 +72,7 @@ public class RapidPass {
                 .passType(PassType.valueOf(accessPass.getPassType()))
                 .aporType(accessPass.getAporType())
                 .name(accessPass.getName())
-                .notified(accessPass.isNotified())
+                .notified(accessPass.getNotified())
                 .company(accessPass.getCompany())
                 .idType(accessPass.getIdType())
                 .identifierNumber(accessPass.getIdentifierNumber())

@@ -274,7 +274,9 @@ public class RegistryService {
                 .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber()))
                 .and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
                 .and(AccessPassSpecifications.bySource(q.getSource() != null ? q.getSource().name() : null ))
-                .and(AccessPassSpecifications.byStatus(q.getStatus())), pageView);
+                .and(AccessPassSpecifications.byNotified(q.getNotifiedState()))
+                .and(AccessPassSpecifications.byStatus(q.getStatus())), pageView)
+                ;
 
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
