@@ -17,13 +17,23 @@ package ph.devcon.rapidpass.services;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import ph.devcon.rapidpass.api.models.RevocationLog;
+import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
+import ph.devcon.rapidpass.models.InternalRevocationEvent;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,5 +63,31 @@ public class CheckpointServiceImpl implements ICheckpointService {
         }
 
         return scannerDevice;
+    }
+
+    @Override
+    public RevocationLogResponse retrieveRevokedAccessPasses(Integer since) {
+
+        List<AccessPass> revokeList;
+
+        if (since == null) {
+            revokeList = accessPassRepository.findAllByStatus(AccessPassStatus.SUSPENDED.name());
+        } else {
+            Instant instant = Instant.ofEpochSecond(since);
+            revokeList = accessPassRepository.findAllByStatusAndDateTimeUpdatedAfter(AccessPassStatus.SUSPENDED.name(), OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()));
+        }
+
+        RevocationLogResponse revocationLogResponse = new RevocationLogResponse();
+
+        List<InternalRevocationEvent> events = revokeList.stream()
+                .map(InternalRevocationEvent::buildFrom)
+                .collect(Collectors.toList());
+
+        RevocationLog log = new RevocationLog();
+        log.addAll(events);
+
+        revocationLogResponse.setData(log);
+
+        return revocationLogResponse;
     }
 }
