@@ -1,0 +1,4 @@
+id,name,short_name,description,parent_registrar_id,shard_key,institution_type,institution_classification,status,address,country,region,province,city,zip_code,phone,mobile,email,representative,rep_designation,rep_phone,rep_mobile,rep_email,website,reference1,reference2,updates,date_time_created,date_time_updated
+43,"Department of Social Welfare and Development","DSWD",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-05-04 16:00:00.000000,2020-05-04 16:00:0.000000
+44,"National Disaster Risk Reduction and Management Council","NDRMMC",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-05-04 16:00:00.000000,2020-05-04 16:00:0.000000
+45,"Information Desk via BPO","BPO",,,0,,active,,,,,,,,,,,,,,,,,,,,2020-05-04 16:00:00.000000,2020-05-04 16:00:0.000000
