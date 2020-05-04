@@ -1,0 +1,71 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2020.  DevConnect Philippines, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+  ~ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~
+  ~ See the License for the specific language governing permissions and limitations under the License.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="darren" id="20200504-1">
+        <delete schemaName="public"
+                tableName="lookup_table">
+            <where>key='APOR'</where>
+        </delete>
+    </changeSet>
+    <changeSet author="darren" id="20200504-2">
+        <loadData encoding="UTF-8"
+                  file="apor-lookup-20200504.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="lookup_table"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+    <changeSet author="darren" id="20200504-3">
+        <!-- Updating registrar's shortcode, missing an I in 'DT-BOI' -->
+        <update schemaName="public"
+                tableName="registrar">
+            <column name="short_name" type="varchar(30)">DTI-BOI</column>
+            <where>id=37</where>
+        </update>
+        <!-- These are appending new registrars -->
+        <loadData encoding="UTF-8"
+                  file="registrars-20200504.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="registrar"
+                  usePreparedStatements="true">
+        </loadData>
+	</changeSet>
+    <changeSet author="darren" id="20200504-4">
+        <!-- Clears the apor-approver mapping  -->
+        <delete schemaName="public"
+                tableName="apor_type_approver_lookup">
+        </delete>
+        <!-- Repopulates it -->
+        <loadData encoding="UTF-8"
+                  file="apor-type-approver-lookup-20200504.csv"
+                  quotchar='"'
+                  relativeToChangelogFile="true"
+                  schemaName="public"
+                  separator=","
+                  tableName="apor_type_approver_lookup"
+                  usePreparedStatements="true">
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>
