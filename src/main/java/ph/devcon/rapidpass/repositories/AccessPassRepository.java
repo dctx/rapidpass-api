@@ -35,6 +35,10 @@ public interface AccessPassRepository extends JpaRepository<AccessPass, Integer>
 
     AccessPass findByReferenceID(String referenceID);
 
+    List<AccessPass> findAllByStatus(String status);
+
+    List<AccessPass> findAllByStatusAndDateTimeUpdatedAfter(String status, OffsetDateTime dateTimeUpdated);
+
     List<AccessPass> findAllByReferenceIDOrderByValidToDesc(String referenceId);
 
     List<AccessPass> findAllByReferenceIDAndValidToAfter(String referenceId, OffsetDateTime validTo);
