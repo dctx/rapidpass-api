@@ -70,6 +70,6 @@
     <changeSet author="darren" id="20200505-5">
         <modifyDataType tableName="registrant"
                         columnName="email"
-                        newDataType="VARCHAR(256)"/>
+                        newDataType="VARCHAR(254)"/>
     </changeSet>
 </databaseChangeLog>

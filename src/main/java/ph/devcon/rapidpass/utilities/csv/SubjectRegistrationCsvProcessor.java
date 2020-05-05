@@ -187,7 +187,7 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new TransformAlphanumeric("mobileNumber"),
 
                 new Max<>("suffix", 25),
-                new Max<>("email", 50),
+                new Max<>("email", 254),
 
                 new Max<>("aporType", 10),
                 new Max<>("idType", 25),
