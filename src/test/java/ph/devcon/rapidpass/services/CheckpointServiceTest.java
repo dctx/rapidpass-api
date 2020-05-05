@@ -15,7 +15,6 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,7 +48,7 @@ public class CheckpointServiceTest
 
     private ControlCodeService controlCodeService;
 
-    @BeforeEach
+//    @BeforeEach
     void initializeMocks()
     {
         accessPassRepository = Mockito.mock(AccessPassRepository.class);
@@ -130,6 +129,10 @@ public class CheckpointServiceTest
 
     @Test
     public void TestRetrieveRevokedPasses() {
+        accessPassRepository = Mockito.mock(AccessPassRepository.class);
+        scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
+        controlCodeService = Mockito.mock(ControlCodeService.class);
+
         checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
 
         AccessPass accessPassEntity = new AccessPass();
