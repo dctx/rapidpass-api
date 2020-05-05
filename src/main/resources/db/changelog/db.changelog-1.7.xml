@@ -67,5 +67,9 @@
                   usePreparedStatements="true">
         </loadData>
     </changeSet>
-
+    <changeSet author="darren" id="20200505-5">
+        <modifyDataType tableName="registrant"
+                        columnName="email"
+                        newDataType="VARCHAR(256)"/>
+    </changeSet>
 </databaseChangeLog>
