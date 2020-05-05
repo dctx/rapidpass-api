@@ -39,4 +39,12 @@ services:
       URL: http://localhost:8080/api/v1/spec
     ports:
       - "9999:8080"
-
+  keycloak:
+    image: jboss/keycloak
+    container_name: keycloak
+    restart: always
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    ports:
+      - 8180:8080

@@ -35,6 +35,17 @@ docker-compose stop
 docker-compose start
 ```
 
+To setup Keycloak:
+
+1. Login to http://localhost:8180/auth `admin/admin`.
+1. Import local realm. `Add Realm` -> `Import` -> Select file `keycloak/realm-export.json`
+
+This sets up the following:
+* `rapidpass-api-local` realm
+* `rapidpass-api` client 
+*  user `user/user` that has `approver` role.
+
+
 To cleanup:
 
 ```

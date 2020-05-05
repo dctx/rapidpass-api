@@ -7,6 +7,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+// this may be deprecated by Azure front door
 @Component
 public class ResponseHeaderSecurityFilter implements Filter {
 

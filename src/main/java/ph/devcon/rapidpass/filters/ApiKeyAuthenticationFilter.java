@@ -26,11 +26,13 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * {@link ApiKeyAuthenticationFilter} is a simple filter that checks for the a valid API Key in the request headers.
  *
+ * @deprecated deprecated with keycloak implementation
  * @author jonasespelita@gmail.com
  */
-@Component
+//@Component
 @Slf4j
 @Setter
+@Deprecated
 public class ApiKeyAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
     @Value("${rapidpass.auth.apiKey.key:secret}")

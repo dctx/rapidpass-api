@@ -40,6 +40,10 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+  # needed for keycloak to override some security beans
+  main:
+    allow-bean-definition-overriding: true
+
 topic:
   new-requests: rapidpass-requests
   new-registrar-user-requests: rapidpass-approver-requests
@@ -151,6 +155,13 @@ security:
     srcs:
       script: "*.rapidpass.ph rapidpass.ph"
 
+keycloak: # override me in env vars!
+  auth-server-url: http://localhost:8180/auth/
+  realm: rapidpass-api-local
+  resource: rapidpass-api
+  ssl-required: external
+  credentials:
+    secret: 22f20434-39cd-4e39-9620-99f99a6b0334
 
 
 logging:
@@ -159,3 +170,4 @@ logging:
     org:
       springframework:
         security: debug
+      keycloak: debug

@@ -42,10 +42,12 @@ import static java.util.Collections.singletonList;
  * {@link JwtAuthenticationFilter} verifies if we have valid signed tokens. runs after API Key filter - hence using {@link AbstractPreAuthenticatedProcessingFilter}
  * It does NOT authorize requestor groups as this should be done in a separate filter.
  *
+ * @deprecated deprecated with keycloak implementation
  * @author jonasespelita@gmail.com
  */
 @Slf4j
-@Component
+//@Component
+@Deprecated
 @RequiredArgsConstructor
 @Setter
 public class JwtAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
