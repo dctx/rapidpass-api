@@ -261,7 +261,7 @@ public class RegistryService {
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
             int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
-            pageView = PageRequest.of(q.getPageNo(), pageSize, Sort.by("valid_to").descending());
+            pageView = PageRequest.of(q.getPageNo(), pageSize, Sort.by("validTo").descending());
         }
 
         String[] aporTypes = StringUtils.split(q.getAporType(), ",");
