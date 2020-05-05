@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ## [1.8.0] - 2020-05-05
+### Added
+- [#430](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/430) optional data from the csv files will be trimmed
+    based on their database column max restrictions.
+
 ### Fixed
 - [#445](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/445) Changed the requirements for 
 the registry batch CSV import
