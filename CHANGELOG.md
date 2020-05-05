@@ -13,13 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     
 ### Changed
 - [#446](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/446) Increased email length from 50 to 256 characters.
+- [#438](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/438) Sort the results of the access passes by 
+    `valid_to` in descending order. `1.7.7.alpha.1`
 
 ## [1.7.6] - 2020-05-05
 ### Fixed
 - [#445](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/445) Changed the requirements for the registry batch CSV import.
     
 ## [Released]
-    
+
 ## [1.7.5] - 2020-05-04
 ### Added
 - [#440](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/440) Added new registrars to be used by new users

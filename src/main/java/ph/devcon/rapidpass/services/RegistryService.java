@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.security.core.Authentication;
@@ -260,7 +261,7 @@ public class RegistryService {
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
             int pageSize = (null != q.getMaxPageRows()) ? q.getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
-            pageView = PageRequest.of(q.getPageNo(), pageSize);
+            pageView = PageRequest.of(q.getPageNo(), pageSize, Sort.by("valid_to").descending());
         }
 
         String[] aporTypes = StringUtils.split(q.getAporType(), ",");
