@@ -35,7 +35,8 @@ docker-compose stop
 docker-compose start
 ```
 
-To setup Keycloak:
+
+**To setup Keycloak locally:**
 
 1. Login to http://localhost:8180/auth `admin/admin`.
 1. Import local realm. `Add Realm` -> `Import` -> Select file `keycloak/realm-export.json`
@@ -45,6 +46,27 @@ This sets up the following:
 * `rapidpass-api` client 
 *  user `user/user` that has `approver` role.
 
+
+**To authenticate locally:**
+1. `POST` to keycloak login with user/password
+```
+curl --request POST \
+  --url 'http://localhost:8180/auth/realms/rapidpass-api-local/protocol/openid-connect/token' \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --cookie 'JSESSIONID=39E998D029DD589579745FD970D8EC21.7819c6ae3fb3; JSESSIONID=6E9B165D5E3D44F6824BF5D419190D12' \
+  --data client_id=rapidpass-api \
+  --data username=user \
+  --data password=user \
+  --data grant_type=password \
+  --data client_secret=22f20434-39cd-4e39-9620-99f99a6b0334 
+```
+1. extract token from response `access_token`
+1. send token to endpoint as `Authorization Bearer` header
+```
+curl --request GET \
+  --url http://localhost:8080/api/v1/registry/access-passes \
+  --header 'authorization: Bearer {access_token}' 
+```
 
 To cleanup:
 
