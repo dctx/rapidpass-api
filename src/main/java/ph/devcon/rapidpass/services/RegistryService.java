@@ -731,9 +731,10 @@ public class RegistryService {
                 } catch (ReadableValidationException e) {
                     log.warn("Did not create/update access pass for record {}. error: {}", counter, e.getMessage());
 
+                    // https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/444
                     // Access passes that are declined should still be persisted. Reusing existing code.
-                    pass = persistAccessPass(request, AccessPassStatus.PENDING);
-                    decline(pass.getReferenceId(), e.getMessage());
+                    // pass = persistAccessPass(request, AccessPassStatus.PENDING);
+                    // decline(pass.getReferenceId(), e.getMessage());
 
                     passes.add("Record " + counter++ + ": was declined. " + e.getMessage());
                 } catch (Exception e) {

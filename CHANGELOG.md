@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     
 ### Changed
 - [#446](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/446) Increased email length from 50 to 256 characters.
+- [#444](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/444) Declined passes will not be inserted into the DB
+    anymore.
 
 ## [1.7.6] - 2020-05-05
 ### Fixed
