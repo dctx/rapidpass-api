@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.7.6] - 2020-05-05
+### Fixed
+- [#445](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/445) Changed the requirements for 
+the registry batch CSV import
+    
 ## [1.7.5] - 2020-05-04
 ### Added
 - [#440](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/440) Added new registrars to be used by new users
