@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#364](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/364) Keycloak implementation
 
 
+## [1.7.7] - 2020-05-05
+### Added
+- [#430](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/430) optional data from the csv files will be trimmed
+    based on their database column max restrictions.
+    
+### Changed
+- [#446](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/446) Increased email length from 50 to 256 characters.
+- [#438](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/438) Sort the results of the access passes by 
+    `valid_to` in descending order.
+- [#444](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/444) Declined passes will not be inserted into the DB
+    anymore.
+
+## [1.7.6] - 2020-05-05
+### Fixed
+- [#445](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/445) Changed the requirements for the registry batch CSV import.
+    
+## [Released]
+    
 ## [1.7.5] - 2020-05-04
 ### Added
 - [#440](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/440) Added new registrars to be used by new users
@@ -43,8 +61,6 @@ mobile number input.
 ### Added
 - [#403](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/403) Added Resend Text & Email Endpoint
 - [#425](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/425) Added `notified` property when querying a RapidPass.
-
-## [Released]
 
 ## [1.6.4] - 2020-04-28
 ### Fixed
