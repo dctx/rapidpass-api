@@ -14,114 +14,77 @@
 
 package ph.devcon.rapidpass.config;
 
-import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.keycloak.adapters.KeycloakConfigResolver;
+import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
+import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
+import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
+import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticationProcessingFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import ph.devcon.rapidpass.filters.ApiKeyAuthenticationFilter;
-import ph.devcon.rapidpass.filters.JwtAuthenticationFilter;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import ph.devcon.rapidpass.filters.RbacAuthorizationFilter;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 /**
- * The {@link SecurityConfig} configuration class sets up HTTP security using the Spring Security Framework.
- * <p>
- * The filters set up are as follows: {@link ApiKeyAuthenticationFilter} -> {@link JwtAuthenticationFilter} -> {@link RbacAuthorizationFilter}
+ * The {@link SecurityConfig} configuration class sets up HTTP security using the Spring Security Framework and Keycloak. Utilizes the {@link RbacAuthorizationFilter} class
+ * for enforcing authorities.
  *
  * @author jonasespelita@gmail.com
  */
-@Configuration
+@KeycloakConfiguration
 @RequiredArgsConstructor
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Slf4j
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+    @PostConstruct
+    void postConstruct() {
+        log.info("Set up keycloak!");
+    }
 
-    private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RbacAuthorizationFilter rbacAuthorizationFilter;
 
-    @Value("${security.cors.allowedorigins}")
-    private String allowedOriginsCsv;
-
-    @Value("${security.cors.allowedorigins}")
-    private List<String> allowedOrigins;
-
+    /**
+     * Registers the KeycloakAuthenticationProvider with the authentication manager.
+     */
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(keycloakAuthenticationProvider());
+    }
 
     /**
-     * Set security.enabled to true to enable secured this configuration. Defaults to false for developer convenience
+     * Defines the session authentication strategy.
      */
-    @Value("${security.enabled:false}")
-    private boolean securityEnabled = false;
+    @Bean
+    @Override
+    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
+    }
 
-    @PostConstruct
-    public void postConstruct() {
-        log.info("SecurityConfig initialized!");
+    /**
+     * Make sure it looks at the configuration provided by the Spring Boot Adapter.
+     */
+    @Bean
+    public KeycloakConfigResolver KeycloakConfigResolver() {
+        return new KeycloakSpringBootConfigResolver();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-// temporarily disable while frontend not ready
-//                .csrf().csrfTokenRepository(csrfTokenRepository)
-//                .ignoringAntMatchers("/registry/auth", "/users/auth")
-//                .and()
-                .cors()
+        super.configure(http);
+        http.addFilterAfter(rbacAuthorizationFilter, KeycloakAuthenticationProcessingFilter.class)
+                .authorizeRequests()
+                .anyRequest().permitAll() // using RBAC filter to enforce authorities
                 .and()
-                .addFilterBefore(apiKeyAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
-                .addFilterAfter(jwtAuthenticationFilter, ApiKeyAuthenticationFilter.class)
-                .addFilterAfter(rbacAuthorizationFilter, JwtAuthenticationFilter.class);
-        // rbac config will take care of authorization. endpoints not in rbac is not authenticated
-    }
-
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        log.debug("allowed origins {}", allowedOrigins);
-        configuration.applyPermitDefaultValues();
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.addAllowedMethod(HttpMethod.OPTIONS);
-        configuration.addAllowedMethod(HttpMethod.PUT);
-        configuration.setAllowedHeaders(ImmutableList.of(
-                "Accept", "Accept-Encoding", "Accept-Language",
-                "Connection", "Authorization", "Content-Length",
-                "Content-Type", "Connection",
-                "Host", "Origin", "RP-API-KEY", "Sec-Fetch-Dest",
-                "Sec-Fetch-Mode", "Sec-Fetch-Site", "User-Agent",
-                "X-XSRF-TOKEN"
-        ));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // disable security config via settings
-        if (!securityEnabled) {
-            log.warn("Security is currently disabled! security.enabled: false");
-            web.ignoring().anyRequest();
-        } else {
-            log.warn("Security is currently enabled! security.enabled: true");
-
-        }
+                .csrf()
+                .disable();
     }
 }

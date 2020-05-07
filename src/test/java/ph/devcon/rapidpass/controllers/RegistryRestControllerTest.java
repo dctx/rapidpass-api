@@ -21,12 +21,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
@@ -65,6 +67,7 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
  */
 @WebMvcTest(RegistryRestController.class)
 @EnableConfigurationProperties
+@AutoConfigureMockMvc(addFilters = false) // let's simplify by not running keycloack filters
 @Import({ExceptionTranslator.class, JwtSecretsConfig.class, SimpleRbacConfig.class})
 class RegistryRestControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
@@ -311,6 +314,7 @@ class RegistryRestControllerTest {
 
 
     @Test
+    @WithMockUser("user")
     public void getPassRequest_notExists() throws Exception {
 
         when(mockRegistryService.findByNonUniqueReferenceId("I DO NOT EXIST"))
