@@ -15,7 +15,6 @@
 package ph.devcon.rapidpass.utilities.validators.entities;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -84,19 +83,6 @@ public class BatchAccessPassRequestValidatorTest {
                 ))
         );
 
-        // ---- CASE already has one existing access pass, but it is declined ----
-
-//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-//                Collections.unmodifiableList(Lists.newArrayList(
-//                        AccessPass.builder()
-//                                .referenceID("DEF 456")
-//                                .status(AccessPassStatus.DECLINED.toString())
-//                                .aporType("AG")
-//                                .plateNumber("DEF 456")
-//                                .build()
-//                ))
-//        );
-
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
@@ -125,15 +111,6 @@ public class BatchAccessPassRequestValidatorTest {
                 .collect(Collectors.toList());
 
         assertThat(errors.size(), equalTo(0));
-
-
-        // ---- CASE No existing access passes ----
-
-//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-//                Collections.unmodifiableList(Lists.newArrayList(
-//                        // no results
-//                ))
-//        );
 
         batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
@@ -163,133 +140,6 @@ public class BatchAccessPassRequestValidatorTest {
                 .collect(Collectors.toList());
 
         assertThat(errors.size(), equalTo(0));
-    }
-
-
-    /**
-     * ID type no longer a required validation.
-     * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/374
-     */
-    @Test
-    @Disabled
-    public void failIfMissingIdType() {
-
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
-
-        // ---- CASE APOR invalid type ----
-        
-        rapidPassRequest = RapidPassRequest.builder()
-                .aporType("AG")
-                .idType("PLT")
-                .identifierNumber("ABC 123")
-                .firstName("Juan")
-                .lastName("dela Cruz")
-                .originStreet("Abbey Road")
-                .plateNumber("ABC 123")
-                .passType(PassType.INDIVIDUAL)
-                .mobileNumber("09111234321")
-                .idType("SOME INVALID ID TYPE")
-                .build();
-
-        binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(batchAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, hasItem("Invalid ID Type."));
-
-
-        // ---- CASE APOR is null  ----
-
-        rapidPassRequest = RapidPassRequest.builder()
-                .aporType("AG")
-                .identifierNumber("ABC 123")
-                .firstName("Juan")
-                .lastName("dela Cruz")
-                .originStreet("Abbey Road")
-                .plateNumber("ABC 123")
-                .passType(PassType.INDIVIDUAL)
-                .mobileNumber("09111234321")
-        		.passType(PassType.INDIVIDUAL)
-                .idType(null)
-                .build();
-
-        binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(batchAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, hasItem("Missing ID Type."));
-
-        System.out.println(bindingResult);
-    }
-
-    @Test
-    public void failIfMissingPlateNumberIfVehicle() {
-
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
-
-        // ---- CASE pass type is vehicle, and plate number is missing ----
-        rapidPassRequest = RapidPassRequest.builder()
-                .aporType("AG")
-                .idType("PLT")
-                .identifierNumber("ABC 123")
-                .firstName("Juan")
-                .lastName("dela Cruz")
-                .originStreet("Abbey Road")
-                .passType(PassType.INDIVIDUAL)
-                .mobileNumber("09111234321")
-                .plateNumber(null)
-                .passType(PassType.VEHICLE)
-                .build();
-
-
-        binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(batchAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, hasItem("Missing Plate Number."));
-
-        // ---- CASE pass type is individual, and plate number is missing  ----
-
-        rapidPassRequest = RapidPassRequest.builder()
-                .passType(PassType.INDIVIDUAL)
-                .plateNumber(null)
-                .build();
-
-        binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(batchAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, not(hasItem("Missing plate number.")));
-
-        System.out.println(bindingResult);
     }
 
     @Test
