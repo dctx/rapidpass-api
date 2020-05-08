@@ -173,12 +173,11 @@ public class UserRestController {
         final Map<String, Object> attributes = principal.getKeycloakSecurityContext().getToken().getOtherClaims();
         log.debug("found attributes: {}", attributes);
         final String aporTypes = (String) attributes.get("aportypes");
-        //noinspection ArraysAsListWithZeroOrOneArgument
         return ResponseEntity.ok(
-                Arrays.asList(StringUtils.isEmpty(aporTypes)
+                StringUtils.isEmpty(aporTypes)
                         ? new ArrayList<>()
                         : aporTypes
-                        .split(",")));
+                        .split(","));
     }
 
 }
