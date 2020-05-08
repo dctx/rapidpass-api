@@ -24,7 +24,7 @@
 
     <groupId>ph.devcon</groupId>
     <artifactId>rapidpass-api</artifactId>
-    <version>1.8.0</version>
+    <version>1.8.0.alpha.1</version>
     <name>rapidpass-api</name>
     <description>Rapid Pass API</description>
 
