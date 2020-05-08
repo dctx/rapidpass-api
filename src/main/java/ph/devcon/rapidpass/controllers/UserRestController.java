@@ -19,9 +19,12 @@ import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.errors.AuthorizationException;
+import org.keycloak.KeycloakPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.RegistrarUserChangePasswordRequest;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
@@ -36,7 +39,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -103,7 +109,7 @@ public class UserRestController {
     public ResponseEntity<?> changePassword(
             @PathVariable("username") final String username,
             @RequestBody final RegistrarUserChangePasswordRequest request
-            ) {
+    ) {
 
         try {
             this.approverAuthService.changePassword(username, request.getCurrentPassword(), request.getNewPassword());
@@ -112,8 +118,7 @@ public class UserRestController {
                     ImmutableMap.of("message", "Successfully changed your password.")
             );
 
-        }
-        catch (AuthorizationException e) {
+        } catch (AuthorizationException e) {
             log.error("Attempt to change password of a different user! critical. {}", username, e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     ImmutableMap.of("message", e.getMessage())
@@ -135,6 +140,13 @@ public class UserRestController {
         return ResponseEntity.ok(active);
     }
 
+
+    /***
+     * @deprecated use {@code /users/apor-types} instead
+     * @param userName
+     * @return
+     */
+    @Deprecated
     @GetMapping("/{userName}/apor-types")
     public final ResponseEntity<List<String>> getAporTypesByUser(@PathVariable String userName) {
         List<String> aporTypesForUser = lookupTableService.getAporTypesForUser(userName);
@@ -143,6 +155,30 @@ public class UserRestController {
         } else {
             return ResponseEntity.ok(aporTypesForUser);
         }
+    }
+
+    /**
+     * Endpoint to retrieve authorized apor types for a user. Expects an access token in authorization header.
+     *
+     * @return 200 - JSON list of apor types, 403 - no valid authorization header
+     */
+    @GetMapping("/apor-types")
+    public ResponseEntity<?> getAuthorizedAporTypes() {
+        final Object rawPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(rawPrincipal instanceof KeycloakPrincipal)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        final KeycloakPrincipal principal = (KeycloakPrincipal) rawPrincipal;
+        final Map<String, Object> attributes = principal.getKeycloakSecurityContext().getToken().getOtherClaims();
+        log.debug("found attributes: {}", attributes);
+        final String aporTypes = (String) attributes.get("aportypes");
+        //noinspection ArraysAsListWithZeroOrOneArgument
+        return ResponseEntity.ok(
+                Arrays.asList(StringUtils.isEmpty(aporTypes)
+                        ? new ArrayList<>()
+                        : aporTypes
+                        .split(",")));
     }
 
 }
