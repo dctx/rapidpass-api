@@ -63,6 +63,14 @@ server:
   servlet:
     context-path: /api/v1
 
+keycloak: # override me in env vars!
+  auth-server-url: http://localhost:8180/auth/
+  realm: rapidpass-api-local
+  resource: rapidpass-api
+  ssl-required: external
+  credentials:
+    secret: '**********'
+
 rapidpass:
   auth:
     apiKey:
