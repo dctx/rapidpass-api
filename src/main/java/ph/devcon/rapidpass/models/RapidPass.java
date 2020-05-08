@@ -16,6 +16,7 @@ package ph.devcon.rapidpass.models;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.PassType;
@@ -62,6 +63,7 @@ public class RapidPass {
     private String updates;
     private String email;
     private Boolean notified;
+    private String issuedBy;
 
     public static RapidPass buildFrom(AccessPass accessPass) {
         // TODO: If you want to return only a subset of properties from {@link AccessPass}, do so here.
@@ -91,6 +93,7 @@ public class RapidPass {
                 .remarks(accessPass.getRemarks())
                 .updates(accessPass.getUpdates())
                 .email(registrantId == null ? "" : registrantId.getEmail())
+                .issuedBy(StringUtils.trimToNull(accessPass.getIssuedBy()))
                 .build();
     }
 }
