@@ -84,8 +84,6 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
             throw new IllegalArgumentException("Uploaded CSV file was empty.");
         }
 
-        List<E> result;
-
         ParameterizedType genericSuperclass = (ParameterizedType) this.getClass().getGenericSuperclass();
         Class<E> type = (Class<E>) genericSuperclass.getActualTypeArguments()[0];
 
@@ -98,24 +96,16 @@ public class GenericCsvProcessor<E> implements CsvProcessor<E> {
                 throw new CsvColumnMappingMismatchException("Missing columns in the imported CSV");
             }
 
-            ColumnPositionMappingStrategy strategy = generateStrategy(type);
+            ColumnPositionMappingStrategy<E> strategy = generateStrategy(type);
 
             CsvToBean<E> csvParser = generateCsvToBeanParser(strategy, type, fileReader);
+            return normalize(csvParser.parse());
 
-            result = csvParser.parse();
-
-            result = normalize(result);
         } catch (IOException | CsvValidationException e) {
             throw new IOException("Failed to read CSV file.", e);
         } catch (RuntimeException e) {
-            if (e.getCause().getClass() == CsvRequiredFieldEmptyException.class) {
-                throw new CsvRequiredFieldEmptyException(e.getCause().getMessage());
-            } else {
-                throw e;
-            }
+            throw e;
         }
-
-        return result;
     }
 
     public List<NormalizationRule<E>> getNormalizationRules() {
