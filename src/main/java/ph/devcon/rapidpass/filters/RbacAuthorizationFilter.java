@@ -54,7 +54,7 @@ import java.util.List;
  *
  * @author jonasespelita@gmail.com
  */
-@Component
+//@Component temporarily disabled while roles being worked out in keycloak
 @RequiredArgsConstructor
 @Slf4j
 public class RbacAuthorizationFilter extends OncePerRequestFilter {
