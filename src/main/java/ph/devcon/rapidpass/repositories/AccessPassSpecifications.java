@@ -18,12 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.models.NotifiedState;
 import ph.devcon.rapidpass.models.QueryFilter;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,19 +104,29 @@ public class AccessPassSpecifications {
     }
 
     public static Specification<AccessPass> bySearch(String search) {
-        return (((root, criteriaQuery, criteriaBuilder) -> {
+        return (root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.isBlank(search))
                 return null;
 
             Expression<String> lowerName = criteriaBuilder.function("lower", String.class, root.get("name"));
             Expression<String> lowerCompany = criteriaBuilder.function("lower", String.class, root.get("company"));
 
+            Subquery<Registrant> subquery = criteriaQuery.subquery(Registrant.class);
+            Root<Registrant> registrant = subquery.from(Registrant.class);
+
+            Subquery<Registrant> foundRegistrantIds = subquery
+                .select(registrant.get("id"))
+                .where(
+                    criteriaBuilder.like(registrant.get("email"), String.format("%%%s%%", search))
+                );
+
             return criteriaBuilder.or(
                     criteriaBuilder.like(lowerCompany, "%"+StringUtils.lowerCase(search)+"%"),
                     criteriaBuilder.like(lowerName, "%"+StringUtils.lowerCase(search).replaceAll("\\s", "%")+"%"),
-                    criteriaBuilder.like(root.get("referenceID"), String.format("%%%s%%", search))
+                    criteriaBuilder.like(root.get("referenceID"), String.format("%%%s%%", search)),
+                    root.get("registrantId").in(foundRegistrantIds)
             );
-        }));
+        };
     }
 
     public static Specification<AccessPass> byName(String name) {
