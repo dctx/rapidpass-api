@@ -168,17 +168,6 @@ public class BatchAccessPassRequestValidatorTest {
                 ))
         );
 
-//        when(accessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(
-//                Collections.unmodifiableList(Lists.newArrayList(
-//                        AccessPass.builder()
-//                                .referenceID("ABC 123")
-//                                .aporType("AG")
-//                                .plateNumber("ABC 123")
-//                                .status(AccessPassStatus.PENDING.toString())
-//                                .build()
-//                ))
-//        );
-
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE APOR invalid type ----
