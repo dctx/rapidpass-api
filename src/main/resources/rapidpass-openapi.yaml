@@ -737,6 +737,43 @@ paths:
                 type: string
         '404':
           description: reference number not found
+  '/checkpoint/app/':
+    get:
+      operationId: getLatestAppVersion
+      tags:
+        - inspector
+      summary: Retrieves the latest version of the checkpoint app.
+      responses:
+        '200':
+          description: The checkpoint user is properly authenticated and the latest version of the app is sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckpointAppVersionResponse'
+  '/checkpoint/app/{version}':
+    get:
+      operationId: downloadSpecifiedAppVersion
+      tags:
+        - inspector
+      summary: Downloads the latest APK of the checkpoint app.
+      responses:
+        '200':
+          description: >-
+            Downloads the APK of the specified version of the checkpoint app. Note that only the latest version is
+            allowed to be downloaded.
+          content:
+            application/binary:
+              schema:
+                description: Returns the APK of the app.
+        '400':
+          description: The specified version is not allowed to be downloaded.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'This version of the RapidPass Checkpoint app is not allowed to be downloaded.'
   '/checkpoint/revocations':
     get:
       callbacks: {}
