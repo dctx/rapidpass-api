@@ -155,9 +155,15 @@ public class RegistryRestController {
         return ResponseEntity.ok().body(updatedRapidPass);
     }
 
+    /**
+     * Note that using the delete method will perform suspend access pass but without specifying the reason why the
+     * rapid pass was suspended.
+     *
+     * To specify the reason why it was suspended, use the PUT request.
+     */
     @DeleteMapping("/access-passes/{referenceId}")
     HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) {
-        AccessPass suspendedAccessPass = registryService.suspend(referenceId);
+        AccessPass suspendedAccessPass = registryService.suspend(referenceId, null);
         RapidPass rapidPass = RapidPass.buildFrom(suspendedAccessPass);
         return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
     }
