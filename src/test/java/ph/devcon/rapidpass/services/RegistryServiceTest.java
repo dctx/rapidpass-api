@@ -16,6 +16,7 @@ package ph.devcon.rapidpass.services;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,10 +26,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.entities.*;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
+import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.QueryFilter;
@@ -37,7 +40,9 @@ import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessorTest;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -703,4 +708,129 @@ class RegistryServiceTest {
             ControlCodeResponse controlCode = instance.getControlCode("09171234567");
         });
     }
+
+
+    @Test
+    public void test_bulkUploadIncorrectColumns() throws CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException, IOException, RegistryService.UpdateAccessPassException {
+
+        RegistryService testTargetRegistryService = new RegistryService(
+                null,
+                null,
+                null,
+                null,
+                lookupTableService,
+                null,
+                null,
+                null,
+                mockControlCodeService,
+                mockRegistrantRepository,
+                mockAccessPassRepository,
+                mockScannerDeviceRepository,
+                mockRegistrarUserRepository);
+
+        // no existing user
+        when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
+
+        // mock save and flush
+        Registrant mockRegistrant = Registrant.builder().registrarId(0)
+                .firstName("Darren").build();
+
+        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
+                .thenReturn(mockRegistrant);
+
+
+        // Doesnt matter what the access pass returned is. As long as it looks like it was saved.
+        final AccessPass samplePendingAccessPass = AccessPass.builder()
+                .id(1)
+                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
+                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
+                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
+                .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
+                .status(AccessPassStatus.PENDING.toString())
+                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
+                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
+                .registrantId(mockRegistrant)
+                .build();
+
+        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
+
+        SubjectRegistrationCsvProcessorTest subjectRegistrationCsvProcessorTest = new SubjectRegistrationCsvProcessorTest();
+        List<RapidPassCSVdata> mockData = subjectRegistrationCsvProcessorTest.mock("data-incorrect-columns.csv");
+
+        when(lookupTableService.getAporTypes()).thenReturn(
+                Collections.unmodifiableList(Lists.newArrayList(
+                        new LookupTable(new LookupTablePK("APOR", "MS")),
+                        new LookupTable(new LookupTablePK("APOR", "SO")),
+                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                ))
+        );
+
+        ReflectionTestUtils.setField(testTargetRegistryService, "expirationYear", 2020);
+        ReflectionTestUtils.setField(testTargetRegistryService, "expirationMonth", 5);
+        ReflectionTestUtils.setField(testTargetRegistryService, "expirationDay", 15);
+
+        List<String> strings = testTargetRegistryService.batchUploadRapidPassRequest(mockData);
+
+        assertThat(strings.size(), equalTo(10));
+
+        // Find five items which are all declined
+
+        // Invalid mobile number, because missing columns accidentally misaligned the mobile number
+        // (uses 0PASAYCITY as a mobile number)
+        // INDIVIDUAL,MS,Darren,,DevCon PH,COM,1234567,,09174567891,Singalong St.,Pasay City,Metro Manila,,Pasay Road,Makati City,Metro Manila,skeleton workforce,,,,,,,,,,,,,,,,
+        assertThat(strings.get(0), containsString("declined"));
+        assertThat(strings.get(0), containsString("Invalid mobile input"));
+
+        // INDIVIDUAL,SO,Jezza,,Diaz,,,,,,09176549873,,,,,,,,,,
+        assertThat(strings.get(1), containsString("Success"));
+
+        // No row data, correct length
+        // ,,,,,,,,,,,,,,,,,,,,
+        assertThat(strings.get(2), containsString("declined"));
+        assertThat(strings.get(2), containsString("Missing APOR Type"));
+        assertThat(strings.get(2), containsString("Missing Mobile Number"));
+        assertThat(strings.get(2), containsString("Missing First Name"));
+        assertThat(strings.get(2), containsString("Missing Last Name"));
+
+        // Too few columns
+        // ,,,,,,,
+        assertThat(strings.get(3), containsString("declined"));
+        assertThat(strings.get(3), containsString("Missing APOR Type"));
+        assertThat(strings.get(3), containsString("Missing Mobile Number"));
+        assertThat(strings.get(3), containsString("Missing First Name"));
+        assertThat(strings.get(3), containsString("Missing Last Name"));
+
+        // Too many columns
+        // ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+        assertThat(strings.get(4), containsString("declined"));
+        assertThat(strings.get(4), containsString("Missing APOR Type"));
+        assertThat(strings.get(4), containsString("Missing Mobile Number"));
+        assertThat(strings.get(4), containsString("Missing First Name"));
+        assertThat(strings.get(4), containsString("Missing Last Name"));
+
+        // Plugs in INDIVIDUAL if pass type is missing
+        // ,SO,Jose,,Rizal,,,,,,09171234567,,,,,,,,,,
+        assertThat(strings.get(5), containsString("Success"));
+
+        // No apor type
+        // INDIVIDUAL,,Apolinario,,Mabini,,,,,,09171234567,,,,,,,,,,
+        assertThat(strings.get(6), containsString("declined"));
+        assertThat(strings.get(6), containsString("Missing APOR Type"));
+
+        // No first name
+        // INDIVIDUAL,SO,,,Rizal,,,,,,09171234567,,,,,,,,,,
+        assertThat(strings.get(7), containsString("declined"));
+        assertThat(strings.get(7), containsString("Missing First Name"));
+
+        // No last name
+        // INDIVIDUAL,SO,Andres,,,,,,,,09171234567,,,,,,,,,,
+        assertThat(strings.get(8), containsString("declined"));
+        assertThat(strings.get(8), containsString("Missing Last Name"));
+
+        // No mobile number
+        // INDIVIDUAL,SO,Andres,,Bonifacio,,,,,,,,,,,,,,,,
+        assertThat(strings.get(9), containsString("declined"));
+        assertThat(strings.get(9), containsString("Missing Mobile Number"));
+    }
+
 }
