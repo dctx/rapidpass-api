@@ -69,37 +69,6 @@ public class SubjectRegistrationCsvProcessorTest {
         try {
             List<RapidPassCSVdata> process = mock("data-incorrect-columns.csv");
 
-            assertThat(process.size(), equalTo(10));
-
-            RapidPassCSVdata csvData = process.get(1);
-            assertThat(csvData.getFirstName(), equalTo("Jezza"));
-
-        } catch (CsvColumnMappingMismatchException e) {
-            System.err.println(e);
-            fail("Did not handle incorrect columns.");
-        }  catch (Exception e) {
-            System.err.println(e);
-            fail("Did not handle incorrect columns.");
-        }
-    }
-
-    /**
-     * The parser should be able to handle parsing a CSV whether it has too few, or too many columns.
-     *
-     * The excess or missing data will be handled by the {@link ph.devcon.rapidpass.utilities.validators.entities.accesspass.BatchAccessPassRequestValidator}.
-     */
-    @Test
-    void handleIncorrectColumns() throws IOException {
-        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
-
-        final String filename = "data-incorrect-columns.csv";
-
-        ClassPathResource instructionsClassPath = new ClassPathResource(filename);
-        byte[] byteContent = toByteArray(instructionsClassPath.getInputStream());
-
-        try {
-            List<RapidPassCSVdata> process = subjectRegistrationCsvProcessor.process(new MockMultipartFile(filename, byteContent));
-
             assertThat(process.size(), equalTo(5));
 
             RapidPassCSVdata csvData = process.get(1);
