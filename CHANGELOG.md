@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.8.1] - 2020-05-08
 ### Changed
 - Temporarily? turned off role checking while keycloak is being finalized
+- [#405](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/405) `1.8.1.alpha.1` - `issuedBy` field when requesting for a RapidPass.
 
 ## [1.8.0] - 2020-05-04
 ### Added
