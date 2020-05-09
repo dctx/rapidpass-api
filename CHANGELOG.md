@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [#364](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/364) Keycloak implementation
 
-
 ## [1.7.7] - 2020-05-05
 ### Added
 - [#430](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/430) optional data from the csv files will be trimmed
