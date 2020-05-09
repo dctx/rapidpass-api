@@ -22,7 +22,10 @@ import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidAporType;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidMobileNumber;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidPassType;
+import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.RequiredField;
 
 import java.util.List;
 
@@ -69,12 +72,8 @@ public abstract class BaseAccessPassRequestValidator implements Validator {
                 new RequiredField("passType", "missing.passType", "Missing Pass Type."),
                 new RequiredField("aporType", "missing.aporType", "Missing APOR Type."),
                 new RequiredField("idType", "missing.idType", "Missing ID Type."),
-                new RequiredField("identifierNumber", "missing.identifierNumber", "Missing identifier number."),
                 new RequiredField("firstName", "missing.firstName", "Missing First Name."),
-                new RequiredField("lastName", "missing.lastName", "Missing Last Name."),
-                // new RequiredField("originStreet", "missing.originStreet", "Missing Origin Street."),
-                new MobileNumberRequiredForIndividualPasses(),
-                new PlateNumberRequiredForVehiclePasses()
+                new RequiredField("lastName", "missing.lastName", "Missing Last Name.")
         );
 
         validations.forEach(validator -> validator.validate(request, errors));

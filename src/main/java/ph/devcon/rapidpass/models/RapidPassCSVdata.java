@@ -19,15 +19,15 @@ import lombok.Data;
 
 @Data
 public class RapidPassCSVdata {
-    @CsvBindByPosition(position = 0, required = true)
+    @CsvBindByPosition(position = 0)
     private String passType;
-    @CsvBindByPosition(position = 1, required = true)
+    @CsvBindByPosition(position = 1)
     private String aporType;
-    @CsvBindByPosition(position = 2, required = true)
+    @CsvBindByPosition(position = 2)
     private String firstName;
     @CsvBindByPosition(position = 3)
     private String middleName;
-    @CsvBindByPosition(position = 4, required = true)
+    @CsvBindByPosition(position = 4)
     private String lastName;
     @CsvBindByPosition(position = 5)
     private String suffix;
@@ -39,7 +39,7 @@ public class RapidPassCSVdata {
     private String identifierNumber;
     @CsvBindByPosition(position = 9)
     private String plateNumber;
-    @CsvBindByPosition(position = 10, required = true)
+    @CsvBindByPosition(position = 10)
     private String mobileNumber;
     @CsvBindByPosition(position = 11)
     private String email;
@@ -61,4 +61,6 @@ public class RapidPassCSVdata {
     private String destProvince;
     @CsvBindByPosition(position = 20)
     private String remarks;
+
+
 }
