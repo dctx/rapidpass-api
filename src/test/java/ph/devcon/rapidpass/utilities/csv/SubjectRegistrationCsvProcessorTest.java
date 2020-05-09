@@ -69,11 +69,11 @@ public class SubjectRegistrationCsvProcessorTest {
         try {
             List<RapidPassCSVdata> process = mock("data-incorrect-columns.csv");
 
-            assertThat(process.size(), equalTo(5));
+            assertThat(process.size(), equalTo(10));
 
             RapidPassCSVdata csvData = process.get(1);
-
             assertThat(csvData.getFirstName(), equalTo("Jezza"));
+
         } catch (CsvColumnMappingMismatchException e) {
             System.err.println(e);
             fail("Did not handle incorrect columns.");
