@@ -762,6 +762,43 @@ paths:
       summary: Retrieves the list of revoked access passes.
       tags:
         - inspector
+  '/checkpoint/app/':
+    get:
+      operationId: getLatestAppVersion
+      tags:
+        - inspector
+      summary: Retrieves the latest version of the checkpoint app.
+      responses:
+        '200':
+          description: The checkpoint user is properly authenticated and the latest version of the app is sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckpointLatestAppVersion'
+  '/checkpoint/app/{version}':
+    get:
+      operationId: downloadSpecifiedAppVersion
+      tags:
+        - inspector
+      summary: Downloads the latest APK of the checkpoint app.
+      responses:
+        '200':
+          description: >-
+            Downloads the APK of the specified version of the checkpoint app. Note that only the latest version is
+            allowed to be downloaded.
+          content:
+            application/binary:
+              schema:
+                description: Returns the APK of the app.
+        '400':
+          description: The specified version is not allowed to be downloaded.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'This version of the RapidPass Checkpoint app is not allowed to be downloaded.'
   '/checkpoint/auth':
     post:
       operationId: checkpointAuth
@@ -775,15 +812,15 @@ paths:
               $ref: '#/components/schemas/CheckpointAuthRequest'
       responses:
         '200':
-          description: success request returns the QR secret and the JWT access code
+          description: Successfully authenticated. The signing key, encryption key, access code, and the key validity date is returned.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckpointAuthResponse'
         '400':
-          description: invalid request, imei and masterKey is required
+          description: Invalid request, because the IMEI and master key is required.
         '401':
-          description: Unauthorized. Either the imei provide is not registered or the masterKey provided is wrong
+          description: Unauthorized. Either the IMEI provide is not registered, the provided master key is wrong, or the provided masterkey is expired.
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
     get:
       operationId: verifyPlateNo
@@ -1125,6 +1162,22 @@ components:
           type: string
           description: the JSON Web Token required for the device to access the APIs
           example: abcdefghijkl.mnopqrst.uvwxyz
+        validTo:
+          type: string
+          required: false
+          description: >-
+            Optional field that may or may not be included. If it is included, it means that that the server is
+            informing the checkpoint app that the masterKey used to authenticate is about to expire. The timestamp
+            provided is the date when it will stop working. The checkpoint app must download the latest version of the
+            app for it to continue working- otherwise, the app will no longer be able to log in.
+    CheckpointLatestAppVersion:
+      type: object
+      description: The response for the latest app version for the checkpoint app.
+      properties:
+        version:
+          type: string
+          description: The latest version of the mobile app.
+          example: '1.4.0'
     DashboardAuthRequest:
       type: object
       description: The dashboard authentication request
