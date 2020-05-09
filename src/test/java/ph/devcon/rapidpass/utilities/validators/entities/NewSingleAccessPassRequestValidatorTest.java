@@ -165,61 +165,6 @@ public class NewSingleAccessPassRequestValidatorTest {
         assertThat(errors.size(), equalTo(0));
     }
 
-    @Test
-    public void failIfMissingPlateNumberIfVehicle() {
-
-    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
-
-        // ---- CASE pass type is vehicle, and plate number is missing ----
-        rapidPassRequest = RapidPassRequest.builder()
-                .aporType("AG")
-                .idType("PLT")
-                .identifierNumber("ABC 123")
-                .firstName("Juan")
-                .lastName("dela Cruz")
-                .originStreet("Abbey Road")
-                .email("hello@worldd.com")
-                .plateNumber("PLT3211")
-                .mobileNumber("09111234321")
-                .plateNumber(null)
-                .passType(PassType.VEHICLE)
-                .build();
-
-        binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newSingleAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, hasItem("Missing Plate Number."));
-
-        // ---- CASE pass type is individual, and plate number is missing  ----
-
-        rapidPassRequest = RapidPassRequest.builder()
-                .passType(PassType.INDIVIDUAL)
-                .plateNumber(null)
-                .build();
-
-        binder = new DataBinder(rapidPassRequest);
-        binder.setValidator(newSingleAccessPassRequestValidator);
-
-        binder.validate();
-
-        bindingResult = binder.getBindingResult();
-
-        errors = bindingResult.getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-
-        assertThat(errors, not(hasItem("Missing plate number.")));
-
-        System.out.println(bindingResult);
-    }
 
     @Test
     public void failIfExistingAccessPassAlreadyExists() {
