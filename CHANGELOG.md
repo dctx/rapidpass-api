@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.8.1] - 2020-05-08
 ### Changed
 - Temporarily? turned off role checking while keycloak is being finalized
+- [#448](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/448) `1.8.1.alpha.1` Added search by email.
 
 ## [1.8.0] - 2020-05-04
 ### Added
-- [#364](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/364) Keycloak implementation
-
+- [#364](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/364) Keycloak implementation.
 
 ## [1.7.7] - 2020-05-05
 ### Added
