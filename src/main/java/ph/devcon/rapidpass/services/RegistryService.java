@@ -40,6 +40,7 @@ import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.utilities.KeycloakUtils;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.utilities.validators.ReadableValidationException;
 import ph.devcon.rapidpass.utilities.validators.StandardDataBindingValidation;
@@ -268,19 +269,35 @@ public class RegistryService {
         List<String> aporList = null;
         if (aporTypes != null)
             aporList = Arrays.asList(aporTypes);
+
+        Specification<AccessPass> bySecAporTypes;
+        try {
+            // impose limit by apor type when logged in
+            final List<String> secAporTypes = Arrays.asList(KeycloakUtils.getAttributes()
+                    .get("aportypes")
+                    .split(","));
+            log.debug("limiting apor types to {}", secAporTypes);
+            bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
+        } catch (Exception e) {
+            bySecAporTypes = AccessPassSpecifications.byAporTypes(Collections.singletonList(""));
+            log.warn("accessing rapid passes unsecured! ", e);
+        }
+
         Specification<AccessPass> byAporTypes = AccessPassSpecifications.byAporTypes(aporList);
         Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());
         Page<AccessPass> accessPassPages = accessPassRepository.findAll(byAporTypes.and(byPassType)
-                .and(AccessPassSpecifications.byCompany(q.getCompany()))
-                .and(AccessPassSpecifications.bySearch(q.getSearch()))
-                .and(AccessPassSpecifications.byName(q.getName()))
-                .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber()))
-                .and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
-                .and(AccessPassSpecifications.bySource(q.getSource() != null ? q.getSource().name() : null ))
-                .and(AccessPassSpecifications.byNotified(q.getNotifiedState()))
-                .and(AccessPassSpecifications.byStatus(q.getStatus())), pageView)
-                ;
+                        .and(AccessPassSpecifications.byCompany(q.getCompany()))
+                        .and(AccessPassSpecifications.bySearch(q.getSearch()))
+                        .and(AccessPassSpecifications.byName(q.getName()))
+                        .and(AccessPassSpecifications.byPlateNumber(q.getPlateNumber()))
+                        .and(AccessPassSpecifications.byReferenceId(q.getReferenceId()))
+                        .and(AccessPassSpecifications.bySource(q.getSource() != null ? q.getSource().name() : null))
+                        .and(AccessPassSpecifications.byNotified(q.getNotifiedState()))
+                        .and(AccessPassSpecifications.byStatus(q.getStatus()))
+                        .and(bySecAporTypes)
+                , pageView);
 
+        log.debug("got {} rows!", accessPassPages.getTotalElements());
         List<RapidPass> rapidPassList = accessPassPages
                 .stream()
                 .map(RapidPass::buildFrom)
@@ -385,15 +402,14 @@ public class RegistryService {
 
     /**
      * Updates properties of an access pass that is not related to its status.
-     *
+     * <p>
      * For status related updates, please see the other registry service methods.
-     *
-     * @see #approve(String)
-     * @see #suspend(String, String)
-     * @see #decline(String, String)
      *
      * @param rapidPassUpdateRequest The data update for the rapid pass request
      * @return Data stored on the database
+     * @see #approve(String)
+     * @see #suspend(String, String)
+     * @see #decline(String, String)
      */
     private AccessPass update(AccessPass accessPass, RapidPassUpdateRequest rapidPassUpdateRequest) throws UpdateAccessPassException {
 

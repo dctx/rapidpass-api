@@ -21,10 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.errors.AuthorizationException;
-import org.keycloak.KeycloakPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.RegistrarUserChangePasswordRequest;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
@@ -34,13 +32,13 @@ import ph.devcon.rapidpass.models.UserActivationRequest;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.LookupTableService;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
+import ph.devcon.rapidpass.utilities.KeycloakUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -164,15 +162,9 @@ public class UserRestController {
      */
     @GetMapping("/apor-types")
     public ResponseEntity<?> getAuthorizedAporTypes() {
-        final Object rawPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(rawPrincipal instanceof KeycloakPrincipal)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        final KeycloakPrincipal principal = (KeycloakPrincipal) rawPrincipal;
-        final Map<String, Object> attributes = principal.getKeycloakSecurityContext().getToken().getOtherClaims();
+        final Map<String, String> attributes = KeycloakUtils.getAttributes();
         log.debug("found attributes: {}", attributes);
-        final String aporTypes = (String) attributes.get("aportypes");
+        final String aporTypes = attributes.get("aportypes");
         return ResponseEntity.ok(
                 StringUtils.isEmpty(aporTypes)
                         ? new ArrayList<>()

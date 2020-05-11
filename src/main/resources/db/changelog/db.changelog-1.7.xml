@@ -72,4 +72,15 @@
                         columnName="email"
                         newDataType="VARCHAR(254)"/>
     </changeSet>
+
+    <!-- more granular logging for notifier-->
+    <changeSet author="jonas" id="20200510-1">
+        <modifyDataType tableName="notifier_log"
+                        columnName="email"
+                        newDataType="VARCHAR(254)"/>
+        <addColumn tableName="notifier_log">
+            <column name="email_sent" type="boolean"/>
+            <column name="mobile_sent" type="boolean"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

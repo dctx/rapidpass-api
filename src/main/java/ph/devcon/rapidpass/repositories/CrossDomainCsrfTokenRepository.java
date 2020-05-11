@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author j-espelita@ti.com
+ * @author jonasespelita@gmail.com
  */
 public class CrossDomainCsrfTokenRepository implements CsrfTokenRepository {
     static final String DEFAULT_CSRF_COOKIE_NAME = "XSRF-TOKEN";

@@ -18,7 +18,6 @@ import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.LookupTableService;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit tests for {@link UserRestController}.
  *
- * @author j-espelita@ti.com
+ * @author jonasespelita@gmail.com
  */
 @WebMvcTest(controllers = {UserRestController.class})
 @AutoConfigureMockMvc(addFilters = false)
