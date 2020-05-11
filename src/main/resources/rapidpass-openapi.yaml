@@ -219,13 +219,33 @@ paths:
           description: The user or the activation code does not match
         500:
           description: Internal Error
-  /users/{username}/apor-types:
+  /users/apor-types:
     get:
       tags:
         - dashboard
       summary:
-        Retrieves the list of APOR Types associated with the user
+        Retrieves the list of APOR Types associated with the logged in user. This list is set as keycloak user attributes.
       operationId: getUserAporTypes
+      responses:
+        '200':
+          description: array of associated APOR types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: [ "MS", "ER" ]
+        '404':
+          description: not found
+  /users/{username}/apor-types:
+    get:
+      deprecated: true
+      tags:
+        - dashboard
+      summary:
+        Retrieves the list of APOR Types associated with the user. Deprecated in favor of `/users/apor-types`
+      operationId: getOldUserAporTypes
       parameters:
         - name: username
           in: path
