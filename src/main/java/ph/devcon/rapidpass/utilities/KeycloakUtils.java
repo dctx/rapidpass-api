@@ -1,6 +1,7 @@
 package ph.devcon.rapidpass.utilities;
 
 import org.keycloak.KeycloakPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Map;
@@ -22,7 +23,12 @@ public class KeycloakUtils {
      * @return keycloak attributes for logged in user via access token
      */
     public static Map<String, String> getAttributes() {
-        final Object rawPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new IllegalStateException("  not logged in!");
+        }
+
+        final Object rawPrincipal = authentication.getPrincipal();
         if (!(rawPrincipal instanceof KeycloakPrincipal)) {
             throw new IllegalStateException("  no keycloak login found!");
         }
