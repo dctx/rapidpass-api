@@ -68,7 +68,6 @@ public class RegistryRestController {
     @Value("${endpointswitch.registry.accesspasses:false}")
     private boolean isRegisterSinglePassEnabled;
 
-    @PreAuthorize("hasAuthority('approver')")
     @GetMapping("/access-passes")
     public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
 
