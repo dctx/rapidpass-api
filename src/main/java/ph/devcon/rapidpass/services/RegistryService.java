@@ -388,9 +388,9 @@ public class RegistryService {
      *
      * For status related updates, please see the other registry service methods.
      *
-     * @see #decline(String, String)
      * @see #approve(String)
-     * @see #suspend(String)
+     * @see #suspend(String, String)
+     * @see #decline(String, String)
      *
      * @param rapidPassUpdateRequest The data update for the rapid pass request
      * @return Data stored on the database
@@ -533,25 +533,40 @@ public class RegistryService {
      */
     @Transactional
     public RapidPass updateAccessPass(String referenceId, RapidPassUpdateRequest rapidPassUpdateRequest) throws UpdateAccessPassException {
-        AccessPass accessPass;
-        final AccessPassStatus status = AccessPassStatus.valueOf(rapidPassUpdateRequest.getStatus().name());
-        switch (status) {
-            case APPROVED:
-                accessPass = approve(referenceId);
-                break;
-            case DECLINED:
-                accessPass = decline(referenceId, rapidPassUpdateRequest.getRemarks());
-                break;
-            case SUSPENDED:
-                accessPass = suspend(referenceId);
-                break;
-            default:
-                throw new IllegalArgumentException("Request Status not yet supported!");
+        AccessPass accessPass = null;
+        if (rapidPassUpdateRequest.getStatus() != null) {
+            final AccessPassStatus status = AccessPassStatus.valueOf(rapidPassUpdateRequest.getStatus().name());
+            switch (status) {
+                case APPROVED:
+                    accessPass = approve(referenceId);
+                    break;
+                case DECLINED:
+                    accessPass = decline(referenceId, rapidPassUpdateRequest.getRemarks());
+                    break;
+                case SUSPENDED:
+                    accessPass = suspend(referenceId, rapidPassUpdateRequest.getRemarks());
+                    break;
+                default:
+                    accessPass = findByNonUniqueReferenceId(referenceId);
+            }
+        } else {
+            accessPass = findByNonUniqueReferenceId(referenceId);
+        }
+
+        boolean shouldUpdateEmail = StringUtils.isNotEmpty(rapidPassUpdateRequest.getEmail());
+
+        if (shouldUpdateEmail) {
+            Registrant registrantId = accessPass.getRegistrantId();
+            String oldEmail = registrantId.getEmail();
+            String newEmail = rapidPassUpdateRequest.getEmail();
+
+            log.info(String.format("Updating rapid pass email from %s to %s.", oldEmail, newEmail));
+            registrantId.setEmail(rapidPassUpdateRequest.getEmail());
         }
 
         accessPass = update(accessPass, rapidPassUpdateRequest);
 
-        log.debug("Sending {} event for {}", status, referenceId);
+        log.debug("Sending update event for {}", referenceId);
 
         final RapidPass rapidPass = RapidPass.buildFrom(accessPass);
 
@@ -571,7 +586,7 @@ public class RegistryService {
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @return Data stored on the database
      */
-    public AccessPass suspend(String referenceId) {
+    public AccessPass suspend(String referenceId, String reason) {
         List<AccessPass> allAccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         Optional<AccessPass> firstAccessPass = allAccessPasses.stream()
@@ -579,9 +594,13 @@ public class RegistryService {
                 .findFirst();
 
         AccessPass accessPass = firstAccessPass.orElse(null);
-        if (accessPass == null) return null;
+        if (accessPass == null) {
+            log.warn("Attempting to suspend a non-approved access pass. Failing. You are only allowed to suspend an approved pass.");
+            return null;
+        }
 
         accessPass.setStatus(AccessPassStatus.SUSPENDED.toString());
+        accessPass.setUpdates(reason);
         accessPassRepository.saveAndFlush(accessPass);
 
         RapidPass rapidPass = RapidPass.buildFrom(accessPass);

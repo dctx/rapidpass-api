@@ -62,7 +62,6 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         log.info("Set up keycloak!");
     }
 
-    private final RbacAuthorizationFilter rbacAuthorizationFilter;
 
     /**
      * Registers the KeycloakAuthenticationProvider with the authentication manager.
@@ -92,9 +91,15 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
-        http.addFilterAfter(rbacAuthorizationFilter, KeycloakAuthenticationProcessingFilter.class)
+        http
                 .authorizeRequests()
-                .anyRequest().permitAll() // using RBAC filter to enforce authorities
+                .antMatchers(
+                        "/users/**/activate",
+                        "/users/**/active",
+                        "/registry/access-passes/?**",
+                        "/registry/access-passes")
+                .authenticated() // authenticate with keycloak
+                .anyRequest().permitAll()
                 .and()
                 .csrf()
                 .disable()

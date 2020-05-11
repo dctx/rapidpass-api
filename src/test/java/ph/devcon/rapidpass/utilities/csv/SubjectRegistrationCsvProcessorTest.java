@@ -1,5 +1,6 @@
 package ph.devcon.rapidpass.utilities.csv;
 
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
@@ -45,6 +46,40 @@ public class SubjectRegistrationCsvProcessorTest {
         }  catch (Exception e) {
             System.err.println(e);
             fail("Did not handle new line");
+        }
+    }
+
+    public List<RapidPassCSVdata> mock(String filename) throws IOException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+
+        ClassPathResource instructionsClassPath = new ClassPathResource(filename);
+
+        byte[] byteContent = toByteArray(instructionsClassPath.getInputStream());
+
+        return subjectRegistrationCsvProcessor.process(new MockMultipartFile(filename, byteContent));
+    }
+
+    /**
+     * The parser should be able to handle parsing a CSV whether it has too few, or too many columns.
+     *
+     * The excess or missing data will be handled by the {@link ph.devcon.rapidpass.utilities.validators.entities.accesspass.BatchAccessPassRequestValidator}.
+     */
+    @Test
+    void handleIncorrectColumns() throws IOException {
+        try {
+            List<RapidPassCSVdata> process = mock("data-incorrect-columns.csv");
+
+            assertThat(process.size(), equalTo(10));
+
+            RapidPassCSVdata csvData = process.get(1);
+            assertThat(csvData.getFirstName(), equalTo("Jezza"));
+
+        } catch (CsvColumnMappingMismatchException e) {
+            System.err.println(e);
+            fail("Did not handle incorrect columns.");
+        }  catch (Exception e) {
+            System.err.println(e);
+            fail("Did not handle incorrect columns.");
         }
     }
 

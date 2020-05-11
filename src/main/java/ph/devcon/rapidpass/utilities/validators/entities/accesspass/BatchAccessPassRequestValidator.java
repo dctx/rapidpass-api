@@ -59,8 +59,8 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
                 new RequiredField("mobileNumber", "missing.mobileNumber", "Missing Mobile Number."),
                 new RequiredField("firstName", "missing.firstName", "Missing First Name."),
                 new RequiredField("lastName", "missing.lastName", "Missing Last Name."),
-                new MobileNumberRequiredForIndividualPasses(),
-                new PlateNumberRequiredForVehiclePasses()
+                new IsNotBlacklistedValue("mobileNumber", "invalid.mobileNumber", ImmutableList.of("09000000000")),
+                new IsNotBlacklistedValue("email", "invalid.email", ImmutableList.of("juan@xxxx.xxx"))
         );
 
         validations.forEach(validator -> validator.validate(request, errors));

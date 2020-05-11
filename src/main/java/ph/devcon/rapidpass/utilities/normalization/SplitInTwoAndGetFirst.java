@@ -23,6 +23,8 @@ public class SplitInTwoAndGetFirst<E> implements NormalizationRule<E>  {
 
         String o = (String) declaredField.get(input);
 
+        if (StringUtils.isEmpty(o)) return;
+
         int indexOfSlash = o.indexOf('/');
 
         if (indexOfSlash > 1) {

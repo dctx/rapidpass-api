@@ -962,6 +962,10 @@ components:
               type: string
               description: expiration date of the access pass
               example: 2020-04-02T18:49:31.129435Z
+            issuedBy:
+              type: string
+              description: The username (which is usually the email) of the approver who approved this RapidPass.
+              example: dict@rapidpass.ph
     CommonRapidPassFields:
       type: object
       properties:
@@ -1148,6 +1152,9 @@ components:
             name:
               type: string
               description: name of the person the acess pass is assigned to (first name + last name + suffix)
+            email:
+              type: string
+              description: the email of the person who owns the access pass.
             company:
               type: string
               description: name of the company of the access pass

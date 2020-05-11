@@ -472,7 +472,7 @@ class RegistryRestControllerTest {
     public void revokeAccessPass() throws Exception {
 
         // mock service to return dummy INDIVIDUAL pass request when individual is request type.
-        when(mockRegistryService.suspend(eq("0915999999")))
+        when(mockRegistryService.suspend(eq("0915999999"), any()))
                 .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
 
         // mock service to return null
@@ -481,7 +481,7 @@ class RegistryRestControllerTest {
                 .andExpect(status().isOk());
 
         // verify that the RapidPassRequest model is properly created and matches expected attributes and passed to the pwaService
-        verify(mockRegistryService, only()).suspend(eq("0915999999"));
+        verify(mockRegistryService, only()).suspend(eq("0915999999"), any());
     }
 
     @Test
