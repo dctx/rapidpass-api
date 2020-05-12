@@ -737,7 +737,7 @@ paths:
                 type: string
         '404':
           description: reference number not found
-  '/checkpoint/app/':
+  '/checkpoint/update/':
     get:
       operationId: getLatestAppVersion
       tags:
@@ -750,30 +750,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckpointLatestAppVersion'
-  '/checkpoint/app/{version}':
+  '/checkpoint/download/{filename}':
     get:
-      operationId: downloadSpecifiedAppVersion
+      operationId: downloadSpecifiedFile
       tags:
         - inspector
-      summary: Downloads the latest APK of the checkpoint app.
+      summary: Downloads the specified APK file of the checkpoint app.
       responses:
         '200':
           description: >-
-            Downloads the APK of the specified version of the checkpoint app. Note that only the latest version is
-            allowed to be downloaded.
+            Downloads the APK of the specified version of the checkpoint app.
           content:
             application/binary:
               schema:
                 description: Returns the APK of the app.
-        '400':
-          description: The specified version is not allowed to be downloaded.
+        '404':
+          description: The file could not be found.
           content:
             application/json:
               schema:
                 properties:
                   message:
                     type: string
-                    example: 'This version of the RapidPass Checkpoint app is not allowed to be downloaded.'
+                    example: 'File could not be found.'
   '/checkpoint/auth':
     post:
       operationId: checkpointAuth
@@ -1149,10 +1148,18 @@ components:
       type: object
       description: The response for the latest app version for the checkpoint app.
       properties:
+        file:
+          type: string
+          description: The filename of the latest APK.
+          example: 'checkpoint-app.1.4.0.apk'
         version:
           type: string
           description: The latest version of the mobile app.
           example: '1.4.0'
+        sha1:
+          type: string
+          description: Hash of the APK file.
+          example: 'B10A8DB164E0754105B7A99BE72E3FE5'
     DashboardAuthRequest:
       type: object
       description: The dashboard authentication request
