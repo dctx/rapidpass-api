@@ -84,6 +84,47 @@ public class SubjectRegistrationCsvProcessorTest {
     }
 
     /**
+     * Specific apor types should overwrite their destination city to "Multi City".
+     * https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/459
+     */
+    @Test
+    void handleMultiCity() throws IOException {
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+
+        final String filename = "fake-data.csv";
+
+        // Incorrect row, has PERSON instead of INDIVIDUAL
+        byte[] byteContent = mockData(
+                "PERSON,DE,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,DP,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,AG,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,GE,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,GL,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,GJ,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,FF,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,MS,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,TS,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,ME,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,PO,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE\n" +
+                        "PERSON,SH,Jose,M,Rizal,,KKK,COM,0001,,09171234567,jose.rizal@gmail.com,Origin,Origin Street,Origin City,Origin Province,Destination,Dest Street,Dest City, Dest Province,SKELETAL FORCE"
+        ).getBytes();
+
+        try {
+            List<RapidPassCSVdata> process = subjectRegistrationCsvProcessor.process(new MockMultipartFile(filename, byteContent));
+
+            assertThat(process.size(), equalTo(12));
+
+            for (RapidPassCSVdata rapidPassCSVdata : process) {
+                assertThat(rapidPassCSVdata.getDestCity(), equalTo("Multi City"));
+            }
+
+        } catch (Exception e) {
+            System.err.println(e);
+            fail("Unexpected error occurred.");
+        }
+    }
+
+    /**
      * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414
      *
      * @throws IOException
