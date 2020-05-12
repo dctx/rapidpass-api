@@ -749,7 +749,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CheckpointLatestAppVersion'
+                $ref: '#/components/schemas/CheckpointAppVersionResponse'
   '/checkpoint/download/{filename}':
     get:
       operationId: downloadSpecifiedFile
@@ -1144,7 +1144,7 @@ components:
             informing the checkpoint app that the masterKey used to authenticate is about to expire. The timestamp
             provided is the date when it will stop working. The checkpoint app must download the latest version of the
             app for it to continue working- otherwise, the app will no longer be able to log in.
-    CheckpointLatestAppVersion:
+    CheckpointAppVersionResponse:
       type: object
       description: The response for the latest app version for the checkpoint app.
       properties:
