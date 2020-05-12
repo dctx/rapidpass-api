@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
+import org.keycloak.KeycloakSecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,11 +40,13 @@ import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -61,16 +65,17 @@ public class RegistryRestController {
 
     private final RegistryService registryService;
     private final QrPdfService qrPdfService;
+    private final HttpServletRequest request;
 
     @Value("${endpointswitch.registry.accesspasses:false}")
     private boolean isRegisterSinglePassEnabled;
 
     @GetMapping("/access-passes")
-        public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
+        public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter, Principal principal) {
 
         QueryFilter q = queryParameter.orElse(new QueryFilter());
 
-        return ResponseEntity.ok().body(registryService.findRapidPass(q));
+        return ResponseEntity.ok().body(registryService.findRapidPass(q, Optional.ofNullable(principal)));
     }
 
     @GetMapping("/access-passes/{referenceId}")

@@ -43,9 +43,11 @@ import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.io.ByteArrayOutputStream;
+import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -254,7 +256,7 @@ class RegistryRestControllerTest {
                 .rapidPassList(Collections.singletonList(RapidPass.buildFrom(TEST_INDIVIDUAL_ACCESS_PASS)))
                 .build();
 
-        when(mockRegistryService.findRapidPass(any(QueryFilter.class)))
+        when(mockRegistryService.findRapidPass(any(QueryFilter.class), null))
                 .thenReturn(pageView);
 
         mockMvc.perform(
@@ -268,7 +270,7 @@ class RegistryRestControllerTest {
                 .andExpect(content().json(JSON_MAPPER.writeValueAsString(pageView)))
                 .andDo(print());
 
-        verify(mockRegistryService, only()).findRapidPass(any(QueryFilter.class));
+        verify(mockRegistryService, only()).findRapidPass(any(QueryFilter.class), null);
     }
 
     /**
