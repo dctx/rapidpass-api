@@ -59,6 +59,7 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
                 new RequiredField("mobileNumber", "missing.mobileNumber", "Missing Mobile Number."),
                 new RequiredField("firstName", "missing.firstName", "Missing First Name."),
                 new RequiredField("lastName", "missing.lastName", "Missing Last Name."),
+                new RequiredField("destCity", "missing.destCity", "Missing Destination City."),
                 new IsNotBlacklistedValue("mobileNumber", "invalid.mobileNumber", ImmutableList.of("09000000000")),
                 new IsNotBlacklistedValue("email", "invalid.email", ImmutableList.of("juan@xxxx.xxx"))
         );
@@ -69,10 +70,6 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
     @Override
     protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
         validateRequiredFields(request, errors);
-
-        // Don't do db related queries if there were already some non-db related validation errors that failed.
-        if (errors.hasErrors())
-            return;
 
         ImmutableList<Validator> validations = ImmutableList.of(
                 new IsValidAporType(this.aporTypes),

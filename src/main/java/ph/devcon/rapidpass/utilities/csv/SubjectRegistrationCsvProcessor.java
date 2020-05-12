@@ -78,41 +78,44 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
 
     @Override
     public List<NormalizationRule<RapidPassCSVdata>> getNormalizationRules() {
+
+        ImmutableList<String> multiCityAporTypes = ImmutableList.of("DE", "DP", "AG", "GE", "GL", "GJ", "FF", "MS", "TS", "ME", "PO", "SH");
+
         return ImmutableList.of(
-                new Trim("passType"),
-                new Capitalize("passType"),
-                new Overwrite<>("passType", "INDIVIDUAL", passType -> !"VEHICLE".equals(passType)),
+                new Trim<>("passType"),
+                new Capitalize<>("passType"),
+                new LocalOverwrite<>("passType", "INDIVIDUAL", passType -> !"VEHICLE".equals(passType)),
 
-                new Trim("plateNumber"),
-                new Capitalize("plateNumber"),
+                new Trim<>("plateNumber"),
+                new Capitalize<>("plateNumber"),
 
-                new Trim("aporType"),
-                new Capitalize("aporType"),
+                new Trim<>("aporType"),
+                new Capitalize<>("aporType"),
 
-                new SplitInTwoAndGetFirst("email"),
+                new SplitInTwoAndGetFirst<>("email"),
 
-                new Trim("mobileNumber"),
-                new SplitInTwoAndGetFirst("mobileNumber"),
-                new TransformAlphanumeric("mobileNumber"),
+                new Trim<>("mobileNumber"),
+                new SplitInTwoAndGetFirst<>("mobileNumber"),
+                new TransformAlphanumeric<>("mobileNumber"),
 
-                new Trim("company"),
+                new Trim<>("company"),
 
-                new DefaultValue("email", ""),
-                new Trim("email"),
-                new DefaultValue("remarks", "frontliner"),
+                new DefaultValue<>("email", ""),
+                new Trim<>("email"),
+                new DefaultValue<>("remarks", "frontliner"),
 
-                new DefaultValue("idType", "OTH"),
-                new Trim("idType"),
+                new DefaultValue<>("idType", "OTH"),
+                new Trim<>("idType"),
 
-                new SplitInTwoAndGetFirst("plateNumber"),
-                new TransformAlphanumeric("plateNumber"),
+                new SplitInTwoAndGetFirst<>("plateNumber"),
+                new TransformAlphanumeric<>("plateNumber"),
 
-                new DefaultValue("identifierNumber", "OTH"),
-                new Trim("identifierNumber"),
-                new TransformAlphanumeric("identifierNumber"),
+                new DefaultValue<>("identifierNumber", "OTH"),
+                new Trim<>("identifierNumber"),
+                new TransformAlphanumeric<>("identifierNumber"),
 
-                new NormalizeMobileNumber("mobileNumber"),
-                new TransformAlphanumeric("mobileNumber"),
+                new NormalizeMobileNumber<>("mobileNumber"),
+                new TransformAlphanumeric<>("mobileNumber"),
 
                 new Max<>("suffix", 25),
                 new Max<>("email", 254),
@@ -130,7 +133,8 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
 
                 new Max<>("destStreet", 150),
                 new Max<>("destProvince", 50),
-                new Max<>("destCity", 50)
+                new Max<>("destCity", 50),
+                new GlobalOverwrite<>("destCity", "Multi City", rapidPassCsvData -> multiCityAporTypes.contains(rapidPassCsvData.getAporType()))
 
         );
     }
