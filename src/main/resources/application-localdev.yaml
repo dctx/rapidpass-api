@@ -65,11 +65,11 @@ server:
 
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
-  realm: rapidpass-api-local
+  realm: rapidpass
   resource: rapidpass-api
   ssl-required: external
   credentials:
-    secret: '**********'
+    secret: 085bb15b-a66b-4a74-9eef-d47a60311139
 
 rapidpass:
   auth:
