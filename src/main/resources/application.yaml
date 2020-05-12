@@ -93,22 +93,6 @@ qrmaster:
   encryptionKey: ${RAPIDPASS_ENCRYPTION_KEY}
   masterKey: ${RAPIDPASS_MASTER_KEY}
 
-jwt:
-  secrets:
-    - group: checkpoint
-      secret: checkpoint-secret
-    - group: approver
-      secret: approver-secret
-
-security:
-  enabled: true
-  cors:
-    allowedorigins:
-      https://rapidpass.ph,https://dashboard.rapidpass.ph
-  csp:
-    srcs:
-      script: "*.rapidpass.ph rapidpass.ph"
-
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
   realm: rapidpass
@@ -118,34 +102,28 @@ keycloak: # override me in env vars!
   bearer-only: true
   securityConstraints[0]:
     authRoles[0]: user
+    authRoles[1]: approver
+    authRoles[2]: inspector
     securityCollections[0]:
       name: all API endpoints
-      patterns[0]: /api/v1/registry/*
-      patterns[1]: /api/v1/batch/*
-      patterns[2]: /api/v1/checkpoint/*
-      patterns[3]: /api/v1/api-docs/*
+      patterns[0]: /registry/access-passes/*
 
   policy-enforcer-config:
     lazy-load-paths: true
     paths[0]:
-      path: /api/v1/registry/*
+      path: /registry/access-passes/*
       methods[0]:
         method: GET
         scopes[0]: view
       methods[1]:
-        method: DELETE
-        scopes[0]: delete
-      methods[2]:
         method: POST
         scopes[0]: create
-    paths[1]:
-      path: /api/v1/registry/access-passes/*
-      methods[0]:
+      methods[2]:
         method: PUT
         scopes[0]: approve
-      methods[1]:
+      methods[3]:
         method: PATCH
-        scopes[0]: decline
+        scopes[0]: suspend
 
 logging:
   level:

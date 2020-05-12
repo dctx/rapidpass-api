@@ -66,7 +66,7 @@ public class RegistryRestController {
     private boolean isRegisterSinglePassEnabled;
 
     @GetMapping("/access-passes")
-    public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
+        public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
 
         QueryFilter q = queryParameter.orElse(new QueryFilter());
 

@@ -14,29 +14,14 @@
 
 package ph.devcon.rapidpass.controllers;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.common.errors.AuthorizationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.api.models.RegistrarUserChangePasswordRequest;
-import ph.devcon.rapidpass.exceptions.AccountLockedException;
-import ph.devcon.rapidpass.models.AgencyAuth;
-import ph.devcon.rapidpass.models.Login;
-import ph.devcon.rapidpass.models.UserActivationRequest;
 import ph.devcon.rapidpass.services.LookupTableService;
-import ph.devcon.rapidpass.utilities.JwtGenerator;
 import ph.devcon.rapidpass.utilities.KeycloakUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

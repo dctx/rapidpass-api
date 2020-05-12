@@ -57,7 +57,6 @@ springfox:
       v2:
         path: /api-docs
 
-
 semaphore:
   url: https://api.semaphore.co/api/v4/messages
   key: ''
@@ -84,7 +83,6 @@ endpointswitch:
   registry:
     accesspasses: false
 
-
 qrmaster:
   # Decoded, this value is: SOME_SIGNING_KEY
   skey: 534f4d455f5349474e494e475f4b4559
@@ -94,28 +92,12 @@ qrmaster:
   # Decoded, this value is: SOME_MASTER_KEY
   masterKey: 534f4d455f4d41535445525f4b4559
 
-
-jwt:
-  secrets:
-    - group: checkpoint
-      secret: checkpoint-secret
-    - group: approver
-      secret: approver-secret
-
-security:
-  enabled: true
-  cors:
-    allowedorigins:
-      https://rapidpass.ph,https://dashboard.rapidpass.ph
-  csp:
-    srcs:
-      script: "*.rapidpass.ph rapidpass.ph"
-
 logging:
   level:
-    root: DEBUG
+    root: INFO
     ph.devcon: DEBUG
     org:
+      keycloak: DEBUG
       springframework:
         security: DEBUG
 

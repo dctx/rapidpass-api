@@ -27,7 +27,6 @@ import ph.devcon.rapidpass.models.CheckpointAuthRequest;
 import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
