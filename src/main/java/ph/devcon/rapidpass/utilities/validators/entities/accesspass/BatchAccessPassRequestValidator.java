@@ -21,7 +21,10 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupService;
+import ph.devcon.rapidpass.utilities.KeycloakUtils;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
+
+import java.util.List;
 
 /**
  * Tests whether a{@link RapidPassRequest} or {@link AccessPass} is valid, and ready for creation.
@@ -71,11 +74,15 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
     protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
         validateRequiredFields(request, errors);
 
+        String aporTypes = KeycloakUtils.getAttributes().get("APORTYPES");
+        List<String> allowedAporTypes = ImmutableList.copyOf(aporTypes.split(","));
+
         ImmutableList<Validator> validations = ImmutableList.of(
                 new IsValidAporType(this.aporTypes),
                 // new IsValidIdType(this.individualIdTypes, this.vehicleIdTypes),
                 new IsValidPassType(),
-                new IsValidMobileNumber()
+                new IsValidMobileNumber(),
+                new IsUsersAporType(allowedAporTypes)
         );
 
         validations.forEach(validator -> validator.validate(request, errors));
