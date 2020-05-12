@@ -120,15 +120,15 @@ keycloak: # override me in env vars!
     authRoles[0]: user
     securityCollections[0]:
       name: all API endpoints
-      patterns[0]: /registry/*
-      patterns[1]: /batch/*
-      patterns[2]: /checkpoint/*
-      patterns[3]: /api-docs/*
+      patterns[0]: /api/v1/registry/*
+      patterns[1]: /api/v1/batch/*
+      patterns[2]: /api/v1/checkpoint/*
+      patterns[3]: /api/v1/api-docs/*
 
   policy-enforcer-config:
     lazy-load-paths: true
     paths[0]:
-      path: /registry/*
+      path: /api/v1/registry/*
       methods[0]:
         method: GET
         scopes[0]: view
@@ -139,7 +139,7 @@ keycloak: # override me in env vars!
         method: POST
         scopes[0]: create
     paths[1]:
-      path: /registry/access-passes/*
+      path: /api/v1/registry/access-passes/*
       methods[0]:
         method: PUT
         scopes[0]: approve
