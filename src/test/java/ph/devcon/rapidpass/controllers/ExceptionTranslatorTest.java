@@ -30,8 +30,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
-import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.services.RegistryService;
 
@@ -49,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author jonasespelita@gmail.com
  */
 @WebMvcTest({ExceptionTranslatorTest.TestController.class})
-@Import({ExceptionTranslator.class, JwtSecretsConfig.class, SimpleRbacConfig.class})
+@Import({ExceptionTranslator.class})
 @WithMockUser("test")
 class ExceptionTranslatorTest {
     @Autowired

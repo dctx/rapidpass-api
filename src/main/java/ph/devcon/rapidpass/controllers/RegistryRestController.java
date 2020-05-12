@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
@@ -35,7 +34,6 @@ import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
@@ -62,7 +60,6 @@ import java.util.Optional;
 public class RegistryRestController {
 
     private final RegistryService registryService;
-    private final ApproverAuthService approverAuthService;
     private final QrPdfService qrPdfService;
 
     @Value("${endpointswitch.registry.accesspasses:false}")
@@ -232,33 +229,6 @@ public class RegistryRestController {
         ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
 
         return ResponseEntity.status(201).body(ImmutableMap.of("deviceId", deviceRequest.getImei()));
-    }
-
-    /**
-     * Depecreated. Use {@link UserRestController#login(HttpServletResponse, Login)}
-     *
-     * @param login
-     * @return
-     */
-    @Deprecated
-    @PostMapping("/auth")
-    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
-        try {
-            final AgencyAuth auth = this.approverAuthService.login(login.getUsername(), login.getPassword());
-            if (auth == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            return ResponseEntity.ok().body(auth);
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
-            log.error("hashing function error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (AccountLockedException e) {
-            log.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (Exception e) {
-            log.error("something went wrong", e);
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     /**

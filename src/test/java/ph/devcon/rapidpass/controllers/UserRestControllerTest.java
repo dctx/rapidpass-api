@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.config.SimpleRbacConfig;
-import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.LookupTableService;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -31,15 +29,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(controllers = {UserRestController.class})
 @AutoConfigureMockMvc(addFilters = false)
-@Import({SimpleRbacConfig.class})
 class UserRestControllerTest {
     @Mock
     Authentication mockAuthentication;
 
     @MockBean
     LookupTableService mockLookupTableService;
-    @MockBean
-    ApproverAuthService mockApproverAuthService;
 
     @Autowired
     MockMvc mockMvc;

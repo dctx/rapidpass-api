@@ -22,15 +22,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
-import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.util.logging.Logger;
 
 @WebMvcTest(RegistryBatchRestController.class)
 @EnableConfigurationProperties
-@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
 public class RegistryBatchRestControllerTest
 {
 

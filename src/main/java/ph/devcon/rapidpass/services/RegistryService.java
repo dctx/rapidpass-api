@@ -83,7 +83,6 @@ public class RegistryService {
     private final RapidPassEventProducer eventProducer;
 
     private final AccessPassEventRepository accessPassEventRepository;
-    private final ApproverAuthService authService;
     private final LookupTableService lookupTableService;
     private final AccessPassNotifierService accessPassNotifierService;
     private final RegistrarRepository registrarRepository;
@@ -839,15 +838,14 @@ public class RegistryService {
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(agencyUser);
 
-                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
+//                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
+//                FIXME
+                RegistrarUser registrarUser = null;
 
                 result.add("Record " + counter++ + ": Success. ");
             } catch (ReadableValidationException e) {
                 result.add("Record " + counter++ + ": Failed. " + e.getMessage());
-
-            } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-                result.add("Record " + counter++ + ": Failed. Internal server error.");
-            }
+            } 
         }
         return result;
     }

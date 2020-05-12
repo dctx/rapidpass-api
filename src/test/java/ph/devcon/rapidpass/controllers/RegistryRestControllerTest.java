@@ -32,8 +32,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
-import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -41,7 +39,6 @@ import ph.devcon.rapidpass.models.QueryFilter;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassPageView;
 import ph.devcon.rapidpass.models.RapidPassRequest;
-import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
@@ -68,7 +65,7 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 @WebMvcTest(RegistryRestController.class)
 @EnableConfigurationProperties
 @AutoConfigureMockMvc(addFilters = false) // let's simplify by not running keycloack filters
-@Import({ExceptionTranslator.class, JwtSecretsConfig.class, SimpleRbacConfig.class})
+@Import({ExceptionTranslator.class})
 class RegistryRestControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
@@ -162,9 +159,6 @@ class RegistryRestControllerTest {
 
     @MockBean
     QrPdfService mockQrPdfService;
-
-    @MockBean
-    ApproverAuthService mockApproverAuthService;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.

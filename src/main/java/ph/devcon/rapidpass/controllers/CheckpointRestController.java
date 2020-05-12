@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
@@ -50,7 +49,6 @@ public class CheckpointRestController
 
     private final ICheckpointService checkpointService;
     private final ControlCodeService controlCodeService;
-    private final JwtSecretsConfig jwtSecretsConfig;
 
     @Value("${qrmaster.skey}")
     private String signingKey;
@@ -128,8 +126,6 @@ public class CheckpointRestController
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-
-
         final ScannerDevice scannerDevice = this.checkpointService.retrieveDeviceByImei(authRequest.getImei());
 
         OffsetDateTime expiry = OffsetDateTime.now();
@@ -143,13 +139,15 @@ public class CheckpointRestController
         claims.put("exp", expiry.toEpochSecond());
 
         // FIXME this won't work with new keycloak implementation!
-        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
-
-        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
-                .signingKey(this.signingKey)
-                .encryptionKey(this.encryptionKey)
-                .accessCode(jwt)
-                .build();
+//        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
+//
+//        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
+//                .signingKey(this.signingKey)
+//                .encryptionKey(this.encryptionKey)
+//                .accessCode(jwt)
+//                .build();
+        // FIXME
+        CheckpointAuthResponse authResponse = null;
 
         return ResponseEntity.ok().body(authResponse);
     }
