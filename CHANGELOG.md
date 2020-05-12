@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.8.3] - 2020-05-08
+## [Unreleased]
+
+## [1.8.3] - 2020-05-16
 ### Added
 - [#463](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/463) CRUD operations for Scanner Devices
     - `GET registry/scanner-devices` - retrieve devices with optional filter
@@ -15,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
 - [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated table 
     definition and seed data.
+- [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) `1.8.3.alpha.3` - Added check version and download endpoint for Checkpoint app.
     
 ### Changed
 - [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Batch upload now relies on `apor_lookup` table 
