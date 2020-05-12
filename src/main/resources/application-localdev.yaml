@@ -80,6 +80,11 @@ rapidpass:
     year: 2020
     month: 5
     day: 15
+  checkpoint:
+    apk:
+      hash: ABCDEF1234567890
+      url: https://www.google.com/rapidpass-checkpoint-v1.4.apk
+      version: 1.4.0
 
 endpointswitch:
   checkpoint:
