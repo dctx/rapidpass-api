@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.9.0] - 2020-05-12
+### Added
+- [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) `1.9.0.alpha.1` - Added check version and download endpoint for Checkpoint app.
+
 ## [1.8.1] - 2020-05-08
 ### Changed
 - Temporarily? turned off role checking while keycloak is being finalized
