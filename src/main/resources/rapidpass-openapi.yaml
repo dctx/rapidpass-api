@@ -749,7 +749,7 @@ paths:
                 type: string
         '404':
           description: reference number not found
-  '/checkpoint/app/':
+  '/checkpoint/update/':
     get:
       operationId: getLatestAppVersion
       tags:
@@ -762,23 +762,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckpointAppVersionResponse'
-  '/checkpoint/app/{version}':
+  '/checkpoint/download/{filename}':
     get:
-      operationId: downloadSpecifiedAppVersion
+      operationId: downloadSpecifiedFile
       tags:
         - inspector
-      summary: Downloads the latest APK of the checkpoint app.
+      summary: Downloads the specified APK file of the checkpoint app.
       responses:
         '200':
           description: >-
-            Downloads the APK of the specified version of the checkpoint app. Note that only the latest version is
-            allowed to be downloaded.
+            Downloads the APK of the specified version of the checkpoint app.
           content:
             application/binary:
               schema:
                 description: Returns the APK of the app.
-        '400':
-          description: The specified version is not allowed to be downloaded.
+        '404':
+          description: The file could not be found.
           content:
             application/json:
               schema:
