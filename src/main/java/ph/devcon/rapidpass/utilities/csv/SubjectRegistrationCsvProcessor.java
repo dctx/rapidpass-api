@@ -71,6 +71,22 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 .withType(type)
                 .withSeparator(',')
                 .withQuoteChar('"')
+                .withSkipLines(1)
+                .withFilter(line -> {
+
+                    boolean shouldInclude = true;
+
+                    if (line.length > 1 && line[1].contains("NATURE OF"))
+                        shouldInclude = false;
+
+                    if (line.length > 2 && line[2].contains("FIRSTNAME"))
+                        shouldInclude = false;
+
+                    if (line.length > 3 && line[3].contains("LASTNAME"))
+                        shouldInclude = false;
+
+                    return shouldInclude;
+                })
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
     }
