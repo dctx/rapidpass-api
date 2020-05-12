@@ -685,29 +685,6 @@ class RegistryServiceTest {
         assertThat(controlCode, equalTo(null));
     }
 
-    @Test
-    void getControlCode_notApproved() {
-
-        final AccessPass mockAccessPass = AccessPass.builder()
-                .id(1)
-                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
-                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
-                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
-                .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
-                .status(AccessPassStatus.PENDING.toString())
-                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
-                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .build();
-
-
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(any()))
-                .thenReturn(ImmutableList.of(mockAccessPass));
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            ControlCodeResponse controlCode = instance.getControlCode("09171234567");
-        });
-    }
-
 
     @Test
     public void test_bulkUploadIncorrectColumns() throws CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException, IOException, RegistryService.UpdateAccessPassException {
