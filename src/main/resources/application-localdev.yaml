@@ -37,6 +37,9 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+  main:
+    banner-mode: OFF
+
 topic:
   new-requests: rapidpass-requests
   new-registrar-user-requests: rapidpass-approver-requests
@@ -62,14 +65,6 @@ semaphore:
 server:
   servlet:
     context-path: /api/v1
-
-keycloak: # override me in env vars!
-  auth-server-url: http://localhost:8180/auth/
-  realm: rapidpass
-  resource: rapidpass-api
-  ssl-required: external
-  credentials:
-    secret: 085bb15b-a66b-4a74-9eef-d47a60311139
 
 rapidpass:
   auth:
@@ -107,50 +102,6 @@ jwt:
     - group: approver
       secret: approver-secret
 
-# configure rbac roles here
-rbac:
-  roles:
-    - role: approver
-      resources:
-        # authenticating activate, active but allowing login as public
-        - endpoint: /users/**/activate
-          verbs:
-            - ALL
-        - endpoint: /users/**/active
-          verbs:
-            - ALL
-        # breaks checkpoint - no security integration yet >.<
-        #        - endpoint: /batch/**
-        #          verbs:
-        #            - ALL
-        - endpoint: /registry/access-passes/?**
-          verbs:
-            - GET # used by approver only
-            # POST # used for registration  DO NOT ENABLE!
-            - PUT # APPROVE/DENY
-            - DELETE # APPROVE/DENY
-        - endpoint: /registry/access-passes
-          verbs:
-            - GET
-            - PUT
-            - DELETE
-            # POST # used for registration  DO NOT ENABLE!
-#    - role: checkpoint
-#      resources:
-#        - endpoint: /batch/access-passes
-#          verbs:
-#            - GET
-#        - endpoint: /checkpoint/**
-#          verbs:
-#            - ALL
-#        - endpoint: /registry/scanner-devices
-#          verbs:
-#            - ALL
-#        - endpoint: /registry/scanner-devices/**
-#          verbs:
-#            - ALL
-
-
 security:
   enabled: true
   cors:
@@ -160,11 +111,11 @@ security:
     srcs:
       script: "*.rapidpass.ph rapidpass.ph"
 
-
-
 logging:
   level:
-    ph.devcon: debug
+    root: DEBUG
+    ph.devcon: DEBUG
     org:
       springframework:
-        security: debug
+        security: DEBUG
+

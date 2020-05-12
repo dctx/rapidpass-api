@@ -111,21 +111,24 @@ security:
 
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
-  realm: rapidpass-api-local
+  realm: rapidpass
   resource: rapidpass-api
   ssl-required: external
-  credentials.secret: 22f20434-39cd-4e39-9620-99f99a6b0334
+  credentials.secret: 085bb15b-a66b-4a74-9eef-d47a60311139
   bearer-only: true
   securityConstraints[0]:
-    name: all API endpoints
     authRoles[0]: user
-    authRoles[1]: approver
-    patterns[0]: /api/*
+    securityCollections[0]:
+      name: all API endpoints
+      patterns[0]: /registry/*
+      patterns[1]: /batch/*
+      patterns[2]: /checkpoint/*
+      patterns[3]: /api-docs/*
 
   policy-enforcer-config:
     lazy-load-paths: true
     paths[0]:
-      path: registry/*
+      path: /registry/*
       methods[0]:
         method: GET
         scopes[0]: view
@@ -136,7 +139,7 @@ keycloak: # override me in env vars!
         method: POST
         scopes[0]: create
     paths[1]:
-      path: registry/access-passes/*
+      path: /registry/access-passes/*
       methods[0]:
         method: PUT
         scopes[0]: approve
