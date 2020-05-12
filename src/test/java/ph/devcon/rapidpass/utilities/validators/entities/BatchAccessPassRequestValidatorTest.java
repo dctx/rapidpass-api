@@ -96,6 +96,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.INDIVIDUAL)
+                .destCity("Makati")
                 .mobileNumber("09111234321")
                 .build();
 
@@ -126,6 +127,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .plateNumber("ABC 123")
                 .passType(PassType.INDIVIDUAL)
                 .mobileNumber("09662015319")
+                .destCity("Some city")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -181,6 +183,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .plateNumber("ABC 123")
                 .passType(PassType.INDIVIDUAL)
                 .mobileNumber("+639662015319")
+                .destCity("Makati")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -196,11 +199,11 @@ public class BatchAccessPassRequestValidatorTest {
 
         assertThat(errors, is(empty()));
     }
-    
+
     @Test
     public void failIfIncorrectMobileNumberFormat() {
-   
-        
+
+
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
@@ -213,7 +216,8 @@ public class BatchAccessPassRequestValidatorTest {
                 .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.INDIVIDUAL)
-        		.mobileNumber("a09662006888")
+                .destCity("Makati")
+                .mobileNumber("a09662006888")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -228,8 +232,8 @@ public class BatchAccessPassRequestValidatorTest {
                 .collect(Collectors.toList());
 
         assertThat(errors, hasItem(containsString("Invalid mobile input")));
-        
-        
+
+
         // ---- CASE Mobile number can only use Philippine numbers ----
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -240,7 +244,7 @@ public class BatchAccessPassRequestValidatorTest {
                 .originStreet("Abbey Road")
                 .plateNumber("ABC 123")
                 .passType(PassType.INDIVIDUAL)
-        		.mobileNumber("+659662006888")
+                .mobileNumber("+659662006888")
                 .build();
 
         binder = new DataBinder(rapidPassRequest);
@@ -255,5 +259,39 @@ public class BatchAccessPassRequestValidatorTest {
                 .collect(Collectors.toList());
 
         assertThat(errors, hasItem(containsString("Invalid mobile input")));
+    }
+
+
+    @Test
+    public void requiredDestinationCity() {
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
+
+        // ---- CASE Mobile number has letters----
+        rapidPassRequest = RapidPassRequest.builder()
+                .aporType("AG")
+                .idType("PLT")
+                .identifierNumber("ABC 123")
+                .firstName("Juan")
+                .lastName("dela Cruz")
+                .originStreet("Abbey Road")
+                .plateNumber("ABC 123")
+                .destCity(null)
+                .passType(PassType.INDIVIDUAL)
+                .mobileNumber("a09662006888")
+                .build();
+
+        binder = new DataBinder(rapidPassRequest);
+        binder.setValidator(batchAccessPassRequestValidator);
+
+        binder.validate();
+
+        bindingResult = binder.getBindingResult();
+
+        errors = bindingResult.getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+
+        assertThat(errors, hasItem(containsString("Missing Destination City")));
+
     }
 }
