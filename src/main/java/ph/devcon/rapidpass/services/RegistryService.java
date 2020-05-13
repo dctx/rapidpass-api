@@ -391,7 +391,6 @@ public class RegistryService {
 
         AccessPass accessPass = accessPasses.get(0);
 
-        // Only bind the QR code to the access pass IF the access pass is approved.
         if (accessPass.getControlCode() == null) {
             accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
             accessPassRepository.saveAndFlush(accessPass);
