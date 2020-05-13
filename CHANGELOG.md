@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - new columns `email_sent`, `mobile_sent` on `notifier_log` table
 - [#460](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/460) Destination city is now a required field.
 - [#459](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/459) Overwrite destination city to `Multi City` for specific APOR types.
+- [#441](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/441) `1.8.2.alpha.2` - Added revocation endpoint for checkpoint app.
 
 ## [1.8.1] - 2020-05-08
 ### Changed
