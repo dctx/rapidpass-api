@@ -15,10 +15,11 @@
 package ph.devcon.rapidpass.services;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
-import ph.devcon.rapidpass.RapidpassApplication;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
@@ -37,23 +38,24 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = RapidpassApplication.class)
+@ExtendWith(MockitoExtension.class)
 public class CheckpointServiceTest
 {
+    @Mock
     private ICheckpointService checkpointService;
-    
+
+    @Mock
     private AccessPassRepository accessPassRepository;
 
+    @Mock
     private ScannerDeviceRepository scannerDeviceRepository;
 
+    @Mock
     private ControlCodeService controlCodeService;
 
-//    @BeforeEach
-    void initializeMocks()
-    {
-        accessPassRepository = Mockito.mock(AccessPassRepository.class);
-        scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
-        controlCodeService = Mockito.mock(ControlCodeService.class);
+    @BeforeEach
+    void initializeMocks() {
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
     }
     
 //    @Test
@@ -129,12 +131,6 @@ public class CheckpointServiceTest
 
     @Test
     public void TestRetrieveRevokedPasses() {
-        accessPassRepository = Mockito.mock(AccessPassRepository.class);
-        scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
-        controlCodeService = Mockito.mock(ControlCodeService.class);
-
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
-
         AccessPass accessPassEntity = new AccessPass();
 
         OffsetDateTime now = OffsetDateTime.now();
