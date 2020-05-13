@@ -77,6 +77,11 @@ public class CheckpointServiceImpl implements ICheckpointService {
             revokeList = accessPassRepository.findAllByStatusAndDateTimeUpdatedAfter(AccessPassStatus.SUSPENDED.name(), OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()));
         }
 
+        // Ensure revoke list has control codes
+        revokeList = revokeList.stream()
+                .map(controlCodeService::bindControlCodeForAccessPass)
+                .collect(Collectors.toList());
+
         RevocationLogResponse revocationLogResponse = new RevocationLogResponse();
 
         List<InternalRevocationEvent> events = revokeList.stream()
