@@ -74,7 +74,7 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
     protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
         validateRequiredFields(request, errors);
 
-        String aporTypes = KeycloakUtils.getAttributes().get("APORTYPES");
+        String aporTypes = KeycloakUtils.getAttributes().get("aportypes");
         List<String> allowedAporTypes = ImmutableList.copyOf(aporTypes.split(","));
 
         ImmutableList<Validator> validations = ImmutableList.of(
