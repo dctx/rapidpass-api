@@ -157,7 +157,7 @@ public class RegistryRestController {
     /**
      * Note that using the delete method will perform suspend access pass but without specifying the reason why the
      * rapid pass was suspended.
-     *
+     * <p>
      * To specify the reason why it was suspended, use the PUT request.
      */
     @DeleteMapping("/access-passes/{referenceId}")
@@ -208,6 +208,12 @@ public class RegistryRestController {
                 .body(responseBody);
     }
 
+    /**
+     * @param queryFilter
+     * @return
+     * @deprecated use {@link ScannerDeviceController}
+     */
+    @Deprecated
     @GetMapping("/scanner-devices")
     public ResponseEntity<?> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
 
@@ -227,6 +233,12 @@ public class RegistryRestController {
         }
     }
 
+    /**
+     * @param deviceRequest
+     * @return
+     * @deprecated use {@link ScannerDeviceController}
+     */
+    @Deprecated
     @PostMapping("/scanner-devices")
     public ResponseEntity<?> registerScannerDevice(@RequestBody MobileDevice deviceRequest) {
         ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
