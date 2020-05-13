@@ -177,7 +177,8 @@ public class CheckpointRestController {
         if (responseBody.length == 0) return ResponseEntity.notFound().build();
 
         final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        headers.setContentType(MediaType.valueOf("application/vnd.android.package-archive"));
         headers.set(HttpHeaders.CONTENT_DISPOSITION,
                 String.format("attachment; filename=%s", filename));
         headers.setContentLength(responseBody.length);
