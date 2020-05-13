@@ -151,6 +151,8 @@ public class CheckpointServiceTest
                 accessPassEntity
         ));
 
+        when(controlCodeService.bindControlCodeForAccessPass(any())).thenReturn(accessPassEntity);
+
         RevocationLogResponse revocationLogResponse = checkpointService.retrieveRevokedAccessPasses(null);
 
         assertThat(revocationLogResponse.getData().size(), equalTo(1));
