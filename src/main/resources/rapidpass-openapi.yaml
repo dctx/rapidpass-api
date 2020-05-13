@@ -765,6 +765,15 @@ paths:
   '/checkpoint/download/{filename}':
     get:
       operationId: downloadSpecifiedFile
+      parameters:
+        - name: filename
+          in: path
+          description: >-
+            The filename of the APK to be downloaded.
+          example: checkpoint-app.v1.4.0.apk
+          required: true
+          schema:
+            type: string
       tags:
         - inspector
       summary: Downloads the specified APK file of the checkpoint app.
