@@ -14,11 +14,9 @@
 
 package ph.devcon.rapidpass.services.controlcode;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 
@@ -64,10 +62,8 @@ public class ControlCodeServiceImpl  implements ControlCodeService {
 
     @Override
     public AccessPass bindControlCodeForAccessPass(AccessPass accessPass) {
-        if (AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus())) {
-            String controlCode = encode(accessPass.getId());
-            accessPass.setControlCode(controlCode);
-        }
+        String controlCode = encode(accessPass.getId());
+        accessPass.setControlCode(controlCode);
         return accessPass;
     }
 
