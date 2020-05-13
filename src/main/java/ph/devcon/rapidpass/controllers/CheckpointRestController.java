@@ -72,13 +72,13 @@ public class CheckpointRestController
     @Value("${endpointswitch.checkpoint.auth:false}")
     private boolean enableCheckpointAuth;
 
-    @Value("${rapidpass.checkpoint.apk.url}")
+    @Value("${rapidpass.checkpointApkUrl}")
     private String url;
 
-    @Value("${rapidpass.checkpoint.apk.hash}")
+    @Value("${rapidpass.checkpointApkHash}")
     private String hash;
 
-    @Value("${rapidpass.checkpoint.apk.version}")
+    @Value("${rapidpass.checkpointApkVersion}")
     private String version;
 
     /*@Autowired
