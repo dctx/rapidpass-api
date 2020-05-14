@@ -26,9 +26,9 @@ public class MobileDeviceController {
      * Gets scanner devices with optional filters
      *
      * @param id           filter for id = %{id}%
-     * @param brand        filter for brand %{brand}%
-     * @param mobileNumber filter for brand %{mobileNumber}%
-     * @param model        filter for brand %{model}%
+     * @param brand        filter for brand = %{brand}%
+     * @param mobileNumber filter for mobileNumber = %{mobileNumber}%
+     * @param model        filter for model = %{model}%
      * @return 200 list of access passes matching given filters
      */
     @GetMapping("/scanner-devices")
