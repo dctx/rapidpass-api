@@ -14,13 +14,13 @@
 
 package ph.devcon.rapidpass.services;
 
-import org.junit.Ignore;
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
-import ph.devcon.rapidpass.RapidpassApplication;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
@@ -30,27 +30,32 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
 import java.time.OffsetDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
-//@SpringBootTest(classes = RapidpassApplication.class)
+@ExtendWith(MockitoExtension.class)
 public class CheckpointServiceTest
 {
+    @Mock
     private ICheckpointService checkpointService;
-    
+
+    @Mock
     private AccessPassRepository accessPassRepository;
 
+    @Mock
     private ScannerDeviceRepository scannerDeviceRepository;
 
+    @Mock
     private ControlCodeService controlCodeService;
 
-//    @BeforeEach
-    void initializeMocks()
-    {
-        accessPassRepository = Mockito.mock(AccessPassRepository.class);
-        scannerDeviceRepository = Mockito.mock(ScannerDeviceRepository.class);
-        controlCodeService = Mockito.mock(ControlCodeService.class);
+    @BeforeEach
+    void initializeMocks() {
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
     }
     
 //    @Test
@@ -64,9 +69,9 @@ public class CheckpointServiceTest
         accessPassEntity.setControlCode(controlCode);
     
         // WHEN
-        Mockito.when(controlCodeService.findAccessPassByControlCode(any()))
+        when(controlCodeService.findAccessPassByControlCode(any()))
                 .thenReturn(accessPassEntity);
-        Mockito.when(controlCodeService.bindControlCodeForAccessPass(any()))
+        when(controlCodeService.bindControlCodeForAccessPass(any()))
                 .thenReturn(accessPassEntity);
 
 
@@ -96,10 +101,10 @@ public class CheckpointServiceTest
         accessPassEntity.setIdentifierNumber(idNumber);
 
         // WHEN
-        Mockito.when(accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), idNumber))
+        when(accessPassRepository.findByPassTypeAndIdentifierNumber(PassType.VEHICLE.toString(), idNumber))
                 .thenReturn(accessPassEntity);
 
-        Mockito.when(controlCodeService.bindControlCodeForAccessPass(any()))
+        when(controlCodeService.bindControlCodeForAccessPass(any()))
                 .thenReturn(accessPassEntity);
 
         // THEN
@@ -122,5 +127,36 @@ public class CheckpointServiceTest
         accessPassEntity.setReferenceID("M-JIV9H149");
         accessPassEntity.setIssuedBy("ApprovingOrg");
         return accessPassEntity;
+    }
+
+    @Test
+    public void TestRetrieveRevokedPasses() {
+        AccessPass accessPassEntity = new AccessPass();
+
+        OffsetDateTime now = OffsetDateTime.now();
+
+        accessPassEntity.setAporType("ME");
+        accessPassEntity.setPassType(PassType.INDIVIDUAL.toString());
+
+        accessPassEntity.setReferenceID("Sample");
+        accessPassEntity.setCompany("Sample company");
+        accessPassEntity.setDestinationCity("Sample City");
+        accessPassEntity.setReferenceID("M-JIV9H149");
+        accessPassEntity.setIssuedBy("ApprovingOrg");
+        accessPassEntity.setControlCode("SAMPLE_CONTROL_CODE");
+        accessPassEntity.setDateTimeUpdated(now);
+        accessPassEntity.setStatus("SUSPENDED");
+
+        when(accessPassRepository.findAllByStatus(anyString())).thenReturn(ImmutableList.of(
+                accessPassEntity
+        ));
+
+        when(controlCodeService.bindControlCodeForAccessPass(any())).thenReturn(accessPassEntity);
+
+        RevocationLogResponse revocationLogResponse = checkpointService.retrieveRevokedAccessPasses(null);
+
+        assertThat(revocationLogResponse.getData().size(), equalTo(1));
+        assertThat(revocationLogResponse.getData().get(0).getControlCode(), equalTo("SAMPLE_CONTROL_CODE"));
+        assertThat(revocationLogResponse.getData().get(0).getTimestamp().longValue(), equalTo(now.toEpochSecond()));
     }
 }

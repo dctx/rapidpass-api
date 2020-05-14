@@ -749,6 +749,31 @@ paths:
                 type: string
         '404':
           description: reference number not found
+  '/checkpoint/revocations':
+    get:
+      callbacks: {}
+      deprecated: false
+      description: This returns the revocations since a given timestamp.
+      operationId: getRevokedRapidPasses
+      parameters:
+        - description: The since timestamp corresponds to the seconds after epoch.
+          example: 1588599189
+          in: query
+          name: since
+          required: false
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RevocationLogResponse"
+          description: Revocations
+      summary: Retrieves the list of revoked access passes.
+      tags:
+        - inspector
   '/checkpoint/auth':
     post:
       operationId: checkpointAuth
@@ -1332,15 +1357,15 @@ components:
       type: object
       x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationEvent
     RevocationLog:
-      description: The revoation log
-      example:
-        - controlCode: 35YBRZ6E
-          timestamp: 1588599841
-      items:
-        "$ref": "#/components/schemas/RevocationEvent"
-      title: RevocationLog
-      type: array
-      x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationLog
+        description: The revoation log
+        example:
+          - controlCode: 35YBRZ6E
+            timestamp: 1588599841
+        items:
+          "$ref": "#/components/schemas/RevocationEvent"
+        title: RevocationLog
+        type: array
+        x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationLog
     RevocationLogResponse:
       description: Response the validation logs
       example:
