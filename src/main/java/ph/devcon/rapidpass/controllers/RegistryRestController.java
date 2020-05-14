@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
@@ -157,7 +156,7 @@ public class RegistryRestController {
     /**
      * Note that using the delete method will perform suspend access pass but without specifying the reason why the
      * rapid pass was suspended.
-     *
+     * <p>
      * To specify the reason why it was suspended, use the PUT request.
      */
     @DeleteMapping("/access-passes/{referenceId}")
@@ -208,6 +207,12 @@ public class RegistryRestController {
                 .body(responseBody);
     }
 
+    /**
+     * @param queryFilter
+     * @return
+     * @deprecated use {@link MobileDeviceController}
+     */
+    @Deprecated
     @GetMapping("/scanner-devices")
     public ResponseEntity<?> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
 
@@ -227,6 +232,12 @@ public class RegistryRestController {
         }
     }
 
+    /**
+     * @param deviceRequest
+     * @return
+     * @deprecated use {@link MobileDeviceController}
+     */
+    @Deprecated
     @PostMapping("/scanner-devices")
     public ResponseEntity<?> registerScannerDevice(@RequestBody MobileDevice deviceRequest) {
         ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);

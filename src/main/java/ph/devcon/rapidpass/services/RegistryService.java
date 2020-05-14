@@ -862,6 +862,8 @@ public class RegistryService {
 
     /**
      * Retrieve Scanner Devices
+     *
+     * @deprecated use {@link MobileDeviceService} instead
      */
     public List<MobileDevice> getScannerDevices(Optional<Pageable> pageView) {
         List<ScannerDevice> scannerDevices;

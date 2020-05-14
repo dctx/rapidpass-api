@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.3] - 2020-05-08
+### Added
+- [#463](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/463) CRUD operations for Scanner Devices
+    - `GET registry/scanner-devices` - retrieve devices with optional filter
+    - `POST registry/scanner-devices` - register new device
+    - `GET registry/scanner-device/{unique_id}` - retrieve device matching id
+    - `PUT registry/scanner-device/{unique_id}` - update device matching id
+    - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
+
+
 ## [1.8.2] - 2020-05-08
 ### Changed
 - [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
