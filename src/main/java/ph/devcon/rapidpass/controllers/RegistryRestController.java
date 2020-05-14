@@ -213,7 +213,7 @@ public class RegistryRestController {
      * @deprecated use {@link MobileDeviceController}
      */
     @Deprecated
-    @GetMapping("/scanner-devices")
+//    @GetMapping("/scanner-devices")
     public ResponseEntity<?> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
 
         boolean isDisabled = true;
@@ -238,7 +238,7 @@ public class RegistryRestController {
      * @deprecated use {@link MobileDeviceController}
      */
     @Deprecated
-    @PostMapping("/scanner-devices")
+//    @PostMapping("/scanner-devices")
     public ResponseEntity<?> registerScannerDevice(@RequestBody MobileDevice deviceRequest) {
         ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
 
