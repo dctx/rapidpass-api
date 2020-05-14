@@ -279,7 +279,7 @@ public class RegistryService {
             log.debug("limiting apor types to {}", secAporTypes);
             bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
         } catch (Exception e) {
-            bySecAporTypes = AccessPassSpecifications.byAporTypes(Collections.singletonList(""));
+            bySecAporTypes = AccessPassSpecifications.byAporTypes(null);
             log.warn("accessing rapid passes unsecured! ", e);
         }
 
