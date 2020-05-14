@@ -10,9 +10,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.services.ScannerDeviceService;
+import ph.devcon.rapidpass.services.MobileDeviceService;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -24,24 +25,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Unit Tests for {@link ScannerDeviceController}
+ * Unit Tests for {@link MobileDeviceController}
  *
  * @author j-espelita@ti.com
  */
-@WebMvcTest(controllers = ScannerDeviceController.class)
+@WebMvcTest(controllers = MobileDeviceController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ScannerDeviceControllerTest {
+class MobileDeviceControllerTest {
 
     ObjectMapper jsonMapper = new JsonMapper();
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
-    ScannerDeviceService scannerDeviceService;
+    MobileDeviceService mockMobileDeviceService;
 
     @Test
     void getScannerDevices() throws Exception {
-        when(scannerDeviceService.getScannerDevices(any()))
+        when(mockMobileDeviceService.getMobileDevices(any()))
                 .thenReturn(Collections.singletonList(MobileDevice.builder().imei("TEST").build()));
 
         mockMvc.perform(get("/registry/scanner-devices"))
@@ -54,21 +55,35 @@ class ScannerDeviceControllerTest {
 
     @Test
     void postScannerDevices() throws Exception {
-
-        final ScannerDevice scannerDevice = new ScannerDevice();
-        scannerDevice.setUniqueDeviceId("test123");
-        scannerDevice.setMobileNumber("123456");
-        scannerDevice.setId(1);
-
-        when(scannerDeviceService.registerScannerDevice(any(ScannerDevice.class)))
-                .thenReturn(new ScannerDevice());
+        final MobileDevice mobileDevice = MobileDevice.builder().imei("test123").mobileNumber("123456").build();
+        when(mockMobileDeviceService.registerMobileDevice(any(MobileDevice.class)))
+                .thenReturn(mobileDevice);
 
         mockMvc.perform(post("/registry/scanner-devices")
                 .contentType(APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(scannerDevice)))
+                .content(jsonMapper.writeValueAsString(mobileDevice)))
                 .andDo(print()).andExpect(status().isCreated());
 
-        verify(scannerDeviceService, only()).registerScannerDevice(scannerDevice);
+        verify(mockMobileDeviceService, only()).registerMobileDevice(mobileDevice);
+    }
 
+    @Test
+    void getScannerDevice() throws Exception {
+        final MobileDevice mobileDevice = MobileDevice.builder().imei("test123").mobileNumber("123456").build();
+
+        when(mockMobileDeviceService.getMobileDevice(anyString())).thenReturn(Optional.empty());
+        when(mockMobileDeviceService.getMobileDevice(eq("test123"))).thenReturn(Optional.of(mobileDevice));
+
+        // test found
+        mockMvc.perform(get("/registry/scanner-devices/{unique_id}", "test123"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.imei").value("test123"))
+                .andExpect(jsonPath("$.mobileNumber").value("123456"));
+
+        // test not found
+        mockMvc.perform(get("/registry/scanner-devices/{unique_id}", "notfound"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

@@ -40,21 +40,18 @@ public interface ScannerDeviceRepository extends
                             criteriaBuilder.like(root.get("brand").as(String.class), "%" + brand + "%");
         }
 
-        @NotNull
         public static Specification<ScannerDevice> byMobileNumber(String mobileNumber) {
             return (root, query, criteriaBuilder) ->
                     StringUtils.isEmpty(mobileNumber) ? null :
                             criteriaBuilder.like(root.get("mobileNumber").as(String.class), "%" + mobileNumber + "%");
         }
 
-        @NotNull
         public static Specification<ScannerDevice> byModel(String model) {
             return (root, query, criteriaBuilder) ->
                     StringUtils.isEmpty(model) ? null :
                             criteriaBuilder.like(root.get("model").as(String.class), "%" + model + "%");
         }
 
-        @NotNull
         public static Specification<ScannerDevice> byId(String id) {
             return (root, query, criteriaBuilder) ->
                     StringUtils.isEmpty(id) ? null :

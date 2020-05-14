@@ -10,9 +10,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.MobileDevice;
-import ph.devcon.rapidpass.services.ScannerDeviceService.ScannerDeviceFilter;
+import ph.devcon.rapidpass.services.MobileDeviceService.MobileDeviceFilter;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -26,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({ScannerDeviceService.class})
-class ScannerDeviceServiceIT {
+@Import({MobileDeviceService.class})
+class MobileDeviceServiceIT {
 
     @Autowired
-    ScannerDeviceService scannerDeviceService;
+    MobileDeviceService mobileDeviceService;
 
     /**
      * Exercises filters. Should not throw exceptions.
@@ -38,18 +39,18 @@ class ScannerDeviceServiceIT {
     @Test
     void testWhereClauses() {
         // brand
-        scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().brand("TEST1").build());
+        mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().brand("TEST1").build());
         // mobileNumber
-        scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().mobileNumber("TEST2").build());
+        mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().mobileNumber("TEST2").build());
         // id
-        scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().id("TEST3").build());
+        mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("TEST3").build());
         // model
-        scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().model("TEST4").build());
+        mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().model("TEST4").build());
 
 
         // combinations
-        scannerDeviceService.getScannerDevices(
-                ScannerDeviceFilter.builder()
+        mobileDeviceService.getMobileDevices(
+                MobileDeviceFilter.builder()
                         .brand("TEST")
                         .mobileNumber("TEST")
                         .id("TEST")
@@ -67,14 +68,14 @@ class ScannerDeviceServiceIT {
     @Test
     void registerGetScannerDevice() {
         // create device
-        final ScannerDevice device = new ScannerDevice();
-        device.setUniqueDeviceId("test123");
-        scannerDeviceService.registerScannerDevice(device);
+        mobileDeviceService.registerMobileDevice(MobileDevice.builder().imei("test123").build());
 
         // verify device created
-        final ScannerDevice test123 = scannerDeviceService.getScannerDevice("test123");
-        assertThat(test123, is(not(nullValue())));
-        assertThat(test123.getUniqueDeviceId(), is("test123"));
+        final Optional<MobileDevice> optMobileDevice = mobileDeviceService.getMobileDevice("test123");
+        assertThat(optMobileDevice.isPresent(), is(true));
+
+        final MobileDevice test123 = optMobileDevice.get();
+        assertThat(test123.getImei(), is("test123"));
 
         // cleanup
         jdbcTemplate.update("delete from scanner_device where unique_device_id = 'test123'");
@@ -83,19 +84,17 @@ class ScannerDeviceServiceIT {
     @Test
     void removeScannerDevice() {
         // create device
-        final ScannerDevice device = new ScannerDevice();
-        device.setUniqueDeviceId("test123");
-        scannerDeviceService.registerScannerDevice(device);
+        mobileDeviceService.registerMobileDevice(MobileDevice.builder().imei("test123").build());
 
         // verify created
-        List<MobileDevice> test123 = scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().id("test123").build());
+        List<MobileDevice> test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("test123").build());
         assertThat(test123, is(not(empty())));
 
         // do remove
-        scannerDeviceService.removeScannerDevice("test123");
+        mobileDeviceService.removeMobileDevice("test123");
 
         // verify deleted
-        test123 = scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().id("test123").build());
+        test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("test123").build());
         assertThat(test123, is((empty())));
     }
 
@@ -104,21 +103,21 @@ class ScannerDeviceServiceIT {
         // create device
         final ScannerDevice device = new ScannerDevice();
         device.setUniqueDeviceId("test123");
-        scannerDeviceService.registerScannerDevice(device);
+        mobileDeviceService.registerMobileDevice(MobileDevice.builder().imei("test123").build());
 
         // verify created
-        List<MobileDevice> test123 = scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().id("test123").build());
+        List<MobileDevice> test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("test123").build());
         assertThat(test123, is(not(empty())));
 
         // do update
         device.setModel("update model");
-        scannerDeviceService.updateScannerDevice(device);
+        mobileDeviceService.updateMobileDevice(MobileDevice.builder().imei("test123").build());
 
         // verify updated
-        test123 = scannerDeviceService.getScannerDevices(ScannerDeviceFilter.builder().id("test123").build());
+        test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("test123").build());
         assertThat(test123.get(0).getModel(), is("update model"));
 
         // cleanup
-        scannerDeviceService.removeScannerDevice("test123");
+        mobileDeviceService.removeMobileDevice("test123");
     }
 }

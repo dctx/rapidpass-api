@@ -10,32 +10,33 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ph.devcon.rapidpass.repositories.ScannerDeviceRepository.ScannerDeviceSpecs.*;
 
 /**
- * The {@link ScannerDeviceService} class provides operations to support CRUD for {@link ScannerDevice}.
+ * The {@link MobileDeviceService} class provides operations to support CRUD for {@link MobileDevice}.
  *
  * @author jonasespelita@gmail.com
  */
 @Service
 @RequiredArgsConstructor
-public class ScannerDeviceService {
+public class MobileDeviceService {
     private final ScannerDeviceRepository scannerDeviceRepository;
 
     /**
      * Searches for all devices that matches filter.
      *
-     * @param scannerDeviceFilter filter with optional parameters
+     * @param mobileDeviceFilter filter with optional parameters
      * @return list of all scanner devices matching filter
      */
-    public List<MobileDevice> getScannerDevices(ScannerDeviceFilter scannerDeviceFilter) {
+    public List<MobileDevice> getMobileDevices(MobileDeviceFilter mobileDeviceFilter) {
         return scannerDeviceRepository.findAll(
-                byBrand(scannerDeviceFilter.getBrand())
-                        .and(byMobileNumber(scannerDeviceFilter.getMobileNumber()))
-                        .and(byModel(scannerDeviceFilter.getModel()))
-                        .and(byId(scannerDeviceFilter.getId())))
+                byBrand(mobileDeviceFilter.getBrand())
+                        .and(byMobileNumber(mobileDeviceFilter.getMobileNumber()))
+                        .and(byModel(mobileDeviceFilter.getModel()))
+                        .and(byId(mobileDeviceFilter.getId())))
                 .stream()
                 .map(MobileDevice::buildFrom)
                 .collect(Collectors.toList());
@@ -47,8 +48,10 @@ public class ScannerDeviceService {
      * @param device device to register
      * @return the registered device
      */
-    public ScannerDevice registerScannerDevice(@Valid ScannerDevice device) {
-        return scannerDeviceRepository.saveAndFlush(device);
+    public MobileDevice registerMobileDevice(@Valid MobileDevice device) {
+        return MobileDevice.buildFrom(
+                scannerDeviceRepository
+                        .saveAndFlush(device.toScannerDevice()));
     }
 
     /**
@@ -57,8 +60,8 @@ public class ScannerDeviceService {
      * @param uniqueDeviceId unique id of device being searched for
      * @return matching scanner device
      */
-    public ScannerDevice getScannerDevice(String uniqueDeviceId) {
-        return scannerDeviceRepository.findByUniqueDeviceId(uniqueDeviceId);
+    public Optional<MobileDevice> getMobileDevice(String uniqueDeviceId) {
+        return Optional.ofNullable(MobileDevice.buildFrom(scannerDeviceRepository.findByUniqueDeviceId(uniqueDeviceId)));
     }
 
     /**
@@ -66,7 +69,7 @@ public class ScannerDeviceService {
      *
      * @param uniqueDeviceId device id of scanner device to delete
      */
-    public void removeScannerDevice(String uniqueDeviceId) {
+    public void removeMobileDevice(String uniqueDeviceId) {
         scannerDeviceRepository.delete(scannerDeviceRepository.findByUniqueDeviceId(uniqueDeviceId));
     }
 
@@ -76,10 +79,11 @@ public class ScannerDeviceService {
      * @param updateDevice update to device
      * @return updated scanner device
      */
-    public ScannerDevice updateScannerDevice(@Valid ScannerDevice updateDevice) {
-        final ScannerDevice toUpdate = scannerDeviceRepository.findByUniqueDeviceId(updateDevice.getUniqueDeviceId());
-        updateDevice.setId(toUpdate.getId());
-        return scannerDeviceRepository.saveAndFlush(updateDevice);
+    public MobileDevice updateMobileDevice(@Valid MobileDevice updateDevice) {
+        final ScannerDevice toUpdate = scannerDeviceRepository.findByUniqueDeviceId(updateDevice.getImei());
+        final ScannerDevice updateScannerDevice = updateDevice.toScannerDevice();
+        updateScannerDevice.setId(toUpdate.getId());
+        return MobileDevice.buildFrom(scannerDeviceRepository.saveAndFlush(updateScannerDevice));
     }
 
     /**
@@ -87,7 +91,7 @@ public class ScannerDeviceService {
      */
     @Data
     @Builder
-    public static class ScannerDeviceFilter {
+    public static class MobileDeviceFilter {
         private String id;
         private String model;
         private String brand;

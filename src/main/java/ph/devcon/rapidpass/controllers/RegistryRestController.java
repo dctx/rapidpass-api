@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
@@ -211,7 +210,7 @@ public class RegistryRestController {
     /**
      * @param queryFilter
      * @return
-     * @deprecated use {@link ScannerDeviceController}
+     * @deprecated use {@link MobileDeviceController}
      */
     @Deprecated
     @GetMapping("/scanner-devices")
@@ -236,7 +235,7 @@ public class RegistryRestController {
     /**
      * @param deviceRequest
      * @return
-     * @deprecated use {@link ScannerDeviceController}
+     * @deprecated use {@link MobileDeviceController}
      */
     @Deprecated
     @PostMapping("/scanner-devices")
