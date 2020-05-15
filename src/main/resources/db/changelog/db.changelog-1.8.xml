@@ -16,11 +16,15 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <include relativeToChangelogFile="true" file="db.changelog-1.1.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.2.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.3.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.4.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.5.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.7.xml"/>
-    <include relativeToChangelogFile="true" file="db.changelog-1.8.xml"/>
+    <changeSet author="darren" id="20200505-5">
+        <modifyDataType tableName="apor_lookup"
+                        columnName="code"
+                        newDataType="VARCHAR(10)"/>
+        <modifyDataType tableName="apor_lookup"
+                        columnName="description"
+                        newDataType="VARCHAR(100)"/>
+        <addColumn tableName="apor_lookup">
+            <column name="approving_agency" type="varchar(100)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
