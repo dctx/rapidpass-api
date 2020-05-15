@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `PUT registry/scanner-device/{unique_id}` - update device matching id
     - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
 
+### Fixed
+- [#461](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/461) `1.8.3.alpha.1` Fixed duplicate rapid passes caused by concurrency issues.
+
 
 ## [1.8.2] - 2020-05-08
 ### Changed
