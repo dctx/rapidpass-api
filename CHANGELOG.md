@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Batch upload now relies on `apor_lookup` table 
     for APOR type checking, rather than the old `lookup_table` table.
 
+### Fixed
+- [#461](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/461) `1.8.3.alpha.2` Fixed duplicate rapid passes caused by concurrency issues.
+
+
 ## [1.8.2] - 2020-05-08
 ### Changed
 - [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
