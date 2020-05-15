@@ -28,7 +28,7 @@ import java.io.Serializable;
  * @author darren
  */
 @Entity
-@Table(name = "apor_lookup")
+@Table(name = "apor_lookup", schema = "public")
 @Data
 public class AporLookup implements Serializable {
 
