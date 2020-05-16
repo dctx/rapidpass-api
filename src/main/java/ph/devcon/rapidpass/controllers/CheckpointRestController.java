@@ -209,7 +209,7 @@ public class CheckpointRestController {
         claims.put("xsrfToken", UUID.randomUUID().toString());
         claims.put("exp", expiry.toEpochSecond());
 
-        // FIXME this won't work with new keycloak implementation!
+        // JWT is currently not used by the checkpoint app
 //        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
 
         CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
