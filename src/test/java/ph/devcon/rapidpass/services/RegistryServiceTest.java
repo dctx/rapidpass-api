@@ -192,7 +192,7 @@ class RegistryServiceTest {
         when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
 
         // mock save and flush
-        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
+        when(mockRegistrantRepository.saveAndFlush(ArgumentMatchers.any()))
                 .thenReturn(Registrant.builder().registrarId(0)
                         .firstName("Jonas").build());
 
@@ -228,7 +228,7 @@ class RegistryServiceTest {
         // for no existing pass, new registrant, expect the ff:
         // save registrant
         verify(mockRegistrantRepository, times(1))
-                .save(ArgumentMatchers.any(Registrant.class));
+                .saveAndFlush(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
         verify(mockAccessPassRepository, times(2))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
@@ -293,93 +293,6 @@ class RegistryServiceTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
         }
-    }
-
-    /**
-     * Test will be removed eventually --
-     *
-     * Currently relying on front end to do validation.
-     *
-     * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236
-     */
-    @Test
-    void temporarilyAllowInvalidIdTypesForSingleNewAccessPassRequests(){
-
-        final Registrant sampleRegistrant = Registrant.builder()
-                .id(1)
-                .registrarId(0)
-                .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
-                .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
-                .referenceId(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .email(TEST_INDIVIDUAL_REQUEST.getEmail())
-                .mobile(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
-                .build();
-
-        final AccessPass samplePendingAccessPass = AccessPass.builder()
-                .id(1)
-                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
-                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
-                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
-                // Allows platenumber (vehicle id type) for an individual access pass  request
-                .aporType("PLT")
-                .status(AccessPassStatus.PENDING.toString())
-                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
-                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .registrantId(sampleRegistrant)
-                .build();
-
-        // mock registry always returns a registry
-        final Registrar mockRegistrar = new Registrar();
-        mockRegistrar.setId(0);
-
-//        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
-
-        // no existing user
-        when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
-
-        // mock save and flush
-        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
-                .thenReturn(Registrant.builder().registrarId(0)
-                        .firstName("Jonas").build());
-
-        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
-
-        when(lookupTableService.getAporTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
-                ))
-        );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
-        when(mockControlCodeService.encode(anyInt())).thenReturn("ABCDEFG1");
-
-        final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
-
-        assertThat(rapidPass, is(not(nullValue())));
-
-        // for no existing pass, new registrant, expect the ff:
-        // save registrant
-        verify(mockRegistrantRepository, times(1))
-                .save(ArgumentMatchers.any(Registrant.class));
-        // save and flush access pass
-        verify(mockAccessPassRepository, times(2))
-                .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
     @Test
@@ -711,7 +624,7 @@ class RegistryServiceTest {
         Registrant mockRegistrant = Registrant.builder().registrarId(0)
                 .firstName("Darren").build();
 
-        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
+        when(mockRegistrantRepository.saveAndFlush(ArgumentMatchers.any()))
                 .thenReturn(mockRegistrant);
 
 
