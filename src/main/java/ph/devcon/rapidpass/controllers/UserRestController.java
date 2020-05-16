@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -139,24 +138,23 @@ public class UserRestController {
     }
 
 
-    /***
-     * @deprecated use {@code /users/apor-types} instead
-     * @param userName
-     * @return
+    /**
+     * Retrieves the APOR types of the specified user.
+     * @see #getAuthorizedAporTypes()
+     * @deprecated
      */
     @Deprecated
     @GetMapping("/{userName}/apor-types")
-    public final ResponseEntity<List<String>> getAporTypesByUser(@PathVariable String userName) {
-        List<String> aporTypesForUser = lookupService.getAporTypesForUser(userName);
-        if (aporTypesForUser == null || aporTypesForUser.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(aporTypesForUser);
-        }
+    public final ResponseEntity<?> getAporTypesByUser(@PathVariable String userName) {
+        // APOR types should be retrieved from Keycloak.
+        log.warn("This GET /{username}/apor-types has been deprecated, but is still being called.");
+        return this.getAuthorizedAporTypes();
     }
 
     /**
-     * Endpoint to retrieve authorized apor types for a user. Expects an access token in authorization header.
+     * Endpoint to retrieve authorized apor types for the currently logged in user.
+     *
+     * This expects an access token in authorization header.
      *
      * @return 200 - JSON list of apor types, 403 - no valid authorization header
      */
