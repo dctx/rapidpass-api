@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated table 
     definition and seed data.
 - [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) `1.8.3.alpha.3` - Added check version and download endpoint for Checkpoint app.
+- [#449](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/449) `1.8.3.alpha.4` Restricts bulk upload by their APOR type.
     
 ### Changed
 - [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Batch upload now relies on `apor_lookup` table 
@@ -30,9 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.8.2] - 2020-05-08
 ### Changed
 - [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) `1.8.2.alpha.1` `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
-
-### Added
-- [#449](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/449) `1.8.2.alpha.2` Restricts bulk upload by their APOR type.
 
 ### Added
 - new columns `email_sent`, `mobile_sent` on `notifier_log` table
