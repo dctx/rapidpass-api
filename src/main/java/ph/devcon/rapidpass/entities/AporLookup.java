@@ -55,6 +55,10 @@ public class AporLookup implements Serializable {
 
     }
 
+    public void setAporCode(String aporCode) {
+        this.aporCode = aporCode.toUpperCase();
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object instanceof AporLookup) {
