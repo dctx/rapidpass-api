@@ -768,7 +768,7 @@ public class RegistryService {
         List<String> passes = new ArrayList<>();
 
         // Validation
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupService, this.accessPassRepository);
 
         String currentLoggedInUser = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
