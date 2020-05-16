@@ -3,8 +3,7 @@ package ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ph.devcon.rapidpass.entities.LookupTable;
-import ph.devcon.rapidpass.entities.LookupTablePK;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
 import java.util.List;
@@ -12,9 +11,9 @@ import java.util.stream.Stream;
 
 public class IsValidAporType implements Validator {
 
-    final private List<LookupTable> aporTypes;
+    final private List<AporLookup> aporTypes;
 
-    public IsValidAporType(List<LookupTable> aporTypes) {
+    public IsValidAporType(List<AporLookup> aporTypes) {
         this.aporTypes = aporTypes;
     }
 
@@ -24,7 +23,7 @@ public class IsValidAporType implements Validator {
     }
 
     private Stream<String> getAporTypes() {
-        return aporTypes.stream().map(LookupTable::getLookupTablePK).map(LookupTablePK::getValue);
+        return aporTypes.stream().map(AporLookup::getAporCode);
     }
 
     protected boolean isValidAporType(String aporType) {

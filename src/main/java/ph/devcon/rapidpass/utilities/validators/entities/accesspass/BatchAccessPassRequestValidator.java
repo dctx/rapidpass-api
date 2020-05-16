@@ -20,7 +20,7 @@ import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
 
 /**
@@ -47,8 +47,8 @@ import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
  */
 public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValidator {
 
-    public BatchAccessPassRequestValidator(LookupTableService lookupTableService, AccessPassRepository accessPassRepository) {
-        super(lookupTableService, accessPassRepository);
+    public BatchAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository) {
+        super(lookupService, accessPassRepository);
     }
 
     @Override

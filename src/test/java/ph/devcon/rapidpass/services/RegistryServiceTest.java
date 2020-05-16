@@ -81,7 +81,8 @@ class RegistryServiceTest {
 
     @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
-    @Mock LookupTableService lookupTableService;
+    @Mock
+    LookupService lookupService;
 
     @Mock
     RapidPassEventProducer eventProducer;
@@ -100,7 +101,7 @@ class RegistryServiceTest {
                 eventProducer,
                 accessPassEventRepository,
                 mockAuthService,
-                lookupTableService,
+                lookupService,
                 mockAccessPassNotifierService,
                 mockRegistrarRepository,
                 mockRegistryRepository,
@@ -198,7 +199,7 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("APOR", "AG")),
                         new LookupTable(new LookupTablePK("APOR", "BP")),
@@ -206,7 +207,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getIndividualIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
@@ -214,7 +215,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+        when(lookupService.getVehicleIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
@@ -240,7 +241,7 @@ class RegistryServiceTest {
         final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("APOR", "AG")),
                         new LookupTable(new LookupTablePK("APOR", "BP")),
@@ -248,7 +249,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getIndividualIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
@@ -256,7 +257,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+        when(lookupService.getVehicleIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
@@ -344,7 +345,7 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("APOR", "AG")),
                         new LookupTable(new LookupTablePK("APOR", "BP")),
@@ -352,7 +353,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getIndividualIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
@@ -360,7 +361,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+        when(lookupService.getVehicleIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
@@ -478,7 +479,7 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("APOR", "AG")),
                         new LookupTable(new LookupTablePK("APOR", "BP")),
@@ -486,7 +487,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getIndividualIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
@@ -494,7 +495,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+        when(lookupService.getVehicleIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
@@ -564,7 +565,7 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExistingPendingData() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("APOR", "AG")),
                         new LookupTable(new LookupTablePK("APOR", "BP")),
@@ -572,7 +573,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getIndividualIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
                         new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
@@ -580,7 +581,7 @@ class RegistryServiceTest {
                 ))
         );
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+        when(lookupService.getVehicleIdTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
                         new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
@@ -694,7 +695,7 @@ class RegistryServiceTest {
                 null,
                 null,
                 null,
-                lookupTableService,
+                lookupService,
                 null,
                 null,
                 null,
@@ -733,7 +734,7 @@ class RegistryServiceTest {
         SubjectRegistrationCsvProcessorTest subjectRegistrationCsvProcessorTest = new SubjectRegistrationCsvProcessorTest();
         List<RapidPassCSVdata> mockData = subjectRegistrationCsvProcessorTest.mock("data-incorrect-columns.csv");
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         new LookupTable(new LookupTablePK("APOR", "MS")),
                         new LookupTable(new LookupTablePK("APOR", "SO")),

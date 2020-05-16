@@ -18,10 +18,10 @@ import com.google.common.collect.ImmutableList;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.LookupTable;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidAporType;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidMobileNumber;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidPassType;
@@ -32,19 +32,15 @@ import java.util.List;
 public abstract class BaseAccessPassRequestValidator implements Validator {
 
     final AccessPassRepository accessPassRepository;
-    final LookupTableService lookupTableService;
+    final LookupService lookupService;
 
-    protected List<LookupTable> aporTypes;
-    protected List<LookupTable> individualIdTypes;
-    protected List<LookupTable> vehicleIdTypes;
+    protected List<AporLookup> aporTypes;
 
-    public BaseAccessPassRequestValidator(LookupTableService lookupTableService, AccessPassRepository accessPassRepository) {
-        this.lookupTableService = lookupTableService;
+    public BaseAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository) {
+        this.lookupService = lookupService;
         this.accessPassRepository = accessPassRepository;
 
-        aporTypes = lookupTableService.getAporTypes();
-        individualIdTypes = lookupTableService.getIndividualIdTypes();
-        vehicleIdTypes = lookupTableService.getVehicleIdTypes();
+        aporTypes = lookupService.getAporTypes();
     }
 
     /**
@@ -90,7 +86,6 @@ public abstract class BaseAccessPassRequestValidator implements Validator {
 
         ImmutableList<Validator> validations = ImmutableList.of(
             new IsValidAporType(this.aporTypes),
-            // new IsValidIdType(this.individualIdTypes, this.vehicleIdTypes),
             new IsValidPassType(),
             new IsValidMobileNumber()
         );

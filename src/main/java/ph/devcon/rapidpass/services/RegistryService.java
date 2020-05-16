@@ -84,7 +84,7 @@ public class RegistryService {
 
     private final AccessPassEventRepository accessPassEventRepository;
     private final ApproverAuthService authService;
-    private final LookupTableService lookupTableService;
+    private final LookupService lookupService;
     private final AccessPassNotifierService accessPassNotifierService;
     private final RegistrarRepository registrarRepository;
 
@@ -113,7 +113,7 @@ public class RegistryService {
         normalizeIdMobileAndPlateNumber(rapidPassRequest);
 
         // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
-        NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupService, this.accessPassRepository);
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
 
@@ -643,7 +643,7 @@ public class RegistryService {
         List<String> passes = new ArrayList<>();
 
         // Validation
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupTableService, this.accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupService, this.accessPassRepository);
 
         String currentLoggedInUser = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

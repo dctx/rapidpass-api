@@ -34,6 +34,7 @@ import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.repositories.AporLookupRepository;
 import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -62,6 +63,7 @@ public class RegistryRestController {
 
     private final RegistryService registryService;
     private final ApproverAuthService approverAuthService;
+    private final AporLookupRepository aporLookupRepository;
     private final QrPdfService qrPdfService;
 
     @Value("${endpointswitch.registry.accesspasses:false}")

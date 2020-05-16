@@ -30,7 +30,7 @@ import ph.devcon.rapidpass.models.AgencyAuth;
 import ph.devcon.rapidpass.models.Login;
 import ph.devcon.rapidpass.models.UserActivationRequest;
 import ph.devcon.rapidpass.services.ApproverAuthService;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.JwtGenerator;
 import ph.devcon.rapidpass.utilities.KeycloakUtils;
 
@@ -48,7 +48,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserRestController {
 
-    private final LookupTableService lookupTableService;
+    private final LookupService lookupService;
     private final ApproverAuthService approverAuthService;
 
 //    public UserRestController(final ApproverAuthService approverAuthService) {
@@ -147,7 +147,7 @@ public class UserRestController {
     @Deprecated
     @GetMapping("/{userName}/apor-types")
     public final ResponseEntity<List<String>> getAporTypesByUser(@PathVariable String userName) {
-        List<String> aporTypesForUser = lookupTableService.getAporTypesForUser(userName);
+        List<String> aporTypesForUser = lookupService.getAporTypesForUser(userName);
         if (aporTypesForUser == null || aporTypesForUser.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
