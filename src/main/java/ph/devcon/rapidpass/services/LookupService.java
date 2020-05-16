@@ -24,6 +24,7 @@ import ph.devcon.rapidpass.repositories.LookupTableRepository;
 import ph.devcon.rapidpass.repositories.RegistrarUserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -41,4 +42,29 @@ public class LookupService {
         return aporLookupRepository.findAll();
     }
 
+    public List<AporLookup> addUpdateAporType(AporLookup data) {
+        List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
+        Optional<AporLookup> Apor = aporSearch.stream().findFirst();
+        AporLookup Apordata = Apor.orElse(null);
+
+        if (Apordata == null) {
+            aporLookupRepository.saveAndFlush(data);
+            return aporLookupRepository.findAll();
+        }
+
+        Apordata.setApprovingAgency(data.getApprovingAgency());
+        Apordata.setDescription(data.getDescription());
+        aporLookupRepository.saveAndFlush(Apordata);
+        //log.info("Edit AporTypes {}", data.getAporCode());
+        return aporLookupRepository.findAll();
+    }
+
+    public List<AporLookup> deleteAporType(String aporType) {
+        List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(aporType);
+        Optional<AporLookup> Apor = aporSearch.stream().findFirst();
+        AporLookup Apordata = Apor.orElse(null);
+
+        if(Apordata != null) aporLookupRepository.delete(Apordata);
+        return aporLookupRepository.findAll();
+    }
 }
