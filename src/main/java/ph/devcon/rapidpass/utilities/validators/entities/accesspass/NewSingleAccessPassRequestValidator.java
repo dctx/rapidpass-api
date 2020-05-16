@@ -18,7 +18,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.HasNoExistingApprovedOrPendingPass;
 
 /**
@@ -28,8 +28,8 @@ import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.HasNoE
  */
 public class NewSingleAccessPassRequestValidator extends BaseAccessPassRequestValidator {
 
-    public NewSingleAccessPassRequestValidator(LookupTableService lookupTableService, AccessPassRepository accessPassRepository) {
-        super(lookupTableService, accessPassRepository);
+    public NewSingleAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository) {
+        super(lookupService, accessPassRepository);
     }
 
     protected void validateRequiredFields(RapidPassRequest request, Errors errors) {

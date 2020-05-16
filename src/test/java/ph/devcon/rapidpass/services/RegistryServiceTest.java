@@ -29,7 +29,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
-import ph.devcon.rapidpass.entities.*;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.AporLookup;
+import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
@@ -81,7 +84,8 @@ class RegistryServiceTest {
 
     @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
-    @Mock LookupTableService lookupTableService;
+    @Mock
+    LookupService lookupService;
 
     @Mock
     RapidPassEventProducer eventProducer;
@@ -100,7 +104,7 @@ class RegistryServiceTest {
                 eventProducer,
                 accessPassEventRepository,
                 mockAuthService,
-                lookupTableService,
+                lookupService,
                 mockAccessPassNotifierService,
                 mockRegistrarRepository,
                 mockRegistryRepository,
@@ -198,26 +202,11 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
-                ))
-        );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -240,29 +229,13 @@ class RegistryServiceTest {
         final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
@@ -344,26 +317,12 @@ class RegistryServiceTest {
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
-                ))
-        );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -478,26 +437,12 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "MS"))
-                ))
-        );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -564,28 +509,15 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExistingPendingData() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "MS"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
 
         List<AccessPass> collections = new ArrayList<>();
         collections.add(
@@ -694,7 +626,7 @@ class RegistryServiceTest {
                 null,
                 null,
                 null,
-                lookupTableService,
+                lookupService,
                 null,
                 null,
                 null,
@@ -733,11 +665,12 @@ class RegistryServiceTest {
         SubjectRegistrationCsvProcessorTest subjectRegistrationCsvProcessorTest = new SubjectRegistrationCsvProcessorTest();
         List<RapidPassCSVdata> mockData = subjectRegistrationCsvProcessorTest.mock("data-incorrect-columns.csv");
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "MS")),
-                        new LookupTable(new LookupTablePK("APOR", "SO")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("SO").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 

@@ -13,7 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `GET registry/scanner-device/{unique_id}` - retrieve device matching id
     - `PUT registry/scanner-device/{unique_id}` - update device matching id
     - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
-
+- [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated table 
+    definition and seed data.
+    
+### Changed
+- [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Batch upload now relies on `apor_lookup` table 
+    for APOR type checking, rather than the old `lookup_table` table.
 
 ## [1.8.2] - 2020-05-08
 ### Changed

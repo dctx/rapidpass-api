@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.enums.LookupType;
 import ph.devcon.rapidpass.models.LookupValue;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,11 +38,16 @@ import java.util.Map;
 @RequestMapping("/lookup")
 public final class LookupController {
 
-    private final LookupTableService lookupTableService;
+    private final LookupService lookupService;
 
     @Autowired
-    public LookupController(final LookupTableService lookupTableService) {
-        this.lookupTableService = lookupTableService;
+    public LookupController(final LookupService lookupService) {
+        this.lookupService = lookupService;
+    }
+
+    @GetMapping("/apor")
+    public ResponseEntity<?> getAporLookup() {
+        return ResponseEntity.ok(this.lookupService.getAporTypes());
     }
 
     /**
@@ -63,7 +68,7 @@ public final class LookupController {
         }
         // return lookup map if valid (future possibility of just return all lookups?)
         try {
-            final List<LookupTable> lookups = this.lookupTableService.getByType(type);
+            final List<LookupTable> lookups = this.lookupService.getByType(type);
             final Map<String, List<LookupValue>> data = new HashMap<>();
             if (CollectionUtils.isEmpty(lookups)) {
                 log.warn("an empty lookup was returned");

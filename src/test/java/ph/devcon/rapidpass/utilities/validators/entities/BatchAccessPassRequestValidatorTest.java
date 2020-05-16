@@ -23,12 +23,11 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.LookupTable;
-import ph.devcon.rapidpass.entities.LookupTablePK;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.BatchAccessPassRequestValidator;
 
 import java.util.Collections;
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.when;
 public class BatchAccessPassRequestValidatorTest {
 
     @Mock
-    LookupTableService lookupTableService;
+    LookupService lookupService;
 
     @Mock
     AccessPassRepository accessPassRepository;
@@ -60,30 +59,15 @@ public class BatchAccessPassRequestValidatorTest {
     @Test
     public void newRapidPassRequest_success() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -113,7 +97,7 @@ public class BatchAccessPassRequestValidatorTest {
 
         assertThat(errors.size(), equalTo(0));
 
-        batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -147,30 +131,15 @@ public class BatchAccessPassRequestValidatorTest {
     @Test
     public void continueIfExistingAccessPassAlreadyExists() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
 
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
@@ -204,7 +173,7 @@ public class BatchAccessPassRequestValidatorTest {
     public void failIfIncorrectMobileNumberFormat() {
 
 
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()
@@ -264,7 +233,7 @@ public class BatchAccessPassRequestValidatorTest {
 
     @Test
     public void requiredDestinationCity() {
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()
