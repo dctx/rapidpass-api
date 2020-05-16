@@ -17,9 +17,14 @@ package ph.devcon.rapidpass.utilities.validators.entities;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import ph.devcon.rapidpass.entities.AccessPass;
@@ -42,6 +47,9 @@ import static org.mockito.Mockito.when;
 public class BatchAccessPassRequestValidatorTest {
 
     @Mock
+    Authentication mockAuthentication;
+
+    @Mock
     LookupService lookupService;
 
     @Mock
@@ -58,6 +66,14 @@ public class BatchAccessPassRequestValidatorTest {
 
     @Test
     public void newRapidPassRequest_success() {
+
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
         when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
@@ -131,6 +147,14 @@ public class BatchAccessPassRequestValidatorTest {
     @Test
     public void continueIfExistingAccessPassAlreadyExists() {
 
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+
         when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
                         AporLookup.builder().aporCode("AG").build(),
@@ -171,6 +195,14 @@ public class BatchAccessPassRequestValidatorTest {
 
     @Test
     public void failIfIncorrectMobileNumberFormat() {
+
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
 
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
@@ -233,6 +265,14 @@ public class BatchAccessPassRequestValidatorTest {
 
     @Test
     public void requiredDestinationCity() {
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+
         BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(lookupService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----

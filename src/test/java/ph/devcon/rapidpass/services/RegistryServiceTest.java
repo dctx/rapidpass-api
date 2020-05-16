@@ -20,11 +20,13 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
@@ -49,7 +51,10 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,6 +70,8 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 class RegistryServiceTest {
 
     RegistryService instance;
+
+    @Mock Authentication mockAuthentication;
 
     @Mock ApproverAuthService mockAuthService;
 
@@ -153,16 +160,12 @@ class RegistryServiceTest {
     @Test
     void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
 
-        SecurityContext mockSecurityContext = mock(SecurityContext.class);
-        Authentication mockAuthentication = mock(Authentication.class);
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
 
-        SecurityContextHolder.setContext(mockSecurityContext);
-
-        HashMap<String, Object> object = new HashMap<>();
-        object.put("sub", "jose.rizal@gmail.com");
-
-        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getPrincipal()).thenReturn(object);
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
         final Registrant sampleRegistrant = Registrant.builder()
                 .id(1)
@@ -364,6 +367,14 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
 
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+
 
         when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
@@ -435,6 +446,14 @@ class RegistryServiceTest {
 
     @Test
     void bulkUploadShouldOverwriteExistingPendingData() {
+
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
 
         when(lookupService.getAporTypes()).thenReturn(
@@ -547,6 +566,14 @@ class RegistryServiceTest {
 
     @Test
     public void test_bulkUploadIncorrectColumns() throws CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException, IOException, RegistryService.UpdateAccessPassException {
+
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS,SO");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
         RegistryService testTargetRegistryService = new RegistryService(
                 null,
