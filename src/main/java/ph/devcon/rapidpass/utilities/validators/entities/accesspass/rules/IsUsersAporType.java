@@ -3,18 +3,17 @@ package ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-public class IsValidAporType implements Validator {
+public class IsUsersAporType implements Validator {
 
-    final private List<AporLookup> aporTypes;
+    final private List<String> allowedAporTypes;
 
-    public IsValidAporType(List<AporLookup> aporTypes) {
-        this.aporTypes = aporTypes;
+    public IsUsersAporType(List<String> allowedAporTypes) {
+        this.allowedAporTypes = allowedAporTypes;
     }
 
     @Override
@@ -23,10 +22,10 @@ public class IsValidAporType implements Validator {
     }
 
     private Stream<String> getAporTypes() {
-        return aporTypes.stream().map(AporLookup::getAporCode);
+        return allowedAporTypes.stream();
     }
 
-    protected boolean isValidAporType(String aporType) {
+    protected boolean isUsersAporType(String aporType) {
         return getAporTypes()
                 .filter(type -> type.equals(aporType))
                 .count() == 1L;
@@ -36,8 +35,9 @@ public class IsValidAporType implements Validator {
     public void validate(Object object, Errors errors) {
         RapidPassRequest request = object instanceof RapidPassRequest ? ((RapidPassRequest) object) : null;
 
-        if (request != null && (StringUtils.isEmpty(request.getAporType()) || !isValidAporType(request.getAporType()))) {
-            errors.rejectValue("aporType", "invalid.aporType", "Invalid APOR Type.");
+        if (request != null && !StringUtils.isEmpty(request.getAporType()) && !isUsersAporType(request.getAporType())) {
+            String defaultMessage = String.format("You are not authorized to upload for APOR type %s.", request.getAporType());
+            errors.rejectValue("aporType", "notOwned.aporType", defaultMessage);
         }
     }
 }

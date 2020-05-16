@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.when;
@@ -34,7 +34,7 @@ class UserRestControllerTest {
     Authentication mockAuthentication;
 
     @MockBean
-    LookupTableService mockLookupTableService;
+    LookupService mockLookupService;
 
     @Autowired
     MockMvc mockMvc;

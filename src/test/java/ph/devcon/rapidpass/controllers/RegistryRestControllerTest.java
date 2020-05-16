@@ -39,6 +39,7 @@ import ph.devcon.rapidpass.models.QueryFilter;
 import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassPageView;
 import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.repositories.AporLookupRepository;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
@@ -151,6 +152,8 @@ class RegistryRestControllerTest {
         TEST_INDIVIDUAL_RAPID_PASS = RapidPass.buildFrom(TEST_INDIVIDUAL_ACCESS_PASS);
 
         TEST_VEHICLE_RAPID_PASS = RapidPass.buildFrom(TEST_VEHICLE_ACCESS_PASS);
+
+
     }
 
     @Autowired
@@ -161,6 +164,9 @@ class RegistryRestControllerTest {
 
     @MockBean
     QrPdfService mockQrPdfService;
+
+    @MockBean
+    AporLookupRepository mockAporLookupRepository;
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.

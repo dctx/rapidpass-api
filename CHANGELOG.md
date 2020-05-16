@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.8.3] - 2020-05-08
+## [Unreleased]
+
+## [1.8.3] - 2020-05-16
 ### Added
 - [#463](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/463) CRUD operations for Scanner Devices
     - `GET registry/scanner-devices` - retrieve devices with optional filter
@@ -13,11 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `GET registry/scanner-device/{unique_id}` - retrieve device matching id
     - `PUT registry/scanner-device/{unique_id}` - update device matching id
     - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
+- [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated table 
+    definition and seed data.
+- [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) `1.8.3.alpha.3` - Added check version and download endpoint for Checkpoint app.
+- [#449](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/449) `1.8.3.alpha.4` Restricts bulk upload by their APOR type.
+    
+### Changed
+- [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Batch upload now relies on `apor_lookup` table 
+    for APOR type checking, rather than the old `lookup_table` table.
+
+### Fixed
+- [#461](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/461) `1.8.3.alpha.2` Fixed duplicate rapid passes caused by concurrency issues.
 
 
 ## [1.8.2] - 2020-05-08
 ### Changed
-- [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
+- [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) `1.8.2.alpha.1` `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
 
 ### Added
 - new columns `email_sent`, `mobile_sent` on `notifier_log` table

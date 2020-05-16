@@ -20,16 +20,21 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
-import ph.devcon.rapidpass.entities.*;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.AporLookup;
+import ph.devcon.rapidpass.entities.Registrant;
+import ph.devcon.rapidpass.entities.Registrar;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
@@ -46,7 +51,10 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -62,6 +70,8 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 class RegistryServiceTest {
 
     RegistryService instance;
+
+    @Mock Authentication mockAuthentication;
 
     @Mock RegistrarRepository mockRegistrarRepository;
 
@@ -79,7 +89,8 @@ class RegistryServiceTest {
 
     @Mock ScannerDeviceRepository mockScannerDeviceRepository;
 
-    @Mock LookupTableService lookupTableService;
+    @Mock
+    LookupService lookupService;
 
     @Mock
     RapidPassEventProducer eventProducer;
@@ -89,6 +100,9 @@ class RegistryServiceTest {
 
     @Mock
     AccessPassEventRepository accessPassEventRepository;
+
+    @Mock
+    LookupService lookupTableService;
 
     @BeforeEach
     void setUp() {
@@ -146,16 +160,12 @@ class RegistryServiceTest {
     @Test
     void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
 
-        SecurityContext mockSecurityContext = mock(SecurityContext.class);
-        Authentication mockAuthentication = mock(Authentication.class);
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
 
-        SecurityContextHolder.setContext(mockSecurityContext);
-
-        HashMap<String, Object> object = new HashMap<>();
-        object.put("sub", "jose.rizal@gmail.com");
-
-        when(mockSecurityContext.getAuthentication()).thenReturn(mockAuthentication);
-        when(mockAuthentication.getPrincipal()).thenReturn(object);
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
         final Registrant sampleRegistrant = Registrant.builder()
                 .id(1)
@@ -189,32 +199,17 @@ class RegistryServiceTest {
         when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
 
         // mock save and flush
-        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
+        when(mockRegistrantRepository.saveAndFlush(ArgumentMatchers.any()))
                 .thenReturn(Registrant.builder().registrarId(0)
                         .firstName("Jonas").build());
 
         when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
-                ))
-        );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -225,7 +220,7 @@ class RegistryServiceTest {
         // for no existing pass, new registrant, expect the ff:
         // save registrant
         verify(mockRegistrantRepository, times(1))
-                .save(ArgumentMatchers.any(Registrant.class));
+                .saveAndFlush(ArgumentMatchers.any(Registrant.class));
         // save and flush access pass
         verify(mockAccessPassRepository, times(2))
                 .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
@@ -237,29 +232,13 @@ class RegistryServiceTest {
         final Calendar FIVE_DAYS_FROM_NOW = Calendar.getInstance();
         FIVE_DAYS_FROM_NOW.add(Calendar.DAY_OF_MONTH, 5);
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
 
         final AccessPass samplePendingAccessPass = AccessPass.builder()
                 .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
@@ -290,93 +269,6 @@ class RegistryServiceTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString("An existing PENDING/APPROVED RapidPass already exists"));
         }
-    }
-
-    /**
-     * Test will be removed eventually --
-     *
-     * Currently relying on front end to do validation.
-     *
-     * See https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236
-     */
-    @Test
-    void temporarilyAllowInvalidIdTypesForSingleNewAccessPassRequests(){
-
-        final Registrant sampleRegistrant = Registrant.builder()
-                .id(1)
-                .registrarId(0)
-                .firstName(TEST_INDIVIDUAL_REQUEST.getFirstName())
-                .lastName(TEST_INDIVIDUAL_REQUEST.getLastName())
-                .referenceId(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .email(TEST_INDIVIDUAL_REQUEST.getEmail())
-                .mobile(TEST_INDIVIDUAL_REQUEST.getMobileNumber())
-                .build();
-
-        final AccessPass samplePendingAccessPass = AccessPass.builder()
-                .id(1)
-                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
-                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
-                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
-                // Allows platenumber (vehicle id type) for an individual access pass  request
-                .aporType("PLT")
-                .status(AccessPassStatus.PENDING.toString())
-                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
-                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .registrantId(sampleRegistrant)
-                .build();
-
-        // mock registry always returns a registry
-        final Registrar mockRegistrar = new Registrar();
-        mockRegistrar.setId(0);
-
-//        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(anyString())).thenReturn(Collections.emptyList());
-
-        // no existing user
-        when(mockRegistrantRepository.findByMobile(anyString())).thenReturn(null);
-
-        // mock save and flush
-        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
-                .thenReturn(Registrant.builder().registrarId(0)
-                        .firstName("Jonas").build());
-
-        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any())).thenReturn(samplePendingAccessPass);
-
-        when(lookupTableService.getAporTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
-                ))
-        );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
-
-        when(mockControlCodeService.encode(anyInt())).thenReturn("ABCDEFG1");
-
-        final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST);
-
-        assertThat(rapidPass, is(not(nullValue())));
-
-        // for no existing pass, new registrant, expect the ff:
-        // save registrant
-        verify(mockRegistrantRepository, times(1))
-                .save(ArgumentMatchers.any(Registrant.class));
-        // save and flush access pass
-        verify(mockAccessPassRepository, times(2))
-                .saveAndFlush(ArgumentMatchers.any(AccessPass.class));
     }
 
     @Test
@@ -475,26 +367,20 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "MS"))
-                ))
-        );
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
+
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -561,28 +447,23 @@ class RegistryServiceTest {
     @Test
     void bulkUploadShouldOverwriteExistingPendingData() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+
+
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "MS"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "LTO")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "COM")),
-                        new LookupTable(new LookupTablePK("IDTYPE-IND", "NBI"))
-                ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-VHC", "CND"))
-                ))
-        );
 
         List<AccessPass> collections = new ArrayList<>();
         collections.add(
@@ -686,6 +567,14 @@ class RegistryServiceTest {
     @Test
     public void test_bulkUploadIncorrectColumns() throws CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException, IOException, RegistryService.UpdateAccessPassException {
 
+        // Mocking security to return a keycloak principal
+        final AccessToken accessToken = new AccessToken();
+        accessToken.setOtherClaims("aportypes", "AG,MS,SO");
+        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
+                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+
+        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+
         RegistryService testTargetRegistryService = new RegistryService(
                 null,
                 null,
@@ -707,7 +596,7 @@ class RegistryServiceTest {
         Registrant mockRegistrant = Registrant.builder().registrarId(0)
                 .firstName("Darren").build();
 
-        when(mockRegistrantRepository.save(ArgumentMatchers.any()))
+        when(mockRegistrantRepository.saveAndFlush(ArgumentMatchers.any()))
                 .thenReturn(mockRegistrant);
 
 
@@ -729,11 +618,12 @@ class RegistryServiceTest {
         SubjectRegistrationCsvProcessorTest subjectRegistrationCsvProcessorTest = new SubjectRegistrationCsvProcessorTest();
         List<RapidPassCSVdata> mockData = subjectRegistrationCsvProcessorTest.mock("data-incorrect-columns.csv");
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "MS")),
-                        new LookupTable(new LookupTablePK("APOR", "SO")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("SO").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 

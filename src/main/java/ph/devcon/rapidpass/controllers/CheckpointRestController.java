@@ -17,10 +17,14 @@ package ph.devcon.rapidpass.controllers;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.api.models.CheckpointAppVersionResponse;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
@@ -29,6 +33,10 @@ import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +68,15 @@ public class CheckpointRestController {
 
     @Value("${endpointswitch.checkpoint.auth:false}")
     private boolean enableCheckpointAuth;
+
+    @Value("${rapidpass.checkpointApkUrl}")
+    private String url;
+
+    @Value("${rapidpass.checkpointApkHash}")
+    private String hash;
+
+    @Value("${rapidpass.checkpointApkVersion}")
+    private String version;
 
     /*@Autowired
     public CheckpointRestController(ICheckpointService checkpointService) {
@@ -97,18 +114,18 @@ public class CheckpointRestController {
         return ResponseEntity.ok("Coming Soon!");
     }
 
-    public ResponseEntity getAccessPassByQrCode(String qrCode)
+    public ResponseEntity<?> getAccessPassByQrCode(String qrCode)
     {
-        ResponseEntity response = null;
+        ResponseEntity<?> response = null;
         try
         {
             final AccessPass accessPass = checkpointService.retrieveAccessPassByQrCode(qrCode);
-            response = new ResponseEntity(accessPass, HttpStatus.OK);
+            response = new ResponseEntity<>(accessPass, HttpStatus.OK);
         }
         catch (Exception e)
         {
             log.error(e.getMessage(),e);
-            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new ResponseEntity<>(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
     }
@@ -117,6 +134,55 @@ public class CheckpointRestController {
     public ResponseEntity<RevocationLogResponse> getRevokedRapidPasses(@RequestParam(required = false) Integer since) {
         RevocationLogResponse response = checkpointService.retrieveRevokedAccessPasses(since);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/update")
+    public ResponseEntity<?> getLatestAppVersion() {
+
+        if (StringUtils.isEmpty(this.url))
+            throw new IllegalArgumentException("The URL of the latest checkpoint APK was not configured.");
+
+        if (StringUtils.isEmpty(this.version))
+            throw new IllegalArgumentException("The version of the latest checkpoint APK was not configured.");
+
+        CheckpointAppVersionResponse response = new CheckpointAppVersionResponse();
+
+        String filename = this.url.substring(this.url.lastIndexOf('/'));
+
+        response.setFile(filename);
+        response.setSha1(this.hash);
+        response.setVersion(this.version);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/download/{filename}")
+    public ResponseEntity<?> downloadSpecifiedFile(@PathVariable("filename") String filename) throws IOException {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        try (BufferedInputStream in = new BufferedInputStream(new URL(this.url).openStream())) {
+
+            byte[] dataBuffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                bos.write(dataBuffer, 0, bytesRead);
+            }
+        }
+
+        final byte[] responseBody = bos.toByteArray();
+        if (responseBody.length == 0) return ResponseEntity.notFound().build();
+
+        final HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.valueOf("application/vnd.android.package-archive"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION,
+                String.format("attachment; filename=%s", filename));
+        headers.setContentLength(responseBody.length);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(responseBody);
     }
 
     @PostMapping("/auth")
@@ -145,14 +211,12 @@ public class CheckpointRestController {
 
         // FIXME this won't work with new keycloak implementation!
 //        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
-//
-//        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
-//                .signingKey(this.signingKey)
-//                .encryptionKey(this.encryptionKey)
-//                .accessCode(jwt)
-//                .build();
-        // FIXME
-        CheckpointAuthResponse authResponse = null;
+
+        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
+                .signingKey(this.signingKey)
+                .encryptionKey(this.encryptionKey)
+                .accessCode("youdonotneedthis")
+                .build();
 
         return ResponseEntity.ok().body(authResponse);
     }

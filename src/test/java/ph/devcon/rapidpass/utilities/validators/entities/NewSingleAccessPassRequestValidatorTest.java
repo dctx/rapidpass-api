@@ -23,13 +23,12 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.LookupTable;
-import ph.devcon.rapidpass.entities.LookupTablePK;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AccessPassRepository;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.NewSingleAccessPassRequestValidator;
 
 import java.util.Collections;
@@ -45,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class NewSingleAccessPassRequestValidatorTest {
 
     @Mock
-    LookupTableService lookupTableService;
+    LookupService lookupService;
 
     @Mock
     AccessPassRepository accessPassRepository;
@@ -62,11 +61,11 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void newRapidPassRequest_success() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -83,21 +82,8 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-I", "IATF")),
-                        new LookupTable(new LookupTablePK("IDTYPE-I", "COM"))
-                ))
-        );
 
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-V", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-V", "CND"))
-                ))
-        );
-
-        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -136,7 +122,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -169,25 +155,11 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfExistingAccessPassAlreadyExists() {
 
-        when(lookupTableService.getAporTypes()).thenReturn(
+        when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("APOR", "AG")),
-                        new LookupTable(new LookupTablePK("APOR", "BP")),
-                        new LookupTable(new LookupTablePK("APOR", "CA"))
-                ))
-        );
-
-        when(lookupTableService.getIndividualIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-I", "IATF")),
-                        new LookupTable(new LookupTablePK("IDTYPE-I", "COM"))
-                        ))
-        );
-
-        when(lookupTableService.getVehicleIdTypes()).thenReturn(
-                Collections.unmodifiableList(Lists.newArrayList(
-                        new LookupTable(new LookupTablePK("IDTYPE-V", "PLT")),
-                        new LookupTable(new LookupTablePK("IDTYPE-V", "CND"))
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("BP").build(),
+                        AporLookup.builder().aporCode("CA").build()
                 ))
         );
 
@@ -202,7 +174,7 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
 
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
@@ -235,7 +207,7 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfIncorrectMobileNumberFormat() {
 
-    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupTableService, accessPassRepository);
+    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()

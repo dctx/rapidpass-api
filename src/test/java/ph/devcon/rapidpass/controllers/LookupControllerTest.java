@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.entities.LookupTablePK;
 import ph.devcon.rapidpass.enums.LookupType;
-import ph.devcon.rapidpass.services.LookupTableService;
+import ph.devcon.rapidpass.services.LookupService;
 
 import java.util.Arrays;
 
@@ -46,7 +46,7 @@ public class LookupControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private LookupTableService mockLookupService;
+    private LookupService mockLookupService;
 
     private MockHttpServletRequestBuilder req;
 

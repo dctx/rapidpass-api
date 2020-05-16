@@ -36,6 +36,7 @@ import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.repositories.AporLookupRepository;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
@@ -64,6 +65,7 @@ import java.util.Optional;
 public class RegistryRestController {
 
     private final RegistryService registryService;
+    private final AporLookupRepository aporLookupRepository;
     private final QrPdfService qrPdfService;
     private final HttpServletRequest request;
 
