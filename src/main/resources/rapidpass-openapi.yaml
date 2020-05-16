@@ -749,31 +749,51 @@ paths:
                 type: string
         '404':
           description: reference number not found
-  '/checkpoint/revocations':
+  '/checkpoint/update/':
     get:
-      callbacks: {}
-      deprecated: false
-      description: This returns the revocations since a given timestamp.
-      operationId: getRevokedRapidPasses
-      parameters:
-        - description: The since timestamp corresponds to the seconds after epoch.
-          example: 1588599189
-          in: query
-          name: since
-          required: false
-          schema:
-            default: 0
-            type: integer
+      operationId: getLatestAppVersion
+      tags:
+        - inspector
+      summary: Retrieves the latest version of the checkpoint app.
       responses:
         '200':
+          description: The checkpoint user is properly authenticated and the latest version of the app is sent.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/RevocationLogResponse"
-          description: Revocations
-      summary: Retrieves the list of revoked access passes.
+                $ref: '#/components/schemas/CheckpointAppVersionResponse'
+  '/checkpoint/download/{filename}':
+    get:
+      operationId: downloadSpecifiedFile
+      parameters:
+        - name: filename
+          in: path
+          description: >-
+            The filename of the APK to be downloaded.
+          example: checkpoint-app.v1.4.0.apk
+          required: true
+          schema:
+            type: string
       tags:
         - inspector
+      summary: Downloads the specified APK file of the checkpoint app.
+      responses:
+        '200':
+          description: >-
+            Downloads the APK of the specified version of the checkpoint app.
+          content:
+            application/binary:
+              schema:
+                description: Returns the APK of the app.
+        '404':
+          description: The file could not be found.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'File could not be found.'
   '/checkpoint/auth':
     post:
       operationId: checkpointAuth
@@ -787,15 +807,15 @@ paths:
               $ref: '#/components/schemas/CheckpointAuthRequest'
       responses:
         '200':
-          description: success request returns the QR secret and the JWT access code
+          description: Successfully authenticated. The signing key, encryption key, access code, and the key validity date is returned.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckpointAuthResponse'
         '400':
-          description: invalid request, imei and masterKey is required
+          description: Invalid request, because the IMEI and master key is required.
         '401':
-          description: Unauthorized. Either the imei provide is not registered or the masterKey provided is wrong
+          description: Unauthorized. Either the IMEI provide is not registered, the provided master key is wrong, or the provided masterkey is expired.
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
     get:
       operationId: verifyPlateNo
@@ -1158,6 +1178,30 @@ components:
           type: string
           description: the JSON Web Token required for the device to access the APIs
           example: abcdefghijkl.mnopqrst.uvwxyz
+        validTo:
+          type: string
+          required: false
+          description: >-
+            Optional field that may or may not be included. If it is included, it means that that the server is
+            informing the checkpoint app that the masterKey used to authenticate is about to expire. The timestamp
+            provided is the date when it will stop working. The checkpoint app must download the latest version of the
+            app for it to continue working- otherwise, the app will no longer be able to log in.
+    CheckpointAppVersionResponse:
+      type: object
+      description: The response for the latest app version for the checkpoint app.
+      properties:
+        file:
+          type: string
+          description: The filename of the latest APK.
+          example: 'checkpoint-app.1.4.0.apk'
+        version:
+          type: string
+          description: The latest version of the mobile app.
+          example: '1.4.0'
+        sha1:
+          type: string
+          description: Hash of the APK file.
+          example: 'B10A8DB164E0754105B7A99BE72E3FE5'
     DashboardAuthRequest:
       type: object
       description: The dashboard authentication request
