@@ -102,22 +102,31 @@ class MobileDeviceServiceIT {
     void updateScannerDevice() {
         // create device
         final ScannerDevice device = new ScannerDevice();
-        device.setUniqueDeviceId("test123");
-        mobileDeviceService.registerMobileDevice(MobileDevice.builder().imei("test123").build());
+
+        String SAMPLE_IMEI = "SAMEPLE_IMEI_FFFFFFFFFF";
+        String SAMPLE_MODEL = "SAMPLE_MODEL_MYPHONE";
+        device.setUniqueDeviceId(SAMPLE_IMEI);
+        MobileDevice newMobileDevicePayload = MobileDevice.builder().imei(SAMPLE_IMEI).build();
+        mobileDeviceService.registerMobileDevice(newMobileDevicePayload);
+
+        MobileDeviceFilter mobileDeviceFilter = MobileDeviceFilter.builder().id(SAMPLE_IMEI).build();
 
         // verify created
-        List<MobileDevice> test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("test123").build());
-        assertThat(test123, is(not(empty())));
+        List<MobileDevice> matchedDevice = mobileDeviceService.getMobileDevices(mobileDeviceFilter);
+        assertThat(matchedDevice, is(not(empty())));
 
         // do update
-        device.setModel("update model");
-        mobileDeviceService.updateMobileDevice(MobileDevice.builder().imei("test123").build());
+        MobileDevice updateMobileDevicePayload = MobileDevice.builder()
+                .imei(SAMPLE_IMEI)
+                .model(SAMPLE_MODEL)
+                .build();
+        mobileDeviceService.updateMobileDevice(updateMobileDevicePayload);
 
         // verify updated
-        test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().id("test123").build());
-        assertThat(test123.get(0).getModel(), is("update model"));
+        matchedDevice = mobileDeviceService.getMobileDevices(mobileDeviceFilter);
+        assertThat(matchedDevice.get(0).getModel(), is(SAMPLE_MODEL));
 
         // cleanup
-        mobileDeviceService.removeMobileDevice("test123");
+        mobileDeviceService.removeMobileDevice(SAMPLE_IMEI);
     }
 }

@@ -14,6 +14,8 @@
 
 package ph.devcon.rapidpass.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -30,6 +32,8 @@ import java.io.Serializable;
 @Entity
 @Table(name = "apor_lookup", schema = "public")
 @Data
+@Builder
+@AllArgsConstructor
 public class AporLookup implements Serializable {
 
     private static final long serialVersionUID = 1L;
