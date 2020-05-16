@@ -51,7 +51,6 @@ import java.util.*;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
@@ -681,29 +680,6 @@ class RegistryServiceTest {
         ControlCodeResponse controlCode = instance.getControlCode("09171234567");
 
         assertThat(controlCode, equalTo(null));
-    }
-
-    @Test
-    void getControlCode_notApproved() {
-
-        final AccessPass mockAccessPass = AccessPass.builder()
-                .id(1)
-                .passType(TEST_INDIVIDUAL_REQUEST.getPassType().toString())
-                .destinationCity(TEST_INDIVIDUAL_REQUEST.getDestCity())
-                .company(TEST_INDIVIDUAL_REQUEST.getCompany())
-                .aporType(TEST_INDIVIDUAL_REQUEST.getAporType())
-                .status(AccessPassStatus.PENDING.toString())
-                .remarks(TEST_INDIVIDUAL_REQUEST.getRemarks())
-                .referenceID(TEST_INDIVIDUAL_REQUEST.getIdentifierNumber())
-                .build();
-
-
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc(any()))
-                .thenReturn(ImmutableList.of(mockAccessPass));
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            ControlCodeResponse controlCode = instance.getControlCode("09171234567");
-        });
     }
 
 

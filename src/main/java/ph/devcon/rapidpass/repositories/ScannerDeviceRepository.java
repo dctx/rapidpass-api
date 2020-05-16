@@ -14,16 +14,48 @@
 
 package ph.devcon.rapidpass.repositories;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public interface ScannerDeviceRepository extends JpaRepository<ScannerDevice, Integer> {
-    //TODO: Update repository if needed
+public interface ScannerDeviceRepository extends
+        JpaRepository<ScannerDevice, Integer>,
+        JpaSpecificationExecutor<ScannerDevice> {
 
     List<ScannerDevice> findAll();
 
     ScannerDevice findById(String id);
 
     ScannerDevice findByUniqueDeviceId(String imei);
+
+    class ScannerDeviceSpecs {
+        public static Specification<ScannerDevice> byBrand(String brand) {
+            return (root, query, criteriaBuilder) ->
+                    StringUtils.isEmpty(brand) ? null :
+                            criteriaBuilder.like(root.get("brand").as(String.class), "%" + brand + "%");
+        }
+
+        public static Specification<ScannerDevice> byMobileNumber(String mobileNumber) {
+            return (root, query, criteriaBuilder) ->
+                    StringUtils.isEmpty(mobileNumber) ? null :
+                            criteriaBuilder.like(root.get("mobileNumber").as(String.class), "%" + mobileNumber + "%");
+        }
+
+        public static Specification<ScannerDevice> byModel(String model) {
+            return (root, query, criteriaBuilder) ->
+                    StringUtils.isEmpty(model) ? null :
+                            criteriaBuilder.like(root.get("model").as(String.class), "%" + model + "%");
+        }
+
+        public static Specification<ScannerDevice> byId(String id) {
+            return (root, query, criteriaBuilder) ->
+                    StringUtils.isEmpty(id) ? null :
+                            criteriaBuilder.like(root.get("uniqueDeviceId").as(String.class), "%" + id + "%");
+        }
+    }
 }

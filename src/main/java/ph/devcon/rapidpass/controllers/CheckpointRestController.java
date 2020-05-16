@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
@@ -42,8 +43,7 @@ import java.util.UUID;
 @Api(tags = "checkpoint")
 @RequestMapping("/checkpoint")
 @RequiredArgsConstructor
-public class CheckpointRestController
-{
+public class CheckpointRestController {
     private static final String JWT_GROUP = "checkpoint";
 
     private final ICheckpointService checkpointService;
@@ -111,6 +111,12 @@ public class CheckpointRestController
             response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
+    }
+
+    @GetMapping("/revocations")
+    public ResponseEntity<RevocationLogResponse> getRevokedRapidPasses(@RequestParam(required = false) Integer since) {
+        RevocationLogResponse response = checkpointService.retrieveRevokedAccessPasses(since);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/auth")

@@ -115,6 +115,12 @@ paths:
           description: Internal Server Error
   /users/{username}/change-password:
     post:
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
       tags:
         - dashboard
       summary: >-
@@ -267,6 +273,12 @@ paths:
           description: not found
   /registry/access-passes/{referenceID}/control-code:
     get:
+      parameters:
+        - name: referenceID
+          in: path
+          schema:
+            type: string
+          required: true
       tags:
         - dashboard
       summary: >-
@@ -737,6 +749,31 @@ paths:
                 type: string
         '404':
           description: reference number not found
+  '/checkpoint/revocations':
+    get:
+      callbacks: {}
+      deprecated: false
+      description: This returns the revocations since a given timestamp.
+      operationId: getRevokedRapidPasses
+      parameters:
+        - description: The since timestamp corresponds to the seconds after epoch.
+          example: 1588599189
+          in: query
+          name: since
+          required: false
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RevocationLogResponse"
+          description: Revocations
+      summary: Retrieves the list of revoked access passes.
+      tags:
+        - inspector
   '/checkpoint/auth':
     post:
       operationId: checkpointAuth
@@ -839,54 +876,75 @@ paths:
                 referenceId: '$response.body#/deviceId'
         '400':
           description: Invalid Input
-#    get:
-#      tags:
-#        - dashboard
-#      summary: Gets a list of registered mobile devices.
-#      operationId: getScannerDevices
-#      parameters:
-#        - name: status
-#          in: query
-#          required: false
-#          description: status of mobile devices to retrieve
-#          schema:
-#            type: string
-#      responses:
-#        '200':
-#          description: successful mobile/scanner device operation
-#          content:
-#            application/json:
-#              schema:
-#                type: array
-#                items:
-#                  $ref: '#/components/schemas/MobileDevice'
-#      description:
-#        These mobile devices are used by the inspectors at the checkpoint. This endpoint retrieves a set of registered
-#        mobile devices based on the optional query parameters.
-  '/registry/scanner-devices/{deviceId}':
     get:
       tags:
         - dashboard
-        - inspector
-      summary: Get more information of a registered mobile device.
-      operationId: getScannerDeviceDetails
+      summary: Gets the list of devices
+      operationId: getScannerDevices
       parameters:
-        - name: deviceId
-          in: path
-          required: true
-          description: unique mobile devices identifier
+        - name: id
+          in: query
           schema:
             type: string
+          required: false
+          description: filter for `id`
+        - name: brand
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter for `brand`
+        - name: mobile_number
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter for `mobile_number`
+        - name: model
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter for `model`
       responses:
-        '200':
-          description: successful retrieval of mobile device information
+        200:
+          description: list of filtered devices
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MobileDevice'
-        '400':
-          description: device not found
-
+  '/registry/scanner-devices/{id}':
+    delete:
+      tags:
+        - dashboard
+      description: removes a device id from database
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: device id deleted from database
+    put:
+      tags:
+        - dashboard
+      description: updates a device id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileDevice'
+      responses:
+        204:
+          description: device id updated
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -1022,9 +1080,9 @@ components:
     MobileDevice:
       type: object
       properties:
-        imei:
+        id:
           type: string
-          description: The device IMEI
+          description: The device IMEI/ID number
           example: '990000862471854'
         brand:
           type: string
@@ -1274,3 +1332,49 @@ components:
         controlCode:
           type: string
           example: ABCDEFG1
+    RevocationEvent:
+      description: A revocation event
+      example:
+        controlCode: 35YBRZ6E
+        timestamp: 1588599841
+      properties:
+        controlCode:
+          description: The Control Code
+          example: 35YBRZ6E
+          type: string
+        eventType:
+          description: The event type, for now, only "RapidPassRevoked" is supported
+          example: RapidPassRevoked
+          type: string
+        timestamp:
+          description: The event timestamp, as seconds after epoch
+          example: 1588599841
+          type: integer
+      required:
+        - timestamp
+        - controlCode
+      title: RevocationEvent
+      type: object
+      x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationEvent
+    RevocationLog:
+        description: The revoation log
+        example:
+          - controlCode: 35YBRZ6E
+            timestamp: 1588599841
+        items:
+          "$ref": "#/components/schemas/RevocationEvent"
+        title: RevocationLog
+        type: array
+        x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationLog
+    RevocationLogResponse:
+      description: Response the validation logs
+      example:
+        data:
+          - controlCode: 35YBRZ6E
+            timestamp: 1588599841
+      properties:
+        data:
+          "$ref": "#/components/schemas/RevocationLog"
+      title: RevocationLogResponse
+      type: object
+      x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationLogResponse

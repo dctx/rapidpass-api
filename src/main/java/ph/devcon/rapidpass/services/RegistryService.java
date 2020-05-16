@@ -286,7 +286,7 @@ public class RegistryService {
                 bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
             }
         } catch (Exception e) {
-            bySecAporTypes = AccessPassSpecifications.byAporTypes(Collections.singletonList(""));
+            bySecAporTypes = AccessPassSpecifications.byAporTypes(null);
             log.warn("accessing rapid passes unsecured! ", e);
         }
 
@@ -398,8 +398,7 @@ public class RegistryService {
 
         AccessPass accessPass = accessPasses.get(0);
 
-        // Only bind the QR code to the access pass IF the access pass is approved.
-        if (accessPass.getControlCode() == null && AccessPassStatus.APPROVED.toString().equals(accessPass.getStatus())) {
+        if (accessPass.getControlCode() == null) {
             accessPass = controlCodeService.bindControlCodeForAccessPass(accessPass);
             accessPassRepository.saveAndFlush(accessPass);
         }
@@ -869,6 +868,8 @@ public class RegistryService {
 
     /**
      * Retrieve Scanner Devices
+     *
+     * @deprecated use {@link MobileDeviceService} instead
      */
     public List<MobileDevice> getScannerDevices(Optional<Pageable> pageView) {
         List<ScannerDevice> scannerDevices;

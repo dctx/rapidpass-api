@@ -27,6 +27,16 @@ public class MobileDevice {
     private String mobileNumber;
     private String status;
 
+    public ScannerDevice toScannerDevice() {
+        final ScannerDevice scannerDevice = new ScannerDevice();
+        scannerDevice.setUniqueDeviceId(getImei());
+        scannerDevice.setBrand(getBrand());
+        scannerDevice.setModel(getModel());
+        scannerDevice.setMobileNumber(getMobileNumber());
+        scannerDevice.setStatus(getStatus());
+        return scannerDevice;
+    }
+
     public static MobileDevice buildFrom(ScannerDevice scannerDevice) {
         return MobileDevice.builder()
                 .brand(scannerDevice.getBrand())
