@@ -105,6 +105,10 @@ keycloak: # override me in env vars!
   bearer-only: true
   cors: true
   securityConstraints[0]:
+    securityCollections[0]:
+      name: OpenAPI Configuration
+      patterns[0]: /swagger-ui.html
+  securityConstraints[1]:
     authRoles[0]: user
     authRoles[1]: approver
     authRoles[2]: inspector
@@ -112,22 +116,24 @@ keycloak: # override me in env vars!
       name: all API endpoints
       patterns[0]: /registry/access-passes/*
 
-  policy-enforcer-config:
-    lazy-load-paths: true
-    paths[0]:
-      path: /registry/*
-      methods[0]:
-        method: GET
-        scopes[0]: view
-      methods[1]:
-        method: POST
-        scopes[0]: create
-      methods[2]:
-        method: PUT
-        scopes[0]: approve
-      methods[3]:
-        method: PATCH
-        scopes[0]: suspend
+#  policy-enforcer-config:
+#    lazy-load-paths: true
+#    paths[0]:
+#      path: /checkpoint/*
+#    paths[1]:
+#      path: /registry/*
+#      methods[0]:
+#        method: GET
+#        scopes[0]: view
+#      methods[1]:
+#        method: POST
+#        scopes[0]: create
+#      methods[2]:
+#        method: PUT
+#        scopes[0]: approve
+#      methods[3]:
+#        method: PATCH
+#        scopes[0]: suspend
 
 logging:
   level:
