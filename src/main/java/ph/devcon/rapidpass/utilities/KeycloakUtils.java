@@ -20,18 +20,18 @@ public class KeycloakUtils {
         // noop utility class
     }
 
-    /**
-     * @return keycloak attributes for logged in user via access token
-     */
-    public static Map<String, String> getAttributes() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new IllegalStateException("  not logged in!");
-        }
-
-        final Principal rawPrincipal = (Principal) authentication.getPrincipal();
-        return getOtherClaims(rawPrincipal);
-    }
+//    /**
+//     * @return keycloak attributes for logged in user via access token
+//     */
+//    public static Map<String, String> getAttributes() {
+//        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null) {
+//            throw new IllegalStateException("  not logged in!");
+//        }
+//
+//        final Principal rawPrincipal = (Principal) authentication.getPrincipal();
+//        return getOtherClaims(rawPrincipal);
+//    }
 
     public static Map<String, String> getOtherClaims(Principal rawPrincipal) {
         if (!(rawPrincipal instanceof KeycloakPrincipal)) {

@@ -27,18 +27,22 @@ import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsVali
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.IsValidPassType;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.RequiredField;
 
+import java.security.Principal;
 import java.util.List;
 
 public abstract class BaseAccessPassRequestValidator implements Validator {
 
     final AccessPassRepository accessPassRepository;
     final LookupService lookupService;
+    final Principal principal;
 
     protected List<AporLookup> aporTypes;
 
-    public BaseAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository) {
+    public BaseAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository,
+                                          Principal principal) {
         this.lookupService = lookupService;
         this.accessPassRepository = accessPassRepository;
+        this.principal = principal;
 
         aporTypes = lookupService.getAporTypes();
     }

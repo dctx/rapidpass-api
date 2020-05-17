@@ -115,9 +115,11 @@ keycloak: # override me in env vars!
     securityCollections[0]:
       name: secured endpoints
       patterns[0]: /registry/*
-      patterns[1]: /batch/*
-      patterns[2]: /tester/*
-      patterns[3]: /users/*
+      patterns[1]: /registry/access-passes/*
+      patterns[2]: /batch/*
+      patterns[3]: /tester/*
+      patterns[4]: /users/*
+      patterns[5]: /lookup/*
 
 #  policy-enforcer-config:
 #    lazy-load-paths: true

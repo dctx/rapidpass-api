@@ -24,6 +24,7 @@ import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.KeycloakUtils;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.*;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -50,8 +51,9 @@ import java.util.List;
  */
 public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValidator {
 
-    public BatchAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository) {
-        super(lookupService, accessPassRepository);
+    public BatchAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository,
+                                           Principal principal) {
+        super(lookupService, accessPassRepository, principal);
     }
 
     @Override
@@ -74,7 +76,8 @@ public class BatchAccessPassRequestValidator extends BaseAccessPassRequestValida
     protected void validateRapidPassRequest(RapidPassRequest request, Errors errors) {
         validateRequiredFields(request, errors);
 
-        String aporTypes = KeycloakUtils.getAttributes().get("aportypes");
+//        String aporTypes = KeycloakUtils.getAttributes().get("aportypes");
+        String aporTypes = KeycloakUtils.getOtherClaims(principal).get("aportypes");
         List<String> allowedAporTypes = ImmutableList.copyOf(aporTypes.split(","));
 
         ImmutableList<Validator> validations = ImmutableList.of(

@@ -17,9 +17,6 @@ package ph.devcon.rapidpass.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,7 +41,6 @@ import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.utilities.KeycloakUtils;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.utilities.validators.ReadableValidationException;
 import ph.devcon.rapidpass.utilities.validators.StandardDataBindingValidation;
@@ -53,9 +49,7 @@ import ph.devcon.rapidpass.utilities.validators.entities.accesspass.NewSingleAcc
 import ph.devcon.rapidpass.utilities.validators.entities.agencyuser.BatchAgencyUserRequestValidator;
 
 import javax.validation.constraints.NotEmpty;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -109,7 +103,7 @@ public class RegistryService {
      * @see <a href="https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/64">documentation</a> on the flow.
      */
     @Transactional
-    public RapidPass newRequestPass(RapidPassRequest rapidPassRequest) {
+    public RapidPass newRequestPass(RapidPassRequest rapidPassRequest, Principal principal) {
 
         log.debug("New RapidPass Request: {}", rapidPassRequest);
 
@@ -117,7 +111,8 @@ public class RegistryService {
         normalizeIdMobileAndPlateNumber(rapidPassRequest);
 
         // Doesn't do id type checking (see https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/236).
-        NewSingleAccessPassRequestValidator newAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(this.lookupService, this.accessPassRepository);
+        NewSingleAccessPassRequestValidator newAccessPassRequestValidator =
+                new NewSingleAccessPassRequestValidator(this.lookupService, this.accessPassRepository, principal);
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
 
@@ -129,7 +124,7 @@ public class RegistryService {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    private RapidPass persistAccessPass(RapidPassRequest rapidPassRequest, AccessPassStatus status) {
+    RapidPass persistAccessPass(RapidPassRequest rapidPassRequest, AccessPassStatus status) {
 
         OffsetDateTime now = OffsetDateTime.now();
 
@@ -767,23 +762,25 @@ public class RegistryService {
      * a polling push notification service.</p>
      *
      * @param approvedRapidPasses Iterable<RapidPass> of Approved passes application
+     * @param principal
      * @return a list of generated rapid passes, whose status are all approved.
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public List<String> batchUploadRapidPassRequest(List<RapidPassCSVdata> approvedRapidPasses) throws RegistryService.UpdateAccessPassException {
+    public List<String> batchUploadRapidPassRequest(List<RapidPassCSVdata> approvedRapidPasses, Principal principal) throws RegistryService.UpdateAccessPassException {
 
         log.info("Process Batch Approving of AccessPass");
         List<String> passes = new ArrayList<>();
 
         // Validation
-        BatchAccessPassRequestValidator batchAccessPassRequestValidator = new BatchAccessPassRequestValidator(this.lookupService, this.accessPassRepository);
+        BatchAccessPassRequestValidator batchAccessPassRequestValidator =
+                new BatchAccessPassRequestValidator(this.lookupService, this.accessPassRepository, principal);
 
-        String currentLoggedInUser = null;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
-            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-            currentLoggedInUser = principal.get("sub").toString();
-        }
+        String currentLoggedInUser = principal.getName();
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
+//            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
+//            currentLoggedInUser = principal.get("sub").toString();
+//        }
 
         RapidPass pass;
         int counter = 1;
