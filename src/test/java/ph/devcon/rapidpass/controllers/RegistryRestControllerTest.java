@@ -275,13 +275,12 @@ class RegistryRestControllerTest {
                         .param("search", TEST_INDIVIDUAL_REQUEST.getMobileNumber())
                         .with(testApproverUser()).with(csrf())
         )
-                .andExpect(status().is5xxServerError());
-                // FIXME mockup keycloak security settings
-//                .andExpect(status().isOk())
+                .andExpect(status().isOk());
+                // FIXME mockup keycloak principal
 //                .andExpect(content().json(JSON_MAPPER.writeValueAsString(pageView)))
 //                .andDo(print());
 
-        // FIXME mockup keycloak security settings
+        // FIXME mockup keycloak principal
 //        verify(mockRegistryService, only()).findRapidPass(any(QueryFilter.class),  eq(Arrays.asList(secAporTypes)));
     }
 
