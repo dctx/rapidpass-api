@@ -48,6 +48,7 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessorTest;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -101,9 +102,6 @@ class RegistryServiceTest {
     @Mock
     AccessPassEventRepository accessPassEventRepository;
 
-    @Mock
-    LookupService lookupTableService;
-
     @BeforeEach
     void setUp() {
 
@@ -111,7 +109,7 @@ class RegistryServiceTest {
                 requestProducer,
                 eventProducer,
                 accessPassEventRepository,
-                lookupTableService,
+                lookupService,
                 mockAccessPassNotifierService,
                 mockRegistrarRepository,
                 mockRegistryRepository,
@@ -630,6 +628,7 @@ class RegistryServiceTest {
         ReflectionTestUtils.setField(testTargetRegistryService, "expirationYear", 2020);
         ReflectionTestUtils.setField(testTargetRegistryService, "expirationMonth", 5);
         ReflectionTestUtils.setField(testTargetRegistryService, "expirationDay", 15);
+        ReflectionTestUtils.setField(testTargetRegistryService, "lookupService", lookupService);
 
         List<String> strings = testTargetRegistryService.batchUploadRapidPassRequest(mockData);
 

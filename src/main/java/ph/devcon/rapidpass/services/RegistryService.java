@@ -262,7 +262,7 @@ public class RegistryService {
         rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
-    public RapidPassPageView findRapidPass(QueryFilter q, Optional<Principal> principal) {
+    public RapidPassPageView findRapidPass(QueryFilter q, List<String> secAporTypes) {
 
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
@@ -276,21 +276,22 @@ public class RegistryService {
             aporList = Arrays.asList(aporTypes);
 
         Specification<AccessPass> bySecAporTypes = null;
-        try {
-            // impose limit by apor type when logged in
-            Principal p = principal.orElse(null);
-            if (p instanceof KeycloakPrincipal) {
-                Identity identity = new Identity(((KeycloakPrincipal) p).getKeycloakSecurityContext());
-                final List<String> secAporTypes = Arrays.asList(identity.getOtherClains()
-                        .get("aportypes").toString()
-                        .split(","));
-                log.debug("limiting apor types to {}", secAporTypes);
-                bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
-            }
-        } catch (Exception e) {
-            bySecAporTypes = AccessPassSpecifications.byAporTypes(null);
-            log.warn("accessing rapid passes unsecured! ", e);
-        }
+        bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
+//        try {
+//            // impose limit by apor type when logged in
+//            Principal p = principal.orElse(null);
+//            if (p instanceof KeycloakPrincipal) {
+//                Identity identity = new Identity(((KeycloakPrincipal) p).getKeycloakSecurityContext());
+//                final List<String> secAporTypes = Arrays.asList(identity.getOtherClains()
+//                        .get("aportypes").toString()
+//                        .split(","));
+//                log.debug("limiting apor types to {}", secAporTypes);
+//                bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
+//            }
+//        } catch (Exception e) {
+//            bySecAporTypes = AccessPassSpecifications.byAporTypes(null);
+//            log.warn("accessing rapid passes unsecured! ", e);
+//        }
 
         Specification<AccessPass> byAporTypes = AccessPassSpecifications.byAporTypes(aporList);
         Specification<AccessPass> byPassType = AccessPassSpecifications.byPassType(q.getPassType());

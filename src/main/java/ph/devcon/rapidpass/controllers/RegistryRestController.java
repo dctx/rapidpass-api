@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
+import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,7 @@ import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.repositories.AccessPassSpecifications;
 import ph.devcon.rapidpass.repositories.AporLookupRepository;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
@@ -50,10 +52,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Registry API Rest Controller
@@ -73,11 +72,26 @@ public class RegistryRestController {
     private boolean isRegisterSinglePassEnabled;
 
     @GetMapping("/access-passes")
-        public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter, Principal principal) {
+    public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter, Optional<Principal> principal) {
 
         QueryFilter q = queryParameter.orElse(new QueryFilter());
 
-        return ResponseEntity.ok().body(registryService.findRapidPass(q, Optional.ofNullable(principal)));
+        final List<String> secAporTypes = new ArrayList<>();
+        try {
+            // impose limit by apor type when logged in
+            Principal p = principal.orElse(null);
+            if (p instanceof KeycloakPrincipal) {
+                Identity identity = new Identity(((KeycloakPrincipal) p).getKeycloakSecurityContext());
+                secAporTypes.addAll(Arrays.asList(identity.getOtherClains()
+                        .get("aportypes").toString()
+                        .split(",")));
+                log.debug("limiting apor types to {}", secAporTypes);
+            }
+        } catch (Exception e) {
+            log.warn("accessing rapid passes unsecured! ", e);
+        }
+
+        return ResponseEntity.ok().body(registryService.findRapidPass(q, secAporTypes));
     }
 
     @GetMapping("/access-passes/{referenceId}")
