@@ -95,7 +95,7 @@ public class RegistryRestController {
     }
 
     @GetMapping("/access-passes/{referenceId}")
-    ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId) throws AccessPassNotFoundException {
+    ResponseEntity<RapidPass> getAccessPassDetails(@PathVariable String referenceId, Principal principal) throws AccessPassNotFoundException {
 
         AccessPass accessPass = registryService.findByNonUniqueReferenceId(referenceId);
 
@@ -134,14 +134,14 @@ public class RegistryRestController {
     }
 
     @PostMapping("/access-passes")
-    ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest) {
+    ResponseEntity<?> newRequestPass(@Valid @RequestBody RapidPassRequest rapidPassRequest, Principal principal) {
 
         if (!isRegisterSinglePassEnabled) {
             return ResponseEntity.status(200).body("Coming soon!");
         }
 
         rapidPassRequest.setSource(RecordSource.ONLINE.toString());
-        RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest);
+        RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest, principal);
 //        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
         return ResponseEntity.status(201).body(rapidPass);
     }

@@ -21,6 +21,8 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.HasNoExistingApprovedOrPendingPass;
 
+import java.security.Principal;
+
 /**
  * Subset of {@link BatchAccessPassRequestValidator}, that doesn't do id type checking.
  *
@@ -28,8 +30,9 @@ import ph.devcon.rapidpass.utilities.validators.entities.accesspass.rules.HasNoE
  */
 public class NewSingleAccessPassRequestValidator extends BaseAccessPassRequestValidator {
 
-    public NewSingleAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository) {
-        super(lookupService, accessPassRepository);
+    public NewSingleAccessPassRequestValidator(LookupService lookupService, AccessPassRepository accessPassRepository,
+                                               Principal principal) {
+        super(lookupService, accessPassRepository, principal);
     }
 
     protected void validateRequiredFields(RapidPassRequest request, Errors errors) {

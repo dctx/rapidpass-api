@@ -38,6 +38,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -69,13 +70,13 @@ public class RegistryBatchRestController {
      *
      */
     @PostMapping("/access-passes")
-    Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile)
+    Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile, Principal principal)
             throws IOException, RegistryService.UpdateAccessPassException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
 
         SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
         List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
 
-        return this.registryService.batchUploadRapidPassRequest(approvedAccessPass);
+        return this.registryService.batchUploadRapidPassRequest(approvedAccessPass, principal);
     }
 
     @GetMapping(value = "/access-passes", produces = {MediaType.APPLICATION_JSON_VALUE})

@@ -31,6 +31,7 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.NewSingleAccessPassRequestValidator;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,6 +49,9 @@ public class NewSingleAccessPassRequestValidatorTest {
 
     @Mock
     AccessPassRepository accessPassRepository;
+
+    @Mock
+    Principal principal;
 
     private AccessPass accessPass;
     private RapidPassRequest rapidPassRequest;
@@ -82,8 +86,8 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-
-        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator =
+                new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository, principal);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -122,7 +126,8 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
+        newSingleAccessPassRequestValidator =
+                new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository, principal);
 
         rapidPassRequest = RapidPassRequest.builder()
                 .aporType("AG")
@@ -174,7 +179,8 @@ public class NewSingleAccessPassRequestValidatorTest {
                 ))
         );
 
-        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
+        NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator =
+                new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository, principal);
 
         // ---- CASE APOR invalid type ----
         rapidPassRequest = RapidPassRequest.builder()
@@ -207,7 +213,8 @@ public class NewSingleAccessPassRequestValidatorTest {
     @Test
     public void failIfIncorrectMobileNumberFormat() {
 
-    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator = new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository);
+    	NewSingleAccessPassRequestValidator newSingleAccessPassRequestValidator =
+                new NewSingleAccessPassRequestValidator(lookupService, accessPassRepository, principal);
 
         // ---- CASE Mobile number has letters----
         rapidPassRequest = RapidPassRequest.builder()

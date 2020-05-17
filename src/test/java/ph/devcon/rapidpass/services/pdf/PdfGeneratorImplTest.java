@@ -62,8 +62,8 @@ class PdfGeneratorImplTest {
     private static final int MAR_23_2020 = 1584921600;
     private static final int MAR_27_2020 = 1585267200;
 
-    @Test
-    @Ignore
+//    FIXME
+//    @Test
     void generatePdf() throws Exception {
 
         // Mock data
@@ -111,8 +111,8 @@ class PdfGeneratorImplTest {
     }
 
 
-    @Test
-    @Ignore
+//    FIXME
+//    @Test
     void generatePdfWithLongName() throws Exception {
 
 

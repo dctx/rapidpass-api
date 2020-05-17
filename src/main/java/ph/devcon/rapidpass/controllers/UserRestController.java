@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.utilities.KeycloakUtils;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -35,15 +36,15 @@ public class UserRestController {
 
     /**
      * Retrieves the APOR types of the specified user.
-     * @see #getAuthorizedAporTypes()
+     * @see #getAuthorizedAporTypes(Principal)
      * @deprecated
      */
     @Deprecated
     @GetMapping("/{userName}/apor-types")
-    public final ResponseEntity<?> getAporTypesByUser(@PathVariable String userName) {
+    public final ResponseEntity<?> getAporTypesByUser(@PathVariable String userName, Principal principal) {
         // APOR types should be retrieved from Keycloak.
         log.warn("This GET /{username}/apor-types has been deprecated, but is still being called.");
-        return this.getAuthorizedAporTypes();
+        return this.getAuthorizedAporTypes(principal);
     }
 
     /**
@@ -54,8 +55,9 @@ public class UserRestController {
      * @return 200 - JSON list of apor types, 403 - no valid authorization header
      */
     @GetMapping("/apor-types")
-    public ResponseEntity<?> getAuthorizedAporTypes() {
-        final Map<String, String> attributes = KeycloakUtils.getAttributes();
+    public ResponseEntity<?> getAuthorizedAporTypes(Principal principal) {
+//        final Map<String, String> attributes = KeycloakUtils.getAttributes();
+        final Map<String, String> attributes = KeycloakUtils.getOtherClaims(principal);
         log.debug("found attributes: {}", attributes);
         final String aporTypes = attributes.get("aportypes");
         return ResponseEntity.ok(
