@@ -72,16 +72,16 @@ public class RegistryRestController {
     private boolean isRegisterSinglePassEnabled;
 
     @GetMapping("/access-passes")
-    public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter, Optional<Principal> principal) {
+    public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter, Principal principal) {
 
         QueryFilter q = queryParameter.orElse(new QueryFilter());
 
         final List<String> secAporTypes = new ArrayList<>();
         try {
             // impose limit by apor type when logged in
-            Principal p = principal.orElse(null);
-            if (p instanceof KeycloakPrincipal) {
-                Identity identity = new Identity(((KeycloakPrincipal) p).getKeycloakSecurityContext());
+//            Principal p = principal.orElse(null);
+            if (principal instanceof KeycloakPrincipal) {
+                Identity identity = new Identity(((KeycloakPrincipal) principal).getKeycloakSecurityContext());
                 secAporTypes.addAll(Arrays.asList(identity.getOtherClains()
                         .get("aportypes").toString()
                         .split(",")));
