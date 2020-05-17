@@ -17,6 +17,9 @@ package ph.devcon.rapidpass.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +54,7 @@ import ph.devcon.rapidpass.utilities.validators.entities.agencyuser.BatchAgencyU
 
 import javax.validation.constraints.NotEmpty;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
@@ -84,7 +88,6 @@ public class RegistryService {
     private final RapidPassEventProducer eventProducer;
 
     private final AccessPassEventRepository accessPassEventRepository;
-    private final ApproverAuthService authService;
     private final LookupService lookupService;
     private final AccessPassNotifierService accessPassNotifierService;
     private final RegistrarRepository registrarRepository;
@@ -259,7 +262,7 @@ public class RegistryService {
         rapidPassRequest.setIdentifierNumber(StringFormatter.normalizeAlphanumeric(rapidPassRequest.getIdentifierNumber()));
     }
 
-    public RapidPassPageView findRapidPass(QueryFilter q) {
+    public RapidPassPageView findRapidPass(QueryFilter q, Optional<Principal> principal) {
 
         PageRequest pageView = PageRequest.of(0, QueryFilter.DEFAULT_PAGE_SIZE);
         if (null != q.getPageNo()) {
@@ -272,14 +275,18 @@ public class RegistryService {
         if (aporTypes != null)
             aporList = Arrays.asList(aporTypes);
 
-        Specification<AccessPass> bySecAporTypes;
+        Specification<AccessPass> bySecAporTypes = null;
         try {
             // impose limit by apor type when logged in
-            final List<String> secAporTypes = Arrays.asList(KeycloakUtils.getAttributes()
-                    .get("aportypes")
-                    .split(","));
-            log.debug("limiting apor types to {}", secAporTypes);
-            bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
+            Principal p = principal.orElse(null);
+            if (p instanceof KeycloakPrincipal) {
+                Identity identity = new Identity(((KeycloakPrincipal) p).getKeycloakSecurityContext());
+                final List<String> secAporTypes = Arrays.asList(identity.getOtherClains()
+                        .get("aportypes").toString()
+                        .split(","));
+                log.debug("limiting apor types to {}", secAporTypes);
+                bySecAporTypes = AccessPassSpecifications.byAporTypes(secAporTypes);
+            }
         } catch (Exception e) {
             bySecAporTypes = AccessPassSpecifications.byAporTypes(null);
             log.warn("accessing rapid passes unsecured! ", e);
@@ -849,15 +856,14 @@ public class RegistryService {
                 StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
                 validation.validate(agencyUser);
 
-                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
+//                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
+//                FIXME
+                RegistrarUser registrarUser = null;
 
                 result.add("Record " + counter++ + ": Success. ");
             } catch (ReadableValidationException e) {
                 result.add("Record " + counter++ + ": Failed. " + e.getMessage());
-
-            } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-                result.add("Record " + counter++ + ": Failed. Internal server error.");
-            }
+            } 
         }
         return result;
     }

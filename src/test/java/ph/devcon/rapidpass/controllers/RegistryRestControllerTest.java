@@ -32,8 +32,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
-import ph.devcon.rapidpass.config.SimpleRbacConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ControlCode;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -42,14 +40,15 @@ import ph.devcon.rapidpass.models.RapidPass;
 import ph.devcon.rapidpass.models.RapidPassPageView;
 import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AporLookupRepository;
-import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 
 import java.io.ByteArrayOutputStream;
+import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -69,7 +68,7 @@ import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 @WebMvcTest(RegistryRestController.class)
 @EnableConfigurationProperties
 @AutoConfigureMockMvc(addFilters = false) // let's simplify by not running keycloack filters
-@Import({ExceptionTranslator.class, JwtSecretsConfig.class, SimpleRbacConfig.class})
+@Import({ExceptionTranslator.class})
 class RegistryRestControllerTest {
     public static final RapidPassRequest TEST_INDIVIDUAL_REQUEST =
             RapidPassRequest.builder()
@@ -167,11 +166,7 @@ class RegistryRestControllerTest {
     QrPdfService mockQrPdfService;
 
     @MockBean
-    ApproverAuthService mockApproverAuthService;
-
-    @MockBean
     AporLookupRepository mockAporLookupRepository;
-
 
     /**
      * This tests POSTing to `requestPass` with a JSON payload for an INDIVIDUAL.
@@ -267,7 +262,7 @@ class RegistryRestControllerTest {
                 .rapidPassList(Collections.singletonList(RapidPass.buildFrom(TEST_INDIVIDUAL_ACCESS_PASS)))
                 .build();
 
-        when(mockRegistryService.findRapidPass(any(QueryFilter.class)))
+        when(mockRegistryService.findRapidPass(any(QueryFilter.class), null))
                 .thenReturn(pageView);
 
         mockMvc.perform(
@@ -281,7 +276,7 @@ class RegistryRestControllerTest {
                 .andExpect(content().json(JSON_MAPPER.writeValueAsString(pageView)))
                 .andDo(print());
 
-        verify(mockRegistryService, only()).findRapidPass(any(QueryFilter.class));
+        verify(mockRegistryService, only()).findRapidPass(any(QueryFilter.class), null);
     }
 
     /**

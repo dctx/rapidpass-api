@@ -73,8 +73,6 @@ class RegistryServiceTest {
 
     @Mock Authentication mockAuthentication;
 
-    @Mock ApproverAuthService mockAuthService;
-
     @Mock RegistrarRepository mockRegistrarRepository;
 
     @Mock ControlCodeService mockControlCodeService;
@@ -103,6 +101,9 @@ class RegistryServiceTest {
     @Mock
     AccessPassEventRepository accessPassEventRepository;
 
+    @Mock
+    LookupService lookupTableService;
+
     @BeforeEach
     void setUp() {
 
@@ -110,8 +111,7 @@ class RegistryServiceTest {
                 requestProducer,
                 eventProducer,
                 accessPassEventRepository,
-                mockAuthService,
-                lookupService,
+                lookupTableService,
                 mockAccessPassNotifierService,
                 mockRegistrarRepository,
                 mockRegistryRepository,
@@ -580,7 +580,6 @@ class RegistryServiceTest {
                 null,
                 null,
                 null,
-                lookupService,
                 null,
                 null,
                 null,

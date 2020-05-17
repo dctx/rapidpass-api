@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
+import org.keycloak.KeycloakSecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,16 +37,17 @@ import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
 import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.AporLookupRepository;
-import ph.devcon.rapidpass.services.ApproverAuthService;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -62,19 +65,19 @@ import java.util.Optional;
 public class RegistryRestController {
 
     private final RegistryService registryService;
-    private final ApproverAuthService approverAuthService;
     private final AporLookupRepository aporLookupRepository;
     private final QrPdfService qrPdfService;
+    private final HttpServletRequest request;
 
     @Value("${endpointswitch.registry.accesspasses:false}")
     private boolean isRegisterSinglePassEnabled;
 
     @GetMapping("/access-passes")
-    public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter) {
+        public ResponseEntity<RapidPassPageView> getAccessPasses(Optional<QueryFilter> queryParameter, Principal principal) {
 
         QueryFilter q = queryParameter.orElse(new QueryFilter());
 
-        return ResponseEntity.ok().body(registryService.findRapidPass(q));
+        return ResponseEntity.ok().body(registryService.findRapidPass(q, Optional.ofNullable(principal)));
     }
 
     @GetMapping("/access-passes/{referenceId}")
@@ -245,33 +248,6 @@ public class RegistryRestController {
         ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
 
         return ResponseEntity.status(201).body(ImmutableMap.of("deviceId", deviceRequest.getImei()));
-    }
-
-    /**
-     * Depecreated. Use {@link UserRestController#login(HttpServletResponse, Login)}
-     *
-     * @param login
-     * @return
-     */
-    @Deprecated
-    @PostMapping("/auth")
-    public ResponseEntity<AgencyAuth> login(@RequestBody Login login) {
-        try {
-            final AgencyAuth auth = this.approverAuthService.login(login.getUsername(), login.getPassword());
-            if (auth == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            return ResponseEntity.ok().body(auth);
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException | DecoderException e) {
-            log.error("hashing function error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (AccountLockedException e) {
-            log.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (Exception e) {
-            log.error("something went wrong", e);
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     /**

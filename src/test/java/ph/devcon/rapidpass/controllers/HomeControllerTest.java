@@ -22,8 +22,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
-import ph.devcon.rapidpass.config.SimpleRbacConfig;
 
 import java.time.Instant;
 
@@ -38,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author jonasespelita@gmail.com
  */
 @WebMvcTest({HomeController.class})
-@Import({JwtSecretsConfig.class, SimpleRbacConfig.class})
 @AutoConfigureMockMvc(addFilters = false) // let's simplify by not running keycloack filters
 
 class HomeControllerTest {

@@ -4,6 +4,7 @@ import org.keycloak.KeycloakPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.security.Principal;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -28,7 +29,11 @@ public class KeycloakUtils {
             throw new IllegalStateException("  not logged in!");
         }
 
-        final Object rawPrincipal = authentication.getPrincipal();
+        final Principal rawPrincipal = (Principal) authentication.getPrincipal();
+        return getOtherClaims(rawPrincipal);
+    }
+
+    public static Map<String, String> getOtherClaims(Principal rawPrincipal) {
         if (!(rawPrincipal instanceof KeycloakPrincipal)) {
             throw new IllegalStateException("  no keycloak login found!");
         }

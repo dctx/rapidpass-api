@@ -26,14 +26,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.CheckpointAppVersionResponse;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
-import ph.devcon.rapidpass.config.JwtSecretsConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.CheckpointAuthRequest;
 import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.utilities.JwtGenerator;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -58,7 +56,6 @@ public class CheckpointRestController {
 
     private final ICheckpointService checkpointService;
     private final ControlCodeService controlCodeService;
-    private final JwtSecretsConfig jwtSecretsConfig;
 
     @Value("${qrmaster.skey}")
     private String signingKey;
@@ -212,13 +209,13 @@ public class CheckpointRestController {
         claims.put("xsrfToken", UUID.randomUUID().toString());
         claims.put("exp", expiry.toEpochSecond());
 
-        // FIXME this won't work with new keycloak implementation!
-        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
+        // JWT is currently not used by the checkpoint app
+//        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
 
         CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
                 .signingKey(this.signingKey)
                 .encryptionKey(this.encryptionKey)
-                .accessCode(jwt)
+                .accessCode("youdonotneedthis")
                 .build();
 
         return ResponseEntity.ok().body(authResponse);

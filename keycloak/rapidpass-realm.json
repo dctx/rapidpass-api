@@ -1,7 +1,7 @@
 {
   "id": "rapidpass-api-local",
-  "realm": "rapidpass-api-local",
-  "displayName": "rapidpass-api-local",
+  "realm": "rapidpass",
+  "displayName": "rapidpass-api",
   "notBefore": 0,
   "revokeRefreshToken": false,
   "refreshTokenMaxReuse": 0,
@@ -50,6 +50,15 @@
         "attributes": {}
       },
       {
+        "id": "2d0e2520-cb8c-4bba-8840-ec641b67d850",
+        "name": "registrant",
+        "description": "Access Pass Registrant",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "rapidpass-api-local",
+        "attributes": {}
+      },
+      {
         "id": "87a176cc-1525-4417-8948-062814679ed5",
         "name": "uma_authorization",
         "description": "${role_uma_authorization}",
@@ -59,9 +68,27 @@
         "attributes": {}
       },
       {
+        "id": "3d5c9f72-2fa9-4bf3-8dd6-d955156f6d10",
+        "name": "inspector",
+        "description": "Checkpoint Inspector",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "rapidpass-api-local",
+        "attributes": {}
+      },
+      {
         "id": "0bdcb0c0-63a5-4a29-acc1-ec7816200b2b",
         "name": "offline_access",
         "description": "${role_offline-access}",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "rapidpass-api-local",
+        "attributes": {}
+      },
+      {
+        "id": "cb21a21c-e987-4003-a118-f2d31c48b3fd",
+        "name": "user",
+        "description": "Realm User",
         "composite": false,
         "clientRole": false,
         "containerId": "rapidpass-api-local",
@@ -103,12 +130,12 @@
                 "create-client",
                 "manage-clients",
                 "query-groups",
-                "query-users",
-                "manage-identity-providers",
                 "manage-realm",
+                "manage-identity-providers",
+                "query-users",
                 "manage-authorization",
-                "impersonation",
                 "manage-events",
+                "impersonation",
                 "view-events",
                 "query-clients",
                 "query-realms",
@@ -291,6 +318,14 @@
           "attributes": {}
         },
         {
+          "id": "be07f813-b481-4cdf-93ac-936e7497c047",
+          "name": "uma_protection",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "86d367a6-d523-4d0a-97bd-7c2e36d605aa",
+          "attributes": {}
+        },
+        {
           "id": "ddb954e4-63d7-480d-905f-a97f9cc024e4",
           "name": "user",
           "composite": false,
@@ -382,13 +417,15 @@
           "containerId": "826ed3c2-0537-47e0-9638-955e988b7df4",
           "attributes": {}
         }
-      ]
+      ],
+      "rapidpass-dashboard": []
     }
   },
   "groups": [],
   "defaultRoles": [
-    "offline_access",
-    "uma_authorization"
+    "user",
+    "uma_authorization",
+    "offline_access"
   ],
   "requiredCredentials": [
     "password"
@@ -427,6 +464,34 @@
   "webAuthnPolicyPasswordlessCreateTimeout": 0,
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
+  "users": [
+    {
+      "id": "37a705dd-6325-4941-9533-5e7a4a77c247",
+      "createdTimestamp": 1589244493489,
+      "username": "service-account-rapidpass-api",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "serviceAccountClientId": "rapidpass-api",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "uma_authorization",
+        "offline_access"
+      ],
+      "clientRoles": {
+        "rapidpass-api": [
+          "uma_protection"
+        ],
+        "account": [
+          "manage-account",
+          "view-profile"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    }
+  ],
   "scopeMappings": [
     {
       "clientScope": "offline_access",
@@ -451,7 +516,7 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/rapidpass-api-local/account/",
+      "baseUrl": "/realms/rapidpass/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
@@ -462,7 +527,7 @@
         "view-profile"
       ],
       "redirectUris": [
-        "/realms/rapidpass-api-local/account/*"
+        "/realms/rapidpass/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -644,7 +709,8 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
       "publicClient": false,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
@@ -666,11 +732,252 @@
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": -1,
+      "protocolMappers": [
+        {
+          "id": "c061057c-c58d-45ae-9f5f-28852c7e86a2",
+          "name": "Client IP Address",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientAddress",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientAddress",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "3e60cfb4-46ac-4ed4-818e-04fbc7febffa",
+          "name": "Client Host",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientHost",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientHost",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "05bcda62-944d-448b-9e44-84aa0a82edde",
+          "name": "Client ID",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientId",
+            "jsonType.label": "String"
+          }
+        }
+      ],
       "defaultClientScopes": [
         "web-origins",
         "role_list",
         "roles",
         "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ],
+      "authorizationSettings": {
+        "allowRemoteResourceManagement": true,
+        "policyEnforcementMode": "ENFORCING",
+        "resources": [
+          {
+            "name": "Default Resource",
+            "type": "urn:rapidpass-api:resources:default",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "_id": "d609bf82-1361-4395-981d-12e190d16535",
+            "uris": [
+              "/*"
+            ]
+          },
+          {
+            "name": "Access Pass View",
+            "ownerManagedAccess": false,
+            "displayName": "Access Pass View",
+            "attributes": {},
+            "_id": "38283e56-a44e-4361-b397-22680aa75fb9",
+            "uris": [
+              "/registry/access-passes/*"
+            ],
+            "scopes": [
+              {
+                "name": "view"
+              }
+            ]
+          },
+          {
+            "name": "Access Pass Approval",
+            "ownerManagedAccess": false,
+            "displayName": "Approve and Suspend Access Passes",
+            "attributes": {},
+            "_id": "c643438c-d193-4cd2-96ee-b566b44280ea",
+            "uris": [
+              "/registry/access-passes/*"
+            ],
+            "scopes": [
+              {
+                "name": "approve"
+              },
+              {
+                "name": "suspend"
+              }
+            ]
+          }
+        ],
+        "policies": [
+          {
+            "id": "3cbfb2e6-8172-4a22-a820-aeae5932be65",
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "id": "43143fe7-9581-4a58-82b5-ee7424e0cc5c",
+            "name": "User Only",
+            "description": "User Only Policy",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"user\",\"required\":false}]"
+            }
+          },
+          {
+            "id": "4b12df47-5c83-4a1d-be75-7329215cc316",
+            "name": "Approver Only",
+            "description": "Approver Only Policy",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"approver\",\"required\":false}]"
+            }
+          },
+          {
+            "id": "64902758-0bf9-42d3-9f03-3ef6a3af5f62",
+            "name": "Inspect Only",
+            "description": "Inspect Only Policy",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"inspector\",\"required\":false}]"
+            }
+          },
+          {
+            "id": "82d57d0e-1ab1-48f5-a946-b2c4bc49aceb",
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:rapidpass-api:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          },
+          {
+            "id": "5272f96e-6dc0-46ed-bccb-4c5a051906b5",
+            "name": "View Access Passes",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "resources": "[\"Access Pass View\"]",
+              "applyPolicies": "[\"User Only\"]"
+            }
+          },
+          {
+            "id": "3c15979a-cb1f-46ae-a273-16e7b7fa70dd",
+            "name": "Access Pass Approval",
+            "description": "Permission to Approve and Suspend Access Passes",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "resources": "[\"Access Pass Approval\"]",
+              "applyPolicies": "[\"Approver Only\"]"
+            }
+          }
+        ],
+        "scopes": [
+          {
+            "id": "48d03370-d6c6-4205-bd93-1df3dc7c417c",
+            "name": "view",
+            "displayName": "View"
+          },
+          {
+            "id": "483bc495-ba5d-460e-ab2c-b321b459cd19",
+            "name": "approve",
+            "displayName": "Approve"
+          },
+          {
+            "id": "1a569099-cc5c-4689-b8a0-7bf5d68a1f86",
+            "name": "suspend",
+            "displayName": "Suspend"
+          },
+          {
+            "id": "ce725a1b-ff98-49eb-b266-f535a802f780",
+            "name": "application",
+            "displayName": "RapidPass Application"
+          }
+        ],
+        "decisionStrategy": "UNANIMOUS"
+      }
+    },
+    {
+      "id": "ca9d872c-5e78-4f01-8d4a-844228c50d53",
+      "clientId": "rapidpass-dashboard",
+      "rootUrl": "http://localhost:8080",
+      "adminUrl": "http://localhost:8080",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {},
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "role_list",
+        "profile",
+        "roles",
         "email"
       ],
       "optionalClientScopes": [
@@ -724,14 +1031,14 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/rapidpass-api-local/console/",
+      "baseUrl": "/admin/rapidpass/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "/admin/rapidpass-api-local/console/*"
+        "/admin/rapidpass/console/*"
       ],
       "webOrigins": [
         "+"
@@ -892,6 +1199,7 @@
           "consentRequired": false,
           "config": {
             "multivalued": "true",
+            "userinfo.token.claim": "true",
             "user.attribute": "foo",
             "id.token.claim": "true",
             "access.token.claim": "true",
@@ -1334,13 +1642,13 @@
         "config": {
           "allowed-protocol-mapper-types": [
             "oidc-full-name-mapper",
-            "oidc-usermodel-attribute-mapper",
             "oidc-usermodel-property-mapper",
-            "oidc-address-mapper",
             "saml-user-property-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
+            "saml-role-list-mapper",
             "saml-user-attribute-mapper",
-            "saml-role-list-mapper"
+            "oidc-address-mapper",
+            "oidc-usermodel-attribute-mapper",
+            "oidc-sha256-pairwise-sub-mapper"
           ]
         }
       },
@@ -1395,14 +1703,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
+            "oidc-usermodel-property-mapper",
+            "oidc-address-mapper",
             "oidc-full-name-mapper",
             "oidc-usermodel-attribute-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
             "saml-user-property-mapper",
             "saml-role-list-mapper",
             "saml-user-attribute-mapper",
-            "oidc-usermodel-property-mapper",
-            "oidc-address-mapper"
+            "oidc-sha256-pairwise-sub-mapper"
           ]
         }
       }
@@ -1450,7 +1758,7 @@
   "supportedLocales": [],
   "authenticationFlows": [
     {
-      "id": "ee400cdd-4b12-4958-b424-7b9ac43337c9",
+      "id": "93f47978-a760-47b8-b736-c2668005651c",
       "alias": "Account verification options",
       "description": "Method with which to verity the existing account",
       "providerId": "basic-flow",
@@ -1474,7 +1782,7 @@
       ]
     },
     {
-      "id": "1d018858-02c3-48f8-96a6-ee366b0d02d9",
+      "id": "65d3739a-fa45-4cd0-9d91-342137ba85a8",
       "alias": "Authentication Options",
       "description": "Authentication options.",
       "providerId": "basic-flow",
@@ -1505,7 +1813,7 @@
       ]
     },
     {
-      "id": "b6cacc0d-0463-4387-86b9-87183647ab6c",
+      "id": "4593ec1c-8d79-4619-8759-503fe0c93f5c",
       "alias": "Browser - Conditional OTP",
       "description": "Flow to determine if the OTP is required for the authentication",
       "providerId": "basic-flow",
@@ -1529,7 +1837,7 @@
       ]
     },
     {
-      "id": "324d157b-1c6e-4c05-a804-3b8be3d72f4f",
+      "id": "ed22741b-3638-4bfb-9554-8ea4871785a2",
       "alias": "Direct Grant - Conditional OTP",
       "description": "Flow to determine if the OTP is required for the authentication",
       "providerId": "basic-flow",
@@ -1553,7 +1861,7 @@
       ]
     },
     {
-      "id": "d25fb112-6df8-4045-9cd4-2380d4a8b737",
+      "id": "7d7f9369-e009-4742-be33-ca637bf7b413",
       "alias": "First broker login - Conditional OTP",
       "description": "Flow to determine if the OTP is required for the authentication",
       "providerId": "basic-flow",
@@ -1577,7 +1885,7 @@
       ]
     },
     {
-      "id": "5f3c240d-347d-43df-90c5-2ce7871c7d9d",
+      "id": "6e40b1c6-7e86-41e8-a61c-5907535004a7",
       "alias": "Handle Existing Account",
       "description": "Handle what to do if there is existing account with same email/username like authenticated identity provider",
       "providerId": "basic-flow",
@@ -1601,7 +1909,7 @@
       ]
     },
     {
-      "id": "335e5c26-f2db-4931-8e11-2798163c9cad",
+      "id": "36937ad5-72a9-45ac-9872-c534be18a8a8",
       "alias": "Reset - Conditional OTP",
       "description": "Flow to determine if the OTP should be reset or not. Set to REQUIRED to force.",
       "providerId": "basic-flow",
@@ -1625,7 +1933,7 @@
       ]
     },
     {
-      "id": "dbef7090-d209-44dd-83ac-175e05516470",
+      "id": "5d9e1e1e-2021-4c9e-ba60-4b803913e7b2",
       "alias": "User creation or linking",
       "description": "Flow for the existing/non-existing user alternatives",
       "providerId": "basic-flow",
@@ -1650,7 +1958,7 @@
       ]
     },
     {
-      "id": "c23a3678-9bb9-4619-92fe-f776ca495d7b",
+      "id": "482ab9d5-86ff-4b21-97da-167c9248e067",
       "alias": "Verify Existing Account by Re-authentication",
       "description": "Reauthentication of existing account",
       "providerId": "basic-flow",
@@ -1674,7 +1982,7 @@
       ]
     },
     {
-      "id": "fb4b265c-be13-47c9-af2a-8255021e7324",
+      "id": "02182987-5496-4771-88a2-5ac84ea315ee",
       "alias": "browser",
       "description": "browser based authentication",
       "providerId": "basic-flow",
@@ -1712,7 +2020,7 @@
       ]
     },
     {
-      "id": "36049141-39ca-4720-a8e6-164f03a0d696",
+      "id": "012e01c4-14a6-4f81-8f9e-f0de8d9a3770",
       "alias": "clients",
       "description": "Base authentication for clients",
       "providerId": "client-flow",
@@ -1750,7 +2058,7 @@
       ]
     },
     {
-      "id": "453fa9ee-1742-48a9-84dd-8d26b53c4c25",
+      "id": "a2fde53e-5633-46a3-8043-8ec27a37fc89",
       "alias": "direct grant",
       "description": "OpenID Connect Resource Owner Grant",
       "providerId": "basic-flow",
@@ -1781,7 +2089,7 @@
       ]
     },
     {
-      "id": "23d395a1-cf53-415b-a9ab-6b47689773c3",
+      "id": "e31f7b10-3e4e-4f4b-8aed-f8f8b7c30b6f",
       "alias": "docker auth",
       "description": "Used by Docker clients to authenticate against the IDP",
       "providerId": "basic-flow",
@@ -1798,7 +2106,7 @@
       ]
     },
     {
-      "id": "b9530d7b-e1ee-446e-88c9-bbe6f387b608",
+      "id": "cbd3c818-5d37-4980-b3de-264951fb4a5c",
       "alias": "first broker login",
       "description": "Actions taken after first broker login with identity provider account, which is not yet linked to any Keycloak account",
       "providerId": "basic-flow",
@@ -1823,7 +2131,7 @@
       ]
     },
     {
-      "id": "583de5cd-5df7-4703-91e7-b567ba25e050",
+      "id": "f77ee9cd-d86f-45b0-bca8-08ec82352e4a",
       "alias": "forms",
       "description": "Username, password, otp and other auth forms.",
       "providerId": "basic-flow",
@@ -1847,7 +2155,7 @@
       ]
     },
     {
-      "id": "845d3006-534e-4cec-a6c0-54c73f3c8b9b",
+      "id": "52a0ed7c-cde2-42dd-b67f-9b36460178bc",
       "alias": "http challenge",
       "description": "An authentication flow based on challenge-response HTTP Authentication Schemes",
       "providerId": "basic-flow",
@@ -1871,7 +2179,7 @@
       ]
     },
     {
-      "id": "05df4ce9-3474-4700-ba1e-2d4c588759fb",
+      "id": "e3e1b9b2-83af-4634-b94d-8679362320ca",
       "alias": "registration",
       "description": "registration flow",
       "providerId": "basic-flow",
@@ -1889,7 +2197,7 @@
       ]
     },
     {
-      "id": "688ed026-d7f2-43b9-80e6-f853c86b5148",
+      "id": "b909236c-48fe-4506-a4be-60a5b1573403",
       "alias": "registration form",
       "description": "registration form",
       "providerId": "form-flow",
@@ -1927,7 +2235,7 @@
       ]
     },
     {
-      "id": "9542e9d5-53a4-4d14-bc04-5f391cf3ab73",
+      "id": "543c0acd-f592-45fb-b3de-c2ae812f15ec",
       "alias": "reset credentials",
       "description": "Reset credentials for a user if they forgot their password or something",
       "providerId": "basic-flow",
@@ -1965,7 +2273,7 @@
       ]
     },
     {
-      "id": "e6a95d5e-4d27-4f68-9121-6699da9b023f",
+      "id": "f8c86d07-8866-4175-bdd4-9ca336abb5c5",
       "alias": "saml ecp",
       "description": "SAML ECP Profile Authentication Flow",
       "providerId": "basic-flow",
@@ -1984,14 +2292,14 @@
   ],
   "authenticatorConfig": [
     {
-      "id": "0f221cb1-4393-4b03-9cec-77bc15ac1503",
+      "id": "410609a3-b146-43da-930d-83a249e4c2e7",
       "alias": "create unique user config",
       "config": {
         "require.password.update.after.registration": "false"
       }
     },
     {
-      "id": "72989491-8a75-43d4-8131-90846d887f27",
+      "id": "4faa00d6-b43a-4bd3-9311-75d0429724c7",
       "alias": "review profile config",
       "config": {
         "update.profile.on.first.login": "missing"
@@ -2064,6 +2372,6 @@
     "clientSessionIdleTimeout": "0",
     "clientSessionMaxLifespan": "0"
   },
-  "keycloakVersion": "10.0.0",
+  "keycloakVersion": "10.0.1",
   "userManagedAccessAllowed": false
 }
