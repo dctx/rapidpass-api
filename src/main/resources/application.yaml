@@ -113,8 +113,11 @@ keycloak: # override me in env vars!
     authRoles[1]: approver
     authRoles[2]: inspector
     securityCollections[0]:
-      name: all API endpoints
-      patterns[0]: /registry/access-passes/*
+      name: secured endpoints
+      patterns[0]: /registry/*
+      patterns[1]: /batch/*
+      patterns[2]: /tester/*
+      patterns[3]: /users/*
 
 #  policy-enforcer-config:
 #    lazy-load-paths: true
