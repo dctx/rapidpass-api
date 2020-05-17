@@ -20,9 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.entities.LookupTable;
 import ph.devcon.rapidpass.enums.LookupType;
 import ph.devcon.rapidpass.models.LookupValue;
@@ -48,6 +47,16 @@ public final class LookupController {
     @GetMapping("/apor")
     public ResponseEntity<?> getAporLookup() {
         return ResponseEntity.ok(this.lookupService.getAporTypes());
+    }
+
+    @PostMapping("/apor")
+    public ResponseEntity<?> putApor(@RequestBody AporLookup data) {
+        return ResponseEntity.ok(lookupService.addUpdateAporType(data));
+    }
+
+    @DeleteMapping("/apor/{aporcode}")
+    public ResponseEntity<?> deleteApor(@PathVariable String aporcode) {
+        return ResponseEntity.ok(lookupService.deleteAporType(aporcode));
     }
 
     /**
