@@ -27,33 +27,52 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
-  /lookup:
-    get:
+  /lookup/apor:
+    post:
       tags:
         - dashboard
-        - registration
-      summary: >-
-        Returns lookup data for APOR, ID Types, etc
-      operationId: lookup
-      parameters:
-        - name: type
-          in: query
-          description: >-
-            the type of lookup data to retrieve
-          required: true
-          schema:
-            $ref: '#/components/schemas/LookupOption'
+      summary: Creates a new APOR type, or updates an existing APOR type.
+      operationId: putApor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AporType'
       responses:
         200:
-          description: Lookup data retrieved
+          description: >-
+            Successfully created a new APOR type/updated an existing APOR type. Returns all existing APOR types.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LookupMap'
-        400:
-          description: lookup type does not exist
-        500:
-          description: Unable to retrieve lookup data from database
+                $ref: '#/components/schemas/AporTypesResponse'
+    get:
+      tags:
+        - dashboard
+      summary: Retrieves all the APOR types.
+      operationId: getAporLookup
+      responses:
+        200:
+          description: >-
+            Retrieves all the APOR types.
+            content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AporTypesResponse'
+  /lookup/apor/{aporType}:
+    delete:
+      tags:
+        - dashboard
+      summary: Deletes an existing APOR type.
+      operationId: getAporLookup
+      responses:
+        200:
+          description: >-
+            Deletes an existing apor type. Returns all existing apor types.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AporTypesResponse'
   /registry/auth:
     post:
       deprecated: true
@@ -1422,3 +1441,27 @@ components:
       title: RevocationLogResponse
       type: object
       x-struct: Elixir.RapidPassWeb.ApiSchema.RevocationLogResponse
+    AporType:
+      description: An entry of an APOR type.
+      example:
+        aporCode: AG
+        description: Agriculture
+        approvingAgency: Department of Agriculture
+      properties:
+        aporCode:
+          description: The APOR code
+          example: AG
+          type: string
+        description:
+          description: The full name of the APOR code
+          example: Agriculture
+          type: string
+        approvingAgency:
+          description: The name of the approving agency.
+          example: Department of Agriculture
+          type: string
+    AporTypesResponse:
+      description: Response for the list of apor types
+      type: array
+      items:
+        "$ref": "#/components/schemas/AporType"

@@ -44,27 +44,21 @@ public class LookupService {
 
     public List<AporLookup> addUpdateAporType(AporLookup data) {
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
-        Optional<AporLookup> Apor = aporSearch.stream().findFirst();
-        AporLookup Apordata = Apor.orElse(null);
+        AporLookup aporData = aporSearch.stream().findFirst().orElse(data);
 
-        if (Apordata == null) {
-            aporLookupRepository.saveAndFlush(data);
-            return aporLookupRepository.findAll();
-        }
+        aporData.setApprovingAgency(data.getApprovingAgency());
+        aporData.setDescription(data.getDescription());
 
-        Apordata.setApprovingAgency(data.getApprovingAgency());
-        Apordata.setDescription(data.getDescription());
-        aporLookupRepository.saveAndFlush(Apordata);
-        //log.info("Edit AporTypes {}", data.getAporCode());
+        aporLookupRepository.saveAndFlush(aporData);
         return aporLookupRepository.findAll();
     }
 
     public List<AporLookup> deleteAporType(String aporType) {
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(aporType);
         Optional<AporLookup> Apor = aporSearch.stream().findFirst();
-        AporLookup Apordata = Apor.orElse(null);
+        Apor.ifPresent(aporData -> aporLookupRepository.delete(aporData));
 
-        if(Apordata != null) aporLookupRepository.delete(Apordata);
+        aporLookupRepository.flush();
         return aporLookupRepository.findAll();
     }
 }

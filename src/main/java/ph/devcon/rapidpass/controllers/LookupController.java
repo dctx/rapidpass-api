@@ -49,21 +49,15 @@ public final class LookupController {
         return ResponseEntity.ok(this.lookupService.getAporTypes());
     }
 
-    @PostMapping("/apor/{query}")
-    public ResponseEntity<?> putApor(@PathVariable String query, @RequestBody AporLookup data) {
-        switch (query.toUpperCase()) {
-            case "CREATE":
-                return ResponseEntity.ok(lookupService.addUpdateAporType(data));
-            default:
-                return ResponseEntity.ok(this.lookupService.getAporTypes());
-        }
+    @PostMapping("/apor")
+    public ResponseEntity<?> putApor(@RequestBody AporLookup data) {
+        return ResponseEntity.ok(lookupService.addUpdateAporType(data));
     }
 
     @DeleteMapping("/apor/{aporcode}")
     public ResponseEntity<?> deleteApor(@PathVariable String aporcode) {
         return ResponseEntity.ok(lookupService.deleteAporType(aporcode));
     }
-
 
     /**
      * Retrieve data from the lookup table
