@@ -64,7 +64,7 @@ paths:
       tags:
         - dashboard
       summary: Deletes an existing APOR type.
-      operationId: getAporLookup
+      operationId: deleteAporLookup
       responses:
         200:
           description: >-
