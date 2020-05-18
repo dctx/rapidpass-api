@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0] - 2020-05-17
-### Added
-- [#458](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/458) Use Keycloak to enforce Permissions
+## [2.0.1] - 2020-05-17
+### Changed
+- Hot fix for retrieving the principal data, to retrieve the apor types.
+- [#475](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/475) `2.0.1.alpha.1` - When editing access passes,
+    change the name to uppercase. 
 
 ### Fixed
 - `2.0.1.alpha.1` Removed `/` from filename when retrieving newest checkpoint app URL filename.
+
+## [2.0.0] - 2020-05-17
+### Added
+- [#458](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/458) Use Keycloak to enforce Permissions
 
 ## [1.8.3] - 2020-05-16
 ### Added
@@ -22,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `GET registry/scanner-device/{unique_id}` - retrieve device matching id
     - `PUT registry/scanner-device/{unique_id}` - update device matching id
     - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
-- [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated table 
+- [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated pomtable 
     definition and seed data.
 - [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) `1.8.3.alpha.3` - Added check version and download endpoint for Checkpoint app.
 - [#449](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/449) `1.8.3.alpha.4` Restricts bulk upload by their APOR type.
