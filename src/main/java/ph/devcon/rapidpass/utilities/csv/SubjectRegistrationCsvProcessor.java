@@ -107,6 +107,13 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new Trim<>("aporType"),
                 new Capitalize<>("aporType"),
 
+                new Trim<>("firstName"),
+                new Capitalize<>("firstName"),
+                new Trim<>("middleName"),
+                new Capitalize<>("middleName"),
+                new Trim<>("lastName"),
+                new Capitalize<>("lastName"),
+
                 new SplitInTwoAndGetFirst<>("email"),
 
                 new Trim<>("mobileNumber"),
