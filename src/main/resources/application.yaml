@@ -108,6 +108,7 @@ keycloak: # override me in env vars!
     securityCollections[0]:
       name: OpenAPI Configuration
       patterns[0]: /swagger-ui.html
+      patterns[1]: /registry/qr-codes/*
   securityConstraints[1]:
     authRoles[0]: user
     authRoles[1]: approver
