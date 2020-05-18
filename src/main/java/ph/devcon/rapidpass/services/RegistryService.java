@@ -448,7 +448,7 @@ public class RegistryService {
             accessPass.setPassType(rapidPassUpdateRequest.getPassType().toString());
 
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getName())) {
-            accessPass.setName(rapidPassUpdateRequest.getName());
+            accessPass.setName(rapidPassUpdateRequest.getName().toUpperCase());
 
             // Update registrant only if it is found
             Registrant registrantId = accessPass.getRegistrantId();
