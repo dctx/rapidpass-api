@@ -72,7 +72,7 @@ public class SubjectRegistrationCsvProcessorTest {
             assertThat(process.size(), equalTo(10));
 
             RapidPassCSVdata csvData = process.get(1);
-            assertThat(csvData.getFirstName(), equalTo("Jezza"));
+            assertThat(csvData.getFirstName(), equalTo("JEZZA"));
 
         } catch (CsvColumnMappingMismatchException e) {
             System.err.println(e);
