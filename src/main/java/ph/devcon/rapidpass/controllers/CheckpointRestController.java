@@ -147,7 +147,7 @@ public class CheckpointRestController {
 
         CheckpointAppVersionResponse response = new CheckpointAppVersionResponse();
 
-        String filename = this.url.substring(this.url.lastIndexOf('/'));
+        String filename = this.url.substring(this.url.lastIndexOf('/') + 1);
 
         response.setFile(filename);
         response.setSha1(this.hash);

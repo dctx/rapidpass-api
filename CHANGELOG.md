@@ -13,10 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#475](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/475) `2.0.1.alpha.1` - When editing access passes,
     change the name to uppercase. 
 
+### Fixed
+- `2.0.1.alpha.1` Removed `/` from filename when retrieving newest checkpoint app URL filename.
+
 ## [2.0.0] - 2020-05-17
 ### Added
 - [#458](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/458) Use Keycloak to enforce Permissions
-
 
 ## [1.8.3] - 2020-05-16
 ### Added
