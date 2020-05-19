@@ -1,12 +1,9 @@
 openapi: 3.0.0
 servers:
   - url: /api/v1
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/tiongks/RapidPass/1.0.0
 info:
   description: >-
-    API for RapidPass.
+    This is the RapidPass API specification.
   version: "2.0.2"
   title: RapidPass API
   license:
