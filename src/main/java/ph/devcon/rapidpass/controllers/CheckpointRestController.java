@@ -28,6 +28,7 @@ import ph.devcon.rapidpass.api.models.*;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.services.notifications.KeycloakService;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,6 +49,8 @@ public class CheckpointRestController {
 
     private final ICheckpointService checkpointService;
     private final ControlCodeService controlCodeService;
+
+    private final KeycloakService keycloakService;
 
     @Value("${qrmaster.skey}")
     private String signingKey;
@@ -190,7 +193,7 @@ public class CheckpointRestController {
         boolean CORRECT_MASTER_KEY = this.masterKey.equals(authRequest.getMasterKey());
         if (!CORRECT_MASTER_KEY)  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        // Create new keycloak user
+        this.keycloakService.registerUser(authRequest.getImei(), authRequest.getPassword());
 
         CheckpointRegisterResponse authResponse = new CheckpointRegisterResponse();
 
