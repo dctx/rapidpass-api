@@ -24,12 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.api.models.CheckpointAppVersionResponse;
-import ph.devcon.rapidpass.api.models.RevocationLogResponse;
+import ph.devcon.rapidpass.api.models.*;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.ScannerDevice;
-import ph.devcon.rapidpass.models.CheckpointAuthRequest;
-import ph.devcon.rapidpass.models.CheckpointAuthResponse;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
@@ -37,10 +33,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 
 /**
@@ -78,56 +70,35 @@ public class CheckpointRestController {
     @Value("${rapidpass.checkpointApkVersion}")
     private String version;
 
-    /*@Autowired
-    public CheckpointRestController(ICheckpointService checkpointService) {
-        this.checkpointService = checkpointService;
-    }*/
-
     @GetMapping("/access-passes/control-codes/{control-code}")
     public ResponseEntity<?> getAccessPassByControlCode(@PathVariable("control-code") String controlCode) {
-//        ResponseEntity response = null;
-//        try {
-//            final AccessPass accessPass = this.controlCodeService.findAccessPassByControlCode(controlCode);
-//            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
-//            response = new ResponseEntity(rapidPass, HttpStatus.OK);
-//        }
-//        catch (Exception e) {
-//            log.error(e.getMessage(),e);
-//            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//        return response;
-        return ResponseEntity.ok("Coming Soon!");
+        try {
+            final AccessPass accessPass = this.controlCodeService.findAccessPassByControlCode(controlCode);
+            if (accessPass != null) {
+                return ResponseEntity.ok(ph.devcon.rapidpass.models.RapidPass.buildFrom(accessPass));
+            }
+            return ResponseEntity.notFound().build();
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(),e);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @GetMapping("/access-passes/plate-numbers/{plate-no}")
     public ResponseEntity<?> getAccessPassByPlateNumber(@PathVariable("plate-no") String plateNo) {
-//        ResponseEntity response = null;
-//        try {
-//            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByPlateNo(plateNo);
-//            RapidPass rapidPass = (null != accessPass) ? RapidPass.buildFrom(accessPass) : null;
-//            response = new ResponseEntity(rapidPass, HttpStatus.OK);
-//        } catch (Exception e) {
-//            log.error(e.getMessage(),e);
-//            response = new ResponseEntity(e,HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//        return response;
-        return ResponseEntity.ok("Coming Soon!");
-    }
+        try {
+            final AccessPass accessPass = this.checkpointService.retrieveAccessPassByPlateNo(plateNo);
 
-    public ResponseEntity<?> getAccessPassByQrCode(String qrCode)
-    {
-        ResponseEntity<?> response = null;
-        try
-        {
-            final AccessPass accessPass = checkpointService.retrieveAccessPassByQrCode(qrCode);
-            response = new ResponseEntity<>(accessPass, HttpStatus.OK);
-        }
-        catch (Exception e)
-        {
+            if (accessPass != null) {
+                return ResponseEntity.ok(ph.devcon.rapidpass.models.RapidPass.buildFrom(accessPass));
+            }
+            return ResponseEntity.notFound().build();
+
+        } catch (Exception e) {
             log.error(e.getMessage(),e);
-            response = new ResponseEntity<>(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @GetMapping("/revocations")
@@ -185,6 +156,10 @@ public class CheckpointRestController {
                 .body(responseBody);
     }
 
+    /**
+     * Will be replaced in favor of {@link #registerNewDevice(CheckpointRegisterRequest)}.
+     * @deprecated
+     */
     @PostMapping("/auth")
     public ResponseEntity<?> authenticateDevice(@RequestBody CheckpointAuthRequest authRequest) {
 
@@ -192,31 +167,35 @@ public class CheckpointRestController {
             return ResponseEntity.ok("Coming Soon!");
         }
 
-        // check master key first
-        if (!this.masterKey.equals(authRequest.getMasterKey())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        // Validates that the master key is correct
 
-        final ScannerDevice scannerDevice = this.checkpointService.retrieveDeviceByImei(authRequest.getImei());
+        boolean CORRECT_MASTER_KEY = this.masterKey.equals(authRequest.getMasterKey());
+        if (!CORRECT_MASTER_KEY)  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        OffsetDateTime expiry = OffsetDateTime.now();
-        // TODO replace with default expiry
-        expiry.plusHours(24);
+        CheckpointAuthResponse authResponse = new CheckpointAuthResponse();
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("group", JWT_GROUP);
-        claims.put("sub", scannerDevice.getUniqueDeviceId());
-        claims.put("xsrfToken", UUID.randomUUID().toString());
-        claims.put("exp", expiry.toEpochSecond());
+        authResponse.setSigningKey(this.signingKey);
+        authResponse.setEncryptionKey(this.encryptionKey);
+        authResponse.setAccessCode("youdonotneedthis");
+        authResponse.setValidTo("");
 
-        // JWT is currently not used by the checkpoint app
-//        String jwt = JwtGenerator.generateToken(claims, this.jwtSecretsConfig.findGroupSecret(JWT_GROUP));
+        return ResponseEntity.ok().body(authResponse);
+    }
 
-        CheckpointAuthResponse authResponse = CheckpointAuthResponse.builder()
-                .signingKey(this.signingKey)
-                .encryptionKey(this.encryptionKey)
-                .accessCode("youdonotneedthis")
-                .build();
+    @PostMapping("/register")
+    public ResponseEntity<?> registerNewDevice(@RequestBody CheckpointRegisterRequest authRequest) {
+
+        // Validates that the master key is correct
+
+        boolean CORRECT_MASTER_KEY = this.masterKey.equals(authRequest.getMasterKey());
+        if (!CORRECT_MASTER_KEY)  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        // Create new keycloak user
+
+        CheckpointRegisterResponse authResponse = new CheckpointRegisterResponse();
+
+        authResponse.setSigningKey(this.signingKey);
+        authResponse.setEncryptionKey(this.encryptionKey);
 
         return ResponseEntity.ok().body(authResponse);
     }
