@@ -104,3 +104,31 @@ logging:
       springframework:
         security: DEBUG
 
+
+keycloak: # override me in env vars!
+  auth-server-url: http://localhost:8180/auth/
+  realm: rapidpass
+  resource: rapidpass-api
+  ssl-required: external
+  credentials.secret: 085bb15b-a66b-4a74-9eef-d47a60311139
+  bearer-only: true
+  cors: true
+  securityConstraints[0]:
+    securityCollections[0]:
+      name: OpenAPI Configuration
+      patterns[0]: /swagger-ui.html
+      patterns[1]: /registry/qr-codes/*
+      patterns[2]: /checkpoint/auth
+  securityConstraints[1]:
+    authRoles[0]: user
+    authRoles[1]: approver
+    authRoles[2]: inspector
+    securityCollections[0]:
+      name: secured endpoints
+      patterns[0]: /registry/*
+      patterns[1]: /registry/access-passes/*
+      patterns[2]: /batch/*
+      patterns[3]: /tester/*
+      patterns[4]: /users/*
+      patterns[5]: /lookup/*
+      patterns[6]: /checkpoint/*
