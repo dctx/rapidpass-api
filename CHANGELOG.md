@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#474](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/474) Change trimmed names to uppercase
 in access pass CSV batch upload
 
+### Changed
+- [#472](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/472) `2.0.2.alpha.1` Removed default value for destination city.
+
 ## [2.0.1] - 2020-05-17
 ### Changed
 - Hot fix for retrieving the principal data, to retrieve the apor types.
