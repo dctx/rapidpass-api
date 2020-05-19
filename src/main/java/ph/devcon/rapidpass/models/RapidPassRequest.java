@@ -128,7 +128,7 @@ public final class RapidPassRequest {
                 .originProvince(StringUtils.trim(csvData.getOriginProvince()))
                 .destName(StringUtils.defaultIfBlank(destName, "NA"))
                 .destStreet(StringUtils.defaultIfBlank(destStreet, "NA"))
-                .destCity(StringUtils.defaultIfBlank(destCity, "NA"))
+                .destCity(destCity)
                 .destProvince(StringUtils.defaultIfBlank(destProvince, "NA"))
                 .remarks(StringUtils.trim(csvData.getRemarks()))
                 .build();
