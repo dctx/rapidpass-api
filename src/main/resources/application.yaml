@@ -109,6 +109,7 @@ keycloak: # override me in env vars!
       name: OpenAPI Configuration
       patterns[0]: /swagger-ui.html
       patterns[1]: /registry/qr-codes/*
+      patterns[2]: /checkpoint/auth
   securityConstraints[1]:
     authRoles[0]: user
     authRoles[1]: approver
@@ -121,6 +122,7 @@ keycloak: # override me in env vars!
       patterns[3]: /tester/*
       patterns[4]: /users/*
       patterns[5]: /lookup/*
+      patterns[6]: /checkpoint/*
 
 #  policy-enforcer-config:
 #    lazy-load-paths: true
