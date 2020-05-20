@@ -148,14 +148,19 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new Max<>("identifierNumber", 25),
                 new Max<>("plateNumber", 20),
                 new Max<>("remarks", 250),
+                new Max<>("limitations", 200),
+
+                new Max<>("originName", 100),
                 new Max<>("originStreet", 150),
                 new Max<>("originProvince", 50),
                 new Max<>("originCity", 50),
+                new Max<>("originZip", 15),
 
-
+                new Max<>("destName", 100),
                 new Max<>("destStreet", 150),
                 new Max<>("destProvince", 50),
                 new Max<>("destCity", 50),
+                new Max<>("destZip", 15),
                 new GlobalOverwrite<>("destCity", "Multi City", rapidPassCsvData -> multiCityAporTypes.contains(rapidPassCsvData.getAporType()))
 
         );
