@@ -17,17 +17,17 @@ in access pass CSV batch upload
 - [#479](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/479) Checkpoint endpoints secured.
 
 ### Fixed
-- [#254](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/254) `2.0.2.alpha.1` Fixed re-occurred bug related to 
+- [#254](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/254) Fixed re-occurred bug related to 
    database column limits when bulk uploading.
 
 ## [2.0.1] - 2020-05-17
 ### Changed
 - Hot fix for retrieving the principal data, to retrieve the apor types.
-- [#475](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/475) `2.0.1.alpha.1` - When editing access passes,
+- [#475](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/475) - When editing access passes,
     change the name to uppercase. 
 
 ### Fixed
-- `2.0.1.alpha.1` Removed `/` from filename when retrieving newest checkpoint app URL filename.
+- Removed `/` from filename when retrieving newest checkpoint app URL filename.
 
 ## [2.0.0] - 2020-05-17
 ### Added
