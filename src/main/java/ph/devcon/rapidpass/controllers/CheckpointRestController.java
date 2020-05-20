@@ -26,9 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.*;
 import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.keycloak.KeycloakService;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
-import ph.devcon.rapidpass.services.notifications.KeycloakService;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -197,7 +197,7 @@ public class CheckpointRestController {
             this.keycloakService.unregisterUser(authRequest.getImei());
         }
 
-        this.keycloakService.registerUser(authRequest.getImei(), authRequest.getPassword());
+        this.keycloakService.createUser(authRequest.getImei(), authRequest.getPassword());
 
         CheckpointRegisterResponse authResponse = new CheckpointRegisterResponse();
 

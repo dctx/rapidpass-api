@@ -101,10 +101,8 @@ keycloak: # override me in env vars!
   realm: rapidpass
   resource: rapidpass-api
   ssl-required: external
-  credentials:
-    apiUser: testapi_01@rapidpass.ph
-    apiPassword: testapi_01@rapidpass.ph
-    secret: '**********'
+  apiUsername: admin
+  apiPassword: admin
   bearer-only: true
   cors: true
   securityConstraints[0]:
