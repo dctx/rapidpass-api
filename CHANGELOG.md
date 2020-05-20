@@ -16,6 +16,10 @@ in access pass CSV batch upload
 - [#472](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/472) Removed default value for destination city.
 - [#479](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/479) Checkpoint endpoints secured.
 
+### Fixed
+- [#254](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/254) `2.0.2.alpha.1` Fixed re-occurred bug related to 
+   database column limits when bulk uploading.
+
 ## [2.0.1] - 2020-05-17
 ### Changed
 - Hot fix for retrieving the principal data, to retrieve the apor types.
