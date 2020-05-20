@@ -193,6 +193,10 @@ public class CheckpointRestController {
         boolean CORRECT_MASTER_KEY = this.masterKey.equals(authRequest.getMasterKey());
         if (!CORRECT_MASTER_KEY)  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
+        if (this.keycloakService.userExists(authRequest.getImei())) {
+            this.keycloakService.unregisterUser(authRequest.getImei());
+        }
+
         this.keycloakService.registerUser(authRequest.getImei(), authRequest.getPassword());
 
         CheckpointRegisterResponse authResponse = new CheckpointRegisterResponse();

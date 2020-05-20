@@ -56,4 +56,11 @@ public class KeycloakService {
 //        log.debug("  SMS msg sent! {}", message.getTo());
     }
 
+    public boolean userExists(String imei) {
+        return false;
+    }
+
+    public void unregisterUser(String imei) {
+
+    }
 }
