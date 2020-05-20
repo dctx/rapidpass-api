@@ -16,7 +16,6 @@ package ph.devcon.rapidpass.services;
 
 import com.google.zxing.WriterException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -89,7 +88,7 @@ class QrPdfServiceTest {
 
         final File test = File.createTempFile("test", ".pdf");
         final FileOutputStream fileOutputStream = new FileOutputStream(test);
-        IOUtils.write(bytes, fileOutputStream);
+        fileOutputStream.write(bytes);
         log.debug("wrote pdf at {}", test.getAbsolutePath());
     }
 

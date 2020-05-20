@@ -14,13 +14,19 @@
 
 package ph.devcon.rapidpass.services.notifications;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @Qualifier("keycloak")
@@ -29,38 +35,60 @@ import org.springframework.web.client.RestTemplate;
 @Setter
 public class KeycloakService {
 
-    @NonNull
-    private final RestTemplate restTemplate;
+    @Value("${keycloak.auth-server-url}")
+    private String server;
+
+    @Value("${keycloak.realm}")
+    private String realm;
+
+    private String clientID = "rapidpass-api";
+
+    @Value("${keycloak.credentials.secret}")
+    private String authToken;
+
+    @Value("${keycloak.credentials.apiUser}")
+    private String username;
+
+    @Value("${keycloak.credentials.apiPass}")
+    private String password;
 
     public void registerUser(String imei, String password) {
+        Keycloak kc = getKeycloakInstance();
 
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-//
-//        params.add("number", formatNumber(message.getTo()));
-//        params.add("message", message.getMessage());
-//
-//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-//
-//        ResponseEntity<String> response = restTemplate.postForEntity(this.url, request, String.class);
-//
-//        if (!response.getStatusCode().is2xxSuccessful()) {
-//            throw new NotificationException("Error POSTing to semaphore API");
-//        }
-//
-//
-//        log.info("response: {}", response.getBody());
-//
-//
-//        log.debug("  SMS msg sent! {}", message.getTo());
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(password);
+
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(imei);
+        user.setCredentials(Collections.singletonList(credential));
+        user.setEnabled(true);
+
+        UsersResource users = kc.realm(this.realm).users();
+        users.create(user);
     }
 
     public boolean userExists(String imei) {
-        return false;
+        Keycloak kc = getKeycloakInstance();
+
+        List<UserRepresentation> users = kc.realm(this.realm).users().search(imei);
+
+        return users.size() > 0;
     }
 
     public void unregisterUser(String imei) {
+        Keycloak kc = getKeycloakInstance();
 
+        List<UserRepresentation> users = kc.realm(this.realm).users().search(imei);
+
+        users.stream()
+            .map(UserRepresentation::getId)
+            .findFirst().ifPresent(kc.realm(this.realm).users()::delete);
     }
+
+
+    public Keycloak getKeycloakInstance() {
+        return Keycloak.getInstance(server, realm, username, password, clientID);
+    }
+
 }

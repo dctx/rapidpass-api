@@ -101,7 +101,10 @@ keycloak: # override me in env vars!
   realm: rapidpass
   resource: rapidpass-api
   ssl-required: external
-  credentials.secret: 085bb15b-a66b-4a74-9eef-d47a60311139
+  credentials:
+    apiUser: testapi_01@rapidpass.ph
+    apiPassword: testapi_01@rapidpass.ph
+    secret: '**********'
   bearer-only: true
   cors: true
   securityConstraints[0]:
@@ -110,6 +113,7 @@ keycloak: # override me in env vars!
       patterns[0]: /swagger-ui.html
       patterns[1]: /registry/qr-codes/*
       patterns[2]: /checkpoint/auth
+      patterns[3]: /checkpoint/register
   securityConstraints[1]:
     authRoles[0]: user
     authRoles[1]: approver
