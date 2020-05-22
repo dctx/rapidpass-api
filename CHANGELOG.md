@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [#488](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/488) `2.0.3` Fixed issue with NoSuchField 
      exception for `limitations` preventing bulk uploads for certain rows.
+- No longer shows empty CSV row data as results from bulk upload processing.
 
 ### Added
 - [#480](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/480) `2.0.3` Added register scanner device

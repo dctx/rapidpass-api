@@ -789,7 +789,10 @@ public class RegistryService {
             try {
                 RapidPassRequest request = RapidPassRequest.buildFrom(r);
                 String result = processBatchRapidPassRequest(request, batchAccessPassRequestValidator, counter, currentLoggedInUser);
-                passes.add(result);
+
+                if (!result.contains("Missing APOR Type. Missing Mobile Number. Missing First Name. Missing Last Name. Missing Destination City. Invalid APOR Type. Invalid mobile input."))
+                    passes.add(result);
+
                 counter++;
 
             } catch (IllegalArgumentException e) {
