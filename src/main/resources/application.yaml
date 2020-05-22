@@ -91,10 +91,10 @@ endpointswitch:
     accesspasses: false
 
 qrmaster:
-  skey: ${RAPIDPASS_QRMASTER_SKEY}
+  # Master Key,Signing Key,Encryption Key,Valid To
+  responseKeys[0]: ${RAPIDPASS_MASTER_KEY},${RAPIDPASS_QRMASTER_SKEY},${RAPIDPASS_ENCRYPTION_KEY},${RAPIDPASS_VALID_TO}
   controlkey: ${RAPIDPASS_QRMASTER_CONTROLKEY}
-  encryptionKey: ${RAPIDPASS_ENCRYPTION_KEY}
-  masterKey: ${RAPIDPASS_MASTER_KEY}
+
 
 keycloak-api:
   apiUsername: scanner-registrar@rapidpass.ph

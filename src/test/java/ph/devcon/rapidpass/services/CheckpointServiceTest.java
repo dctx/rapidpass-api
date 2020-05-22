@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
+import ph.devcon.rapidpass.config.CheckpointConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.IdTypeVehicle;
 import ph.devcon.rapidpass.enums.PassType;
@@ -53,15 +54,18 @@ public class CheckpointServiceTest
     @Mock
     private ControlCodeService controlCodeService;
 
+    @Mock
+    private CheckpointConfig checkpointConfig;
+
     @BeforeEach
     void initializeMocks() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig);
     }
     
 //    @Test
     public void TestRetrieveAccessPassByQrCode()
     {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig);
 
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
@@ -92,7 +96,7 @@ public class CheckpointServiceTest
 
 //    @Test
     public void TestRetrieveAccessPassByPlateNumber() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         accessPassEntity.setPassType(PassType.VEHICLE.toString());

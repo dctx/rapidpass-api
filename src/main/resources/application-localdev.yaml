@@ -86,14 +86,11 @@ endpointswitch:
   registry:
     accesspasses: false
 
+
 qrmaster:
-  # Decoded, this value is: SOME_SIGNING_KEY
-  skey: 534f4d455f5349474e494e475f4b4559
-  controlkey: controlsecretkey
-  # Decoded, this value is: SOME_ENCRYPTION_KEY
-  encryptionKey: 534f4d455f454e4352595054494f4e5f4b4559
-  # Decoded, this value is: SOME_MASTER_KEY
-  masterKey: 534f4d455f4d41535445525f4b4559
+  # Master Key,Signing Key,Encryption Key,Valid To
+  responseKeys[0]: 534f4d455f4d41535445525f4b4559,534f4d455f5349474e494e475f4b4559,534f4d455f454e4352595054494f4e5f4b4559,2020-06-30T08:00:00Z
+  controlkey: ABCDEFGHIJKLMNO
 
 logging:
   level:
