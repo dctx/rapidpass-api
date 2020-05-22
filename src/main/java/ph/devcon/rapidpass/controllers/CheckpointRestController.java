@@ -161,7 +161,7 @@ public class CheckpointRestController {
             return ResponseEntity.ok("Coming Soon!");
         }
 
-        if (!this.checkpointService.validate(authRequest.getMasterKey()))
+        if (!this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getImei()))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         CheckpointAuthResponse authResponse = new CheckpointAuthResponse();
@@ -181,7 +181,7 @@ public class CheckpointRestController {
 
         // Validates that the master key is correct
 
-        if (!this.checkpointService.validate(authRequest.getMasterKey()))
+        if (!this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getImei()))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         if (this.keycloakService.userExists(authRequest.getImei())) {
