@@ -18,18 +18,22 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Keycloak configuration
+ * Keycloak configuration.
+ *
+ * Utilised the keycloak-api namespace instead, because keycloak is used by the keycloak adapter.
+ *
+ * See: https://github.com/keycloak/keycloak/blob/master/adapters/oidc/spring-boot-adapter-core/src/main/java/org/keycloak/adapters/springboot/KeycloakSpringBootProperties.java
  *
  * @author jonasespelita@gmail.com
  */
-
 @Configuration
-@ConfigurationProperties("keycloak")
+@ConfigurationProperties("keycloak-api")
 @Getter
 @Setter
 @Slf4j
@@ -38,7 +42,9 @@ public class KeycloakConfig {
     private static final String MASTER_REALM = "master";
     private static final String ADMIN_CLIENT = "admin-cli";
 
+    @Value("${keycloak.auth-server-url}")
     private String authServerUrl;
+    @Value("${keycloak.realm}")
     private String realm;
     private String apiUsername;
     private String apiPassword;

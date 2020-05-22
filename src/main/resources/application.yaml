@@ -96,13 +96,15 @@ qrmaster:
   encryptionKey: ${RAPIDPASS_ENCRYPTION_KEY}
   masterKey: ${RAPIDPASS_MASTER_KEY}
 
+keycloak-api:
+  apiUsername: admin
+  apiPassword: admin
+
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
   realm: rapidpass
   resource: rapidpass-api
   ssl-required: external
-  apiUsername: admin
-  apiPassword: admin
   bearer-only: true
   cors: true
   securityConstraints[0]:
