@@ -42,8 +42,8 @@ class KeycloakConfigTest {
     void testAutoconfiguration() {
         assertThat(keycloakConfig.getAuthServerUrl(), is("http://localhost:8180/auth/"));
         assertThat(keycloakConfig.getRealm(), is("rapidpass"));
-        assertThat(keycloakConfig.getApiUsername(), is("admin"));
-        assertThat(keycloakConfig.getApiPassword(), is("admin"));
+        assertThat(keycloakConfig.getApiUsername(), is("scanner-registrar@rapidpass.ph"));
+        assertThat(keycloakConfig.getApiPassword(), is("scanner-registrar@rapidpass.ph"));
 
         assertThat(keycloakService, is(notNullValue()));
     }
