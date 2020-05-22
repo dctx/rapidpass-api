@@ -1,27 +1,23 @@
 openapi: 3.0.0
 servers:
   - url: /api/v1
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/tiongks/RapidPass/1.0.0
 info:
   description: >-
-    API for Rapid Pass Web Services. Guys, currently super simple pass ng API.
-    Please send Merge Requests to update details. Thanks!
-  version: "1.0.0"
+    This is the RapidPass API specification.
+  version: "2.0.2"
   title: RapidPass API
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
   - name: inspector
-    description: Endpoints for inspector app
+    description: Endpoints for inspector/checkpoint app.
   - name: registration
-    description: Endpoints for mobile registraation app
+    description: Endpoints for mobile registration app.
   - name: dashboard
-    description: Endpoints for web console for the review and approval of requests
+    description: Endpoints for the dashboard/web console for the review and approval of requests (and administration of the RapidPass system).
   - name: public
-    description: Publicly accessible endpoint (future)
+    description: Publicly accessible endpoint
   - name: bulk
     description: bulk/batch operations
 security:
@@ -714,6 +710,7 @@ paths:
         - inspector
         - registration
         - dashboard
+        - public
       summary:
         Download the access pass PDF, which includes instructions and the QR data.
       description:
@@ -818,7 +815,10 @@ paths:
       operationId: checkpointAuth
       tags:
         - inspector
-      summary: Authenticate a checkpoint device. This will provide the device with the necessary keys needed to decode the scanned QR data.
+        - public
+      deprecated: true
+      summary: Authenticates a checkpoint device. Provides the encryption key and signing key to decode scanned QR data.
+      description: This authenticates a scanner device, using the master key.
       requestBody:
         content:
           application/json:
@@ -826,7 +826,8 @@ paths:
               $ref: '#/components/schemas/CheckpointAuthRequest'
       responses:
         '200':
-          description: Successfully authenticated. The signing key, encryption key, access code, and the key validity date is returned.
+          description: Successfully authenticated. The signing key, encryption key, access code, and the key validity
+            date is returned.
           content:
             application/json:
               schema:
@@ -834,7 +835,37 @@ paths:
         '400':
           description: Invalid request, because the IMEI and master key is required.
         '401':
-          description: Unauthorized. Either the IMEI provide is not registered, the provided master key is wrong, or the provided masterkey is expired.
+          description: Unauthorized. Either the IMEI provide is not registered, the provided master key is wrong, or the provided master key is expired.
+  '/checkpoint/register':
+    post:
+      operationId: registerNewDevice
+      tags:
+        - inspector
+        - public
+      summary: Registers a checkpoint device. Provides the encryption key and signing key to decode scanned QR data.
+      description: This registers a new scanner device, if and only if you specify the correct master key. This will
+        verify whether or not the scanner device is valid or not. If it is authorized, a new user will be created on
+        Keycloak so that future requests can be authenticated on the checkpoint app.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckpointRegisterRequest'
+      responses:
+        '200':
+          description: Successfully authenticated. The signing key, encryption key, access code, and the key validity
+            date is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckpointRegisterResponse'
+        '302':
+          description: The IMEI is already registered. No need to create a new device. This will still return the encryption and signing keys.
+        '400':
+          description: Invalid request, because one of the required fields are missing.
+        '401':
+          description: Unauthorized. The provided master key is wrong or the provided master key is expired.
+
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
     get:
       operationId: verifyPlateNo
@@ -1172,11 +1203,11 @@ components:
             $ref: '#/components/schemas/RapidPass'
     CheckpointAuthRequest:
       type: object
-      description: The checkpoint authentication request
+      description: The checkpoint authentication request.
       properties:
         imei:
           type: string
-          description: The device IMEI
+          description: The device IMEI. This will become the username that the user will buse to login via keycloak.
           example: '990000862471854'
         masterKey:
           type: string
@@ -1205,6 +1236,32 @@ components:
             informing the checkpoint app that the masterKey used to authenticate is about to expire. The timestamp
             provided is the date when it will stop working. The checkpoint app must download the latest version of the
             app for it to continue working- otherwise, the app will no longer be able to log in.
+    CheckpointRegisterRequest:
+      type: object
+      description: The checkpoint registration request.
+      properties:
+        imei:
+          type: string
+          description: The device IMEI. This will become the username that the user will buse to login via keycloak.
+          example: '990000862471854'
+        masterKey:
+          type: string
+          description: The Master Key that is scanned from a QR Code
+        password:
+          type: string
+          description: The password that the user will be using to login via keycloak.
+    CheckpointRegisterResponse:
+      type: object
+      description: The response of valid checkpoint device authentication.
+      properties:
+        signingKey:
+          type: string
+          description: the secret used to sign the QRs
+          example: 0123456789ABCDEF
+        encryptionKey:
+          type: string
+          description: the secret used to encrypt the QRs
+          example: 0123456789ABCDEF
     CheckpointAppVersionResponse:
       type: object
       description: The response for the latest app version for the checkpoint app.

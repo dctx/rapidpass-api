@@ -18,11 +18,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableConfigurationProperties
 public class RapidpassApplication implements CommandLineRunner
 {
     @Override
@@ -31,21 +32,21 @@ public class RapidpassApplication implements CommandLineRunner
             throw new RapidpassApplication.ExitException();
         }
     }
-    
+
     public static void main(String[] args)
     {
        new SpringApplication(RapidpassApplication.class).run(args);
     }
-    
+
     class ExitException extends RuntimeException implements ExitCodeGenerator
     {
         private static final long serialVersionUID = 1L;
-        
+
         @Override
         public int getExitCode() {
             return 10;
         }
-        
+
     }
 
 }
