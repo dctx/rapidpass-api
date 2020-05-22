@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.3] - 2020-05-22
 ### Fixed
-- [#488](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/488) `2.0.3.alpha.2` Fixed issue with NoSuchField 
+- [#488](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/488) `2.0.3` Fixed issue with NoSuchField 
      exception for `limitations` preventing bulk uploads for certain rows.
 
 ### Added
-- [#480](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/480) `2.0.3.alpha.1` Added register scanner device
+- [#480](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/480) `2.0.3` Added register scanner device
     endpoint via Keycloak.
 
 ## [2.0.2] - 2020-05-19
