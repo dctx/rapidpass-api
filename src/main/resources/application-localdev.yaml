@@ -105,15 +105,16 @@ logging:
         security: DEBUG
 
 
+keycloak-api:
+  apiUsername: scanner-registrar@rapidpass.ph
+  apiPassword: scanner-registrar@rapidpass.ph
+
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
   realm: rapidpass
   resource: rapidpass-api
   ssl-required: external
-  credentials:
-    apiUser: testapi_01@rapidpass.ph
-    apiPass: testapi_01@rapidpass.ph
-    secret: '**********'
+  credentials.secret: '**********'
   bearer-only: true
   cors: true
   securityConstraints[0]:

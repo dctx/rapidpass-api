@@ -97,8 +97,8 @@ qrmaster:
   masterKey: ${RAPIDPASS_MASTER_KEY}
 
 keycloak-api:
-  apiUsername: admin
-  apiPassword: admin
+  apiUsername: scanner-registrar@rapidpass.ph
+  apiPassword: scanner-registrar@rapidpass.ph
 
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
@@ -107,6 +107,7 @@ keycloak: # override me in env vars!
   ssl-required: external
   bearer-only: true
   cors: true
+  credentials.secret: '**********'
   securityConstraints[0]:
     securityCollections[0]:
       name: OpenAPI Configuration

@@ -62,6 +62,7 @@ public class KeycloakService {
         UserRepresentation user = new UserRepresentation();
         user.setUsername(username);
         user.setCredentials(Collections.singletonList(credential));
+        user.setRealmRoles(Collections.singletonList("inspector"));
         user.setEnabled(true);
 
         UsersResource users = keycloakClient
