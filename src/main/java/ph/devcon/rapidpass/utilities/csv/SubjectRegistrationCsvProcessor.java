@@ -148,7 +148,6 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
                 new Max<>("identifierNumber", 25),
                 new Max<>("plateNumber", 20),
                 new Max<>("remarks", 250),
-                new Max<>("limitations", 200),
 
                 new Max<>("originName", 100),
                 new Max<>("originStreet", 150),
