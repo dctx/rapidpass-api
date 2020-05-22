@@ -58,7 +58,7 @@ public class KeycloakConfig {
 
         return Keycloak.getInstance(
                 authServerUrl,
-                MASTER_REALM,
+                realm,
                 apiUsername,
                 apiPassword,
                 ADMIN_CLIENT);
