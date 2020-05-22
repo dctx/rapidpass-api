@@ -52,15 +52,6 @@ public class CheckpointRestController {
 
     private final KeycloakService keycloakService;
 
-    @Value("${qrmaster.skey}")
-    private String signingKey;
-
-    @Value("${qrmaster.encryptionKey}")
-    private String encryptionKey;
-
-    @Value("${qrmaster.masterKey}")
-    private String masterKey;
-
     @Value("${endpointswitch.checkpoint.auth:false}")
     private boolean enableCheckpointAuth;
 
@@ -170,15 +161,15 @@ public class CheckpointRestController {
             return ResponseEntity.ok("Coming Soon!");
         }
 
-        // Validates that the master key is correct
-
-        boolean CORRECT_MASTER_KEY = this.masterKey.equals(authRequest.getMasterKey());
-        if (!CORRECT_MASTER_KEY)  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!this.checkpointService.validate(authRequest.getMasterKey()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         CheckpointAuthResponse authResponse = new CheckpointAuthResponse();
 
-        authResponse.setSigningKey(this.signingKey);
-        authResponse.setEncryptionKey(this.encryptionKey);
+        KeyEntry latestKeys = this.checkpointService.getLatestKeys();
+
+        authResponse.setSigningKey(latestKeys.getSigningKey());
+        authResponse.setEncryptionKey(latestKeys.getEncryptionKey());
         authResponse.setAccessCode("youdonotneedthis");
         authResponse.setValidTo("");
 
@@ -190,8 +181,8 @@ public class CheckpointRestController {
 
         // Validates that the master key is correct
 
-        boolean CORRECT_MASTER_KEY = this.masterKey.equals(authRequest.getMasterKey());
-        if (!CORRECT_MASTER_KEY)  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!this.checkpointService.validate(authRequest.getMasterKey()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         if (this.keycloakService.userExists(authRequest.getImei())) {
             this.keycloakService.unregisterUser(authRequest.getImei());
@@ -201,8 +192,7 @@ public class CheckpointRestController {
 
         CheckpointRegisterResponse authResponse = new CheckpointRegisterResponse();
 
-        authResponse.setSigningKey(this.signingKey);
-        authResponse.setEncryptionKey(this.encryptionKey);
+        authResponse.addAll(this.checkpointService.getAllKeys());
 
         return ResponseEntity.ok().body(authResponse);
     }

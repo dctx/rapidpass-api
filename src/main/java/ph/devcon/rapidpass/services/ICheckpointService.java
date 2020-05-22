@@ -14,9 +14,12 @@
 
 package ph.devcon.rapidpass.services;
 
+import ph.devcon.rapidpass.api.models.KeyEntry;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+
+import java.util.List;
 
 public interface ICheckpointService
 {
@@ -24,4 +27,8 @@ public interface ICheckpointService
     AccessPass retrieveAccessPassByQrCode(String qrCode);
     ScannerDevice retrieveDeviceByImei(String imei);
     RevocationLogResponse retrieveRevokedAccessPasses(Integer since);
+
+    boolean validate(String masterKey);
+    List<KeyEntry> getAllKeys();
+    KeyEntry getLatestKeys();
 }

@@ -859,12 +859,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckpointRegisterResponse'
-        '302':
-          description: The IMEI is already registered. No need to create a new device. This will still return the encryption and signing keys.
         '400':
           description: Invalid request, because one of the required fields are missing.
         '401':
-          description: Unauthorized. The provided master key is wrong or the provided master key is expired.
+          description: Unauthorized. The provided master key is wrong, the provided master key is expired, or the
+            requested IMEI or device ID is not part of the pre-registered list of devices.
 
   '/checkpoint/access-passes/plate-numbers/{plateNo}:':
     get:
@@ -1241,27 +1240,42 @@ components:
       description: The checkpoint registration request.
       properties:
         imei:
+          required: false
           type: string
-          description: The device IMEI. This will become the username that the user will buse to login via keycloak.
+          description: The device IMEI.
           example: '990000862471854'
+        deviceId:
+          required: true
+          type: string
+          description: The unique device ID. This will become the username that the user will buse to login via keycloak.
+          example: '1234567890'
         masterKey:
           type: string
           description: The Master Key that is scanned from a QR Code
         password:
           type: string
           description: The password that the user will be using to login via keycloak.
-    CheckpointRegisterResponse:
+    KeyEntry:
       type: object
-      description: The response of valid checkpoint device authentication.
+      description: Holds a set of encryption and master key values, including when those values will expire in validity.
       properties:
         signingKey:
           type: string
-          description: the secret used to sign the QRs
+          description: the secret used to sign the QRs.
           example: 0123456789ABCDEF
         encryptionKey:
           type: string
-          description: the secret used to encrypt the QRs
+          description: the secret used to encrypt the QRs.
           example: 0123456789ABCDEF
+        validTo:
+          type: string
+          description: Date when this key will expire.
+          example: '2020-05-12T08:00:00Z'
+    CheckpointRegisterResponse:
+      type: array
+      description: The response of valid checkpoint device authentication.
+      items:
+        $ref: '#/components/schemas/KeyEntry'
     CheckpointAppVersionResponse:
       type: object
       description: The response for the latest app version for the checkpoint app.

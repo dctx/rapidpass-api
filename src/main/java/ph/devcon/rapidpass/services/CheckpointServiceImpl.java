@@ -17,8 +17,10 @@ package ph.devcon.rapidpass.services;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import ph.devcon.rapidpass.api.models.KeyEntry;
 import ph.devcon.rapidpass.api.models.RevocationLog;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
+import ph.devcon.rapidpass.config.CheckpointConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -32,6 +34,7 @@ import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +44,8 @@ public class CheckpointServiceImpl implements ICheckpointService {
     private final AccessPassRepository accessPassRepository;
     private final ScannerDeviceRepository scannerDeviceRepository;
     private final ControlCodeService controlCodeService;
+
+    private final CheckpointConfig checkpointConfig;
 
     @Override
     public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
@@ -94,5 +99,32 @@ public class CheckpointServiceImpl implements ICheckpointService {
         revocationLogResponse.setData(log);
 
         return revocationLogResponse;
+    }
+
+    /**
+     * Returns true if there is a master key with their valid to date after the current time.
+     */
+    @Override
+    public boolean validate(String masterKey) {
+        return checkpointConfig.getKeyEntry(masterKey) != null;
+    }
+
+    /**
+     * Returns all the available keys.
+     */
+    @Override
+    public List<KeyEntry> getAllKeys() {
+        return checkpointConfig.getAllKeyEntries();
+    }
+
+    /**
+     * Returns the latest key.
+     */
+    @Override
+    public KeyEntry getLatestKeys() {
+        return getAllKeys().stream()
+                .filter(key -> OffsetDateTime.parse(key.getValidTo()).isAfter(OffsetDateTime.now()))
+                .min(Comparator.comparing(o -> OffsetDateTime.parse(o.getValidTo())))
+                .orElse(null);
     }
 }
