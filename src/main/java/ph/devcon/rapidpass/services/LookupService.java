@@ -44,7 +44,7 @@ public class LookupService {
     }
 
     public ResponseEntity<?> addUpdateAporType(AporLookup data) {
-        if (!data.getAporCode().matches("^[A-Z0-9]*$")) return ResponseEntity.status(400).body("Must be A-Z 0-3");
+        if (data.getAporCode().matches("[A-Z]{2,3}")) return ResponseEntity.status(400).body("The APOR Code must be alphanumeric.");
 
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
         AporLookup aporData = aporSearch.stream().findFirst().orElse(data);
