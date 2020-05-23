@@ -51,7 +51,7 @@ public final class LookupController {
 
     @PostMapping("/apor")
     public ResponseEntity<?> putApor(@RequestBody AporLookup data) {
-        return ResponseEntity.ok(lookupService.addUpdateAporType(data));
+        return (data.getAporCode().matches("^[A-Z0-9]*$"))? ResponseEntity.ok(lookupService.addUpdateAporType(data)) : ResponseEntity.status(400).body("Aporcode must be A-Z 0-3");
     }
 
     @DeleteMapping("/apor/{aporcode}")
