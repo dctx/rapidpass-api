@@ -20,7 +20,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public interface ScannerDeviceRepository extends
@@ -31,7 +30,9 @@ public interface ScannerDeviceRepository extends
 
     ScannerDevice findById(String id);
 
-    ScannerDevice findByUniqueDeviceId(String imei);
+    ScannerDevice findByUniqueDeviceId(String deviceId);
+
+    ScannerDevice findByImei(String imei);
 
     class ScannerDeviceSpecs {
         public static Specification<ScannerDevice> byBrand(String brand) {
@@ -52,10 +53,16 @@ public interface ScannerDeviceRepository extends
                             criteriaBuilder.like(root.get("model").as(String.class), "%" + model + "%");
         }
 
-        public static Specification<ScannerDevice> byId(String id) {
+        public static Specification<ScannerDevice> byIMEI(String imei) {
             return (root, query, criteriaBuilder) ->
-                    StringUtils.isEmpty(id) ? null :
-                            criteriaBuilder.like(root.get("uniqueDeviceId").as(String.class), "%" + id + "%");
+                    StringUtils.isEmpty(imei) ? null :
+                            criteriaBuilder.like(root.get("imei").as(String.class), "%" + imei + "%");
+        }
+
+        public static Specification<ScannerDevice> byDeviceId(String deviceId) {
+            return (root, query, criteriaBuilder) ->
+                    StringUtils.isEmpty(deviceId) ? null :
+                            criteriaBuilder.like(root.get("uniqueDeviceId").as(String.class), "%" + deviceId + "%");
         }
     }
 }
