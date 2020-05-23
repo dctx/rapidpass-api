@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [#480](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/480) `2.0.3` Added register scanner device
     endpoint via Keycloak.
+- [#483](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/483) `2.0.3.alpha.3` Added validation checking
+    for APOR code, requiring it to be a 2 or 3 character upper case string of letters.
 
 ## [2.0.2] - 2020-05-19
 ### Added
