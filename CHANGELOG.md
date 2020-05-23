@@ -9,32 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.4] - 2020-05-23
 ### Fixed
-- [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) `2.0.4.alpha.1` Added database migrations
+- [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) `2.0.4.alpha.1` - Added database migrations
     for to add `multi_destination` for APOR type table.
-- [#491](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/491) `2.0.4.alpha.1` Added `createdAt` and
+- [#491](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/491) `2.0.4.alpha.1` - Added `createdAt` and
     `updatedAt` when requesting the scanner devices. Updated OpenAPI spec.
+    
+### Added
+- [#483](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/483) `2.0.4.alpha.2` - Added validation checking
+    for APOR code, requiring it to be a 2 or 3 character upper case string of letters.
 
 ## [2.0.3] - 2020-05-22
 ### Fixed
-- [#488](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/488) `2.0.3` Fixed issue with NoSuchField 
+- [#488](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/488) - Fixed issue with NoSuchField 
      exception for `limitations` preventing bulk uploads for certain rows.
 - No longer shows empty CSV row data as results from bulk upload processing.
 
 ### Added
-- [#480](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/480) `2.0.3` Added register scanner device
+- [#480](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/480) - Added register scanner device
     endpoint via Keycloak.
+
+## [Released]
 
 ## [2.0.2] - 2020-05-19
 ### Added
-- [#474](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/474) Change trimmed names to uppercase
+- [#474](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/474) - Change trimmed names to uppercase
 in access pass CSV batch upload
 
 ### Changed
-- [#472](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/472) Removed default value for destination city.
-- [#479](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/479) Checkpoint endpoints secured.
+- [#472](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/472) - Removed default value for destination city.
+- [#479](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/479) - Checkpoint endpoints secured.
 
 ### Fixed
-- [#254](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/254) Fixed re-occurred bug related to 
+- [#254](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/254) - Fixed re-occurred bug related to 
    database column limits when bulk uploading.
 
 ## [2.0.1] - 2020-05-17
@@ -48,162 +54,160 @@ in access pass CSV batch upload
 
 ## [2.0.0] - 2020-05-17
 ### Added
-- [#458](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/458) Use Keycloak to enforce Permissions
+- [#458](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/458) - Use Keycloak to enforce Permissions
 
 ## [1.8.3] - 2020-05-16
 ### Added
-- [#463](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/463) CRUD operations for Scanner Devices
+- [#463](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/463) - CRUD operations for Scanner Devices
     - `GET registry/scanner-devices` - retrieve devices with optional filter
     - `POST registry/scanner-devices` - register new device
     - `GET registry/scanner-device/{unique_id}` - retrieve device matching id
     - `PUT registry/scanner-device/{unique_id}` - update device matching id
     - `DELETE registry/scanner-device/{unique_id}` - delete device matching id
-- [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Added new AporLookup model, with updated pomtable 
+- [#454](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) - Added new AporLookup model, with updated pomtable 
     definition and seed data.
-- [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) `1.8.3.alpha.3` - Added check version and download endpoint for Checkpoint app.
-- [#449](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/449) `1.8.3.alpha.4` Restricts bulk upload by their APOR type.
+- [#396](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/396) - Added check version and download endpoint for Checkpoint app.
+- [#449](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/449) - Restricts bulk upload by their APOR type.
     
 ### Changed
-- [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) `1.8.3.alpha.1` Batch upload now relies on `apor_lookup` table 
+- [#455](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/455) - Batch upload now relies on `apor_lookup` table 
     for APOR type checking, rather than the old `lookup_table` table.
 
 ### Fixed
-- [#461](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/461) `1.8.3.alpha.2` Fixed duplicate rapid passes caused by concurrency issues.
+- [#461](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/461) - Fixed duplicate rapid passes caused by concurrency issues.
 
 
 ## [1.8.2] - 2020-05-08
 ### Changed
-- [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) `1.8.2.alpha.1` `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
+- [#453](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/453) - `registry/access-passes` now limited by keycloak `access_token` `aportypes` attribute
 
 ### Added
 - new columns `email_sent`, `mobile_sent` on `notifier_log` table
 - [#460](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/460) Destination city is now a required field.
 - [#459](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/459) Overwrite destination city to `Multi City` for specific APOR types.
-- [#441](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/441) `1.8.2.alpha.2` - Added revocation endpoint for checkpoint app.
+- [#441](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/441) - Added revocation endpoint for checkpoint app.
 
 ## [1.8.1] - 2020-05-08
 ### Changed
 - Temporarily? turned off role checking while keycloak is being finalized
-- [#448](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/448) `1.8.1.alpha.1` Added search by email.
-- [#405](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/405) `1.8.1.alpha.2` - `issuedBy` field when requesting for a RapidPass.
+- [#448](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/448) -  Added search by email.
+- [#405](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/405) - `issuedBy` field when requesting for a RapidPass.
 
 ## [1.8.0] - 2020-05-04
 ### Added
-- [#364](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/364) Keycloak implementation.
+- [#364](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/364) - Keycloak implementation.
 
 ## [1.7.7] - 2020-05-05
 ### Added
-- [#430](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/430) optional data from the csv files will be trimmed
+- [#430](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/430) - optional data from the csv files will be trimmed
     based on their database column max restrictions.
     
 ### Changed
-- [#446](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/446) Increased email length from 50 to 256 characters.
-- [#438](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/438) Sort the results of the access passes by 
+- [#446](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/446) - Increased email length from 50 to 256 characters.
+- [#438](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/438) - Sort the results of the access passes by 
     `valid_to` in descending order.
-- [#444](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/444) Declined passes will not be inserted into the DB
+- [#444](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/444) - Declined passes will not be inserted into the DB
     anymore.
 
 ## [1.7.6] - 2020-05-05
 ### Fixed
-- [#445](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/445) Changed the requirements for the registry batch CSV import.
-    
-## [Released]
+- [#445](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/445) - Changed the requirements for the registry batch CSV import.
     
 ## [1.7.5] - 2020-05-04
 ### Added
-- [#440](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/440) Added new registrars to be used by new users
+- [#440](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/440) - Added new registrars to be used by new users
     of the dashboard.
 
 ### Changed
-- [#415](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/415) Updated registrar 37 (DTI-BOI) to use the correct
+- [#415](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/415) - Updated registrar 37 (DTI-BOI) to use the correct
     short code.
 
 ## [1.7.4] - 2020-05-03
 ### Added
-- [#429](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/429) Added update access pass endpoint, for support
+- [#429](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/429) - Added update access pass endpoint, for support
     team or for approvers. 
 
 ## [1.7.3] - 2020-05-03
 ### Fixed
-- [#435](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/435) Fixed issue of primitives being used in entity classes.
+- [#435](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/435) -  Fixed issue of primitives being used in entity classes.
 
 ## [1.7.2] - 2020-05-01
 ### Changed
-- [#431](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/431) Changed validation error message for invalid
+- [#431](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/431) - Changed validation error message for invalid
 mobile number input.
 
 ## [1.7.1] - 2020-05-01
 ### Added
-- [#426](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/426) Added new endpoint to check the control code of
+- [#426](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/426) - Added new endpoint to check the control code of
     the RapidPass.
 
 ## [1.7.0] - 2020-05-01
 ### Added
-- [#403](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/403) Added Resend Text & Email Endpoint
-- [#425](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/425) Added `notified` property when querying a RapidPass.
+- [#403](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/403) - Added Resend Text & Email Endpoint
+- [#425](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/425) - Added `notified` property when querying a RapidPass.
 
 ## [1.6.4] - 2020-04-28
 ### Fixed
-- [#420](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/420) Increase supported length for id type and suffix.
+- [#420](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/420) - Increase supported length for id type and suffix.
 
 ## [1.6.3] - 2020-04-28
 ### Fixed
-- [#419](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/419) Allows bulk upload to handle rows with empty emails.
+- [#419](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/419) - Allows bulk upload to handle rows with empty emails.
 
 ## [1.6.2] - 2020-04-28
 ### Changed
-- [#410](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/410) Added issuer when bulk upload/approval is performed.
+- [#410](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/410) - Added issuer when bulk upload/approval is performed.
 
 ## [1.6.1] - 2020-04-28
 ### Changed
-- [#418](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/418) Updated APOR codes to include SO and DR.
-- [#409](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/409) Increased issued_by from `varchar(20)` to `varchar(40)`. 
+- [#418](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/418) - Updated APOR codes to include SO and DR.
+- [#409](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/409) - Increased issued_by from `varchar(20)` to `varchar(40)`. 
 
 ## [1.6.0] - 2020-04-28
 ### Fixed
-- [#417](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/417) Fixed de-dup potential when performing bulk uploads, when
+- [#417](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/417) - Fixed de-dup potential when performing bulk uploads, when
     an existing access pass is pending registered previously.
 
 ## [1.5.20] - 2020-04-27
 ### Fixed
-- [#416](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/416) Fixed CSV bulk upload for required rows with 
+- [#416](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/416) - Fixed CSV bulk upload for required rows with 
 missing data
 
 ## [1.5.20] - 2020-04-27
 ### Changed
-- [#414](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414) Pass type is always INDIVIDUAL when performing bulk upload.
+- [#414](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/414) - Pass type is always INDIVIDUAL when performing bulk upload.
 
 ## [1.5.19] - 2020-04-26
 ### Changed
-- [#408](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/408) Updated PDF design to highlight the name of the person.
+- [#408](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/408) - Updated PDF design to highlight the name of the person.
 
 ## [1.5.18] - 2020-04-26
 ### Changed
-- [#406](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/406) Handle new lines inside of cells in the CSV file.
+- [#406](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/406) - Handle new lines inside of cells in the CSV file.
 
 ## [1.5.17] - 2020-04-26
 ### Changed
-- [#404](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/404) Changed warning text on PDF regarding illegally tampering with the rapid pass.
+- [#404](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/404) - Changed warning text on PDF regarding illegally tampering with the rapid pass.
 
 ## [1.5.16] - 2020-04-26
 ### Added
-- [#402](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/402) Added an error message for missing columns in 
+- [#402](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/402) - Added an error message for missing columns in 
 CSV batch upload
 
 ## [1.5.15] - 2020-04-25
-- [#401](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/401) Expiration Date is now a system parameter, defaults to May 15, 2020
+- [#401](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/401) - Expiration Date is now a system parameter, defaults to May 15, 2020
 
 ## [1.5.14] - 2020-04-24
 ### BugFix
-- [#399](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/399) Removed hardcoded keys and cycle test keys.
-- [#360](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/360) Fixed sending of email for declined transactions.
+- [#399](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/399) - Removed hardcoded keys and cycle test keys.
+- [#360](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/360) - Fixed sending of email for declined transactions.
 
 ## [1.5.13] - 2020-04-23
 ### HotFix
-- [#394](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/394) Enabled checkpoint auth endpoint.
+- [#394](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/394) - Enabled checkpoint auth endpoint.
 
 ## [1.5.12] - 2020-04-23
-- [#392](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/392) Implemented endpoint toggling for easy configuration.
+- [#392](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/392) - Implemented endpoint toggling for easy configuration.
 
 ## [1.5.11] - 2020-04-22
 - Implemented CSRF cookie implementation with dynamic domain
@@ -238,11 +242,11 @@ CSV batch upload
     
 ## [1.5.2] - 2020-04-20
 ### Changed
-- [#384](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/384) Added security headers.
+- [#384](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/384) - Added security headers.
 
 ## [1.5.1] - 2020-04-20
 ### Changed
-- [#382](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/382) Updated APOR seed data in Lookup Table.
+- [#382](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/382) - Updated APOR seed data in Lookup Table.
 
 ### Added
 - [#285](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/285) - Added an endpoint that 
