@@ -44,14 +44,15 @@ public class LookupService {
     }
 
     public ResponseEntity<?> addUpdateAporType(AporLookup data) {
-        if (data.getAporCode().matches("[A-Z]{2,3}")) return ResponseEntity.status(400).body("The APOR Code must be alphanumeric.");
+        if (data.getAporCode().matches("[A-Z]{2,3}"))
+            return ResponseEntity.status(400).body("The APOR Code must be value from A to Z of at least 2 or 3 characters.");
 
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
         AporLookup aporData = aporSearch.stream().findFirst().orElse(data);
 
         aporData.setApprovingAgency(data.getApprovingAgency());
         aporData.setDescription(data.getDescription());
-        aporData.setMultidestination(data.isMultidestination());
+        aporData.setMultiDestination(data.isMultiDestination());
 
         aporLookupRepository.saveAndFlush(aporData);
         return ResponseEntity.ok(aporLookupRepository.findAll());

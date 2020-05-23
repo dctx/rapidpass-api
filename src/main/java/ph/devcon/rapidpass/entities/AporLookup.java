@@ -51,8 +51,11 @@ public class AporLookup implements Serializable {
     @Column(name = "approving_agency")
     private String approvingAgency;
 
+    /**
+     * True, if and only if having this APOR code will replace the destination city to 'Multi City'.
+     */
     @Column(name = "multi_destination")
-    private boolean multidestination;
+    private boolean multiDestination;
 
     public AporLookup() {
 
