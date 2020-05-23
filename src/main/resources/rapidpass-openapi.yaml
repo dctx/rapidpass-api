@@ -914,6 +914,21 @@ paths:
                 $ref: '#/components/schemas/RapidPass'
         '404':
           description: RapidPass not found using the plate number.
+  '/registry/scanner-devices/{deviceId}':
+    get:
+      tags:
+        - inspector
+        - dashboard
+      summary: Retrieves data of a specific device ID.
+      description: Retrieves data of scanner devices.
+      operationId: getScannerDevice
+      responses:
+        '201':
+          description: The data of one scanner device.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDevice'
   '/registry/scanner-devices':
     post:
       tags:
@@ -1151,16 +1166,37 @@ components:
       properties:
         id:
           type: string
-          description: The device IMEI/ID number
+          description: The unique device ID (supported for Android 10).
+          example: '990000862471854'
+        imei:
+          deprecated: true
+          type: string
+          description: The device's IMEI. This will be used for backwards compatibility.
           example: '990000862471854'
         brand:
+          description: "The brand of the device."
           type: string
+          example: "Samsung"
         model:
+          description: The model of the device.
           type: string
+          example: "Galaxy"
         mobileNumber:
+          description: "The mobile number of the device."
           type: string
+          example: "09171234567"
         status:
+          description: The status of this mobile device.
           type: string
+          example:
+        createdAt:
+          description: When this mobile device was created.
+          type: string
+          example: '2020-05-23T08:00:00Z'
+        updatedAt:
+          description: When this mobile device was last updated.
+          type: string
+          example: '2020-05-23T08:00:00Z'
     PagedRapidPass:
       type: object
       description: The response of a search query on the RapidPass endpoint.

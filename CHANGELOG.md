@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.4] - 2020-05-23
+### Fixed
+- [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) `2.0.4.alpha.1` Added database migrations
+    for to add `multi_destination` for APOR type table.
+- [#491](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/491) `2.0.4.alpha.1` Added `createdAt` and
+    `updatedAt` when requesting the scanner devices. Updated OpenAPI spec.
+
 ## [2.0.3] - 2020-05-22
 ### Fixed
 - [#488](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/488) `2.0.3` Fixed issue with NoSuchField 

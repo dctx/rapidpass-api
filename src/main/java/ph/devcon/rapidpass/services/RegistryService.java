@@ -878,41 +878,6 @@ public class RegistryService {
         }
     }
 
-    /**
-     * Retrieve Scanner Devices
-     *
-     * @deprecated use {@link MobileDeviceService} instead
-     */
-    public List<MobileDevice> getScannerDevices(Optional<Pageable> pageView) {
-        List<ScannerDevice> scannerDevices;
-        if (pageView.isPresent()) {
-            return scannerDeviceRepository.findAll(pageView.get()).toList()
-                    .stream()
-                    .map(MobileDevice::buildFrom)
-                    .collect(Collectors.toList());
-        } else {
-            return scannerDeviceRepository.findAll()
-                    .stream()
-                    .map(MobileDevice::buildFrom)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    public ScannerDevice registerScannerDevice(MobileDevice request) {
-        ScannerDevice device = scannerDeviceRepository.findByUniqueDeviceId(request.getImei());
-        if (device == null) {
-            device = new ScannerDevice();
-        }
-
-        device.setUniqueDeviceId(request.getImei());
-        device.setBrand(request.getBrand());
-        device.setMobileNumber(request.getMobileNumber());
-        device.setModel(request.getModel());
-        device.setStatus(request.getStatus());
-
-        return scannerDeviceRepository.saveAndFlush(device);
-    }
-
     public RapidPassEventLog getAccessPassEvent(Integer eventId, Pageable pageable) {
         Page<AccessPassEvent> accessPassEvents = accessPassEventRepository.findAllByIdIsGreaterThanEqual(eventId, pageable);
         if (accessPassEvents == null || accessPassEvents.isEmpty()) {

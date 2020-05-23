@@ -14,43 +14,34 @@
 
 package ph.devcon.rapidpass.controllers;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.entities.AccessPass;
-import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
-import ph.devcon.rapidpass.exceptions.AccountLockedException;
 import ph.devcon.rapidpass.models.*;
-import ph.devcon.rapidpass.repositories.AccessPassSpecifications;
 import ph.devcon.rapidpass.repositories.AporLookupRepository;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.*;
 
@@ -224,44 +215,6 @@ public class RegistryRestController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(responseBody);
-    }
-
-    /**
-     * @param queryFilter
-     * @return
-     * @deprecated use {@link MobileDeviceController}
-     */
-    @Deprecated
-//    @GetMapping("/scanner-devices")
-    public ResponseEntity<?> getScannerDevices(@RequestBody Optional<QueryFilter> queryFilter) {
-
-        boolean isDisabled = true;
-        if (isDisabled) {
-            return ResponseEntity.status(403).body(
-                    ImmutableMap.of("message", "This endpoint has been temporarily disabled.")
-            );
-        } else {
-            Pageable pageView = null;
-            if (queryFilter.isPresent() && queryFilter.get().getPageNo() != null) {
-                int pageSize = (null != queryFilter.get().getMaxPageRows()) ? queryFilter.get().getMaxPageRows() : QueryFilter.DEFAULT_PAGE_SIZE;
-                pageView = PageRequest.of(queryFilter.get().getPageNo(), pageSize);
-            }
-            List<MobileDevice> scannerDevices = registryService.getScannerDevices(Optional.ofNullable(pageView));
-            return ResponseEntity.ok().body(scannerDevices);
-        }
-    }
-
-    /**
-     * @param deviceRequest
-     * @return
-     * @deprecated use {@link MobileDeviceController}
-     */
-    @Deprecated
-//    @PostMapping("/scanner-devices")
-    public ResponseEntity<?> registerScannerDevice(@RequestBody MobileDevice deviceRequest) {
-        ScannerDevice device = this.registryService.registerScannerDevice(deviceRequest);
-
-        return ResponseEntity.status(201).body(ImmutableMap.of("deviceId", deviceRequest.getImei()));
     }
 
     /**

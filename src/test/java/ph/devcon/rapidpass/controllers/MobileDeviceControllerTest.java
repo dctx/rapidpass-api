@@ -22,7 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.models.MobileDevice;
+import ph.devcon.rapidpass.api.models.MobileDevice;
 import ph.devcon.rapidpass.services.MobileDeviceService;
 
 import java.util.Collections;
@@ -56,7 +56,7 @@ class MobileDeviceControllerTest {
     @Test
     void getScannerDevices() throws Exception {
         when(mockMobileDeviceService.getMobileDevices(any()))
-                .thenReturn(Collections.singletonList(MobileDevice.builder().imei("TEST").build()));
+                .thenReturn(Collections.singletonList(new MobileDevice().imei("TEST")));
 
         mockMvc.perform(get("/registry/scanner-devices"))
                 .andDo(print())
@@ -68,7 +68,7 @@ class MobileDeviceControllerTest {
 
     @Test
     void postScannerDevices() throws Exception {
-        final MobileDevice mobileDevice = MobileDevice.builder().imei("test123").mobileNumber("123456").build();
+        final MobileDevice mobileDevice = new MobileDevice().imei("test123").mobileNumber("123456");
         when(mockMobileDeviceService.registerMobileDevice(any(MobileDevice.class)))
                 .thenReturn(mobileDevice);
 
@@ -82,7 +82,7 @@ class MobileDeviceControllerTest {
 
     @Test
     void getScannerDevice() throws Exception {
-        final MobileDevice mobileDevice = MobileDevice.builder().imei("test123").mobileNumber("123456").build();
+        final MobileDevice mobileDevice = new MobileDevice().imei("test123").mobileNumber("123456");
 
         when(mockMobileDeviceService.getMobileDevice(anyString())).thenReturn(Optional.empty());
         when(mockMobileDeviceService.getMobileDevice(eq("test123"))).thenReturn(Optional.of(mobileDevice));

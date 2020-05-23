@@ -15,24 +15,15 @@
 package ph.devcon.rapidpass.entities;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import ph.devcon.rapidpass.api.models.MobileDevice;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
 
 /**
  * @author eric
@@ -49,10 +40,16 @@ public class ScannerDevice implements Serializable {
     @Column(name = "id")
     private Integer id;
     @Basic(optional = false)
+
     @NotNull
     @Size(min = 1, max = 2147483647)
     @Column(name = "unique_device_id")
     private String uniqueDeviceId;
+
+    @Size(min = 1, max = 2147483647)
+    @Column(name = "imei")
+    private String imei;
+
     @Column(name = "brand")
     private String brand;
     @Column(name = "model")
@@ -61,15 +58,18 @@ public class ScannerDevice implements Serializable {
     private String mobileNumber;
     @Column(name = "status")
     private String status;
+
     @Column(name = "date_time_last_used")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeLastUsed;
+    private OffsetDateTime dateTimeLastUsed;
+
+    @CreatedDate
     @Column(name = "date_time_created")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeCreated;
+    private OffsetDateTime dateTimeCreated;
+
+    @LastModifiedDate
     @Column(name = "date_time_updated")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTimeUpdated;
+    private OffsetDateTime dateTimeUpdated;
+
     //    @JoinColumn(name = "registrar_id", referencedColumnName = "id")
 //    @ManyToOne
 //    private Registrar registrarId;
@@ -107,6 +107,28 @@ public class ScannerDevice implements Serializable {
     @Override
     public String toString() {
         return "ph.devcon.rapidpass.entities.ScannerDevice[ id=" + id + " ]";
+    }
+
+
+    public static ScannerDevice buildFrom(MobileDevice mobileDevice) {
+        ScannerDevice scannerDevice = new ScannerDevice();
+
+        scannerDevice.setUniqueDeviceId(mobileDevice.getId());
+        scannerDevice.setImei(mobileDevice.getImei());
+
+        scannerDevice.setBrand(mobileDevice.getBrand());
+        scannerDevice.setModel(mobileDevice.getModel());
+
+        scannerDevice.setStatus(mobileDevice.getStatus());
+        scannerDevice.setMobileNumber(mobileDevice.getMobileNumber());
+
+        if (mobileDevice.getCreatedAt() != null)
+            scannerDevice.setDateTimeCreated(OffsetDateTime.parse(mobileDevice.getCreatedAt()));
+
+        if (mobileDevice.getUpdatedAt() != null)
+            scannerDevice.setDateTimeUpdated(OffsetDateTime.parse(mobileDevice.getUpdatedAt()));
+
+        return scannerDevice;
     }
 
 }

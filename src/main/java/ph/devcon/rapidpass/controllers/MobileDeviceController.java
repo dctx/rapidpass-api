@@ -18,7 +18,9 @@ import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ph.devcon.rapidpass.models.MobileDevice;
+import ph.devcon.rapidpass.api.controllers.NotFoundException;
+import ph.devcon.rapidpass.api.models.MobileDevice;
+import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.services.MobileDeviceService;
 
 import java.net.URI;
@@ -53,7 +55,7 @@ public class MobileDeviceController {
             @RequestParam(value = "model", required = false) String model) {
         final MobileDeviceService.MobileDeviceFilter filter =
                 MobileDeviceService.MobileDeviceFilter.builder()
-                        .id(id)
+                        .deviceId(id)
                         .brand(brand)
                         .mobileNumber(mobileNumber)
                         .model(model)
@@ -93,13 +95,17 @@ public class MobileDeviceController {
      * @return 200 on successful update, 400 if scanner device not found
      */
     @PutMapping("/scanner-devices/{unique_id}")
-    public ResponseEntity<?> updateScannerDevice(@PathVariable("unique_id") String uniqueDeviceId) {
-        final Optional<MobileDevice> optScannerDevice = mobileDeviceService.getMobileDevice(uniqueDeviceId);
-        if (optScannerDevice.isPresent()) {
-            mobileDeviceService.updateMobileDevice(optScannerDevice.get());
-            return ResponseEntity.ok().build();
-        } else
-            return ResponseEntity.badRequest().body(ImmutableMap.of("message", "No scanner device found with unique id " + uniqueDeviceId));
+    public ResponseEntity<?> updateScannerDevice(@PathVariable("unique_id") String uniqueDeviceId, @RequestBody MobileDevice mobileDevice) {
+        try {
+            Optional<ScannerDevice> scannerDevice = mobileDeviceService.findScannerDevice(uniqueDeviceId, uniqueDeviceId);
+            if (scannerDevice.isPresent()) {
+                MobileDevice device = mobileDeviceService.updateMobileDevice(mobileDevice);
+                return ResponseEntity.ok(device);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**

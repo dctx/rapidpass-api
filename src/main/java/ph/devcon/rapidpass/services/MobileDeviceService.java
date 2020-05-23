@@ -18,11 +18,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ph.devcon.rapidpass.api.controllers.NotFoundException;
+import ph.devcon.rapidpass.api.models.MobileDevice;
 import ph.devcon.rapidpass.entities.ScannerDevice;
-import ph.devcon.rapidpass.models.MobileDevice;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 import javax.validation.Valid;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +42,26 @@ import static ph.devcon.rapidpass.repositories.ScannerDeviceRepository.ScannerDe
 public class MobileDeviceService {
     private final ScannerDeviceRepository scannerDeviceRepository;
 
+    public static MobileDevice mapToMobileDevice(ScannerDevice scannerDevice) {
+        MobileDevice mobileDevice = new MobileDevice();
+
+        mobileDevice = mobileDevice.brand(scannerDevice.getBrand())
+                .id(scannerDevice.getUniqueDeviceId())
+                .imei(scannerDevice.getImei())
+                .mobileNumber(scannerDevice.getMobileNumber())
+                .model(scannerDevice.getModel())
+                .status(scannerDevice.getStatus());
+
+        if (scannerDevice.getDateTimeCreated() != null)
+            mobileDevice.setCreatedAt(scannerDevice.getDateTimeCreated().format(DateTimeFormatter.ISO_INSTANT));
+
+        if (scannerDevice.getDateTimeCreated() != null)
+            mobileDevice.setUpdatedAt(scannerDevice.getDateTimeUpdated().format(DateTimeFormatter.ISO_INSTANT));
+
+        return mobileDevice;
+    }
+
+
     /**
      * Searches for all devices that matches filter.
      *
@@ -50,9 +73,10 @@ public class MobileDeviceService {
                 byBrand(mobileDeviceFilter.getBrand())
                         .and(byMobileNumber(mobileDeviceFilter.getMobileNumber()))
                         .and(byModel(mobileDeviceFilter.getModel()))
-                        .and(byId(mobileDeviceFilter.getId())))
+                        .and(byIMEI(mobileDeviceFilter.getImei()))
+                        .and(byDeviceId(mobileDeviceFilter.getDeviceId())))
                 .stream()
-                .map(MobileDevice::buildFrom)
+                .map(MobileDeviceService::mapToMobileDevice)
                 .collect(Collectors.toList());
     }
 
@@ -63,9 +87,12 @@ public class MobileDeviceService {
      * @return the registered device
      */
     public MobileDevice registerMobileDevice(@Valid MobileDevice device) {
-        return MobileDevice.buildFrom(
-                scannerDeviceRepository
-                        .saveAndFlush(device.toScannerDevice()));
+
+        ScannerDevice scannerDevice = ScannerDevice.buildFrom(device);
+
+        scannerDevice = scannerDeviceRepository.saveAndFlush(scannerDevice);
+
+        return MobileDeviceService.mapToMobileDevice(scannerDevice);
     }
 
     /**
@@ -75,7 +102,11 @@ public class MobileDeviceService {
      * @return matching scanner device
      */
     public Optional<MobileDevice> getMobileDevice(String uniqueDeviceId) {
-        return Optional.ofNullable(MobileDevice.buildFrom(scannerDeviceRepository.findByUniqueDeviceId(uniqueDeviceId)));
+
+        ScannerDevice scannerDevice = scannerDeviceRepository.findByUniqueDeviceId(uniqueDeviceId);
+        if (scannerDevice == null) return Optional.empty();
+
+        return Optional.of(MobileDeviceService.mapToMobileDevice(scannerDevice));
     }
 
     /**
@@ -84,20 +115,41 @@ public class MobileDeviceService {
      * @param uniqueDeviceId device id of scanner device to delete
      */
     public void removeMobileDevice(String uniqueDeviceId) {
-        scannerDeviceRepository.delete(scannerDeviceRepository.findByUniqueDeviceId(uniqueDeviceId));
+        Optional<ScannerDevice> scannerDevice = findScannerDevice(uniqueDeviceId, uniqueDeviceId);
+        scannerDevice.ifPresent(scannerDeviceRepository::delete);
+    }
+
+    public Optional<ScannerDevice> findScannerDevice(String deviceId, String imei) {
+        ScannerDevice device = scannerDeviceRepository.findByUniqueDeviceId(deviceId);
+        if (device != null) return Optional.of(device);
+
+        return Optional.ofNullable(scannerDeviceRepository.findByImei(imei));
     }
 
     /**
      * Updates a scanner device. Finds a device with unique device id and updates its attributes.
      *
-     * @param updateDevice update to device
+     * @param mobileDevice update to device
      * @return updated scanner device
      */
-    public MobileDevice updateMobileDevice(@Valid MobileDevice updateDevice) {
-        final ScannerDevice toUpdate = scannerDeviceRepository.findByUniqueDeviceId(updateDevice.getImei());
-        final ScannerDevice updateScannerDevice = updateDevice.toScannerDevice();
-        updateScannerDevice.setId(toUpdate.getId());
-        return MobileDevice.buildFrom(scannerDeviceRepository.saveAndFlush(updateScannerDevice));
+    public MobileDevice updateMobileDevice(@Valid MobileDevice mobileDevice) throws NotFoundException {
+        Optional<ScannerDevice> scannerDevice = findScannerDevice(mobileDevice.getId(), mobileDevice.getImei());
+
+        // Can potentially be an upsert
+        ScannerDevice device = scannerDevice.orElse(ScannerDevice.buildFrom(mobileDevice));
+        if (scannerDevice.isPresent()) {
+            device.setImei(mobileDevice.getImei());
+            device.setModel(mobileDevice.getModel());
+            device.setBrand(mobileDevice.getBrand());
+            device.setStatus(mobileDevice.getStatus());
+            device.setMobileNumber(mobileDevice.getMobileNumber());
+            device.setUniqueDeviceId(mobileDevice.getId());
+            device.setDateTimeUpdated(OffsetDateTime.now());
+        }
+
+        ScannerDevice updatedScannerDevice = scannerDeviceRepository.saveAndFlush(device);
+
+        return MobileDeviceService.mapToMobileDevice(updatedScannerDevice);
     }
 
     /**
@@ -106,7 +158,8 @@ public class MobileDeviceService {
     @Data
     @Builder
     public static class MobileDeviceFilter {
-        private String id;
+        private String deviceId;
+        private String imei;
         private String model;
         private String brand;
         private String mobileNumber;
