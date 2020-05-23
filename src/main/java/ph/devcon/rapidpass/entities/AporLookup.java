@@ -51,6 +51,9 @@ public class AporLookup implements Serializable {
     @Column(name = "approving_agency")
     private String approvingAgency;
 
+    @Column(name = "multi_destination")
+    private boolean multidestination;
+
     public AporLookup() {
 
     }
@@ -73,5 +76,4 @@ public class AporLookup implements Serializable {
     public String toString() {
         return "ph.devcon.rapidpass.entities.AporLookUp[ aporCode=" + this.aporCode + " ]";
     }
-    
 }
