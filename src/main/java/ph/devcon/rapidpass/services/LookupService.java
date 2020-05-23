@@ -15,6 +15,7 @@
 package ph.devcon.rapidpass.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.entities.LookupTable;
@@ -42,7 +43,9 @@ public class LookupService {
         return aporLookupRepository.findAll();
     }
 
-    public List<AporLookup> addUpdateAporType(AporLookup data) {
+    public ResponseEntity<?> addUpdateAporType(AporLookup data) {
+        if (!data.getAporCode().matches("^[A-Z0-9]*$")) return ResponseEntity.status(400).body("Must be A-Z 0-3");
+
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
         AporLookup aporData = aporSearch.stream().findFirst().orElse(data);
 
@@ -51,7 +54,7 @@ public class LookupService {
         aporData.setMultidestination(data.isMultidestination());
 
         aporLookupRepository.saveAndFlush(aporData);
-        return aporLookupRepository.findAll();
+        return ResponseEntity.ok(aporLookupRepository.findAll());
     }
 
     public List<AporLookup> deleteAporType(String aporType) {
