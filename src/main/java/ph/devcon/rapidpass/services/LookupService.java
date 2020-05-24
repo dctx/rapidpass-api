@@ -52,7 +52,7 @@ public class LookupService {
 
         aporData.setApprovingAgency(data.getApprovingAgency());
         aporData.setDescription(data.getDescription());
-        aporData.setMultiDestination(data.isMultiDestination());
+        aporData.setMultiDestination(data.getMultiDestination());
 
         aporLookupRepository.saveAndFlush(aporData);
         return ResponseEntity.ok(aporLookupRepository.findAll());
