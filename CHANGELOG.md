@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.5] - 2020-05-26
 ### Fixed
+- [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) `2.0.5.alpha.2` - Devices will register using
+    deviceID, not their IMEI. Also, validates using IMEI or device ID, not IMEI only.
 - [#497](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/497) `2.0.5.alpha.1` - Fixed issuers might not be 
     recorded.
 - [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) `2.0.5.alpha.1` - Fixed revocation operation 
