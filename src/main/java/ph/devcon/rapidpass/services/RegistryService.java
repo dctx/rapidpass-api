@@ -41,6 +41,7 @@ import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
+import ph.devcon.rapidpass.utilities.KeycloakUtils;
 import ph.devcon.rapidpass.utilities.StringFormatter;
 import ph.devcon.rapidpass.utilities.validators.ReadableValidationException;
 import ph.devcon.rapidpass.utilities.validators.StandardDataBindingValidation;
@@ -54,7 +55,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -116,7 +120,7 @@ public class RegistryService {
         StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
         validation.validate(rapidPassRequest);
 
-        RapidPass rapidPass = persistAccessPass(rapidPassRequest, AccessPassStatus.PENDING);
+        RapidPass rapidPass = persistAccessPass(rapidPassRequest, AccessPassStatus.PENDING, principal);
         if (isKafaEnabled)
             eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
 
@@ -124,7 +128,7 @@ public class RegistryService {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    RapidPass persistAccessPass(RapidPassRequest rapidPassRequest, AccessPassStatus status) {
+    RapidPass persistAccessPass(RapidPassRequest rapidPassRequest, AccessPassStatus status, Principal principal) {
 
         OffsetDateTime now = OffsetDateTime.now();
 
@@ -159,14 +163,6 @@ public class RegistryService {
         // create/update registrant
         registrant.setRegistrarId(0);
         registrant = registrantRepository.saveAndFlush(registrant);
-
-        // get default registrar and assign it to registrant
-//        Optional<Registrar> registrarResult = registryRepository.findById(1);
-//        if (registrarResult.isPresent()) {
-//            registrant.setRegistrarId(registrarResult.get());
-//        } else {
-//            log.error("Unable to retrieve Registrar");
-//        }
 
         // map a new  access pass to the registrant
         AccessPass accessPass = new AccessPass();
@@ -204,12 +200,9 @@ public class RegistryService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentLoggedInUser = null;
 
-        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
-            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-            currentLoggedInUser = principal.get("sub").toString();
-        }
+        String preferredUsername = KeycloakUtils.getPreferredUsername(principal);
 
-        accessPass.setIssuedBy(currentLoggedInUser);
+        accessPass.setIssuedBy(preferredUsername);
         if (status == AccessPassStatus.PENDING) {
             // just set the validity period to today until the request is approved
             accessPass.setValidTo(now);
@@ -495,6 +488,7 @@ public class RegistryService {
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is granted.
      *
+     *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
      * @param status      The status to apply
      * @return Data stored on the database
@@ -522,7 +516,9 @@ public class RegistryService {
         boolean isPending = AccessPassStatus.PENDING.toString().equals(currentStatus);
 
         if (!isPending) {
-            throw new RegistryService.UpdateAccessPassException("An access pass can only be updated if it is pending. Afterwards, it can only be revoked.");
+            String targetStatus = status.name();
+            String message = String.format("You are not allowed to change the status of this access pass from %s to %s.", currentStatus, targetStatus);
+            throw new RegistryService.UpdateAccessPassException(message);
         }
 
         if (reason != null && (status == AccessPassStatus.DECLINED || status == AccessPassStatus.SUSPENDED)) {
@@ -535,15 +531,9 @@ public class RegistryService {
         }
 
         accessPass.setStatus(status.toString());
-
-        // TODO: We need to verify that only the authorized people to modify this pass are allowed.
-        // E.g. approvers, or the owner of this pass. People should not be able to re-associate an existing pass from one registrant to another.
-        // accessPass.setRegistrantId();
-
         accessPass.setDateTimeUpdated(OffsetDateTime.now());
 
-        AccessPass savedAccessPass = accessPassRepository.saveAndFlush(accessPass);
-        return savedAccessPass;
+        return accessPassRepository.saveAndFlush(accessPass);
     }
 
     /**
@@ -635,7 +625,7 @@ public class RegistryService {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public String processBatchRapidPassRequest(RapidPassRequest request, BatchAccessPassRequestValidator validator, int counter, String currentLoggedInUser) {
+    public String processBatchRapidPassRequest(RapidPassRequest request, BatchAccessPassRequestValidator validator, int counter, Principal principal) {
 
         try {
 
@@ -677,7 +667,7 @@ public class RegistryService {
 
                 if (noPendingOrApprovedAccessPasses) {
                     // no existing approved or pending requests, add a pre-approved request
-                    RapidPass pass = persistAccessPass(request, AccessPassStatus.APPROVED);
+                    RapidPass pass = persistAccessPass(request, AccessPassStatus.APPROVED, principal);
 
                     if (pass == null) {
                         throw new ReadableValidationException("Unable to create new Access Pass.");
@@ -694,7 +684,7 @@ public class RegistryService {
 
                     if (isLatestApprovedAccessPassExpired) {
                         // Found an existing access pass, but its already expired. So we'll extend its validity.
-                        this.updateAccessPassValidityToDefault(latestApprovedAccessPass);
+                        this.updateAccessPassValidityToDefault(latestApprovedAccessPass, principal);
                         return "Record " + counter + ": Extended the validity of the Access Pass.";
                     } else {
                         return "Record " + counter + ": No change. An existing approved Access Pass was found.";
@@ -718,7 +708,7 @@ public class RegistryService {
                         accessPass.setValidTo(now);
                         accessPass.setDateTimeUpdated(now);
                         accessPass.setStatus(AccessPassStatus.APPROVED.name());
-                        accessPass.setIssuedBy(currentLoggedInUser);
+                        accessPass.setIssuedBy(KeycloakUtils.getPreferredUsername(principal));
 
                         accessPass.setSource("BULK_OVERRIDE_ONLINE");
                         accessPass.setControlCode(controlCodeService.encode(accessPass.getId()));
@@ -732,7 +722,7 @@ public class RegistryService {
                     latestPendingAccessPass.setSource("BULK");
                     latestPendingAccessPass.setStatus(AccessPassStatus.APPROVED.name());
 
-                    latestPendingAccessPass.setIssuedBy(currentLoggedInUser);
+                    latestPendingAccessPass.setIssuedBy(KeycloakUtils.getPreferredUsername(principal));
                     latestPendingAccessPass.setDateTimeUpdated(OffsetDateTime.now());
                     latestPendingAccessPass.setControlCode(controlCodeService.encode(latestPendingAccessPass.getId()));
 
@@ -778,20 +768,13 @@ public class RegistryService {
         BatchAccessPassRequestValidator batchAccessPassRequestValidator =
                 new BatchAccessPassRequestValidator(this.lookupService, this.accessPassRepository, principal);
 
-        String currentLoggedInUser = principal.getName();
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
-//            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-//            currentLoggedInUser = principal.get("sub").toString();
-//        }
-
         RapidPass pass;
         int counter = 1;
         Instant start = Instant.now();
         for (RapidPassCSVdata r : approvedRapidPasses) {
             try {
                 RapidPassRequest request = RapidPassRequest.buildFrom(r);
-                String result = processBatchRapidPassRequest(request, batchAccessPassRequestValidator, counter, currentLoggedInUser);
+                String result = processBatchRapidPassRequest(request, batchAccessPassRequestValidator, counter, principal);
 
                 if (!result.contains("Missing APOR Type. Missing Mobile Number. Missing First Name. Missing Last Name. Missing Destination City. Invalid APOR Type. Invalid mobile input."))
                     passes.add(result);
@@ -826,16 +809,11 @@ public class RegistryService {
      * @see #getExpirationDate()
      */
     @Transactional
-    private void updateAccessPassValidityToDefault(AccessPass accessPass) {
+    private void updateAccessPassValidityToDefault(AccessPass accessPass, Principal principal) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof HashMap) {
-            HashMap<String, Object> principal = (HashMap<String, Object>) authentication.getPrincipal();
-            String currentLoggedInUser = principal.get("sub").toString();
 
-            accessPass.setIssuedBy(currentLoggedInUser);
-        }
-
+        accessPass.setIssuedBy(KeycloakUtils.getPreferredUsername(principal));
         accessPass.setValidTo(getExpirationDate());
 
         accessPassRepository.saveAndFlush(accessPass);
