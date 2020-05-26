@@ -1,10 +1,10 @@
 passType,aporType,firstName,middleName,lastName,suffix,company,idType,identifierNumber,platenumber,mobileNumber,email,originName,originStreet,originCity,originProvince,destName,destStreet,destCity,destProvince,remarks
-INDIVIDUAL,MS,Darren,,DevCon PH,COM,1234567,,09174567891,Singalong St.,Pasay City,Metro Manila,,Pasay Road,Makati City,Metro Manila,skeleton workforce,,,,,,,,,,,,,,,,
-INDIVIDUAL,SO,Jezza,,Diaz,,,,,,09176549873,,,,,,,,,,
+INDIVIDUAL,MS,Darren,,DevCon PH,COM,1234567,,09174567891,Singalong St.,Pasay City,Metro Manila,,Pasay Road,Makati City,Metro Manila,skeleton workforce,,,,,,,,,,,,,,Dest City,,
+INDIVIDUAL,SO,Jezza,,Diaz,,,,,,09176549873,,,,,,,,Dest City,,
 ,,,,,,,,,,,,,,,,,,,,
 ,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,SO,Jose,,Rizal,,,,,,09171234567,,,,,,,,,,
+,SO,Jose,,Rizal,,,,,,09171234567,,,,,,,,Dest City,,
 INDIVIDUAL,,Apolinario,,Mabini,,,,,,09171234567,,,,,,,,,,
 INDIVIDUAL,SO,,,Rizal,,,,,,09171234567,,,,,,,,,,
 INDIVIDUAL,SO,Andres,,,,,,,,09171234567,,,,,,,,,,

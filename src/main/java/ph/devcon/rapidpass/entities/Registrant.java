@@ -17,6 +17,7 @@ package ph.devcon.rapidpass.entities;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -123,6 +124,7 @@ public class Registrant implements Serializable {
     private String status;
     @Column(name = "date_time_created")
     private OffsetDateTime dateTimeCreated;
+    @LastModifiedDate
     @Column(name = "date_time_updated")
     private OffsetDateTime dateTimeUpdated;
     @OneToMany(mappedBy = "registrantId")

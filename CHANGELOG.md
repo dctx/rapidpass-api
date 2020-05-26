@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2020-05-26
+### Fixed
+- [#497](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/497) `2.0.5.alpha.1` - Fixed issuers might not be 
+    recorded.
+- [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) `2.0.5.alpha.1` - Fixed revocation operation 
+    does not modify last updated time (which is required by the checkpoint app).
+
 ## [2.0.4] - 2020-05-23
 ### Fixed
-- [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) `2.0.4.alpha.1` - Added database migrations
+- [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) - Added database migrations
     for to add `multi_destination` for APOR type table.
-- [#491](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/491) `2.0.4.alpha.1` - Added `createdAt` and
+- [#491](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/491) - Added `createdAt` and
     `updatedAt` when requesting the scanner devices. Updated OpenAPI spec.
     
 ### Added
-- [#483](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/483) `2.0.4.alpha.2` - Added validation checking
+- [#483](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/483) - Added validation checking
     for APOR code, requiring it to be a 2 or 3 character upper case string of letters.
 
 ## [2.0.3] - 2020-05-22
