@@ -181,14 +181,18 @@ public class CheckpointRestController {
 
         // Validates that the master key is correct
 
-        if (!this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getImei()))
+        boolean isValidImei = this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getImei());
+
+        boolean isValidDeviceId = this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getDeviceId());
+
+        if (!isValidDeviceId && !isValidImei)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        if (this.keycloakService.userExists(authRequest.getImei())) {
-            this.keycloakService.unregisterUser(authRequest.getImei());
+        if (this.keycloakService.userExists(authRequest.getDeviceId())) {
+            this.keycloakService.unregisterUser(authRequest.getDeviceId());
         }
 
-        this.keycloakService.createUser(authRequest.getImei(), authRequest.getPassword());
+        this.keycloakService.createUser(authRequest.getDeviceId(), authRequest.getPassword());
 
         CheckpointRegisterResponse authResponse = new CheckpointRegisterResponse();
 
