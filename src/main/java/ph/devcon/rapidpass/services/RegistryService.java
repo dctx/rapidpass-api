@@ -453,6 +453,7 @@ public class RegistryService {
             // Update registrant only if it is found
             Registrant registrantId = accessPass.getRegistrantId();
             if (registrantId != null) {
+                registrantId.setDateTimeUpdated(OffsetDateTime.now());
                 registrantId.setRegistrantName(rapidPassUpdateRequest.getName());
                 registrantRepository.saveAndFlush(registrantId);
             }
@@ -462,6 +463,8 @@ public class RegistryService {
             accessPass.setValidTo(OffsetDateTime.parse(rapidPassUpdateRequest.getValidUntil()));
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getValidFrom()))
             accessPass.setValidFrom(OffsetDateTime.parse(rapidPassUpdateRequest.getValidFrom()));
+
+        accessPass.setDateTimeUpdated(OffsetDateTime.now());
 
         return accessPassRepository.saveAndFlush(accessPass);
     }
