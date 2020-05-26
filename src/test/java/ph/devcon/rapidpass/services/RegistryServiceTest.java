@@ -26,8 +26,11 @@ import org.keycloak.representations.AccessToken;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
@@ -39,10 +42,7 @@ import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
-import ph.devcon.rapidpass.models.QueryFilter;
-import ph.devcon.rapidpass.models.RapidPass;
-import ph.devcon.rapidpass.models.RapidPassCSVdata;
-import ph.devcon.rapidpass.models.RapidPassRequest;
+import ph.devcon.rapidpass.models.*;
 import ph.devcon.rapidpass.repositories.*;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessorTest;
@@ -98,6 +98,9 @@ class RegistryServiceTest {
 
     @Mock
     RapidPassRequestProducer requestProducer;
+
+    @Mock KeycloakPrincipal mockKeycloakPrincipal;
+    @Mock KeycloakSecurityContext mockKeyCloakSecurityContext;
 
     @Mock
     AccessPassEventRepository accessPassEventRepository;
@@ -157,13 +160,14 @@ class RegistryServiceTest {
 
     @Test
     void newRequestPass_NEW_PASS_NEW_REGISTRANT() {
+        when(mockKeycloakPrincipal.getKeycloakSecurityContext()).thenReturn(mockKeyCloakSecurityContext);
 
-        final AccessToken accessToken = new AccessToken();
-        accessToken.setOtherClaims("aportypes", "AG,MS");
-        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
-                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
-
-        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+        when(mockKeyCloakSecurityContext.getToken()).then((Answer<AccessToken>) invocationOnMock -> {
+            AccessToken token = new AccessToken();
+            token.setPreferredUsername("some-user@domain.php");
+            token.setOtherClaims("aportypes", "AG,MS");
+            return token;
+        });
 
         final Registrant sampleRegistrant = Registrant.builder()
                 .id(1)
@@ -211,13 +215,14 @@ class RegistryServiceTest {
                 ))
         );
 
-        Principal principal = new Principal() {
-            @Override
-            public String getName() {
-                return "test-user";
-            }
-        };
-        final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST, principal);
+        when(mockKeycloakPrincipal.getKeycloakSecurityContext()).thenReturn(mockKeyCloakSecurityContext);
+        when(mockKeyCloakSecurityContext.getToken()).then((Answer<AccessToken>) invocationOnMock -> {
+            AccessToken token = new AccessToken();
+            token.setPreferredUsername("some-user@domain.php");
+            return token;
+        });
+
+        final RapidPass rapidPass = instance.newRequestPass(TEST_INDIVIDUAL_REQUEST, mockKeycloakPrincipal);
 
         assertThat(rapidPass, is(not(nullValue())));
 
@@ -363,28 +368,27 @@ class RegistryServiceTest {
                 .passType(INDIVIDUAL.toString())
                 .build();
 
-//        when(mockAccessPassRepository.findAll(any(), (Pageable) any())).thenReturn(
-//                new PageImpl(collections)
-//        );
-//
-//        RapidPassPageView rapidPass = instance.findRapidPass(queryFilter);
-//
-//        assertThat(rapidPass.getRapidPassList(), hasItem((hasProperty("name", equalTo("AJ")))));
-//
-//        verify(mockAccessPassRepository, only()).findAll(any(), (Pageable) any());
+        when(mockAccessPassRepository.findAll((Specification<AccessPass>) any(), (Pageable) any())).thenReturn(
+                new PageImpl(collections)
+        );
+
+        RapidPassPageView rapidPass = instance.findRapidPass(queryFilter, ImmutableList.of("AG", "BA"));
+
+        assertThat(rapidPass.getRapidPassList(), hasItem((hasProperty("name", equalTo("AJ")))));
+
+        verify(mockAccessPassRepository, only()).findAll((Specification<AccessPass>) any(), (Pageable) any());
     }
 
-    // FIXME
-//    @Test
+    @Test
     void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
 
-        // Mocking security to return a keycloak principal
-        final AccessToken accessToken = new AccessToken();
-        accessToken.setOtherClaims("aportypes", "AG,MS");
-        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
-                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
-
-        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+        when(mockKeycloakPrincipal.getKeycloakSecurityContext()).thenReturn(mockKeyCloakSecurityContext);
+        when(mockKeyCloakSecurityContext.getToken()).then((Answer<AccessToken>) invocationOnMock -> {
+            AccessToken token = new AccessToken();
+            token.setPreferredUsername("some-user@domain.php");
+            token.setOtherClaims("aportypes", "AG,MS");
+            return token;
+        });
 
 
         when(lookupService.getAporTypes()).thenReturn(
@@ -446,15 +450,8 @@ class RegistryServiceTest {
                 );
 
         try {
-            Principal principal = new Principal() {
-                @Override
-                public String getName() {
-                    return "test-principal";
-                }
-            };
-            List<String> strings = instance.batchUploadRapidPassRequest(mockCsvData, principal);
-            // FIXME
-//            assertThat(strings, hasItem(containsString("Extended the validity of the Access Pass.")));
+            List<String> strings = instance.batchUploadRapidPassRequest(mockCsvData, mockKeycloakPrincipal);
+            assertThat(strings, hasItem(containsString("Extended the validity of the Access Pass.")));
 
         } catch (RegistryService.UpdateAccessPassException e) {
             e.printStackTrace();
@@ -462,18 +459,17 @@ class RegistryServiceTest {
         }
     }
 
-    // FIXME
-//    @Test
+    @Test
     void bulkUploadShouldOverwriteExistingPendingData() {
 
-        // Mocking security to return a keycloak principal
-        final AccessToken accessToken = new AccessToken();
-        accessToken.setOtherClaims("aportypes", "AG,MS");
-        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
-                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
+        when(mockKeycloakPrincipal.getKeycloakSecurityContext()).thenReturn(mockKeyCloakSecurityContext);
 
-        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
-
+        when(mockKeyCloakSecurityContext.getToken()).then((Answer<AccessToken>) invocationOnMock -> {
+            AccessToken token = new AccessToken();
+            token.setPreferredUsername("some-user@domain.php");
+            token.setOtherClaims("aportypes", "AG,MS");
+            return token;
+        });
 
         when(lookupService.getAporTypes()).thenReturn(
                 Collections.unmodifiableList(Lists.newArrayList(
@@ -536,13 +532,7 @@ class RegistryServiceTest {
 
         try {
 
-            Principal principal = new Principal() {
-                @Override
-                public String getName() {
-                    return "test-principal";
-                }
-            };
-            List<String> strings = instance.batchUploadRapidPassRequest(mockCsvData, principal);
+            List<String> strings = instance.batchUploadRapidPassRequest(mockCsvData, mockKeycloakPrincipal);
             assertThat(strings, hasItem(containsString("Success.")));
 
         } catch (RegistryService.UpdateAccessPassException e) {
@@ -589,17 +579,21 @@ class RegistryServiceTest {
         assertThat(controlCode, equalTo(null));
     }
 
-//  FIXME
-//    @Test
+    @Test
     public void test_bulkUploadIncorrectColumns() throws CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException, IOException, RegistryService.UpdateAccessPassException {
 
         // Mocking security to return a keycloak principal
         final AccessToken accessToken = new AccessToken();
         accessToken.setOtherClaims("aportypes", "AG,MS,SO");
-        when(mockAuthentication.getPrincipal()).thenReturn(new KeycloakPrincipal<>("test",
-                new KeycloakSecurityContext("testtoken", accessToken, "test", new AccessToken())));
 
-        SecurityContextHolder.getContext().setAuthentication(mockAuthentication);
+        when(mockKeycloakPrincipal.getKeycloakSecurityContext()).thenReturn(mockKeyCloakSecurityContext);
+
+        when(mockKeyCloakSecurityContext.getToken()).then((Answer<AccessToken>) invocationOnMock -> {
+            AccessToken token = new AccessToken();
+            token.setPreferredUsername("some-user@domain.php");
+            token.setOtherClaims("aportypes", "AG,MS,SO");
+            return token;
+        });
 
         RegistryService testTargetRegistryService = new RegistryService(
                 null,
@@ -659,15 +653,9 @@ class RegistryServiceTest {
         ReflectionTestUtils.setField(testTargetRegistryService, "expirationDay", 15);
         ReflectionTestUtils.setField(testTargetRegistryService, "lookupService", lookupService);
 
-        Principal principal = new Principal() {
-            @Override
-            public String getName() {
-                return "test-principal";
-            }
-        };
-        List<String> strings = testTargetRegistryService.batchUploadRapidPassRequest(mockData, principal);
+        List<String> strings = testTargetRegistryService.batchUploadRapidPassRequest(mockData, mockKeycloakPrincipal);
 
-        assertThat(strings.size(), equalTo(10));
+        assertThat(strings.size(), equalTo(7));
 
         // Find five items which are all declined
 
@@ -680,53 +668,29 @@ class RegistryServiceTest {
         // INDIVIDUAL,SO,Jezza,,Diaz,,,,,,09176549873,,,,,,,,,,
         assertThat(strings.get(1), containsString("Success"));
 
-        // No row data, correct length
-        // ,,,,,,,,,,,,,,,,,,,,
-        assertThat(strings.get(2), containsString("declined"));
-        assertThat(strings.get(2), containsString("Missing APOR Type"));
-        assertThat(strings.get(2), containsString("Missing Mobile Number"));
-        assertThat(strings.get(2), containsString("Missing First Name"));
-        assertThat(strings.get(2), containsString("Missing Last Name"));
-
-        // Too few columns
-        // ,,,,,,,
-        assertThat(strings.get(3), containsString("declined"));
-        assertThat(strings.get(3), containsString("Missing APOR Type"));
-        assertThat(strings.get(3), containsString("Missing Mobile Number"));
-        assertThat(strings.get(3), containsString("Missing First Name"));
-        assertThat(strings.get(3), containsString("Missing Last Name"));
-
-        // Too many columns
-        // ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-        assertThat(strings.get(4), containsString("declined"));
-        assertThat(strings.get(4), containsString("Missing APOR Type"));
-        assertThat(strings.get(4), containsString("Missing Mobile Number"));
-        assertThat(strings.get(4), containsString("Missing First Name"));
-        assertThat(strings.get(4), containsString("Missing Last Name"));
-
         // Plugs in INDIVIDUAL if pass type is missing
         // ,SO,Jose,,Rizal,,,,,,09171234567,,,,,,,,,,
-        assertThat(strings.get(5), containsString("Success"));
+        assertThat(strings.get(2), containsString("Success"));
 
         // No apor type
         // INDIVIDUAL,,Apolinario,,Mabini,,,,,,09171234567,,,,,,,,,,
-        assertThat(strings.get(6), containsString("declined"));
-        assertThat(strings.get(6), containsString("Missing APOR Type"));
+        assertThat(strings.get(3), containsString("declined"));
+        assertThat(strings.get(3), containsString("Missing APOR Type"));
 
         // No first name
         // INDIVIDUAL,SO,,,Rizal,,,,,,09171234567,,,,,,,,,,
-        assertThat(strings.get(7), containsString("declined"));
-        assertThat(strings.get(7), containsString("Missing First Name"));
+        assertThat(strings.get(4), containsString("declined"));
+        assertThat(strings.get(4), containsString("Missing First Name"));
 
         // No last name
         // INDIVIDUAL,SO,Andres,,,,,,,,09171234567,,,,,,,,,,
-        assertThat(strings.get(8), containsString("declined"));
-        assertThat(strings.get(8), containsString("Missing Last Name"));
+        assertThat(strings.get(5), containsString("declined"));
+        assertThat(strings.get(5), containsString("Missing Last Name"));
 
         // No mobile number
         // INDIVIDUAL,SO,Andres,,Bonifacio,,,,,,,,,,,,,,,,
-        assertThat(strings.get(9), containsString("declined"));
-        assertThat(strings.get(9), containsString("Missing Mobile Number"));
+        assertThat(strings.get(6), containsString("declined"));
+        assertThat(strings.get(6), containsString("Missing Mobile Number"));
     }
 
 }
