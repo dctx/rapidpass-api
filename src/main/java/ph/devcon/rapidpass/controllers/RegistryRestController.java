@@ -18,7 +18,6 @@ import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.keycloak.KeycloakPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,11 +30,15 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.RecordSource;
 import ph.devcon.rapidpass.exceptions.AccessPassNotFoundException;
-import ph.devcon.rapidpass.models.*;
+import ph.devcon.rapidpass.models.QueryFilter;
+import ph.devcon.rapidpass.models.RapidPass;
+import ph.devcon.rapidpass.models.RapidPassPageView;
+import ph.devcon.rapidpass.models.RapidPassRequest;
 import ph.devcon.rapidpass.repositories.AporLookupRepository;
 import ph.devcon.rapidpass.services.QrPdfService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.services.RegistryService.UpdateAccessPassException;
+import ph.devcon.rapidpass.utilities.KeycloakUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -71,15 +74,13 @@ public class RegistryRestController {
         try {
             // impose limit by apor type when logged in
 //            Principal p = principal.orElse(null);
-            if (principal instanceof KeycloakPrincipal) {
-                Identity identity = new Identity(((KeycloakPrincipal) principal).getKeycloakSecurityContext());
-                secAporTypes.addAll(Arrays.asList(identity.getOtherClains()
-                        .get("aportypes").toString()
-                        .split(",")));
-                log.debug("limiting apor types to {}", secAporTypes);
-            }
+
+            String[] allowedAporTypes = KeycloakUtils.getOtherClaims(principal).get("aportypes")
+                    .split(",");
+            secAporTypes.addAll(Arrays.asList(allowedAporTypes));
+
         } catch (Exception e) {
-            log.warn("accessing rapid passes unsecured! ", e);
+            log.warn("Accessing rapid passes unsecured! ", e);
         }
 
         return ResponseEntity.ok().body(registryService.findRapidPass(q, secAporTypes));

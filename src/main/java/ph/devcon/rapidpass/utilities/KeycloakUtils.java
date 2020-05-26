@@ -1,8 +1,6 @@
 package ph.devcon.rapidpass.utilities;
 
 import org.keycloak.KeycloakPrincipal;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.security.Principal;
 import java.util.Map;
@@ -33,9 +31,19 @@ public class KeycloakUtils {
 //        return getOtherClaims(rawPrincipal);
 //    }
 
+    public static String getPreferredUsername(Principal rawPrincipal) {
+        if (!(rawPrincipal instanceof KeycloakPrincipal)) {
+            throw new IllegalStateException("No keycloak login found!");
+        }
+
+        final KeycloakPrincipal principal = (KeycloakPrincipal) rawPrincipal;
+
+        return principal.getKeycloakSecurityContext().getToken().getPreferredUsername();
+    }
+
     public static Map<String, String> getOtherClaims(Principal rawPrincipal) {
         if (!(rawPrincipal instanceof KeycloakPrincipal)) {
-            throw new IllegalStateException("  no keycloak login found!");
+            throw new IllegalStateException("No keycloak login found!");
         }
 
         final KeycloakPrincipal principal = (KeycloakPrincipal) rawPrincipal;

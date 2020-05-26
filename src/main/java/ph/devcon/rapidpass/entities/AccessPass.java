@@ -15,6 +15,7 @@
 package ph.devcon.rapidpass.entities;
 
 import lombok.*;
+import org.springframework.data.annotation.LastModifiedDate;
 import ph.devcon.dctx.rapidpass.model.ControlCode;
 import ph.devcon.dctx.rapidpass.model.QrCodeData;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
@@ -152,11 +153,12 @@ public class AccessPass implements Serializable {
     @Size(max = 50)
     @Column(name = "source")
     private String source;
+
     @Column(name = "date_time_created")
-
     private OffsetDateTime dateTimeCreated;
-    @Column(name = "date_time_updated")
 
+    @LastModifiedDate
+    @Column(name = "date_time_updated")
     private OffsetDateTime dateTimeUpdated;
 
     @Column(name = "notified")
