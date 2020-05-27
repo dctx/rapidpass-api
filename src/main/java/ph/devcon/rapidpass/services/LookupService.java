@@ -44,7 +44,7 @@ public class LookupService {
     }
 
     public ResponseEntity<?> addUpdateAporType(AporLookup data) {
-        if (data.getAporCode().matches("[A-Z]{2,3}"))
+        if (!data.getAporCode().matches("[A-Z]{2,3}"))
             return ResponseEntity.status(400).body("The APOR Code must be value from A to Z of at least 2 or 3 characters.");
 
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
