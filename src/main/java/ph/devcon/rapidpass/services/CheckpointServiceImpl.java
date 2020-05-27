@@ -105,13 +105,22 @@ public class CheckpointServiceImpl implements ICheckpointService {
      * Returns true if there is a master key with their valid to date after the current time.
      */
     @Override
-    public boolean validate(String masterKey, String imei) {
+    public boolean validateByUniqueDeviceId(String masterKey, String deviceId) {
 
         boolean masterKeyCorrect = checkpointConfig.getKeyEntry(masterKey) != null;
 
-        boolean deviceExists = scannerDeviceRepository.findByUniqueDeviceId(imei) != null;
+        boolean deviceExists = scannerDeviceRepository.findByUniqueDeviceId(deviceId) != null;
 
         return masterKeyCorrect && deviceExists;
+    }
+
+    @Override
+    public boolean validateByImei(String masterKey, String imei) {
+        boolean masterKeyCorrect = checkpointConfig.getKeyEntry(masterKey) != null;
+
+        boolean imeiExists = scannerDeviceRepository.findByImei(imei) != null;
+
+        return masterKeyCorrect && imeiExists;
     }
 
     /**

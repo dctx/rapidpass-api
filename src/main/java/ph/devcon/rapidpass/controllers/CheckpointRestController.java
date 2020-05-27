@@ -161,7 +161,7 @@ public class CheckpointRestController {
             return ResponseEntity.ok("Coming Soon!");
         }
 
-        if (!this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getImei()))
+        if (!this.checkpointService.validateByImei(authRequest.getMasterKey(), authRequest.getImei()))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         CheckpointAuthResponse authResponse = new CheckpointAuthResponse();
@@ -181,9 +181,9 @@ public class CheckpointRestController {
 
         // Validates that the master key is correct
 
-        boolean isValidImei = this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getImei());
+        boolean isValidImei = this.checkpointService.validateByImei(authRequest.getMasterKey(), authRequest.getImei());
 
-        boolean isValidDeviceId = this.checkpointService.validate(authRequest.getMasterKey(), authRequest.getDeviceId());
+        boolean isValidDeviceId = this.checkpointService.validateByUniqueDeviceId(authRequest.getMasterKey(), authRequest.getDeviceId());
 
         if (!isValidDeviceId && !isValidImei)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
