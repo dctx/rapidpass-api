@@ -15,7 +15,6 @@
 package ph.devcon.rapidpass.services;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.entities.LookupTable;
@@ -43,9 +42,10 @@ public class LookupService {
         return aporLookupRepository.findAll();
     }
 
-    public ResponseEntity<?> addUpdateAporType(AporLookup data) {
-        if (!data.getAporCode().matches("[A-Z]{2,3}"))
-            return ResponseEntity.status(400).body("The APOR Code must be value from A to Z of at least 2 or 3 characters.");
+    public List<AporLookup> addUpdateAporType(AporLookup data) {
+        if (!data.getAporCode().matches("[A-Z]{2,3}")) {
+            throw new IllegalArgumentException("The APOR Code must be value from A to Z of at least 2 or 3 characters.");
+        }
 
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(data.getAporCode());
         AporLookup aporData = aporSearch.stream().findFirst().orElse(data);
@@ -55,7 +55,7 @@ public class LookupService {
         aporData.setMultiDestination(data.getMultiDestination());
 
         aporLookupRepository.saveAndFlush(aporData);
-        return ResponseEntity.ok(aporLookupRepository.findAll());
+        return aporLookupRepository.findAll();
     }
 
     public List<AporLookup> deleteAporType(String aporType) {
