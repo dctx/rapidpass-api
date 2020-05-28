@@ -101,6 +101,13 @@ public class CheckpointServiceImpl implements ICheckpointService {
         return revocationLogResponse;
     }
 
+    @Override
+    public boolean validateByMasterKey(String masterKey) {
+        boolean masterKeyCorrect = checkpointConfig.getKeyEntry(masterKey) != null;
+
+        return masterKeyCorrect;
+    }
+
     /**
      * Returns true if there is a master key with their valid to date after the current time.
      */

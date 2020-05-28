@@ -179,14 +179,24 @@ public class CheckpointRestController {
     @PostMapping("/register")
     public ResponseEntity<?> registerNewDevice(@RequestBody CheckpointRegisterRequest authRequest) {
 
+        // TODO: Disabled for walk through with PNP
         // Validates that the master key is correct
 
-        boolean isValidImei = this.checkpointService.validateByImei(authRequest.getMasterKey(), authRequest.getImei());
+//        boolean isValidImei = this.checkpointService.validateByImei(authRequest.getMasterKey(), authRequest.getImei());
+//
+//        boolean isValidDeviceId = this.checkpointService.validateByUniqueDeviceId(authRequest.getMasterKey(), authRequest.getDeviceId());
+//
+//        if (!isValidDeviceId && !isValidImei)
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        boolean isValidDeviceId = this.checkpointService.validateByUniqueDeviceId(authRequest.getMasterKey(), authRequest.getDeviceId());
+        boolean isValidMasterKey = this.checkpointService.validateByMasterKey(authRequest.getMasterKey());
 
-        if (!isValidDeviceId && !isValidImei)
+        if (!isValidMasterKey) {
+            log.error("Failed to register for device {} because of incorrect master key.", authRequest.getDeviceId());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        log.info("Attempting to register keycloak user for device {}", authRequest.getDeviceId());
 
         if (this.keycloakService.userExists(authRequest.getDeviceId())) {
             this.keycloakService.unregisterUser(authRequest.getDeviceId());

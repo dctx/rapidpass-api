@@ -28,6 +28,7 @@ public interface ICheckpointService
     ScannerDevice retrieveDeviceByImei(String imei);
     RevocationLogResponse retrieveRevokedAccessPasses(Integer since);
 
+    boolean validateByMasterKey(String masterKey);
     boolean validateByUniqueDeviceId(String masterKey, String uniqueDeviceId);
     boolean validateByImei(String masterKey, String imei);
     List<KeyEntry> getAllKeys();
