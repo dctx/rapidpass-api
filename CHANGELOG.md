@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.0.6] - 2020-05-29
+### Added
+- [#487](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/487) - Added validation if new APOR code is invalid 
+when updating an Access Pass
 
 ## [2.0.5] - 2020-05-26
 ### Fixed
