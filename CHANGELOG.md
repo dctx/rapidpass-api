@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.6] - 2020-05-28
+### Added
+- [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.6.alpha.1` - Designated APOR types with 
+    Multi City as their destination is now configured automatically based on database rather than constant values.
+
 ## [2.0.5] - 2020-05-26
 ### Fixed
-- [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) `2.0.5.alpha.2` - Devices will register using
+- [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) - Devices will register using
     deviceID, not their IMEI. Also, validates using IMEI or device ID, not IMEI only.
-- [#497](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/497) `2.0.5.alpha.1` - Fixed issuers might not be 
+- [#497](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/497) - Fixed issuers might not be 
     recorded.
-- [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) `2.0.5.alpha.1` - Fixed revocation operation 
+- [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) - Fixed revocation operation 
     does not modify last updated time (which is required by the checkpoint app).
 
 ## [2.0.4] - 2020-05-23
