@@ -42,6 +42,12 @@ public class LookupService {
         return aporLookupRepository.findAll();
     }
 
+    public Optional<AporLookup> getAporLookupByAporCode(String aporCode) {
+        List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(aporCode);
+
+        return aporSearch.stream().findFirst();
+    }
+
     public List<AporLookup> addUpdateAporType(AporLookup data) {
         if (!data.getAporCode().matches("[A-Z]{2,3}")) {
             throw new IllegalArgumentException("The APOR Code must be value from A to Z of at least 2 or 3 characters.");
