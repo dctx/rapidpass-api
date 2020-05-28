@@ -30,6 +30,7 @@ import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassEventLog;
+import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.services.RegistryService;
 import ph.devcon.rapidpass.utilities.csv.ApproverRegistrationCsvProcessor;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
@@ -54,13 +55,15 @@ import java.util.List;
 public class RegistryBatchRestController {
 
     private RegistryService registryService;
+    private LookupService lookupService;
 
     @Value("${endpointswitch.batch.accesspasses:false}")
     private boolean enableBatchDownloadAccessPasses;
 
     @Autowired
-    public RegistryBatchRestController(RegistryService registryService) {
+    public RegistryBatchRestController(RegistryService registryService, LookupService lookupService) {
         this.registryService = registryService;
+        this.lookupService = lookupService;
     }
 
     /**
@@ -73,7 +76,7 @@ public class RegistryBatchRestController {
     Iterable<String> newRequestPass(@RequestParam("file") MultipartFile csvFile, Principal principal)
             throws IOException, RegistryService.UpdateAccessPassException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
 
-        SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor();
+        SubjectRegistrationCsvProcessor processor = new SubjectRegistrationCsvProcessor(lookupService.getMultiCityAporTypes());
         List<RapidPassCSVdata> approvedAccessPass = processor.process(csvFile);
 
         return this.registryService.batchUploadRapidPassRequest(approvedAccessPass, principal);
