@@ -61,27 +61,39 @@ springfox:
       v2:
         path: /api-docs
 
+# These are the API credentials for Semaphore.
+#   These are currently unused, as the notification service is responsible for sending messages whether SMS or email.
 semaphore:
+  # The URL to perform the API request for semaphore.
   url: https://api.semaphore.co/api/v4/messages
+  # The API key that authenticates use of semaphore.
   key: ''
 
 server:
   servlet:
     context-path: /api/v1
 
+# General configuration related to rapid pass.
 rapidpass:
+  # Deprecated - We delegate all authentication related services to Keycloak. All the properties below are unused.
   auth:
     apiKey:
       enabled: true
       key: dctx
+  # The expiration configuration determines the default `valid_to` expiration date value to assign to new RapidPasses.
   expiration:
     year: 2020
     month: 5
     day: 15
+  # Determines the URL for the checkpoint install/upgrade API endpoints.
   checkpointApkUrl: https://www.google.com/rapidpass-checkpoint-v1.4.apk
+  # A precomputed SHA1 hash for the file found on the URL. You can use http://onlinemd5.com/ to compute the SHA1 file.
   checkpointApkHash: ABCDEF1234567890
+  # The version for this checkpoint app found on the URL and hash.
   checkpointApkVersion: 1.4.0
 
+# An configuration setting that easily allows the API server to toggle the accessibility of certain endpoints.
+#   This is still in-use, but technically can be improved by moving to RBAC through Keycloak.
 endpointswitch:
   checkpoint:
     auth: true
@@ -90,16 +102,34 @@ endpointswitch:
   registry:
     accesspasses: false
 
+# The QR Master application configuration holds information used to generate the QR.
 qrmaster:
+  # There are four important fields.
+  #   1. The Master Key is a secret key which only the PNP and DCTx have a physical copy of. They printed it on a
+  #      piece of paper, and the newly installed scanner devices scan it and that's what authorizes them as valid
+  #      scanner devices.
+  #   2. The Signing Key is used by the checkpoint team.
+  #   3. The Encryption Key is used by the checkpoint team.
+  #   4. The Valid To is the validity date for this master key, signing key, and encryption key. Changing this allows you
+  #      to rotate the above-mentioned keys.
+
+  # There can be multiple response keys. This is in case we want to do key rotations.
+
+  # The format for responseKeys is the following:
   # Master Key,Signing Key,Encryption Key,Valid To
   responseKeys[0]: ${RAPIDPASS_MASTER_KEY},${RAPIDPASS_QRMASTER_SKEY},${RAPIDPASS_ENCRYPTION_KEY},${RAPIDPASS_VALID_TO}
+  # The control key of this
   controlkey: ${RAPIDPASS_QRMASTER_CONTROLKEY}
 
-
+# The Keycloak API configuration specifies the authentication of the API server with Keycloak. This user account is
+#   involved in creating new users in Keycloak (for registering new Scanner Devices). Make sure that this user in
+#   Keycloak has the realm role of `manage-users`, which allows it to create new users.
 keycloak-api:
   apiUsername: scanner-registrar@rapidpass.ph
   apiPassword: scanner-registrar@rapidpass.ph
 
+# Keycloak related connection details. This can be retrieved by accessing keycloak, accessing the correct realm for
+#   your environment, selecting the `rapidpass-api` client, and looking under 'Installation'.
 keycloak: # override me in env vars!
   auth-server-url: http://localhost:8180/auth/
   realm: rapidpass
@@ -108,6 +138,7 @@ keycloak: # override me in env vars!
   bearer-only: true
   cors: true
   credentials.secret: '**********'
+  # The first security constraints exposes all public endpoints which do not require the Authentication header.
   securityConstraints[0]:
     securityCollections[0]:
       name: OpenAPI Configuration
@@ -115,6 +146,9 @@ keycloak: # override me in env vars!
       patterns[1]: /registry/qr-codes/*
       patterns[2]: /checkpoint/auth
       patterns[3]: /checkpoint/register
+  # The following security constraints detail the secured endpoints.
+  #   To be able to access any of the secured endpoints on the API server, you must have any of the following realm
+  #   roles: user, approver, inspector.
   securityConstraints[1]:
     authRoles[0]: user
     authRoles[1]: approver
