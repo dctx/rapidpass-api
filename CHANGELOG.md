@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.6] - 2020-05-28
+### Added
+- [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.6.alpha.1` - Designated APOR types with 
+    Multi City as their destination is now configured automatically based on database rather than constant values.
+
 ## [2.0.5] - 2020-05-26
 ### Added
 - [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.5.alpha.5` - Designated APOR types with 
