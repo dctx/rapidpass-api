@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     retrieving access pass status.
 - [#487](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/487) `2.0.5.alpha.4` - Added validation for updating 
     an Access Pass: checks whether APOR code is invalid.
+- [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) `2.0.5.alpha.3` - Added support for editing the
+    mobile number of a RapidPass.
 
 ### Fixed
 - [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) `2.0.5.alpha.2` - Devices will register using
@@ -20,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     recorded.
 - [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) `2.0.5.alpha.1` - Fixed revocation operation 
     does not modify last updated time (which is required by the checkpoint app).
-
+    
 ## [2.0.4] - 2020-05-23
 ### Fixed
 - [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) - Added database migrations
