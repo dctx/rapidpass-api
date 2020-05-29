@@ -97,6 +97,9 @@ rapidpass:
 endpointswitch:
   checkpoint:
     auth: true
+    # A switch that can toggle whether or not the registration should perform IMEI or device ID validation.
+    #   The validation is done by looking up pre-registered scanner devices from the database `scanner_devices` table.
+    validateImeiDeviceId: false
   batch:
     accesspasses: false
   registry:
