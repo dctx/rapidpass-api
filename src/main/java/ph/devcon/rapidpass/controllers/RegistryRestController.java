@@ -118,6 +118,10 @@ public class RegistryRestController {
         response.put("status", accessPass.getStatus());
         response.put("validUntil", accessPass.getValidTo().toString());
 
+        if (accessPass.getValidFrom() != null) {
+            response.put("validFrom", accessPass.getValidFrom().toString());
+        }
+
         if (AccessPassStatus.INVALID_STATUSES.contains(accessPass.getStatus())) {
             response.put("reason", accessPass.getUpdates());
         }
