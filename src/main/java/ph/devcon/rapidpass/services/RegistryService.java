@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -805,6 +806,9 @@ public class RegistryService {
             // decline(pass.getReferenceId(), e.getMessage());
 
             return "Record " + counter++ + ": was declined. " + e.getMessage();
+        } catch (CannotAcquireLockException e) {
+            log.warn("Failed to POST /registry/access-passes request because of concurrency.");
+            throw new CannotAcquireLockException("Failed to process the CSV file due to concurrency issues. Please try again.");
         } catch (Exception e) {
             log.warn("Failed Sending message no. {}, error: {}", counter, e.getMessage());
             // noop
