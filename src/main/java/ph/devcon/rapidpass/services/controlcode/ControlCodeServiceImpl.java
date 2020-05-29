@@ -27,7 +27,9 @@ import ph.devcon.rapidpass.utilities.ControlCodeGenerator;
 public class ControlCodeServiceImpl  implements ControlCodeService {
 
     /**
-     * Secret key used for control code generation
+     * Secret key used for control code generation.
+     *
+     * This key changes how the 8 letter control code is generated.
      */
     @Value("${qrmaster.controlkey}")
     private String secretKey;
