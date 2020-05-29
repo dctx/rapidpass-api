@@ -19,11 +19,13 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.utilities.normalization.*;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation that maps a CSV row into a {@link RapidPassCSVdata} POJO.
@@ -57,9 +59,11 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
             "destProvince",
             "remarks"
     };
+    private final List<AporLookup> multiCityAporTypes;
 
-    public SubjectRegistrationCsvProcessor() {
+    public SubjectRegistrationCsvProcessor(List<AporLookup> multiCityAporTypes) {
         super(CSV_COLUMN_MAPPING);
+        this.multiCityAporTypes = multiCityAporTypes;
     }
 
     protected CsvToBean<RapidPassCSVdata> generateCsvToBeanParser(ColumnPositionMappingStrategy strategy, Class<RapidPassCSVdata> type, Reader fileReader) {
@@ -94,7 +98,10 @@ public class SubjectRegistrationCsvProcessor extends GenericCsvProcessor<RapidPa
     @Override
     public List<NormalizationRule<RapidPassCSVdata>> getNormalizationRules() {
 
-        ImmutableList<String> multiCityAporTypes = ImmutableList.of("DE", "DP", "AG", "GE", "GL", "GJ", "FF", "MS", "TS", "ME", "PO", "SH");
+        List<String> multiCityAporTypes = this.multiCityAporTypes
+                .stream()
+                .map(AporLookup::getAporCode)
+                .collect(Collectors.toList());
 
         return ImmutableList.of(
                 new Trim<>("passType"),

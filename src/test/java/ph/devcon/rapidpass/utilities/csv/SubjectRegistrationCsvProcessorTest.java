@@ -1,9 +1,11 @@
 package ph.devcon.rapidpass.utilities.csv;
 
+import com.google.common.collect.ImmutableList;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 
@@ -31,7 +33,9 @@ public class SubjectRegistrationCsvProcessorTest {
      */
     @Test
     void handleNewLine() throws IOException {
-        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor(
+                ImmutableList.of(AporLookup.builder().aporCode("BA").build())
+        );
 
         final String filename = "data-with-newline-in-cell.csv";
 
@@ -50,7 +54,9 @@ public class SubjectRegistrationCsvProcessorTest {
     }
 
     public List<RapidPassCSVdata> mock(String filename) throws IOException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
-        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor(
+                ImmutableList.of(AporLookup.builder().aporCode("BA").build())
+        );
 
         ClassPathResource instructionsClassPath = new ClassPathResource(filename);
 
@@ -89,7 +95,22 @@ public class SubjectRegistrationCsvProcessorTest {
      */
     @Test
     void handleMultiCity() throws IOException {
-        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor(
+                ImmutableList.of(
+                        AporLookup.builder().aporCode("DE").build(),
+                        AporLookup.builder().aporCode("DP").build(),
+                        AporLookup.builder().aporCode("AG").build(),
+                        AporLookup.builder().aporCode("GE").build(),
+                        AporLookup.builder().aporCode("GL").build(),
+                        AporLookup.builder().aporCode("GJ").build(),
+                        AporLookup.builder().aporCode("FF").build(),
+                        AporLookup.builder().aporCode("MS").build(),
+                        AporLookup.builder().aporCode("TS").build(),
+                        AporLookup.builder().aporCode("ME").build(),
+                        AporLookup.builder().aporCode("PO").build(),
+                        AporLookup.builder().aporCode("SH").build()
+                )
+        );
 
         final String filename = "fake-data.csv";
 
@@ -131,7 +152,9 @@ public class SubjectRegistrationCsvProcessorTest {
      */
     @Test
     void idTypeAlwaysIndividual() throws IOException {
-        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor(
+                ImmutableList.of(AporLookup.builder().aporCode("BA").build())
+        );
 
         final String filename = "fake-data.csv";
 
@@ -162,7 +185,9 @@ public class SubjectRegistrationCsvProcessorTest {
      */
     @Test
     void vehicleRowsNotModified() throws IOException {
-        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor();
+        SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor(
+                ImmutableList.of(AporLookup.builder().aporCode("BA").build())
+        );
 
         final String filename = "fake-data.csv";
 

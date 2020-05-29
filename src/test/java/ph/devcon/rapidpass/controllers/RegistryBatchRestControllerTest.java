@@ -14,35 +14,12 @@
 
 package ph.devcon.rapidpass.controllers;
 
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
-import ph.devcon.rapidpass.services.RegistryService;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.logging.Logger;
-
-@WebMvcTest(RegistryBatchRestController.class)
-@EnableConfigurationProperties
+@ExtendWith(MockitoExtension.class)
 public class RegistryBatchRestControllerTest
 {
-
-    private static final String API_KEY_HEADER = "RP-API-KEY";
-    private static final String API_KEY_VALUE = "dctx";
-
-    private static Logger LOGGER = Logger.getLogger(RegistryBatchRestControllerTest.class.getName());
-    @Autowired
-    MockMvc mockMvc;
-    
-    @MockBean
-    RegistryService mockRegistryService;
-    
-    @Test
-    @Ignore
     public void downloadAccessApprovedPassCsv() throws Exception
     {
 //        final int pageSize = 2;

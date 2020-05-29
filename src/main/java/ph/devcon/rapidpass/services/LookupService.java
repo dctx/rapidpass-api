@@ -42,6 +42,10 @@ public class LookupService {
         return aporLookupRepository.findAll();
     }
 
+    public List<AporLookup> getMultiCityAporTypes() {
+        return aporLookupRepository.findByMultiDestination(true);
+    }
+
     public Optional<AporLookup> getAporLookupByAporCode(String aporCode) {
         List<AporLookup> aporSearch = aporLookupRepository.findByAporCode(aporCode);
 
