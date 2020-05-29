@@ -1133,8 +1133,8 @@ components:
       properties:
         aporType:
           type: string
-          description: Code for Authorized Personnel Outside Residence. Check IATF doc for details.
-          enum: [AG,BA,BP,CA,DC,DO,ER,FC,FS,GO,GR,HM,HT,IP,LW,ME,MS,MF,MT,PH,PM,PI,SH,SS,TF,UT,VE]
+          description: The apor type, which is usually a two or three letter code. Note that the complete list
+            of apor types (which can change over time) can be queried from the server from `GET /lookup/apor`.
           example: "AG"
         passType:
           type: string
