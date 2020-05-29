@@ -474,7 +474,7 @@ public class RegistryService {
             accessPass.setRemarks(updateRequest.getReasonForApplication());
 
         if (updateRequest.getAporType() != null)
-            accessPass.setAporType(updateRequest.getAporType().name());
+            accessPass.setAporType(updateRequest.getAporType());
         if (!StringUtils.isEmpty(updateRequest.getCompany()))
             accessPass.setCompany(updateRequest.getCompany());
         if (!StringUtils.isEmpty(updateRequest.getDestCity()))
