@@ -416,8 +416,21 @@ public class RegistryService {
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getReasonForApplication()))
             accessPass.setRemarks(rapidPassUpdateRequest.getReasonForApplication());
 
-        if (rapidPassUpdateRequest.getAporType() != null)
-            accessPass.setAporType(rapidPassUpdateRequest.getAporType().name());
+        if (rapidPassUpdateRequest.getAporType() != null) {
+            lookupService.getAporLookupByAporCode(rapidPassUpdateRequest.getAporType())
+                    .orElseThrow(() -> {
+                        String errorMessage = String.format(
+                                "Failed to update Access Pass (referenceId=%s) because APOR code provided is invalid (aporType=%s).",
+                                accessPass.getReferenceID(),
+                                rapidPassUpdateRequest.getAporType()
+                        );
+                        log.error(errorMessage);
+                        return new UpdateAccessPassException(errorMessage);
+                    });
+
+            accessPass.setAporType(rapidPassUpdateRequest.getAporType());
+        }
+
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getCompany()))
             accessPass.setCompany(rapidPassUpdateRequest.getCompany());
         if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestCity()))
