@@ -134,15 +134,9 @@ public class RegistryRestController {
 
         rapidPassRequest.setSource(RecordSource.ONLINE.toString());
         RapidPass rapidPass = registryService.newRequestPass(rapidPassRequest, principal);
-//        return ResponseEntity.status(201).body(ImmutableMap.of("referenceId", rapidPass.getReferenceId()));
+
         return ResponseEntity.status(201).body(rapidPass);
     }
-
-//    @GetMapping("/control-codes")
-//    public ResponseEntity<Iterable<ControlCode>> getControlCodes() {
-//        Iterable<ControlCode> controlCodes = registryService.getControlCodes();
-//        return ResponseEntity.ok(controlCodes);
-//    }
 
     @GetMapping("/access-passes/{referenceId}/control-code")
     ResponseEntity<?> getControlCode(@PathVariable String referenceId) {
@@ -171,7 +165,7 @@ public class RegistryRestController {
      * To specify the reason why it was suspended, use the PUT request.
      */
     @DeleteMapping("/access-passes/{referenceId}")
-    HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) {
+    HttpEntity<RapidPass> revokeAccessPass(@PathVariable String referenceId) throws UpdateAccessPassException {
         AccessPass suspendedAccessPass = registryService.suspend(referenceId, null);
         RapidPass rapidPass = RapidPass.buildFrom(suspendedAccessPass);
         return (rapidPass == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(rapidPass);
