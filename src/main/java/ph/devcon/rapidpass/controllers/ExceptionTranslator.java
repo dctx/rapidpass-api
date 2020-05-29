@@ -21,6 +21,7 @@ import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -159,6 +160,21 @@ public class ExceptionTranslator {
         }
 
         return everythingElse(ex);
+    }
+
+    /**
+     * Converts errors related to exceptions related to user input into 400s.
+     *
+     * @param exception a user input error
+     * @return response body with errors
+     */
+    @ExceptionHandler({
+            CannotAcquireLockException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> failedCannotAcquireLock(Throwable exception) {
+        return ImmutableMap.of("message", exception.getMessage());
     }
 
     /**

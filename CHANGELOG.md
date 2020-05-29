@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) - Fixed revocation operation 
     does not modify last updated time (which is required by the checkpoint app).
     
+### Changed
+- [#486](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/486) `2.0.5.alpha.6` - Changed error message when
+    concurrency issue is encountered on bulk upload.
+      
 ## [2.0.4] - 2020-05-23
 ### Fixed
 - [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) - Added database migrations
