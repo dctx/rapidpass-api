@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     an Access Pass: checks whether APOR code is invalid.
 - [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) `2.0.5.alpha.5` - Added support for editing the
     mobile number of a RapidPass.
+- [#502](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/502) `2.0.5.alpha.6` - Added toggling of IMEI or 
+    Device ID validation for scanner device registration endpoint.
+    
 
 ### Fixed
 - [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) `2.0.5.alpha.2` - Devices will register using
