@@ -61,6 +61,14 @@ public class AporLookup implements Serializable {
 
     }
 
+    /**
+     * Null or false values on `multiDestination` will now return false.
+     */
+    public Boolean getMultiDestination() {
+        if (this.multiDestination == null) return false;
+        return this.multiDestination;
+    }
+
     public void setAporCode(String aporCode) {
         this.aporCode = aporCode.toUpperCase();
     }
