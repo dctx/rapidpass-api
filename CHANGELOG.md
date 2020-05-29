@@ -6,12 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [2.0.6] - 2020-05-28
-### Added
-- [#476](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/476) - Added `validFrom` when retrieving 
-access pass status
-
 ## [2.0.5] - 2020-05-26
+### Added
+- [#476](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/476) `2.0.5.alpha.3` - Added `validFrom` when  
+    retrieving access pass status.
+
 ### Fixed
 - [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) `2.0.5.alpha.2` - Devices will register using
     deviceID, not their IMEI. Also, validates using IMEI or device ID, not IMEI only.
