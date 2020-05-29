@@ -33,7 +33,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
-import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
 import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.AporLookup;
 import ph.devcon.rapidpass.entities.Registrant;
@@ -127,7 +126,7 @@ class RegistryServiceTest {
         instance.expirationDay = 15;
         instance.expirationYear = 2020;
 
-        instance.isKafaEnabled=false;
+        instance.isKafkaEnabled =false;
 //        OffsetDateTime now = OffsetDateTime.now();
     }
 
@@ -286,69 +285,6 @@ class RegistryServiceTest {
         }
     }
 
-    @Test
-    void updateAccessPass_APPROVED() throws RegistryService.UpdateAccessPassException {
-        final AccessPass approvedAccessPass = AccessPass.builder()
-                .id(123456)
-                .referenceID("ref-id")
-                .status("APPROVED")
-                .passType("INDIVIDUAL")
-                .build();
-
-        final AccessPass pendingAccessPass = AccessPass.builder()
-                .status("PENDING")
-                .id(123456)
-                .build();
-
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
-                .thenReturn(singletonList(pendingAccessPass));
-        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-
-        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
-        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.APPROVED);
-        approveRequest.setRemarks(null);
-
-        final RapidPass approved = instance.updateAccessPass(
-                "ref-id",
-                approveRequest
-        );
-
-        assertThat(approved, is(notNullValue()));
-        assertThat(approved.getStatus(), is("APPROVED"));
-
-        verify(mockAccessPassRepository, times(2)).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
-    }
-
-    @Test
-    void updateAccessPass_DENIED() throws RegistryService.UpdateAccessPassException {
-        final AccessPass approvedAccessPass = AccessPass.builder()
-                .id(123456)
-                .referenceID("ref-id")
-                .status("DECLINED")
-                .passType("INDIVIDUAL")
-                .build();
-
-        final AccessPass pendingAccessPass = AccessPass.builder()
-                .status("PENDING")
-                .id(123456)
-                .build();
-
-
-        when(mockAccessPassRepository.findAllByReferenceIDOrderByValidToDesc("ref-id"))
-                .thenReturn(singletonList(pendingAccessPass));
-        when(mockAccessPassRepository.saveAndFlush(ArgumentMatchers.any(AccessPass.class))).thenReturn(approvedAccessPass);
-
-        RapidPassUpdateRequest approveRequest = new RapidPassUpdateRequest();
-        approveRequest.setStatus(RapidPassUpdateRequest.StatusEnum.DECLINED);
-        approveRequest.setRemarks("Some reason here");
-
-        final RapidPass approved = instance.updateAccessPass("ref-id", approveRequest);
-
-        assertThat(approved, is(notNullValue()));
-        assertThat(approved.getStatus(), is("DECLINED"));
-
-        verify(mockAccessPassRepository, times(2)).saveAndFlush(ArgumentMatchers.any(AccessPass.class));
-    }
 
     @Test
     void ensureThatFindAllByQueryFilterIsExecuted() {
@@ -378,6 +314,7 @@ class RegistryServiceTest {
 
         verify(mockAccessPassRepository, only()).findAll((Specification<AccessPass>) any(), (Pageable) any());
     }
+
 
     @Test
     void bulkUploadShouldOverwriteExtendAnExpiredApprovedPass() {
