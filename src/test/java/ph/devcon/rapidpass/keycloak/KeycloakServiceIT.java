@@ -41,8 +41,8 @@ class KeycloakServiceIT {
         keycloakConfig = new KeycloakConfig();
         keycloakConfig.setRealm("rapidpass");
         keycloakConfig.setAuthServerUrl("http://localhost:8180/auth/");
-        keycloakConfig.setApiUsername("admin");
-        keycloakConfig.setApiPassword("admin");
+        keycloakConfig.setApiUsername("scanner-registrar@rapidpass.ph");
+        keycloakConfig.setApiPassword("scanner-registrar@rapidpass.ph");
 
         keycloakClient = keycloakConfig.keycloakClient();
 
@@ -54,7 +54,6 @@ class KeycloakServiceIT {
     void configuration() {
         final ServerInfoResource serverInfoResource = keycloakClient.serverInfo();
         final String version = serverInfoResource.getInfo().getSystemInfo().getVersion();
-
         log.debug("running keycloak version {}", version);
     }
 

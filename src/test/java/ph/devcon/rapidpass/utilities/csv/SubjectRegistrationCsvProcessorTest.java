@@ -97,6 +97,7 @@ public class SubjectRegistrationCsvProcessorTest {
     void handleMultiCity() throws IOException {
         SubjectRegistrationCsvProcessor subjectRegistrationCsvProcessor = new SubjectRegistrationCsvProcessor(
                 ImmutableList.of(
+                        AporLookup.builder().aporCode("DE").build(),
                         AporLookup.builder().aporCode("DP").build(),
                         AporLookup.builder().aporCode("AG").build(),
                         AporLookup.builder().aporCode("GE").build(),
