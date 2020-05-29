@@ -71,7 +71,7 @@ public class RapidPass {
         return RapidPass.builder()
                 .referenceId(accessPass.getReferenceID())
                 .controlCode(accessPass.getControlCode() == null ? "" : accessPass.getControlCode())
-                .passType(PassType.valueOf(accessPass.getPassType()))
+                .passType(accessPass.getPassType() == null ? null : PassType.valueOf(accessPass.getPassType()))
                 .aporType(accessPass.getAporType())
                 .name(accessPass.getName())
                 .notified(accessPass.getNotified())
