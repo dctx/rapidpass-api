@@ -55,10 +55,18 @@ public class AporLookup implements Serializable {
      * True, if and only if having this APOR code will replace the destination city to 'Multi City'.
      */
     @Column(name = "multi_destination")
-    private Boolean multiDestination;
+    private Boolean multiDestination = false;
 
     public AporLookup() {
 
+    }
+
+    /**
+     * Null or false values on `multiDestination` will now return false.
+     */
+    public Boolean getMultiDestination() {
+        if (this.multiDestination == null) return false;
+        return this.multiDestination;
     }
 
     public void setAporCode(String aporCode) {
