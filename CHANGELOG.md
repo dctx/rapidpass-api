@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     retrieving access pass status.
 - [#487](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/487) `2.0.5.alpha.4` - Added validation for updating 
     an Access Pass: checks whether APOR code is invalid.
-- [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) `2.0.5.alpha.3` - Added support for editing the
+- [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) `2.0.5.alpha.5` - Added support for editing the
     mobile number of a RapidPass.
 
 ### Fixed
