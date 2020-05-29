@@ -14,9 +14,11 @@
 
 package ph.devcon.rapidpass.services;
 
+import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,8 +70,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RegistryService {
 
-    public static final int DEFAULT_VALIDITY_DAYS = 7;
-
     @Value("${rapidpass.expiration.year}")
     protected Integer expirationYear;
 
@@ -80,7 +80,7 @@ public class RegistryService {
     protected Integer expirationDay;
 
     @Value("${kafka.enabled:false}")
-    protected boolean isKafaEnabled;
+    protected boolean isKafkaEnabled;
 
     private final RapidPassRequestProducer requestProducer;
     private final RapidPassEventProducer eventProducer;
@@ -121,7 +121,7 @@ public class RegistryService {
         validation.validate(rapidPassRequest);
 
         RapidPass rapidPass = persistAccessPass(rapidPassRequest, AccessPassStatus.PENDING, principal);
-        if (isKafaEnabled)
+        if (isKafkaEnabled)
             eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
 
         return rapidPass;
@@ -197,17 +197,13 @@ public class RegistryService {
         accessPass.setStatus(status.name());
         accessPass.setValidFrom(now);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentLoggedInUser = null;
-
         String preferredUsername = KeycloakUtils.getPreferredUsername(principal);
-
         accessPass.setIssuedBy(preferredUsername);
+
         if (status == AccessPassStatus.PENDING) {
-            // just set the validity period to today until the request is approved
             accessPass.setValidTo(now);
         } else if (status == AccessPassStatus.APPROVED) {
-            accessPass.setValidTo(getExpirationDate());
+            accessPass.setValidTo(getDefaultExpirationDate());
         }
 
         log.debug("Persisting Registrant: {}", registrant.toString());
@@ -375,15 +371,11 @@ public class RegistryService {
      * @return An access pass
      */
     public AccessPass findByNonUniqueReferenceId(String referenceId) {
-        // AccessPass accessPass = accessPassRepository.findByReferenceId(referenceId);
-        // TODO: how to deal with 'renewals'? i.e.
-
         List<AccessPass> accessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
 
         if (accessPasses.size() <= 0) return null;
 
         if (accessPasses.size() > 1) {
-            // Setting this to warning, as this is an expected use-case while reference IDs are mobile numbers.
             log.warn("Multiple Access Pass found for reference ID: {}", referenceId);
         }
 
@@ -398,98 +390,151 @@ public class RegistryService {
     }
 
     /**
+     * <p>
      * Updates properties of an access pass that is not related to its status.
+     * </p>
      * <p>
      * For status related updates, please see the other registry service methods.
-     *
-     * @param rapidPassUpdateRequest The data update for the rapid pass request
-     * @return Data stored on the database
+     *</p>
+     * @param updateRequest The data update for the AccessPass.
+     * @param accessPass The current data for the AccessPass.
+     * @param originalReferenceId The original reference ID of the AccessPass.
+     * @return An updated {@link AccessPass}.
      * @see #approve(String)
      * @see #suspend(String, String)
-     * @see #decline(String, String)
      */
-    private AccessPass update(AccessPass accessPass, RapidPassUpdateRequest rapidPassUpdateRequest) throws UpdateAccessPassException {
+    private AccessPass update(AccessPass accessPass, RapidPassUpdateRequest updateRequest, String originalReferenceId) throws UpdateAccessPassException {
 
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getRemarks()))
-            accessPass.setUpdates(rapidPassUpdateRequest.getRemarks());
+        String targetReferenceId = updateRequest.getReferenceId();
 
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getReasonForApplication()))
-            accessPass.setRemarks(rapidPassUpdateRequest.getReasonForApplication());
+        boolean isDifferentMobileNumbers = !originalReferenceId.equals(targetReferenceId);
 
-        if (rapidPassUpdateRequest.getAporType() != null) {
-            lookupService.getAporLookupByAporCode(rapidPassUpdateRequest.getAporType())
+        boolean isNewMobileNumberSpecified = !StringUtils.isEmpty(targetReferenceId);
+
+        boolean isChangeMobileNumberRequest = isDifferentMobileNumbers && isNewMobileNumberSpecified;
+
+        if (updateRequest.getAporType() != null) {
+            lookupService.getAporLookupByAporCode(updateRequest.getAporType())
                     .orElseThrow(() -> {
                         String errorMessage = String.format(
                                 "Failed to update Access Pass (referenceId=%s) because APOR code provided is invalid (aporType=%s).",
                                 accessPass.getReferenceID(),
-                                rapidPassUpdateRequest.getAporType()
+                                updateRequest.getAporType()
                         );
                         log.error(errorMessage);
                         return new UpdateAccessPassException(errorMessage);
                     });
 
-            accessPass.setAporType(rapidPassUpdateRequest.getAporType());
+            accessPass.setAporType(updateRequest.getAporType());
         }
 
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getCompany()))
-            accessPass.setCompany(rapidPassUpdateRequest.getCompany());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestCity()))
-            accessPass.setDestinationCity(rapidPassUpdateRequest.getDestCity());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestName()))
-            accessPass.setDestinationName(rapidPassUpdateRequest.getDestName());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getDestStreet()))
-            accessPass.setDestinationStreet(rapidPassUpdateRequest.getDestStreet());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginName()))
-            accessPass.setOriginName(rapidPassUpdateRequest.getOriginName());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginCity()))
-            accessPass.setOriginCity(rapidPassUpdateRequest.getOriginCity());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getOriginStreet()))
-            accessPass.setOriginStreet(rapidPassUpdateRequest.getOriginStreet());
+        if (!StringUtils.isEmpty(updateRequest.getCompany()))
+            accessPass.setCompany(updateRequest.getCompany());
+        if (!StringUtils.isEmpty(updateRequest.getDestCity()))
+            accessPass.setDestinationCity(updateRequest.getDestCity());
+        if (!StringUtils.isEmpty(updateRequest.getDestName()))
+            accessPass.setDestinationName(updateRequest.getDestName());
+        if (!StringUtils.isEmpty(updateRequest.getDestStreet()))
+            accessPass.setDestinationStreet(updateRequest.getDestStreet());
+        if (!StringUtils.isEmpty(updateRequest.getOriginName()))
+            accessPass.setOriginName(updateRequest.getOriginName());
+        if (!StringUtils.isEmpty(updateRequest.getOriginCity()))
+            accessPass.setOriginCity(updateRequest.getOriginCity());
+        if (!StringUtils.isEmpty(updateRequest.getOriginStreet()))
+            accessPass.setOriginStreet(updateRequest.getOriginStreet());
 
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getIdentifierNumber()))
-            accessPass.setIdentifierNumber(rapidPassUpdateRequest.getIdentifierNumber());
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getIdType()))
-            accessPass.setIdType(rapidPassUpdateRequest.getIdType());
-        if (rapidPassUpdateRequest.getPassType() != null)
-            accessPass.setPassType(rapidPassUpdateRequest.getPassType().toString());
+        Registrant registrant = accessPass.getRegistrantId();
 
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getName())) {
-            accessPass.setName(rapidPassUpdateRequest.getName().toUpperCase());
+        if (isChangeMobileNumberRequest) {
+            log.info(String.format("Attempting to change mobile number of an access pass from %s to %s.", originalReferenceId, targetReferenceId));
+            AccessPass existingAccessPass = findByNonUniqueReferenceId(targetReferenceId);
+            Registrant existingRegistrant = registrantRepository.findByReferenceId(targetReferenceId);
 
-            // Update registrant only if it is found
-            Registrant registrantId = accessPass.getRegistrantId();
-            if (registrantId != null) {
-                registrantId.setDateTimeUpdated(OffsetDateTime.now());
-                registrantId.setRegistrantName(rapidPassUpdateRequest.getName());
-                registrantRepository.saveAndFlush(registrantId);
+            if (existingAccessPass != null) {
+                String errorMessage = String.format("You are not allowed to change the mobile number of this access pass from %s to %s, because an existing access pass already uses %s.", originalReferenceId, targetReferenceId, targetReferenceId);
+                log.error(errorMessage);
+                throw new UpdateAccessPassException(errorMessage);
+            } else if (existingRegistrant != null) {
+                String errorMessage = String.format("You are not allowed to change the mobile number of this access pass from %s to %s, because an existing registrant already uses %s.", originalReferenceId, targetReferenceId, targetReferenceId);
+                log.error(errorMessage);
+                throw new UpdateAccessPassException(errorMessage);
+            } else {
+                // Update access pass and registrant
+                accessPass.setReferenceID(targetReferenceId);
+                registrant.setReferenceId(targetReferenceId);
+                registrant.setMobile(targetReferenceId);
+                registrantRepository.saveAndFlush(registrant);
             }
         }
 
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getValidUntil()))
-            accessPass.setValidTo(OffsetDateTime.parse(rapidPassUpdateRequest.getValidUntil()));
-        if (!StringUtils.isEmpty(rapidPassUpdateRequest.getValidFrom()))
-            accessPass.setValidFrom(OffsetDateTime.parse(rapidPassUpdateRequest.getValidFrom()));
+        if (!StringUtils.isEmpty(updateRequest.getRemarks()))
+            accessPass.setUpdates(updateRequest.getRemarks());
+
+        if (!StringUtils.isEmpty(updateRequest.getReasonForApplication()))
+            accessPass.setRemarks(updateRequest.getReasonForApplication());
+
+        if (updateRequest.getAporType() != null)
+            accessPass.setAporType(updateRequest.getAporType().name());
+        if (!StringUtils.isEmpty(updateRequest.getCompany()))
+            accessPass.setCompany(updateRequest.getCompany());
+        if (!StringUtils.isEmpty(updateRequest.getDestCity()))
+            accessPass.setDestinationCity(updateRequest.getDestCity());
+        if (!StringUtils.isEmpty(updateRequest.getDestName()))
+            accessPass.setDestinationName(updateRequest.getDestName());
+        if (!StringUtils.isEmpty(updateRequest.getDestStreet()))
+            accessPass.setDestinationStreet(updateRequest.getDestStreet());
+        if (!StringUtils.isEmpty(updateRequest.getOriginName()))
+            accessPass.setOriginName(updateRequest.getOriginName());
+        if (!StringUtils.isEmpty(updateRequest.getOriginCity()))
+            accessPass.setOriginCity(updateRequest.getOriginCity());
+        if (!StringUtils.isEmpty(updateRequest.getOriginStreet()))
+            accessPass.setOriginStreet(updateRequest.getOriginStreet());
+
+        if (!StringUtils.isEmpty(updateRequest.getIdentifierNumber()))
+            accessPass.setIdentifierNumber(updateRequest.getIdentifierNumber());
+        if (!StringUtils.isEmpty(updateRequest.getIdType()))
+            accessPass.setIdType(updateRequest.getIdType());
+        if (updateRequest.getPassType() != null)
+            accessPass.setPassType(updateRequest.getPassType().toString());
+
+        if (!StringUtils.isEmpty(updateRequest.getName())) {
+            accessPass.setName(updateRequest.getName().toUpperCase());
+
+            if (registrant != null) {
+                registrant.setDateTimeUpdated(OffsetDateTime.now());
+                registrant.setRegistrantName(updateRequest.getName());
+                registrantRepository.saveAndFlush(registrant);
+            }
+        }
+
+        if (!StringUtils.isEmpty(updateRequest.getValidUntil()))
+            accessPass.setValidTo(OffsetDateTime.parse(updateRequest.getValidUntil()));
+        if (!StringUtils.isEmpty(updateRequest.getValidFrom()))
+            accessPass.setValidFrom(OffsetDateTime.parse(updateRequest.getValidFrom()));
 
         accessPass.setDateTimeUpdated(OffsetDateTime.now());
 
         return accessPassRepository.saveAndFlush(accessPass);
     }
 
+    /**
+     * <p>Marks a specified AccessPass as approved.</p>
+     * <p>Note that if the AccessPass is already approved, this will simply overwrite the validity period with
+     * the default expiration date.</p>
+     * @param referenceId The mobile number of the RapidPass to approve.
+     * @return An newly approved RapidPass.
+     * @throws UpdateAccessPassException
+     */
     private AccessPass approve(String referenceId) throws UpdateAccessPassException {
         log.debug("APPROVING refId {}", referenceId);
 
         AccessPass accessPass = this.updateStatus(referenceId, AccessPassStatus.APPROVED, null);
 
         OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime validUntil = now;
 
-        OffsetDateTime expirationDate = getExpirationDate();
-        if (OffsetDateTime.now().isAfter(expirationDate)) {
-            validUntil = now.plusDays(DEFAULT_VALIDITY_DAYS);
-        } else {
-            validUntil = expirationDate;
-        }
-        accessPass.setValidTo(validUntil);
+        OffsetDateTime validTo = getDefaultExpirationDate();
+
+        accessPass.setValidTo(validTo);
         accessPass.setValidFrom(now);
 
         return accessPass;
@@ -525,11 +570,24 @@ public class RegistryService {
         }
 
         String currentStatus = accessPass.getStatus();
+        String targetStatus = status.name();
 
-        boolean isPending = AccessPassStatus.PENDING.toString().equals(currentStatus);
+        // List of status changes from A to B which are not allowed.
+        ImmutableList<MutablePair<String, String>> notAllowed = ImmutableList.of(
+                new MutablePair<>("APPROVED", "PENDING"),
+                new MutablePair<>("APPROVED", "DECLINED"),
+                new MutablePair<>("SUSPENDED", "APPROVED"),
+                new MutablePair<>("SUSPENDED", "DECLINED"),
+                new MutablePair<>("DECLINED", "PENDING"),
+                new MutablePair<>("DECLINED", "APPROVED")
+        );
 
-        if (!isPending) {
-            String targetStatus = status.name();
+        Boolean isNotAllowed = notAllowed.stream()
+                .map(pair -> currentStatus.equalsIgnoreCase(pair.left) && targetStatus.equalsIgnoreCase(pair.right))
+                .reduce((acc, curr) -> (acc || curr))
+                .orElse(false);
+
+        if (isNotAllowed) {
             String message = String.format("You are not allowed to change the status of this access pass from %s to %s.", currentStatus, targetStatus);
             throw new RegistryService.UpdateAccessPassException(message);
         }
@@ -559,7 +617,7 @@ public class RegistryService {
      */
     @Transactional
     public RapidPass updateAccessPass(String referenceId, RapidPassUpdateRequest rapidPassUpdateRequest) throws UpdateAccessPassException {
-        AccessPass accessPass = null;
+        AccessPass accessPass;
         if (rapidPassUpdateRequest.getStatus() != null) {
             final AccessPassStatus status = AccessPassStatus.valueOf(rapidPassUpdateRequest.getStatus().name());
             switch (status) {
@@ -567,17 +625,29 @@ public class RegistryService {
                     accessPass = approve(referenceId);
                     break;
                 case DECLINED:
-                    accessPass = decline(referenceId, rapidPassUpdateRequest.getRemarks());
+                    accessPass = this.updateStatus(referenceId, AccessPassStatus.DECLINED, rapidPassUpdateRequest.getRemarks());
                     break;
                 case SUSPENDED:
-                    accessPass = suspend(referenceId, rapidPassUpdateRequest.getRemarks());
+                    accessPass = this.updateStatus(referenceId, AccessPassStatus.SUSPENDED, rapidPassUpdateRequest.getRemarks());
                     break;
+                case PENDING:
+                    String currentStatus = findByNonUniqueReferenceId(referenceId).getStatus();
+                    throw new UpdateAccessPassException(
+                            String.format(
+                                    "You are not allowed to change the status of this access pass from %s to %s",
+                                    currentStatus,
+                                    status
+                            )
+                    );
                 default:
                     accessPass = findByNonUniqueReferenceId(referenceId);
             }
         } else {
             accessPass = findByNonUniqueReferenceId(referenceId);
         }
+
+        if (accessPass == null)
+            throw new UpdateAccessPassException("There was no access pass found with reference ID " + referenceId + ".");
 
         boolean shouldUpdateEmail = StringUtils.isNotEmpty(rapidPassUpdateRequest.getEmail());
 
@@ -586,52 +656,34 @@ public class RegistryService {
             String oldEmail = registrantId.getEmail();
             String newEmail = rapidPassUpdateRequest.getEmail();
 
-            log.info(String.format("Updating rapid pass email from %s to %s.", oldEmail, newEmail));
+            log.info(String.format("Updating rapid pass email for access pass (refId=%s) from %s to %s.", referenceId, oldEmail, newEmail));
             registrantId.setEmail(rapidPassUpdateRequest.getEmail());
         }
 
-        accessPass = update(accessPass, rapidPassUpdateRequest);
-
-        log.debug("Sending update event for {}", referenceId);
+        accessPass = update(accessPass, rapidPassUpdateRequest, referenceId);
 
         final RapidPass rapidPass = RapidPass.buildFrom(accessPass);
 
-        if (isKafaEnabled)
+        if (isKafkaEnabled)
             eventProducer.sendMessage(referenceId, rapidPass);
 
         return rapidPass;
-    }
-
-    public AccessPass decline(String referenceId, String reason) throws RegistryService.UpdateAccessPassException {
-        return this.updateStatus(referenceId, AccessPassStatus.DECLINED, reason);
     }
 
     /**
      * After updating the target {@link AccessPass}, this returns a {@link RapidPass} whose status is revoked.
      *
      * @param referenceId The reference id of the {@link AccessPass} you are retrieving.
+     * @param reason The reason why the {@link AccessPass} will be suspended.
      * @return Data stored on the database
      */
-    public AccessPass suspend(String referenceId, String reason) {
-        List<AccessPass> allAccessPasses = accessPassRepository.findAllByReferenceIDOrderByValidToDesc(referenceId);
+    public AccessPass suspend(String referenceId, String reason) throws UpdateAccessPassException {
 
-        Optional<AccessPass> firstAccessPass = allAccessPasses.stream()
-                .filter(ap -> AccessPassStatus.APPROVED.toString().equals(ap.getStatus()))
-                .findFirst();
-
-        AccessPass accessPass = firstAccessPass.orElse(null);
-        if (accessPass == null) {
-            log.warn("Attempting to suspend a non-approved access pass. Failing. You are only allowed to suspend an approved pass.");
-            return null;
-        }
-
-        accessPass.setStatus(AccessPassStatus.SUSPENDED.toString());
-        accessPass.setUpdates(reason);
-        accessPassRepository.saveAndFlush(accessPass);
+        AccessPass accessPass = this.updateStatus(referenceId, AccessPassStatus.SUSPENDED, reason);
 
         RapidPass rapidPass = RapidPass.buildFrom(accessPass);
 
-        if (isKafaEnabled)
+        if (isKafkaEnabled)
             eventProducer.sendMessage(rapidPass.getReferenceId(), rapidPass);
 
         return accessPass;
@@ -647,7 +699,7 @@ public class RegistryService {
             StandardDataBindingValidation validation = new StandardDataBindingValidation(validator);
             validation.validate(request);
 
-            if (isKafaEnabled) {
+            if (isKafkaEnabled) {
                 String key = request.getPassType() == PassType.INDIVIDUAL ? request.getMobileNumber() :
                         request.getPlateNumber();
                 requestProducer.sendMessage(key, request);
@@ -730,7 +782,7 @@ public class RegistryService {
 
 
                     latestPendingAccessPass.setValidFrom(now);
-                    latestPendingAccessPass.setValidTo(getExpirationDate());
+                    latestPendingAccessPass.setValidTo(getDefaultExpirationDate());
 
                     latestPendingAccessPass.setSource("BULK");
                     latestPendingAccessPass.setStatus(AccessPassStatus.APPROVED.name());
@@ -819,7 +871,7 @@ public class RegistryService {
      * Updates the access passes' <code>valid_to</code> property with the default expiration date.
      *
      * @param accessPass
-     * @see #getExpirationDate()
+     * @see #getDefaultExpirationDate()
      */
     @Transactional
     private void updateAccessPassValidityToDefault(AccessPass accessPass, Principal principal) {
@@ -827,7 +879,7 @@ public class RegistryService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         accessPass.setIssuedBy(KeycloakUtils.getPreferredUsername(principal));
-        accessPass.setValidTo(getExpirationDate());
+        accessPass.setValidTo(getDefaultExpirationDate());
 
         accessPassRepository.saveAndFlush(accessPass);
     }
@@ -899,7 +951,18 @@ public class RegistryService {
         return controlCodeResponse;
     }
 
-    private OffsetDateTime getExpirationDate() {
+    /**
+     * <p>See the following application config properties:</p>
+     *
+     * <code>
+     *     rapidpass.expiration.year
+     *     rapidpass.expiration.month
+     *     rapidpass.expiration.day
+     * </code>
+     *
+     * @return The default expiration date, specified by application config properties.
+     */
+    private OffsetDateTime getDefaultExpirationDate() {
         return OffsetDateTime.of(expirationYear, expirationMonth, expirationDay, 23,
                 59, 59, 999, ZoneOffset.ofHours(8));
     }
