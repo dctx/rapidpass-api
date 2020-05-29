@@ -16,6 +16,7 @@ package ph.devcon.rapidpass.services;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.api.models.KeyEntry;
 import ph.devcon.rapidpass.api.models.RevocationLog;
@@ -46,6 +47,9 @@ public class CheckpointServiceImpl implements ICheckpointService {
     private final ControlCodeService controlCodeService;
 
     private final CheckpointConfig checkpointConfig;
+
+    @Value("${endpointswitch.checkpoint.validateImeiDeviceId:true}")
+    private Boolean shouldValidateImeiDeviceId;
 
     @Override
     public AccessPass retrieveAccessPassByPlateNo(String plateNo) {
@@ -113,6 +117,7 @@ public class CheckpointServiceImpl implements ICheckpointService {
      */
     @Override
     public boolean validateByUniqueDeviceId(String masterKey, String deviceId) {
+        if (!shouldValidateImeiDeviceId) return true;
 
         boolean masterKeyCorrect = checkpointConfig.getKeyEntry(masterKey) != null;
 
@@ -123,6 +128,8 @@ public class CheckpointServiceImpl implements ICheckpointService {
 
     @Override
     public boolean validateByImei(String masterKey, String imei) {
+        if (!shouldValidateImeiDeviceId) return true;
+
         boolean masterKeyCorrect = checkpointConfig.getKeyEntry(masterKey) != null;
 
         boolean imeiExists = scannerDeviceRepository.findByImei(imei) != null;
