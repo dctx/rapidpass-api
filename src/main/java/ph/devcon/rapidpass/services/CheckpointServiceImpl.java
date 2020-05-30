@@ -157,6 +157,12 @@ public class CheckpointServiceImpl implements ICheckpointService {
 
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Retrieves revoked access passes via JDBC.
+     *
+     * @param since seconds since epoch
+     * @return list of revoked access passes
+     */
     @Override
     public List<Map<String, Object>> retrieveRevokedAccessPassesJdbc(Integer since) {
         if (since == null) since = 0;
@@ -167,7 +173,7 @@ public class CheckpointServiceImpl implements ICheckpointService {
                         "where status = 'SUSPENDED'\n" +
                         "and date_time_updated > ?",
                 OffsetDateTime.ofInstant(Instant.ofEpochSecond(since), ZoneId.systemDefault()));
-        System.out.println("revokedAccessPasses = " + revokedAccessPasses);
+
         // convert all id's into control codes
         return revokedAccessPasses.stream()
                 .map(row -> ImmutableMap.<String, Object>of(
