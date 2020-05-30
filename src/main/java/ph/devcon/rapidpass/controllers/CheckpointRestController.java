@@ -188,15 +188,13 @@ public class CheckpointRestController {
     @PostMapping("/register")
     public ResponseEntity<?> registerNewDevice(@RequestBody CheckpointRegisterRequest authRequest) {
 
-        // TODO: Disabled for walk through with PNP
         // Validates that the master key is correct
+        boolean isValidImei = this.checkpointService.validateByImei(authRequest.getMasterKey(), authRequest.getImei());
 
-//        boolean isValidImei = this.checkpointService.validateByImei(authRequest.getMasterKey(), authRequest.getImei());
-//
-//        boolean isValidDeviceId = this.checkpointService.validateByUniqueDeviceId(authRequest.getMasterKey(), authRequest.getDeviceId());
-//
-//        if (!isValidDeviceId && !isValidImei)
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        boolean isValidDeviceId = this.checkpointService.validateByUniqueDeviceId(authRequest.getMasterKey(), authRequest.getDeviceId());
+
+        if (!isValidDeviceId && !isValidImei)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         boolean isValidMasterKey = this.checkpointService.validateByMasterKey(authRequest.getMasterKey());
 

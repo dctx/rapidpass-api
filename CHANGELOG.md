@@ -6,23 +6,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.6] - 2020-05-28
+### Added
+- [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.6.alpha.1` - Designated APOR types with 
+    Multi City as their destination is now configured automatically based on database rather than constant values.
+
 ## [2.0.5] - 2020-05-26
 ### Added
+- [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.5.alpha.5` - Designated APOR types with 
+    Multi City as their destination is now configured automatically based on database rather than constant values.
 - [#476](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/476) `2.0.5.alpha.3` - Added `validFrom` when  
     retrieving access pass status.
 - [#487](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/487) `2.0.5.alpha.4` - Added validation for updating 
     an Access Pass: checks whether APOR code is invalid.
 - [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) `2.0.5.alpha.5` - Added support for editing the
     mobile number of a RapidPass.
+- [#502](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/502) `2.0.5.alpha.6` - Added toggling of IMEI or 
+    Device ID validation for scanner device registration endpoint.
+    
 
 ### Fixed
-- [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) `2.0.5.alpha.2` - Devices will register using
+- [#499](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/499) - Devices will register using
     deviceID, not their IMEI. Also, validates using IMEI or device ID, not IMEI only.
-- [#497](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/497) `2.0.5.alpha.1` - Fixed issuers might not be 
+- [#497](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/497) - Fixed issuers might not be 
     recorded.
-- [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) `2.0.5.alpha.1` - Fixed revocation operation 
+- [#496](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/496) - Fixed revocation operation 
     does not modify last updated time (which is required by the checkpoint app).
     
+### Changed
+- [#486](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/486) `2.0.5.alpha.6` - Changed error message when
+    concurrency issue is encountered on bulk upload.
+      
 ## [2.0.4] - 2020-05-23
 ### Fixed
 - [#482](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/482) - Added database migrations

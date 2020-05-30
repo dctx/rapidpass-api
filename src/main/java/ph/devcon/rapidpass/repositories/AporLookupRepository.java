@@ -25,4 +25,5 @@ import java.util.List;
 public interface AporLookupRepository extends JpaRepository<AporLookup, String>, JpaSpecificationExecutor<AporLookup> {
     List<AporLookup> findAll();
     List<AporLookup> findByAporCode(String aporcode);
+    List<AporLookup> findByMultiDestination(Boolean isMultiCity);
 }
