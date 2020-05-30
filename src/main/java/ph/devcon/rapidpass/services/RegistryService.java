@@ -34,11 +34,13 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ph.devcon.rapidpass.api.models.ControlCodeResponse;
 import ph.devcon.rapidpass.api.models.RapidPassUpdateRequest;
-import ph.devcon.rapidpass.entities.*;
+import ph.devcon.rapidpass.entities.AccessPass;
+import ph.devcon.rapidpass.entities.AccessPassEvent;
+import ph.devcon.rapidpass.entities.ControlCode;
+import ph.devcon.rapidpass.entities.Registrant;
 import ph.devcon.rapidpass.enums.AccessPassStatus;
 import ph.devcon.rapidpass.enums.PassType;
 import ph.devcon.rapidpass.enums.RecordSource;
-import ph.devcon.rapidpass.enums.RegistrarUserSource;
 import ph.devcon.rapidpass.kafka.RapidPassEventProducer;
 import ph.devcon.rapidpass.kafka.RapidPassRequestProducer;
 import ph.devcon.rapidpass.models.*;
@@ -50,7 +52,6 @@ import ph.devcon.rapidpass.utilities.validators.ReadableValidationException;
 import ph.devcon.rapidpass.utilities.validators.StandardDataBindingValidation;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.BatchAccessPassRequestValidator;
 import ph.devcon.rapidpass.utilities.validators.entities.accesspass.NewSingleAccessPassRequestValidator;
-import ph.devcon.rapidpass.utilities.validators.entities.agencyuser.BatchAgencyUserRequestValidator;
 
 import javax.validation.constraints.NotEmpty;
 import java.security.Principal;
@@ -886,37 +887,6 @@ public class RegistryService {
         accessPass.setValidTo(getDefaultExpirationDate());
 
         accessPassRepository.saveAndFlush(accessPass);
-    }
-
-    public List<String> batchUploadApprovers(List<AgencyUser> agencyUsers) {
-        log.info("Processing batch registration of approvers.");
-        List<String> result = new ArrayList<String>();
-
-        // Validation
-        BatchAgencyUserRequestValidator newAccessPassRequestValidator = new BatchAgencyUserRequestValidator(this.registrarUserRepository, this.registrarRepository);
-
-        int counter = 1;
-        for (AgencyUser agencyUser : agencyUsers) {
-            try {
-
-                agencyUser.setUsername(StringUtils.trim(agencyUser.getUsername()));
-                agencyUser.setFirstName(StringUtils.trim(agencyUser.getFirstName()));
-                agencyUser.setLastName(StringUtils.trim(agencyUser.getLastName()));
-
-                agencyUser.setSource(RegistrarUserSource.BULK.name());
-                StandardDataBindingValidation validation = new StandardDataBindingValidation(newAccessPassRequestValidator);
-                validation.validate(agencyUser);
-
-//                RegistrarUser registrarUser = this.authService.createAgencyCredentials(agencyUser);
-//                FIXME
-                RegistrarUser registrarUser = null;
-
-                result.add("Record " + counter++ + ": Success. ");
-            } catch (ReadableValidationException e) {
-                result.add("Record " + counter++ + ": Failed. " + e.getMessage());
-            } 
-        }
-        return result;
     }
 
     /**
