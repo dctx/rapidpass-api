@@ -45,9 +45,9 @@ class CheckpointServiceImplIT {
 
         // setup data source
         final HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setUsername("postgres");
-        hikariConfig.setPassword("Dctx@2020");
-        hikariConfig.setJdbcUrl("jdbc:postgresql://rapidpassdb01.koreacentral.cloudapp.azure.com:5432/rapidpassdb_dev");
+        hikariConfig.setUsername("test");
+        hikariConfig.setPassword("test");
+        hikariConfig.setJdbcUrl("db_url");
         DataSource ds = new HikariDataSource(hikariConfig);
 
         instance = new CheckpointServiceImpl(mockAccessPassRepository,
