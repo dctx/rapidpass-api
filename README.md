@@ -1,21 +1,29 @@
 rapidpass-api
 -------------
 
-For details about this project please visit https://gitlab.com/dctx/rapidpass-api/-/wikis/About-this-project
+For details about the project, please visit our [wiki](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/wikis/home).
 
-## Prerequisite
+## Prerequisites
+
+1. **Apache Maven** `version 3.6.3` 
+2. **Java** `version 1.8.0_65`
+3. **Docker** `version 19.03.8`
 
 
 ## Running the Application via Docker
 
-To build the from source, run this, only needed now since we have external dependencies not on a maven repo:
+#### Docker build
+
+To build the RapidPass API from source, needed now since we have external dependencies not on a maven repo:
 
 ```
 ./mvnw package
 docker-compose build
 ```
 
-Running the application via docker:
+#### Run using docker
+
+To run the application via docker:
 
 ```
 # download latest
@@ -35,46 +43,33 @@ docker-compose stop
 docker-compose start
 ```
 
+### Keycloak
 
-**To setup Keycloak locally:**
+#### Setup Keycloak locally
 
-1. Login to http://localhost:8180/auth `admin/admin`.
-1. Import local realm. `Add Realm` -> `Import` -> Select file `keycloak/realm-export.json`
+1. Access your local keycloak instance `http://localhost:8180/auth`.
+2. Log in with default username and password: `admin` and `admin`.
+3. Import the local backup of the realm. Click `Add Realm`.
+4. Click `Import` and select file `src/resources/keycloak/realm-export.json`.
+5. Create a new user in the `rapidpass` realm with username `scanner-registrar@rapidpass.ph` and password 
+    `scanner-registrar@rapidpass.ph`. This will be used by the API server to create a new scanner device 
+    in Keycloak.
 
 This sets up the following:
-* `rapidpass-api-local` realm
-* `rapidpass-api` client 
-*  user `user/user` that has `approver` role.
+* `rapidpass` realm
+* `rapidpass-dashboard` client (for the dashboard application)
+* `rapidpass-api` client (for the API server)
 
-
-**To authenticate locally:**
-1. `POST` to keycloak login with user/password
-    ```
-    curl --request POST \
-      --url 'http://localhost:8180/auth/realms/rapidpass-api-local/protocol/openid-connect/token' \
-      --header 'content-type: application/x-www-form-urlencoded' \
-      --data client_id=rapidpass-api \
-      --data username=user \
-      --data password=user \
-      --data grant_type=password \
-      --data client_secret=22f20434-39cd-4e39-9620-99f99a6b0334 
-    ```
-1. extract token from response `access_token`
-1. send token to endpoint as `Authorization Bearer` header
-    ```
-    curl --request GET \
-      --url http://localhost:8080/api/v1/registry/access-passes \
-      --header 'authorization: Bearer {access_token}' 
-    ```
+For more details related on authentication, check our 
+[wiki on authentication](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/wikis/guide/Authentication). 
 
 To cleanup:
-
 ```
 docker-compose down
 ```
 
-The OpenAPI spec can be accessed via: [http://localhost:9999](http://localhost:9999)
-The API doc can be accessed via [http://localhost:8080/api/v1](http://localhost:8080/api/v1)
+The OpenAPI spec can be accessed via: [http://localhost:9999](http://localhost:9999).
+The API doc can be accessed via [http://localhost:8080/api/v1](http://localhost:8080/api/v1).
 
 ## Running the Application via Maven
 
@@ -87,9 +82,9 @@ docker-compose up -d db
 ## run the application
 ./mvnw spring-boot:run
 ```
-The API doc can be accessed via [http://localhost:8080](http://localhost:8080)
+The API doc can be accessed via [http://localhost:8080](http://localhost:8080).
 
-Note: this requires postgres now as some SQL statements are no longer supported by postgres
+Note: this requires postgres now as some SQL statements are no longer supported by postgres.
 
 ## Packaging Application
 
