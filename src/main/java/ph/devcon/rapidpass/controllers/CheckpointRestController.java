@@ -31,6 +31,7 @@ import ph.devcon.rapidpass.keycloak.KeycloakService;
 import ph.devcon.rapidpass.services.ICheckpointService;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
+import javax.ws.rs.NotAuthorizedException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -219,8 +220,13 @@ public class CheckpointRestController {
 
         log.info("Attempting to register keycloak user for device {}", authRequest.getDeviceId());
 
-        if (this.keycloakService.userExists(authRequest.getDeviceId())) {
-            this.keycloakService.unregisterUser(authRequest.getDeviceId());
+        try {
+
+            if (this.keycloakService.userExists(authRequest.getDeviceId())) {
+                this.keycloakService.unregisterUser(authRequest.getDeviceId());
+            }
+        } catch (NotAuthorizedException e) {
+            throw new NotAuthorizedException("The server failed to authenticate to Keycloak, and could not create a new scanner device user.");
         }
 
         this.keycloakService.createUser(authRequest.getDeviceId(), authRequest.getPassword());

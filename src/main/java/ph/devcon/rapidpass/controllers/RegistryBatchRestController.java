@@ -27,12 +27,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ph.devcon.rapidpass.exceptions.CsvColumnMappingMismatchException;
-import ph.devcon.rapidpass.models.AgencyUser;
 import ph.devcon.rapidpass.models.RapidPassCSVdata;
 import ph.devcon.rapidpass.models.RapidPassEventLog;
 import ph.devcon.rapidpass.services.LookupService;
 import ph.devcon.rapidpass.services.RegistryService;
-import ph.devcon.rapidpass.utilities.csv.ApproverRegistrationCsvProcessor;
 import ph.devcon.rapidpass.utilities.csv.SubjectRegistrationCsvProcessor;
 
 import javax.validation.Valid;
@@ -120,13 +118,5 @@ public class RegistryBatchRestController {
         }
     }
 
-    @PostMapping("/approvers")
-    public List<String> batchRegisterApprovers(@RequestParam("file") MultipartFile csvFile) throws IOException, CsvColumnMappingMismatchException, CsvRequiredFieldEmptyException {
-        ApproverRegistrationCsvProcessor processor = new ApproverRegistrationCsvProcessor();
-
-        List<AgencyUser> agencyUsers = processor.process(csvFile);
-
-        return this.registryService.batchUploadApprovers(agencyUsers);
-    }
 }
 
