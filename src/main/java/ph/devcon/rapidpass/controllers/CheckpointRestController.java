@@ -34,10 +34,12 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 
 /**
- *  Checkpoint API Rest Controller
+ * Checkpoint API Rest Controller
  */
 @RestController
 @Slf4j
@@ -72,9 +74,8 @@ public class CheckpointRestController {
                 return ResponseEntity.ok(ph.devcon.rapidpass.models.RapidPass.buildFrom(accessPass));
             }
             return ResponseEntity.notFound().build();
-        }
-        catch (Exception e) {
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
@@ -90,7 +91,7 @@ public class CheckpointRestController {
             return ResponseEntity.notFound().build();
 
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
@@ -98,6 +99,13 @@ public class CheckpointRestController {
     @GetMapping("/revocations")
     public ResponseEntity<RevocationLogResponse> getRevokedRapidPasses(@RequestParam(required = false) Integer since) {
         RevocationLogResponse response = checkpointService.retrieveRevokedAccessPasses(since);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/revocations2")
+    public ResponseEntity<List<Map<String, Object>>> getRevokedRapidPassesJdbc(@RequestParam(required = false) Integer since) {
+        final List<Map<String, Object>> response = checkpointService.retrieveRevokedAccessPassesJdbc(since);
         return ResponseEntity.ok(response);
     }
 
@@ -152,6 +160,7 @@ public class CheckpointRestController {
 
     /**
      * Will be replaced in favor of {@link #registerNewDevice(CheckpointRegisterRequest)}.
+     *
      * @deprecated
      */
     @PostMapping("/auth")

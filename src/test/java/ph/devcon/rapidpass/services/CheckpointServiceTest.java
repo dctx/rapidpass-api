@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ph.devcon.rapidpass.api.models.RevocationLogResponse;
 import ph.devcon.rapidpass.config.CheckpointConfig;
 import ph.devcon.rapidpass.entities.AccessPass;
@@ -40,8 +41,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CheckpointServiceTest
-{
+public class CheckpointServiceTest {
     @Mock
     private ICheckpointService checkpointService;
 
@@ -57,21 +57,23 @@ public class CheckpointServiceTest
     @Mock
     private CheckpointConfig checkpointConfig;
 
+    @Mock
+    private JdbcTemplate mockJdbcTemplate;
+
     @BeforeEach
     void initializeMocks() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig, mockJdbcTemplate);
     }
-    
-//    @Test
-    public void TestRetrieveAccessPassByQrCode()
-    {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig);
+
+    //    @Test
+    public void TestRetrieveAccessPassByQrCode() {
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig, mockJdbcTemplate);
 
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         String controlCode = "12345A";
         accessPassEntity.setControlCode(controlCode);
-    
+
         // WHEN
         when(controlCodeService.findAccessPassByControlCode(any()))
                 .thenReturn(accessPassEntity);
@@ -79,24 +81,23 @@ public class CheckpointServiceTest
                 .thenReturn(accessPassEntity);
 
 
-
         // THEN
         AccessPass accessPass = controlCodeService.findAccessPassByControlCode(controlCode);
         assertNotNull(accessPass);
         // check the data elements needed by the UX
-    
-        
-        assertEquals(accessPassEntity.getIdentifierNumber(),accessPass.getIdentifierNumber(),"Plate or ID");
-        assertEquals(accessPassEntity.getAporType(),accessPass.getAporType(),"APOR Type");
-        assertEquals(controlCode,accessPass.getControlCode(),"Control Code");
-        assertEquals(accessPassEntity.getIssuedBy(),accessPass.getIssuedBy(),"Approved By");
-        assertEquals(accessPassEntity.getValidTo(),accessPass.getValidTo(),"Valid Until");
-        assertEquals(accessPassEntity.getReferenceID(),accessPass.getReferenceID(),"Reference ID");
+
+
+        assertEquals(accessPassEntity.getIdentifierNumber(), accessPass.getIdentifierNumber(), "Plate or ID");
+        assertEquals(accessPassEntity.getAporType(), accessPass.getAporType(), "APOR Type");
+        assertEquals(controlCode, accessPass.getControlCode(), "Control Code");
+        assertEquals(accessPassEntity.getIssuedBy(), accessPass.getIssuedBy(), "Approved By");
+        assertEquals(accessPassEntity.getValidTo(), accessPass.getValidTo(), "Valid Until");
+        assertEquals(accessPassEntity.getReferenceID(), accessPass.getReferenceID(), "Reference ID");
     }
 
-//    @Test
+    //    @Test
     public void TestRetrieveAccessPassByPlateNumber() {
-        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig);
+        checkpointService = new CheckpointServiceImpl(accessPassRepository, scannerDeviceRepository, controlCodeService, checkpointConfig, mockJdbcTemplate);
         // GIVEN
         AccessPass accessPassEntity = createAccessPassEntity();
         accessPassEntity.setPassType(PassType.VEHICLE.toString());
