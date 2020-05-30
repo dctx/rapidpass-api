@@ -20,6 +20,7 @@ import ph.devcon.rapidpass.entities.AccessPass;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ICheckpointService
 {
@@ -33,4 +34,6 @@ public interface ICheckpointService
     boolean validateByImei(String masterKey, String imei);
     List<KeyEntry> getAllKeys();
     KeyEntry getLatestKeys();
+
+    List<Map<String, Object>> retrieveRevokedAccessPassesJdbc(Integer since);
 }

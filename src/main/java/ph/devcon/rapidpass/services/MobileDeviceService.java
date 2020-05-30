@@ -45,7 +45,8 @@ public class MobileDeviceService {
     public static MobileDevice mapToMobileDevice(ScannerDevice scannerDevice) {
         MobileDevice mobileDevice = new MobileDevice();
 
-        mobileDevice = mobileDevice.brand(scannerDevice.getBrand())
+        mobileDevice = mobileDevice
+                .brand(scannerDevice.getBrand())
                 .id(scannerDevice.getUniqueDeviceId())
                 .imei(scannerDevice.getImei())
                 .mobileNumber(scannerDevice.getMobileNumber())

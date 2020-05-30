@@ -14,9 +14,12 @@
 
 package ph.devcon.rapidpass.services;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.api.models.KeyEntry;
 import ph.devcon.rapidpass.api.models.RevocationLog;
@@ -32,15 +35,19 @@ import ph.devcon.rapidpass.repositories.AccessPassRepository;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import ph.devcon.rapidpass.services.controlcode.ControlCodeService;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CheckpointServiceImpl implements ICheckpointService {
     private final AccessPassRepository accessPassRepository;
     private final ScannerDeviceRepository scannerDeviceRepository;
@@ -59,8 +66,7 @@ public class CheckpointServiceImpl implements ICheckpointService {
     }
 
     @Override
-    public AccessPass retrieveAccessPassByQrCode(String qrCode)
-    {
+    public AccessPass retrieveAccessPassByQrCode(String qrCode) {
         return null;
     }
 
@@ -74,34 +80,34 @@ public class CheckpointServiceImpl implements ICheckpointService {
         return scannerDevice;
     }
 
+
     @Override
     public RevocationLogResponse retrieveRevokedAccessPasses(Integer since) {
-
+        log.debug("Retrieving revoked access passes since {}", since);
         List<AccessPass> revokeList;
 
         if (since == null) {
             revokeList = accessPassRepository.findAllByStatus(AccessPassStatus.SUSPENDED.name());
         } else {
             Instant instant = Instant.ofEpochSecond(since);
-            revokeList = accessPassRepository.findAllByStatusAndDateTimeUpdatedAfter(AccessPassStatus.SUSPENDED.name(), OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()));
+            revokeList = accessPassRepository.findAllByStatusAndDateTimeUpdatedAfter(
+                    AccessPassStatus.SUSPENDED.name(),
+                    OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()));
         }
-
-        // Ensure revoke list has control codes
-        revokeList = revokeList.stream()
-                .map(controlCodeService::bindControlCodeForAccessPass)
-                .collect(Collectors.toList());
 
         RevocationLogResponse revocationLogResponse = new RevocationLogResponse();
 
         List<InternalRevocationEvent> events = revokeList.stream()
+                .map(controlCodeService::bindControlCodeForAccessPass)         // Ensure revoke list has control codes
                 .map(InternalRevocationEvent::buildFrom)
-                .collect(Collectors.toList());
+                .collect(toList());
 
-        RevocationLog log = new RevocationLog();
-        log.addAll(events);
+        RevocationLog revocationLog = new RevocationLog();
+        revocationLog.addAll(events);
 
-        revocationLogResponse.setData(log);
+        log.debug("found {} passes", events.size());
 
+        revocationLogResponse.setData(revocationLog);
         return revocationLogResponse;
     }
 
@@ -154,5 +160,35 @@ public class CheckpointServiceImpl implements ICheckpointService {
                 .filter(key -> OffsetDateTime.parse(key.getValidTo()).isAfter(OffsetDateTime.now()))
                 .min(Comparator.comparing(o -> OffsetDateTime.parse(o.getValidTo())))
                 .orElse(null);
+    }
+
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Retrieves revoked access passes via JDBC.
+     *
+     * @param since seconds since epoch
+     * @return list of revoked access passes
+     */
+    @Override
+    public List<Map<String, Object>> retrieveRevokedAccessPassesJdbc(Integer since) {
+        if (since == null) since = 0;
+
+        // using bare SQL instead of JPA for performance concerns
+        final List<Map<String, Object>> revokedAccessPasses = jdbcTemplate.queryForList(
+                "SELECT id, date_time_updated\n" +
+                        "FROM access_pass\n" +
+                        "where status = 'SUSPENDED'\n" +
+                        "and date_time_updated > ?",
+                OffsetDateTime.ofInstant(Instant.ofEpochSecond(since), ZoneId.systemDefault()));
+
+        // convert all id's into control codes
+        return revokedAccessPasses.stream()
+                .map(row -> ImmutableMap.<String, Object>of(
+                        "controlCode", controlCodeService.encode((Integer) row.get("id")),
+                        "timestamp", ((Timestamp) row.get("date_time_updated")).toInstant().getEpochSecond(),
+                        "eventType", "RapidPassRevoked"
+                ))
+                .collect(toList());
     }
 }
