@@ -54,6 +54,10 @@ docker-compose start
 5. Create a new user in the `rapidpass` realm with username `scanner-registrar@rapidpass.ph` and password 
     `scanner-registrar@rapidpass.ph`. This will be used by the API server to create a new scanner device 
     in Keycloak.
+6. View that newly created user and go to `Role Mappings`.
+7. Select `Client Roles` and select `realm-management`.
+8. Select `manage-users` and add selected. It should now show up on the `Effective Roles` list. This allows 
+    `scanner-registrar@rapidpass.ph` to create new users. 
 
 This sets up the following:
 * `rapidpass` realm
