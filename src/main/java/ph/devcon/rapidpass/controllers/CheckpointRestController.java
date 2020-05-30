@@ -14,6 +14,7 @@
 
 package ph.devcon.rapidpass.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,17 +97,30 @@ public class CheckpointRestController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-    @GetMapping("/revocations")
+    /**
+     * Deprecated. Use {@link #getRevokedRapidPassesJdbc(Integer)} instead.
+     *
+     * @param since
+     * @return
+     */
+    @GetMapping("/revocations_old")
+    @Deprecated
     public ResponseEntity<RevocationLogResponse> getRevokedRapidPasses(@RequestParam(required = false) Integer since) {
         RevocationLogResponse response = checkpointService.retrieveRevokedAccessPasses(since);
         return ResponseEntity.ok(response);
     }
 
 
-    @GetMapping("/revocations2")
-    public ResponseEntity<List<Map<String, Object>>> getRevokedRapidPassesJdbc(@RequestParam(required = false) Integer since) {
+    /**
+     * Gets a list of revoked access passes since seconds from epock
+     *
+     * @param since seconds from epocj
+     * @return 200 JSON with list of revoked access passes
+     */
+    @GetMapping("/revocations")
+    public ResponseEntity<?> getRevokedRapidPassesJdbc(@RequestParam(required = false) Integer since) {
         final List<Map<String, Object>> response = checkpointService.retrieveRevokedAccessPassesJdbc(since);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ImmutableMap.of("data", response));
     }
 
     @GetMapping("/update")

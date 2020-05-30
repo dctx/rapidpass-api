@@ -18,8 +18,8 @@ import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.api.models.KeyEntry;
 import ph.devcon.rapidpass.api.models.RevocationLog;
@@ -174,6 +174,7 @@ public class CheckpointServiceImpl implements ICheckpointService {
     public List<Map<String, Object>> retrieveRevokedAccessPassesJdbc(Integer since) {
         if (since == null) since = 0;
 
+        // using bare SQL instead of JPA for performance concerns
         final List<Map<String, Object>> revokedAccessPasses = jdbcTemplate.queryForList(
                 "SELECT id, date_time_updated\n" +
                         "FROM access_pass\n" +
