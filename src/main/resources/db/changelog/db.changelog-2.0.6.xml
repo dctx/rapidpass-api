@@ -22,12 +22,6 @@
                 tableName="apor_type_approver_lookup"/>
         <dropTable
                 schemaName="public"
-                tableName="case_1_deletions"/>
-        <dropTable
-                schemaName="public"
-                tableName="case_2_deletions"/>
-        <dropTable
-                schemaName="public"
                 tableName="city"/>
         <dropTable
                 schemaName="public"
