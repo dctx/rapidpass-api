@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 - broken/missing `rapidpass-openapi` specs
+- Fixed downloading a PDF with incorrect control code because of a period.
 
 ## [2.0.7] - 2020-05-30
 ### Changed

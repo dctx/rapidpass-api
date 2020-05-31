@@ -201,6 +201,8 @@ public class RegistryRestController {
      */
     @GetMapping("/qr-codes/{controlCode}")
     public HttpEntity<byte[]> downloadRapidPassPdf(@PathVariable String controlCode) throws IOException, WriterException, ParseException {
+        // Removes the dot
+        controlCode = controlCode.replace(".", "");
         log.debug("Processing /qr-codes/{}", controlCode);
         ByteArrayOutputStream bos = (ByteArrayOutputStream) qrPdfService.generateQrPdf(controlCode);
         final byte[] responseBody = bos.toByteArray();
