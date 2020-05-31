@@ -104,7 +104,7 @@ public class RegistryRestController {
         return ResponseEntity.ok().body(rapidPass);
     }
 
-    @GetMapping("/access-passes/{referenceId}/status")
+    @GetMapping("/access-passes/status/{referenceId}")
     ResponseEntity<?> getAccessPassStatus(@PathVariable String referenceId) throws AccessPassNotFoundException {
         AccessPass accessPass = registryService.findByNonUniqueReferenceId(referenceId);
 

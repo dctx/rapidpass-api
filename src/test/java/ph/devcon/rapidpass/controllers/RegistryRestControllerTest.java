@@ -47,7 +47,9 @@ import ph.devcon.rapidpass.services.RegistryService;
 import java.io.ByteArrayOutputStream;
 import java.security.Principal;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -57,7 +59,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ph.devcon.rapidpass.enums.PassType.INDIVIDUAL;
 import static ph.devcon.rapidpass.enums.PassType.VEHICLE;
 
@@ -349,7 +352,7 @@ class RegistryRestControllerTest {
         when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
                 .thenReturn(TEST_VEHICLE_ACCESS_PASS);
 
-        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}/status";
+        final String getAccessPathUrlTemplate = "/registry/access-passes/status/{referenceID}";
 
         mockMvc.perform(
                 get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
@@ -373,7 +376,7 @@ class RegistryRestControllerTest {
         when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID())))
                 .thenReturn(TEST_INDIVIDUAL_ACCESS_PASS);
 
-        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}/status";
+        final String getAccessPathUrlTemplate = "/registry/access-passes/status/{referenceID}";
 
         mockMvc.perform(
                 get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
@@ -424,7 +427,7 @@ class RegistryRestControllerTest {
         when(mockRegistryService.findByNonUniqueReferenceId(eq(TEST_VEHICLE_ACCESS_PASS.getReferenceID())))
                 .thenReturn(null);
 
-        final String getAccessPathUrlTemplate = "/registry/access-passes/{referenceID}/status";
+        final String getAccessPathUrlTemplate = "/registry/access-passes/status/{referenceID}";
 
         mockMvc.perform(
                 get(getAccessPathUrlTemplate, TEST_INDIVIDUAL_ACCESS_PASS.getReferenceID()).header(API_KEY_HEADER, API_KEY_VALUE))
