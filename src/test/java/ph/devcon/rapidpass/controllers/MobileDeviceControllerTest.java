@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ph.devcon.rapidpass.api.models.MobileDevice;
+import ph.devcon.rapidpass.models.MobileDevicesPageView;
 import ph.devcon.rapidpass.services.MobileDeviceService;
 
 import java.util.Collections;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Unit Tests for {@link MobileDeviceController}
  *
- * @author j-espelita@ti.com
+ * @author jonasespelita@gmail.com
  */
 @WebMvcTest(controllers = MobileDeviceController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -56,13 +57,19 @@ class MobileDeviceControllerTest {
     @Test
     void getScannerDevices() throws Exception {
         when(mockMobileDeviceService.getMobileDevices(any()))
-                .thenReturn(Collections.singletonList(new MobileDevice().imei("TEST")));
+                .thenReturn(MobileDevicesPageView.builder()
+                        .currentPage(0)
+                        .currentPageRows(100)
+                        .data(Collections.singletonList(new MobileDevice().imei("TEST")))
+                        .build());
 
         mockMvc.perform(get("/registry/scanner-devices"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].imei").value("TEST"));
+                .andExpect(jsonPath("$.currentPage").value(0))
+                .andExpect(jsonPath("$.currentPageRows").value(100))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].imei").value("TEST"));
     }
 
 

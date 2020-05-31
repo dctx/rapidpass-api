@@ -17,19 +17,22 @@ package ph.devcon.rapidpass.services;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ph.devcon.rapidpass.api.controllers.NotFoundException;
 import ph.devcon.rapidpass.api.models.MobileDevice;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.models.MobileDevicesPageView;
 import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 
 import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static ph.devcon.rapidpass.repositories.ScannerDeviceRepository.ScannerDeviceSpecs.*;
 
 /**
@@ -67,18 +70,36 @@ public class MobileDeviceService {
      * Searches for all devices that matches filter.
      *
      * @param mobileDeviceFilter filter with optional parameters
-     * @return list of all scanner devices matching filter
+     * @return page of all scanner devices matching filter
      */
-    public List<MobileDevice> getMobileDevices(MobileDeviceFilter mobileDeviceFilter) {
-        return scannerDeviceRepository.findAll(
+    public MobileDevicesPageView getMobileDevices(MobileDeviceFilter mobileDeviceFilter) {
+
+        // retrieve paged scanner devices
+        //noinspection ConstantConditions
+        final Page<ScannerDevice> scannerDevicePage = scannerDeviceRepository.findAll(
                 byBrand(mobileDeviceFilter.getBrand())
                         .and(byMobileNumber(mobileDeviceFilter.getMobileNumber()))
                         .and(byModel(mobileDeviceFilter.getModel()))
                         .and(byIMEI(mobileDeviceFilter.getImei()))
-                        .and(byDeviceId(mobileDeviceFilter.getDeviceId())))
-                .stream()
-                .map(MobileDeviceService::mapToMobileDevice)
-                .collect(Collectors.toList());
+                        .and(byDeviceId(mobileDeviceFilter.getDeviceId())),
+                PageRequest.of(
+                        mobileDeviceFilter.pageNum,
+                        mobileDeviceFilter.pageSize,
+                        Sort.by("dateTimeUpdated").ascending()));
+
+        return MobileDevicesPageView.builder().
+                currentPage(mobileDeviceFilter.pageNum)
+                .currentPageRows(scannerDevicePage.getNumberOfElements())
+                .totalPages(scannerDevicePage.getTotalPages())
+                .totalRows(scannerDevicePage.getTotalElements())
+                .hasNext(scannerDevicePage.hasNext())
+                .hasPrevious(scannerDevicePage.hasPrevious())
+                .isFirstPage(scannerDevicePage.isFirst())
+                .isLastPage(scannerDevicePage.isLast())
+                .data(scannerDevicePage.stream()
+                        .map(MobileDeviceService::mapToMobileDevice)
+                        .collect(toList()))
+                .build();
     }
 
     /**
@@ -164,6 +185,12 @@ public class MobileDeviceService {
         private String model;
         private String brand;
         private String mobileNumber;
+
+        // pagination filters
+        @Builder.Default
+        private int pageNum = 0;
+        @Builder.Default
+        private int pageSize = 30;
     }
 
 }

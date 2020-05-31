@@ -16,6 +16,7 @@ package ph.devcon.rapidpass.controllers;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ph.devcon.rapidpass.api.controllers.NotFoundException;
@@ -34,6 +35,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/registry")
 @RequiredArgsConstructor
+@Slf4j
 public class MobileDeviceController {
 
     private final MobileDeviceService mobileDeviceService;
@@ -45,6 +47,8 @@ public class MobileDeviceController {
      * @param brand        filter for brand = %{brand}%
      * @param mobileNumber filter for mobileNumber = %{mobileNumber}%
      * @param model        filter for model = %{model}%
+     * @param pageSize     filter for page size. defaults to 15
+     * @param pageNum      filter for page number. defaults to 0 (first page)
      * @return 200 list of access passes matching given filters
      */
     @GetMapping("/scanner-devices")
@@ -52,15 +56,20 @@ public class MobileDeviceController {
             @RequestParam(value = "id", required = false) String id,
             @RequestParam(value = "brand", required = false) String brand,
             @RequestParam(value = "mobile_number", required = false) String mobileNumber,
-            @RequestParam(value = "model", required = false) String model) {
+            @RequestParam(value = "model", required = false) String model,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "15") int pageSize,
+            @RequestParam(value = "pageNum", required = false, defaultValue = "0")int pageNum) {
         final MobileDeviceService.MobileDeviceFilter filter =
                 MobileDeviceService.MobileDeviceFilter.builder()
                         .deviceId(id)
                         .brand(brand)
                         .mobileNumber(mobileNumber)
                         .model(model)
+                        .pageSize(pageSize)
+                        .pageNum(pageNum)
                         .build();
 
+        log.debug("GET scanner-devices {}", filter);
         return ResponseEntity.ok(mobileDeviceService.getMobileDevices(filter));
     }
 

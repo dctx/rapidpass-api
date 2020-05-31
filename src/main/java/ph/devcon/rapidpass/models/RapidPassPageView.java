@@ -14,30 +14,32 @@
 
 package ph.devcon.rapidpass.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 /**
  * Represents to view that the user sees when browsing through a list of rapid pass
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RapidPassPageView {
+public class RapidPassPageView extends AbstractPageView {
 
-    private int currentPage;
-    private int currentPageRows;
-    private int totalPages;
-    private long totalRows;
-    private boolean isFirstPage;
-    private boolean isLastPage;
-    private boolean hasNext;
-    private boolean hasPrevious;
+    @SuppressWarnings("unused")
+    @Builder
+    public RapidPassPageView(int currentPage,
+                             int currentPageRows,
+                             int totalPages,
+                             long totalRows,
+                             boolean isFirstPage,
+                             boolean isLastPage,
+                             boolean hasNext,
+                             boolean hasPrevious,
+                             List<RapidPass> rapidPassList) {
+        super(currentPage, currentPageRows, totalPages, totalRows, isFirstPage, isLastPage, hasNext, hasPrevious);
+        this.rapidPassList = rapidPassList;
+    }
+
     private List<RapidPass> rapidPassList;
 
 }
