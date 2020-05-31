@@ -59,7 +59,7 @@ public class MobileDeviceService {
         if (scannerDevice.getDateTimeCreated() != null)
             mobileDevice.setCreatedAt(scannerDevice.getDateTimeCreated().format(DateTimeFormatter.ISO_INSTANT));
 
-        if (scannerDevice.getDateTimeCreated() != null)
+        if (scannerDevice.getDateTimeUpdated() != null)
             mobileDevice.setUpdatedAt(scannerDevice.getDateTimeUpdated().format(DateTimeFormatter.ISO_INSTANT));
 
         return mobileDevice;
