@@ -13,13 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `imei`, `pageSize` and `pageNum` parameters now available for `GET registry/scanner-devices` endpoint
 - [#513](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/513) `2.1.0.alpha.1` Changed URL resource path for 
     getting the status of an access pass to `GET /registry/access-passes/status/{referenceId}`. 
+- [#510](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/510) `2.1.0.alpha.2` Increased `status` column for  
+    `scanner_device` database table, to support more characters (250).
 
 ## Fixed
 - broken/missing `rapidpass-openapi` specs
 
 ## [2.0.7] - 2020-05-30
 ### Changed
-- [#500](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/500) Improved performance for `GET /checkpoint/revocations` due to checkpoint timeout issues
+- [#500](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/500) Improved performance for 
+    `GET /checkpoint/revocations` due to checkpoint timeout issues.
 
 ### Fixed
 - [#509](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/509) `2.0.7.alpha.2` Fixed inaccessible get status 
@@ -32,15 +35,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.5] - 2020-05-26
 ### Added
-- [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.5.alpha.5` - Designated APOR types with 
+- [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) - Designated APOR types with 
     Multi City as their destination is now configured automatically based on database rather than constant values.
-- [#476](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/476) `2.0.5.alpha.3` - Added `validFrom` when  
+- [#476](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/476) - Added `validFrom` when  
     retrieving access pass status.
-- [#487](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/487) `2.0.5.alpha.4` - Added validation for updating 
+- [#487](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/487) - Added validation for updating 
     an Access Pass: checks whether APOR code is invalid.
-- [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) `2.0.5.alpha.5` - Added support for editing the
+- [#485](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/485) - Added support for editing the
     mobile number of a RapidPass.
-- [#502](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/502) `2.0.5.alpha.6` - Added toggling of IMEI or 
+- [#502](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/502) - Added toggling of IMEI or 
     Device ID validation for scanner device registration endpoint.
     
 
@@ -53,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     does not modify last updated time (which is required by the checkpoint app).
     
 ### Changed
-- [#486](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/486) `2.0.5.alpha.6` - Changed error message when
+- [#486](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/486) - Changed error message when
     concurrency issue is encountered on bulk upload.
       
 ## [2.0.4] - 2020-05-23
