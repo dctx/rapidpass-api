@@ -682,7 +682,7 @@ paths:
             Will generate a control code in system and send notifications to
             Requestor along with QR code.
 
-  /registry/access-passes/{referenceID}/status:
+  /registry/access-passes/status/{referenceID}:
     get:
       operationId: getAccessPassStatusById
       tags:

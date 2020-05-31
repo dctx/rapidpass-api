@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - `imei`, `pageSize` and `pageNum` parameters now available for `GET registry/scanner-devices` endpoint
+- [#513](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/513) `2.1.0.alpha.1` Changed URL resource path for 
+    getting the status of an access pass to `GET /registry/access-passes/status/{referenceId}`. 
 
 ## Fixed
 - broken/missing `rapidpass-openapi` specs

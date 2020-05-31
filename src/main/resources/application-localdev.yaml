@@ -121,6 +121,7 @@ keycloak: # override me in env vars!
       patterns[1]: /registry/qr-codes/*
       patterns[2]: /checkpoint/auth
       patterns[3]: /checkpoint/register
+      patterns[4]: /registry/access-passes/status/*
   securityConstraints[1]:
     authRoles[0]: user
     authRoles[1]: approver
