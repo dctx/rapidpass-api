@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#508](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/508) implemented pagination for `registry/scanner-devices`
 
 ## Changed
-- `pageSize` and `pageNum` parameters now available for `GET registry/scanner-devices` endpoint
+- `imei`, `pageSize` and `pageNum` parameters now available for `GET registry/scanner-devices` endpoint
 
 ## Fixed
 - broken/missing `rapidpass-openapi` specs

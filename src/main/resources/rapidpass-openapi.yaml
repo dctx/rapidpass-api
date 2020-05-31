@@ -983,7 +983,13 @@ paths:
           schema:
             type: string
           required: false
-          description: filter for `id`
+          description: filter for device `id`
+        - name: imei
+          in: query
+          schema:
+            type: string
+          required: false
+          description: filter for device `imei`
         - name: brand
           in: query
           schema:

@@ -44,6 +44,7 @@ public class MobileDeviceController {
      * Gets scanner devices with optional filters
      *
      * @param id           filter for id = %{id}%
+     * @param imei         filter for imei = %{imei}%
      * @param brand        filter for brand = %{brand}%
      * @param mobileNumber filter for mobileNumber = %{mobileNumber}%
      * @param model        filter for model = %{model}%
@@ -54,6 +55,7 @@ public class MobileDeviceController {
     @GetMapping("/scanner-devices")
     public ResponseEntity<?> getMobileDevices(
             @RequestParam(value = "id", required = false) String id,
+            @RequestParam(value = "imei", required = false) String imei,
             @RequestParam(value = "brand", required = false) String brand,
             @RequestParam(value = "mobile_number", required = false) String mobileNumber,
             @RequestParam(value = "model", required = false) String model,
@@ -62,6 +64,7 @@ public class MobileDeviceController {
         final MobileDeviceService.MobileDeviceFilter filter =
                 MobileDeviceService.MobileDeviceFilter.builder()
                         .deviceId(id)
+                        .imei(imei)
                         .brand(brand)
                         .mobileNumber(mobileNumber)
                         .model(model)
