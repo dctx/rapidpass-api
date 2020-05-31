@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ph.devcon.rapidpass.api.controllers.NotFoundException;
 import ph.devcon.rapidpass.api.models.MobileDevice;
 import ph.devcon.rapidpass.entities.ScannerDevice;
+import ph.devcon.rapidpass.models.MobileDevicesPageView;
 import ph.devcon.rapidpass.services.MobileDeviceService.MobileDeviceFilter;
 
 import java.util.List;
@@ -68,6 +69,31 @@ class MobileDeviceServiceIT {
     JdbcTemplate jdbcTemplate;
 
     @Test
+    void getPagedMobileDevices() {
+        // create test data
+        mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test1234").id("deviceId1234"));
+        mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test1235").id("deviceId1235"));
+        mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test1236").id("deviceId1236"));
+
+        try {
+            final MobileDevicesPageView mobileDevicesPage =
+                    mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().pageSize(1).build());
+            System.out.println("mobileDevicesPage = " + mobileDevicesPage);
+            assertThat(mobileDevicesPage.getData(), is(not(empty())));
+            assertThat(mobileDevicesPage.getCurrentPage(), is(0));
+            assertThat(mobileDevicesPage.getTotalPages(), is(3));
+            assertThat(mobileDevicesPage.getCurrentPageRows(), is(1));
+            assertThat(mobileDevicesPage.getTotalRows(), is(3L));
+        } finally {
+            mobileDeviceService.removeMobileDevice("test1234");
+            mobileDeviceService.removeMobileDevice("test1235");
+            mobileDeviceService.removeMobileDevice("test1236");
+        }
+
+
+    }
+
+    @Test
     void registerGetScannerDevice() {
         // create device
         mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test123").id("deviceId123"));
@@ -90,15 +116,15 @@ class MobileDeviceServiceIT {
         mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test123").id("deviceId123"));
 
         // verify created
-        List<MobileDevice> test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().deviceId("deviceId123").build());
-        assertThat(test123, is(not(empty())));
+        MobileDevicesPageView test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().deviceId("deviceId123").build());
+        assertThat(test123.getData(), is(not(empty())));
 
         // do remove
         mobileDeviceService.removeMobileDevice("deviceId123");
 
         // verify deleted
         test123 = mobileDeviceService.getMobileDevices(MobileDeviceFilter.builder().deviceId("deviceId123").build());
-        assertThat(test123, is((empty())));
+        assertThat(test123.getData(), is((empty())));
     }
 
     @Test
@@ -113,16 +139,16 @@ class MobileDeviceServiceIT {
 
         // Verify created
         MobileDeviceFilter mobileDeviceFilter = MobileDeviceFilter.builder().deviceId(SAMPLE_DEVICE_ID).build();
-        List<MobileDevice> matchedDevice = mobileDeviceService.getMobileDevices(mobileDeviceFilter);
-        assertThat(matchedDevice, is(not(empty())));
+        MobileDevicesPageView matchedDevice = mobileDeviceService.getMobileDevices(mobileDeviceFilter);
+        assertThat(matchedDevice.getData(), is(not(empty())));
 
         try {
 
             // do update on the sample model
             MobileDevice updateMobileDevicePayload = new MobileDevice()
-                .id(SAMPLE_DEVICE_ID)
-                .imei(SAMPLE_IMEI)
-                .model(SAMPLE_MODEL);
+                    .id(SAMPLE_DEVICE_ID)
+                    .imei(SAMPLE_IMEI)
+                    .model(SAMPLE_MODEL);
             mobileDeviceService.updateMobileDevice(updateMobileDevicePayload);
 
             // verify updated
