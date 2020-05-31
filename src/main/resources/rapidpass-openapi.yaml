@@ -1020,7 +1020,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MobileDevice'
+                type: object
+                properties:
+                  currentPage:
+                    type: number
+                  currentPageRows:
+                    type: number
+                  totalPages:
+                    type: number
+                  totalRows:
+                    type: number
+                  hasNext:
+                    type: boolean
+                  lastPage:
+                    type: boolean
+                  firstPage:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/MobileDevice'
   '/registry/scanner-devices/{id}':
     delete:
       tags:

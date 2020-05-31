@@ -14,7 +14,6 @@ import ph.devcon.rapidpass.entities.ScannerDevice;
 import ph.devcon.rapidpass.models.MobileDevicesPageView;
 import ph.devcon.rapidpass.services.MobileDeviceService.MobileDeviceFilter;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
