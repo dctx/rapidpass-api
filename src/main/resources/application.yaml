@@ -149,6 +149,7 @@ keycloak: # override me in env vars!
       patterns[1]: /registry/qr-codes/*
       patterns[2]: /checkpoint/auth
       patterns[3]: /checkpoint/register
+      patterns[4]: /registry/access-passes/*/status
   # The following security constraints detail the secured endpoints.
   #   To be able to access any of the secured endpoints on the API server, you must have any of the following realm
   #   roles: user, approver, inspector.

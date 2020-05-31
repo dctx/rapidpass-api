@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [#500](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/500) Improved performance for `GET /checkpoint/revocations` due to checkpoint timeout issues
 
+### Fixed
+- [#509](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/509) `2.0.7.alpha.2` Fixed inaccessible get status 
+    endpoint.
+
 ## [2.0.6] - 2020-05-28
 ### Added
 - [#492](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/492) `2.0.6.alpha.1` - Designated APOR types with 
