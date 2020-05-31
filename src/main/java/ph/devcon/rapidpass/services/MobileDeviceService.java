@@ -17,6 +17,8 @@ package ph.devcon.rapidpass.services;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,6 +32,7 @@ import ph.devcon.rapidpass.repositories.ScannerDeviceRepository;
 import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -42,6 +45,7 @@ import static ph.devcon.rapidpass.repositories.ScannerDeviceRepository.ScannerDe
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MobileDeviceService {
     private final ScannerDeviceRepository scannerDeviceRepository;
 
@@ -109,12 +113,17 @@ public class MobileDeviceService {
      * @return the registered device
      */
     public MobileDevice registerMobileDevice(@Valid MobileDevice device) {
+        try {
+            ScannerDevice scannerDevice = ScannerDevice.buildFrom(device);
 
-        ScannerDevice scannerDevice = ScannerDevice.buildFrom(device);
+            scannerDevice = scannerDeviceRepository.saveAndFlush(scannerDevice);
 
-        scannerDevice = scannerDeviceRepository.saveAndFlush(scannerDevice);
-
-        return MobileDeviceService.mapToMobileDevice(scannerDevice);
+            return MobileDeviceService.mapToMobileDevice(scannerDevice);
+        } catch (Exception e) {
+            if (e instanceof DataIntegrityViolationException)
+                throw new IllegalArgumentException("This scanner device already exists.");
+            throw e;
+        }
     }
 
     /**
@@ -145,33 +154,46 @@ public class MobileDeviceService {
         ScannerDevice device = scannerDeviceRepository.findByUniqueDeviceId(deviceId);
         if (device != null) return Optional.of(device);
 
-        return Optional.ofNullable(scannerDeviceRepository.findByImei(imei));
+        List<ScannerDevice> scannerDevicesWithImei = scannerDeviceRepository.findByImei(imei);
+
+        if (scannerDevicesWithImei.size() > 1) {
+            log.error("Found multiple scanner devices (" + scannerDevicesWithImei.size() + ") with the same IMEI: " + imei);
+            throw new IllegalArgumentException("A database error occurred. Expected exactly one device with the IMEI: " + imei);
+        }
+
+        return Optional.ofNullable(scannerDevicesWithImei.get(0));
     }
 
     /**
      * Updates a scanner device. Finds a device with unique device id and updates its attributes.
      *
+     *
+     * @param uniqueDeviceId
      * @param mobileDevice update to device
      * @return updated scanner device
      */
-    public MobileDevice updateMobileDevice(@Valid MobileDevice mobileDevice) throws NotFoundException {
-        Optional<ScannerDevice> scannerDevice = findScannerDevice(mobileDevice.getId(), mobileDevice.getImei());
+    public MobileDevice updateMobileDevice(String uniqueDeviceId, @Valid MobileDevice mobileDevice) throws NotFoundException {
+        try {
+            Optional<ScannerDevice> scannerDevice = findScannerDevice(uniqueDeviceId, mobileDevice.getImei());
 
-        // Can potentially be an upsert
-        ScannerDevice device = scannerDevice.orElse(ScannerDevice.buildFrom(mobileDevice));
-        if (scannerDevice.isPresent()) {
-            device.setImei(mobileDevice.getImei());
-            device.setModel(mobileDevice.getModel());
-            device.setBrand(mobileDevice.getBrand());
-            device.setStatus(mobileDevice.getStatus());
-            device.setMobileNumber(mobileDevice.getMobileNumber());
-            device.setUniqueDeviceId(mobileDevice.getId());
-            device.setDateTimeUpdated(OffsetDateTime.now());
+            // Can potentially be an upsert
+            ScannerDevice device = scannerDevice.orElse(ScannerDevice.buildFrom(mobileDevice));
+            if (scannerDevice.isPresent()) {
+                device.setImei(mobileDevice.getImei());
+                device.setModel(mobileDevice.getModel());
+                device.setBrand(mobileDevice.getBrand());
+                device.setStatus(mobileDevice.getStatus());
+                device.setMobileNumber(mobileDevice.getMobileNumber());
+                device.setUniqueDeviceId(mobileDevice.getId());
+                device.setDateTimeUpdated(OffsetDateTime.now());
+            }
+
+            ScannerDevice updatedScannerDevice = scannerDeviceRepository.saveAndFlush(device);
+
+            return MobileDeviceService.mapToMobileDevice(updatedScannerDevice);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("This scanner device already exists.");
         }
-
-        ScannerDevice updatedScannerDevice = scannerDeviceRepository.saveAndFlush(device);
-
-        return MobileDeviceService.mapToMobileDevice(updatedScannerDevice);
     }
 
     /**

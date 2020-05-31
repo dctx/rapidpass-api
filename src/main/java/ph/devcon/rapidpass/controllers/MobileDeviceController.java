@@ -84,8 +84,8 @@ public class MobileDeviceController {
      */
     @PostMapping("/scanner-devices")
     public ResponseEntity<?> postScannerDevices(@RequestBody MobileDevice newDevice) {
-        final MobileDevice registeredDevice = mobileDeviceService.registerMobileDevice(newDevice);
-        return ResponseEntity.created(URI.create(String.valueOf(registeredDevice.getImei()))).build();
+            final MobileDevice registeredDevice = mobileDeviceService.registerMobileDevice(newDevice);
+            return ResponseEntity.created(URI.create(String.valueOf(registeredDevice.getImei()))).build();
     }
 
     /**
@@ -111,7 +111,7 @@ public class MobileDeviceController {
         try {
             Optional<ScannerDevice> scannerDevice = mobileDeviceService.findScannerDevice(uniqueDeviceId, uniqueDeviceId);
             if (scannerDevice.isPresent()) {
-                MobileDevice device = mobileDeviceService.updateMobileDevice(mobileDevice);
+                MobileDevice device = mobileDeviceService.updateMobileDevice(uniqueDeviceId, mobileDevice);
                 return ResponseEntity.ok(device);
             }
             return ResponseEntity.notFound().build();

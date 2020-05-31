@@ -2,6 +2,7 @@ package ph.devcon.rapidpass.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -68,7 +69,7 @@ class MobileDeviceServiceIT {
     JdbcTemplate jdbcTemplate;
 
     @Test
-    void getPagedMobileDevices() {
+    void getPagedMobileDevices() throws PSQLException {
         // create test data
         mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test1234").id("deviceId1234"));
         mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test1235").id("deviceId1235"));
@@ -93,7 +94,7 @@ class MobileDeviceServiceIT {
     }
 
     @Test
-    void registerGetScannerDevice() {
+    void registerGetScannerDevice() throws PSQLException {
         // create device
         mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test123").id("deviceId123"));
 
@@ -110,7 +111,7 @@ class MobileDeviceServiceIT {
     }
 
     @Test
-    void removeScannerDevice() {
+    void removeScannerDevice() throws PSQLException {
         // create device
         mobileDeviceService.registerMobileDevice(new MobileDevice().imei("test123").id("deviceId123"));
 
@@ -127,7 +128,7 @@ class MobileDeviceServiceIT {
     }
 
     @Test
-    void updateScannerDevice() {
+    void updateScannerDevice() throws PSQLException {
 
         String SAMPLE_DEVICE_ID = "SAMPLE_DEVICE_ID";
         String SAMPLE_IMEI = "SAMEPLE_IMEI_FFFFFFFFFF";
@@ -148,7 +149,7 @@ class MobileDeviceServiceIT {
                     .id(SAMPLE_DEVICE_ID)
                     .imei(SAMPLE_IMEI)
                     .model(SAMPLE_MODEL);
-            mobileDeviceService.updateMobileDevice(updateMobileDevicePayload);
+            mobileDeviceService.updateMobileDevice(SAMPLE_DEVICE_ID, updateMobileDevicePayload);
 
             // verify updated
             Optional<ScannerDevice> scannerDevice = mobileDeviceService.findScannerDevice(SAMPLE_DEVICE_ID, SAMPLE_DEVICE_ID);

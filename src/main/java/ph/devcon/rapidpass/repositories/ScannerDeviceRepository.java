@@ -20,6 +20,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ph.devcon.rapidpass.entities.ScannerDevice;
 
+import javax.persistence.criteria.Expression;
 import java.util.List;
 
 public interface ScannerDeviceRepository extends
@@ -32,13 +33,18 @@ public interface ScannerDeviceRepository extends
 
     ScannerDevice findByUniqueDeviceId(String deviceId);
 
-    ScannerDevice findByImei(String imei);
+    List<ScannerDevice> findByImei(String imei);
 
     class ScannerDeviceSpecs {
         public static Specification<ScannerDevice> byBrand(String brand) {
-            return (root, query, criteriaBuilder) ->
-                    StringUtils.isEmpty(brand) ? null :
-                            criteriaBuilder.like(root.get("brand").as(String.class), "%" + brand + "%");
+
+            return (root, query, criteriaBuilder) -> {
+                if (StringUtils.isEmpty(brand)) return null;
+
+                Expression<String> lowerBrand = criteriaBuilder.function("lower", String.class, root.get("brand"));
+
+                return criteriaBuilder.like(lowerBrand, "%" + StringUtils.lowerCase(brand) + "%");
+            };
         }
 
         public static Specification<ScannerDevice> byMobileNumber(String mobileNumber) {
@@ -48,21 +54,33 @@ public interface ScannerDeviceRepository extends
         }
 
         public static Specification<ScannerDevice> byModel(String model) {
-            return (root, query, criteriaBuilder) ->
-                    StringUtils.isEmpty(model) ? null :
-                            criteriaBuilder.like(root.get("model").as(String.class), "%" + model + "%");
+            return (root, query, criteriaBuilder) -> {
+                    if (StringUtils.isEmpty(model)) return null;
+
+                    Expression<String> lowerBrand = criteriaBuilder.function("lower", String.class, root.get("model"));
+
+                    return criteriaBuilder.like(lowerBrand, "%" + StringUtils.lowerCase(model) + "%");
+                };
         }
 
         public static Specification<ScannerDevice> byIMEI(String imei) {
-            return (root, query, criteriaBuilder) ->
-                    StringUtils.isEmpty(imei) ? null :
-                            criteriaBuilder.like(root.get("imei").as(String.class), "%" + imei + "%");
+            return (root, query, criteriaBuilder) -> {
+                if (StringUtils.isEmpty(imei)) return null;
+
+                Expression<String> lowerBrand = criteriaBuilder.function("lower", String.class, root.get("imei"));
+
+                return criteriaBuilder.like(lowerBrand, "%" + StringUtils.lowerCase(imei) + "%");
+            };
         }
 
         public static Specification<ScannerDevice> byDeviceId(String deviceId) {
-            return (root, query, criteriaBuilder) ->
-                    StringUtils.isEmpty(deviceId) ? null :
-                            criteriaBuilder.like(root.get("uniqueDeviceId").as(String.class), "%" + deviceId + "%");
+            return (root, query, criteriaBuilder) -> {
+                if (StringUtils.isEmpty(deviceId)) return null;
+
+                Expression<String> lowerBrand = criteriaBuilder.function("lower", String.class, root.get("uniqueDeviceId"));
+
+                return criteriaBuilder.like(lowerBrand, "%" + StringUtils.lowerCase(deviceId) + "%");
+            };
         }
     }
 }

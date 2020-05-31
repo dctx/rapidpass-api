@@ -15,10 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     getting the status of an access pass to `GET /registry/access-passes/status/{referenceId}`. 
 - [#510](https://gitlab.com/dctx/rapidpass/rapidpass-api/-/issues/510) `2.1.0.alpha.2` Increased `status` column for  
     `scanner_device` database table, to support more characters (250).
+- Search for mobile devices to support case insensitive search.
 
 ## Fixed
 - broken/missing `rapidpass-openapi` specs
 - Fixed downloading a PDF with incorrect control code because of a period.
+- Fixed error message when attempting to create a new scanner device with an existing device ID.
 
 ## [2.0.7] - 2020-05-30
 ### Changed
