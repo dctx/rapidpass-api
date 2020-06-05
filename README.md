@@ -8,7 +8,7 @@ For details about the project, please visit our [wiki](https://gitlab.com/dctx/r
 1. **Apache Maven** `version 3.6.3+` 
 2. **Java** `version 1.8.0_65+`
 3. **Docker** `version 19.03.8+`
-4. **Postman** `version 7.25.0`
+4. **Postman** `version 7+`
 5. **pgAdmin** `version 4+`
 
 
